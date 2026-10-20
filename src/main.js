@@ -10,6 +10,7 @@ import { textureManager } from './textureManager.js';
 import { GhostPreview } from './ghostPreview.js';
 import { AIBot } from './aiBot.js';
 import { BossManager } from './bossManager.js';
+import { i18n, t, setLanguage, getCurrentLanguage } from './i18n.js';
 
 class GameApp {
   constructor() {
@@ -114,20 +115,78 @@ class GameApp {
     // 3D Layer Controls — replaced by D-Pad; kept for backward compat reference only
     this.layerControlsEl = document.getElementById('layer-controls');
 
+    // Apply Initial Translations
+    i18n.applyToDOM();
+
     // Action Buttons
-    document.getElementById('btn-new-game').addEventListener('click', () => {
-      this.startNewGame(false);
+    const newGameBtn = document.getElementById('btn-new-game');
+    if (newGameBtn) {
+      newGameBtn.addEventListener('click', () => {
+        this.startNewGame(false);
+      });
+    }
+
+    const resetCamBtn = document.getElementById('btn-reset-camera');
+    if (resetCamBtn) {
+      resetCamBtn.addEventListener('click', () => {
+        this.sceneManager.resetCamera();
+      });
+    }
+
+    // Settings Modal
+    const settingsModal = document.getElementById('settings-modal');
+    const settingsToggleBtn = document.getElementById('btn-settings-toggle');
+    const settingsCloseBtn = document.getElementById('btn-close-settings');
+
+    if (settingsToggleBtn && settingsModal) {
+      settingsToggleBtn.addEventListener('click', () => {
+        settingsModal.style.display = 'flex';
+        requestAnimationFrame(() => settingsModal.classList.add('active'));
+      });
+    }
+
+    const closeSettings = () => {
+      if (!settingsModal) return;
+      settingsModal.classList.remove('active');
+      setTimeout(() => {
+        settingsModal.style.display = 'none';
+      }, 220);
+    };
+
+    if (settingsCloseBtn) {
+      settingsCloseBtn.addEventListener('click', closeSettings);
+    }
+    if (settingsModal) {
+      settingsModal.addEventListener('click', (e) => {
+        if (e.target === settingsModal) closeSettings();
+      });
+    }
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && settingsModal && settingsModal.classList.contains('active')) {
+        closeSettings();
+      }
     });
 
-    document.getElementById('btn-reset-camera').addEventListener('click', () => {
-      this.sceneManager.resetCamera();
+    // Language Selector
+    const langSelect = document.getElementById('select-lang');
+    if (langSelect) {
+      langSelect.value = getCurrentLanguage();
+      langSelect.addEventListener('change', (e) => {
+        setLanguage(e.target.value);
+        this.updateDynamicLanguageTexts();
+      });
+    }
+
+    window.addEventListener('languageChanged', () => {
+      this.updateDynamicLanguageTexts();
     });
 
     const muteBtn = document.getElementById('btn-sound-toggle');
     if (muteBtn) {
+      const sfxLabel = document.getElementById('label-sfx');
       muteBtn.addEventListener('click', () => {
         const isMuted = soundManager.toggleMute();
-        muteBtn.textContent = isMuted ? '🔇 Tắt' : '🔊 SFX';
+        if (sfxLabel) sfxLabel.textContent = isMuted ? t('btn_sfx_off') : t('btn_sfx');
         muteBtn.classList.toggle('muted', isMuted);
       });
     }
@@ -135,8 +194,9 @@ class GameApp {
     const bgmBtn = document.getElementById('btn-bgm-toggle');
     if (bgmBtn) {
       const savedBgm = localStorage.getItem('3d2048_bgm') === 'true';
+      const bgmLabel = document.getElementById('label-bgm');
       if (savedBgm) {
-        bgmBtn.textContent = '🎵 Bật';
+        if (bgmLabel) bgmLabel.textContent = t('btn_bgm_on');
         bgmBtn.classList.add('active');
         const startOnUserAction = () => {
           soundManager.startBGM();
@@ -147,10 +207,10 @@ class GameApp {
 
       bgmBtn.addEventListener('click', () => {
         const isPlaying = soundManager.toggleBGM();
-        bgmBtn.textContent = isPlaying ? '🎵 Bật' : '🎵 Tắt';
+        if (bgmLabel) bgmLabel.textContent = isPlaying ? t('btn_bgm_on') : t('btn_bgm_off');
         bgmBtn.classList.toggle('active', isPlaying);
         localStorage.setItem('3d2048_bgm', isPlaying ? 'true' : 'false');
-        this.showSpellToast(isPlaying ? '🎵 Nhạc nền Lofi: BẬT' : '🔇 Nhạc nền Lofi: TẮT');
+        this.showSpellToast(isPlaying ? `🎵 ${t('btn_bgm')}: ON` : `🔇 ${t('btn_bgm')}: OFF`);
         this.registerInteraction();
       });
     }
@@ -200,14 +260,14 @@ class GameApp {
       aiBtn.addEventListener('click', () => {
         const isRunning = this.aiBot.toggle();
         aiBtn.classList.toggle('active', isRunning);
-        aiBtn.textContent = isRunning ? '⏸️ Dừng AI' : '🤖 AI Tự Chơi';
+        aiBtn.innerHTML = `<span class="btn-icon">${isRunning ? '⏸️' : '🤖'}</span><span class="btn-text">${isRunning ? t('btn_ai_active') : t('btn_ai')}</span>`;
         if (aiStatusBadge) aiStatusBadge.style.display = isRunning ? 'inline-flex' : 'none';
-        this.showSpellToast(isRunning ? '🤖 AI AUTO-PLAY: ĐANG TỰ ĐỘNG CHƠI...' : '⏸️ AI AUTO-PLAY: ĐÃ TẠM DỪNG');
+        this.showSpellToast(isRunning ? t('toast_ai_start') : t('toast_ai_stop'));
         this.registerInteraction();
       });
       this.aiBot.onStatusChange = (running) => {
         aiBtn.classList.toggle('active', running);
-        aiBtn.textContent = running ? '⏸️ Dừng AI' : '🤖 AI Tự Chơi';
+        aiBtn.innerHTML = `<span class="btn-icon">${running ? '⏸️' : '🤖'}</span><span class="btn-text">${running ? t('btn_ai_active') : t('btn_ai')}</span>`;
         if (aiStatusBadge) aiStatusBadge.style.display = running ? 'inline-flex' : 'none';
       };
     }
@@ -514,7 +574,7 @@ class GameApp {
     this.gameLogic.setRushMode(this.isRushMode);
 
     if (this.rushToggleBtn) {
-      this.rushToggleBtn.textContent = this.isRushMode ? '⚡ Rush: BẬT' : '⚡ Rush: TẮT';
+      this.rushToggleBtn.innerHTML = `<span class="btn-icon">⚡</span><span class="btn-text">${t('btn_rush')}${this.isRushMode ? ': ON' : ''}</span>`;
       this.rushToggleBtn.classList.toggle('active', this.isRushMode);
     }
 
@@ -532,7 +592,7 @@ class GameApp {
     const debugBossBtn = document.getElementById('btn-debug-boss-p3');
     if (bossBtn) {
       bossBtn.classList.toggle('active', this.isBossRaid);
-      bossBtn.textContent = this.isBossRaid ? '⚡ Boss Mode: BẬT' : '⚡ Boss Mode';
+      bossBtn.innerHTML = `<span class="btn-icon">⚔️</span><span class="btn-text">${this.isBossRaid ? t('btn_boss_active') : t('btn_boss')}</span>`;
     }
     if (debugBossBtn) {
       debugBossBtn.style.display = this.isBossRaid ? 'inline-flex' : 'none';
@@ -543,6 +603,31 @@ class GameApp {
       this.bossManager.stopRaid();
     }
     this.registerInteraction();
+  }
+
+  updateDynamicLanguageTexts() {
+    const bossBtn = document.getElementById('btn-toggle-boss');
+    if (bossBtn) {
+      bossBtn.innerHTML = `<span class="btn-icon">⚔️</span><span class="btn-text">${this.isBossRaid ? t('btn_boss_active') : t('btn_boss')}</span>`;
+    }
+    const aiBtn = document.getElementById('btn-ai-toggle');
+    if (aiBtn) {
+      const isRunning = this.aiBot && this.aiBot.isRunning;
+      aiBtn.innerHTML = `<span class="btn-icon">${isRunning ? '⏸️' : '🤖'}</span><span class="btn-text">${isRunning ? t('btn_ai_active') : t('btn_ai')}</span>`;
+    }
+    const muteBtn = document.getElementById('btn-sound-toggle');
+    if (muteBtn) {
+      const sfxLabel = document.getElementById('label-sfx');
+      if (sfxLabel) sfxLabel.textContent = soundManager.muted ? t('btn_sfx_off') : t('btn_sfx');
+    }
+    const bgmBtn = document.getElementById('btn-bgm-toggle');
+    if (bgmBtn) {
+      const bgmLabel = document.getElementById('label-bgm');
+      if (bgmLabel) bgmLabel.textContent = soundManager.bgmPlaying ? t('btn_bgm_on') : t('btn_bgm_off');
+    }
+    if (this.rushToggleBtn) {
+      this.rushToggleBtn.innerHTML = `<span class="btn-icon">⚡</span><span class="btn-text">${t('btn_rush')}${this.isRushMode ? ': ON' : ''}</span>`;
+    }
   }
 
   spawnSpecificTile(l, r, c, value) {
@@ -1099,10 +1184,10 @@ class GameApp {
       soundManager.playWin();
       this.saveGameState();
       this.showModal({
-        title: '🎉 CHIẾN THẮNG!',
-        message: 'Tuyệt vời! Bạn đã mở khóa được khối 2048 danh giá.',
-        primaryText: 'Tiếp tục chinh phục',
-        secondaryText: 'Chơi ván mới',
+        title: `🎉 ${t('modal_victory_title')}`,
+        message: t('modal_victory_msg'),
+        primaryText: t('modal_btn_continue'),
+        secondaryText: t('modal_btn_new_game'),
         onPrimary: () => {
           this.gameLogic.keepPlaying = true;
           this.hideModal();
@@ -1120,9 +1205,9 @@ class GameApp {
       soundManager.playGameOver();
       this.clearSavedGameState();
       this.showModal({
-        title: '💀 HẾT NƯỚC ĐI!',
-        message: `Bàn cờ đã đầy và không còn nước gộp khả dụng.\nĐiểm số: ${this.gameLogic.score}`,
-        primaryText: 'Thử lại ngay',
+        title: `💀 ${t('modal_gameover_title')}`,
+        message: `${t('modal_gameover_msg')}\n${t('score')}: ${this.gameLogic.score}`,
+        primaryText: t('modal_btn_new_game'),
         secondaryText: null,
         onPrimary: () => {
           this.startNewGame();

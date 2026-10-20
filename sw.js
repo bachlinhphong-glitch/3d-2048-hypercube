@@ -1,4 +1,4 @@
-const CACHE_NAME = 'v3.5-2048-hypercube';
+const CACHE_NAME = 'v4.0-2048-hypercube';
 const CACHE_URLS = [
   '.',
   './index.html',
@@ -17,6 +17,7 @@ const CACHE_URLS = [
   './src/ghostPreview.js',
   './src/aiBot.js',
   './src/bossManager.js',
+  './src/i18n.js',
   './libs/three.module.js',
   './libs/gsap.module.js',
   './libs/controls/OrbitControls.js',

@@ -13,7 +13,15 @@ const sharedGeos = {
   octahedronEdges: null,
   sphere: null,
   torus: null,
-  bombRing: null
+  bombRing: null,
+  hexCylinder: null,
+  hexEdges: null,
+  cone: null,
+  coneEdges: null,
+  dodecahedron: null,
+  dodecahedronEdges: null,
+  plasmaTorus: null,
+  plasmaOuterRing: null
 };
 
 function getSharedRoundedBox(size, height) {
@@ -54,6 +62,38 @@ function getSharedBombRing() {
   return sharedGeos.bombRing;
 }
 
+function getSharedHexCylinder() {
+  if (!sharedGeos.hexCylinder) {
+    sharedGeos.hexCylinder = new THREE.CylinderGeometry(1.0, 1.0, 1.0, 6);
+    sharedGeos.hexEdges = new THREE.EdgesGeometry(sharedGeos.hexCylinder);
+  }
+  return { geo: sharedGeos.hexCylinder, edges: sharedGeos.hexEdges };
+}
+
+function getSharedCone() {
+  if (!sharedGeos.cone) {
+    sharedGeos.cone = new THREE.ConeGeometry(1.0, 1.3, 4);
+    sharedGeos.coneEdges = new THREE.EdgesGeometry(sharedGeos.cone);
+  }
+  return { geo: sharedGeos.cone, edges: sharedGeos.coneEdges };
+}
+
+function getSharedDodecahedron() {
+  if (!sharedGeos.dodecahedron) {
+    sharedGeos.dodecahedron = new THREE.DodecahedronGeometry(1.0, 0);
+    sharedGeos.dodecahedronEdges = new THREE.EdgesGeometry(sharedGeos.dodecahedron);
+  }
+  return { geo: sharedGeos.dodecahedron, edges: sharedGeos.dodecahedronEdges };
+}
+
+function getSharedPlasmaTorus() {
+  if (!sharedGeos.plasmaTorus) {
+    sharedGeos.plasmaTorus = new THREE.TorusGeometry(1.0, 0.32, 12, 32);
+    sharedGeos.plasmaOuterRing = new THREE.TorusGeometry(1.28, 0.045, 8, 24);
+  }
+  return { geo: sharedGeos.plasmaTorus, outerGeo: sharedGeos.plasmaOuterRing };
+}
+
 export class Tile3D {
   constructor(layer, row, col, value, scene, shape = 'rounded_cube', isBomb = false, bombCountdown = 5) {
     this.id = nextTileId++;
@@ -90,8 +130,10 @@ export class Tile3D {
 
   getEffectiveShape() {
     if (this.shapeType === 'auto_evolution') {
-      if (this.value <= 16) return 'rounded_cube';
-      if (this.value <= 128) return 'crystal_octahedron';
+      if (this.value <= 8) return 'rounded_cube';
+      if (this.value <= 32) return 'hex_prism';
+      if (this.value <= 128) return 'cyber_pyramid';
+      if (this.value <= 512) return 'star_dodecahedron';
       return 'core_sphere';
     }
     return this.shapeType;
@@ -188,6 +230,93 @@ export class Tile3D {
       ring2.rotation.z = Math.PI / 3;
       this.decorGroup.add(ring2);
       this.ring2 = ring2;
+
+      this.addBillboardLabel(size);
+    } else if (effShape === 'hex_prism') {
+      const radius = size * 0.52;
+      const h = height * 0.95;
+      const { geo, edges } = getSharedHexCylinder();
+      const mat = textureManager.getOctahedronMaterial(this.value, this.isBomb);
+      this.innerMesh = new THREE.Mesh(geo, mat.clone());
+      this.innerMesh.scale.set(radius, h, radius);
+      this.group.add(this.innerMesh);
+
+      // Inner glowing core
+      const coreMat = textureManager.getOctahedronCoreMaterial(this.value, this.isBomb);
+      const coreMesh = new THREE.Mesh(geo, coreMat.clone());
+      coreMesh.scale.set(radius * 0.5, h * 0.5, radius * 0.5);
+      this.decorGroup.add(coreMesh);
+
+      // Wireframe neon edge lines
+      const lineMat = textureManager.getOctahedronLineMaterial(this.isBomb);
+      const lines = new THREE.LineSegments(edges, lineMat.clone());
+      lines.scale.set(radius * 1.002, h * 1.002, radius * 1.002);
+      this.decorGroup.add(lines);
+
+      this.addBillboardLabel(size);
+    } else if (effShape === 'cyber_pyramid') {
+      const radius = size * 0.56;
+      const h = height * 1.4;
+      const { geo, edges } = getSharedCone();
+      const mat = textureManager.getOctahedronMaterial(this.value, this.isBomb);
+      this.innerMesh = new THREE.Mesh(geo, mat.clone());
+      this.innerMesh.rotation.y = Math.PI / 4;
+      this.innerMesh.scale.set(radius, h, radius);
+      this.group.add(this.innerMesh);
+
+      // Inner glowing core
+      const coreMat = textureManager.getOctahedronCoreMaterial(this.value, this.isBomb);
+      const coreMesh = new THREE.Mesh(geo, coreMat.clone());
+      coreMesh.rotation.y = Math.PI / 4;
+      coreMesh.scale.set(radius * 0.45, h * 0.45, radius * 0.45);
+      this.decorGroup.add(coreMesh);
+
+      // Wireframe neon edges
+      const lineMat = textureManager.getOctahedronLineMaterial(this.isBomb);
+      const lines = new THREE.LineSegments(edges, lineMat.clone());
+      lines.rotation.y = Math.PI / 4;
+      lines.scale.set(radius * 1.002, h * 1.002, radius * 1.002);
+      this.decorGroup.add(lines);
+
+      this.addBillboardLabel(size);
+    } else if (effShape === 'star_dodecahedron') {
+      const radius = size * 0.52;
+      const { geo, edges } = getSharedDodecahedron();
+      const mat = textureManager.getOctahedronMaterial(this.value, this.isBomb);
+      this.innerMesh = new THREE.Mesh(geo, mat.clone());
+      this.innerMesh.scale.set(radius, radius, radius);
+      this.group.add(this.innerMesh);
+
+      // Inner glowing core
+      const coreMat = textureManager.getOctahedronCoreMaterial(this.value, this.isBomb);
+      const coreMesh = new THREE.Mesh(geo, coreMat.clone());
+      coreMesh.scale.set(radius * 0.45, radius * 0.45, radius * 0.45);
+      this.decorGroup.add(coreMesh);
+
+      // Faceted glittering wireframe lines
+      const lineMat = textureManager.getOctahedronLineMaterial(this.isBomb);
+      const lines = new THREE.LineSegments(edges, lineMat.clone());
+      lines.scale.set(radius * 1.002, radius * 1.002, radius * 1.002);
+      this.decorGroup.add(lines);
+
+      this.addBillboardLabel(size);
+    } else if (effShape === 'plasma_torus') {
+      const radius = size * 0.48;
+      const { geo, outerGeo } = getSharedPlasmaTorus();
+      const mat = textureManager.getOctahedronMaterial(this.value, this.isBomb);
+      this.innerMesh = new THREE.Mesh(geo, mat.clone());
+      this.innerMesh.scale.set(radius, radius, radius);
+      this.innerMesh.rotation.x = Math.PI / 2;
+      this.group.add(this.innerMesh);
+
+      // Spinning outer accent ring
+      const torusMat = textureManager.getTorusMaterial(this.value, this.isBomb);
+      const outerRing = new THREE.Mesh(outerGeo, torusMat.clone());
+      outerRing.scale.set(radius * 0.95, radius * 0.95, radius * 0.95);
+      outerRing.rotation.x = Math.PI / 3;
+      outerRing.rotation.y = Math.PI / 6;
+      this.decorGroup.add(outerRing);
+      this.torusOuterRing = outerRing;
 
       this.addBillboardLabel(size);
     }
@@ -424,6 +553,20 @@ export class Tile3D {
       if (this.innerMesh) this.innerMesh.rotation.y += delta * 0.5;
       if (this.ring1) this.ring1.rotation.z += delta * 1.6;
       if (this.ring2) this.ring2.rotation.y -= delta * 1.3;
+    } else if (effShape === 'hex_prism' && this.innerMesh) {
+      this.innerMesh.rotation.y += delta * 0.6;
+      this.decorGroup.rotation.y += delta * 0.6;
+    } else if (effShape === 'cyber_pyramid' && this.innerMesh) {
+      this.innerMesh.rotation.y += delta * 0.8;
+      this.decorGroup.rotation.y += delta * 0.8;
+    } else if (effShape === 'star_dodecahedron' && this.innerMesh) {
+      this.innerMesh.rotation.y += delta * 0.65;
+      this.innerMesh.rotation.x += delta * 0.35;
+      this.decorGroup.rotation.y += delta * 0.65;
+      this.decorGroup.rotation.x += delta * 0.35;
+    } else if (effShape === 'plasma_torus') {
+      if (this.innerMesh) this.innerMesh.rotation.z += delta * 1.2;
+      if (this.torusOuterRing) this.torusOuterRing.rotation.z -= delta * 1.6;
     }
 
     if (this.bombRing) {

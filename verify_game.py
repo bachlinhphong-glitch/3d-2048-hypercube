@@ -157,6 +157,7 @@ def run_full_verification():
             '/src/textureManager.js',
             '/src/particles.js',
             '/src/sound.js',
+            '/src/i18n.js',
             '/libs/three.module.js',
             '/libs/gsap.module.js',
             '/libs/controls/OrbitControls.js',
