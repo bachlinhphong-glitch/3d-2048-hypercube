@@ -6,7 +6,7 @@ export class SceneManager {
   constructor(container) {
     this.container = container;
     this.mode = '4x4';
-    this.theme = 'galaxy'; // 'galaxy', 'sunset', 'aurora', 'neon', 'studio', 'classic', 'telemetry'
+    this.theme = 'cat_moon'; // 'cat_moon', 'elmo_fire', 'patrick_space', 'galaxy', etc.
     this.backgroundCache = new Map();
 
     this.defaultCamPos4x4 = new THREE.Vector3(0, 10.5, 7.6);
@@ -46,6 +46,7 @@ export class SceneManager {
       powerPreference: 'high-performance',
       stencil: false,
       depth: true,
+      alpha: true,
       preserveDrawingBuffer: false,
       failIfMajorPerformanceCaveat: false
     });
@@ -363,9 +364,30 @@ export class SceneManager {
 
   setTheme(themeName) {
     this.theme = themeName;
-    this.scene.background = this.getBackgroundTexture(themeName);
+
+    const imageThemes = {
+      cat_moon: './assets/backgrounds/cat_moon.png',
+      elmo_fire: './assets/backgrounds/elmo_fire.png',
+      patrick_space: './assets/backgrounds/patrick_space.png'
+    };
+
+    if (imageThemes[themeName]) {
+      this.scene.background = null;
+      this.renderer.setClearColor(0x000000, 0);
+      this.container.style.backgroundImage = `url("${imageThemes[themeName]}")`;
+      this.container.style.backgroundSize = 'cover';
+      this.container.style.backgroundPosition = 'center';
+      this.container.style.backgroundRepeat = 'no-repeat';
+    } else {
+      this.container.style.backgroundImage = 'none';
+      this.renderer.setClearColor(0x000000, 1);
+      this.scene.background = this.getBackgroundTexture(themeName);
+    }
 
     const fogColors = {
+      cat_moon: 0x060814,
+      elmo_fire: 0x1f0604,
+      patrick_space: 0x050a14,
       galaxy: 0x09081a,
       sunset: 0x3b0a40,
       aurora: 0x031b24,
@@ -377,7 +399,51 @@ export class SceneManager {
     const fogCol = fogColors[themeName] || 0x0d1117;
     this.scene.fog.color.set(fogCol);
 
-    if (themeName === 'galaxy') {
+    if (themeName === 'cat_moon') {
+      this.starfield.visible = false;
+      this.neonGrid.visible = false;
+      this.cyberDust.visible = true;
+      this.dustMat.color.set(0xfef08a);
+      this.ambientLight.color.set(0x93c5fd);
+      this.ambientLight.intensity = 0.9;
+      this.sunLight.color.set(0xfef08a);
+      this.sunLight.intensity = 1.7;
+      this.rimLight.color.set(0xa78bfa);
+      this.rimLight.intensity = 1.2;
+      this.pointLight1.intensity = 0;
+      this.pointLight2.intensity = 0;
+      this.renderer.toneMappingExposure = 1.18;
+    } else if (themeName === 'elmo_fire') {
+      this.starfield.visible = false;
+      this.neonGrid.visible = false;
+      this.cyberDust.visible = true;
+      this.dustMat.color.set(0xff7675);
+      this.ambientLight.color.set(0xff7675);
+      this.ambientLight.intensity = 0.8;
+      this.sunLight.color.set(0xfb923c);
+      this.sunLight.intensity = 1.9;
+      this.rimLight.color.set(0xff3838);
+      this.rimLight.intensity = 1.5;
+      this.pointLight1.intensity = 2.0;
+      this.pointLight1.color.set(0xff5722);
+      this.pointLight2.intensity = 1.6;
+      this.pointLight2.color.set(0xff9800);
+      this.renderer.toneMappingExposure = 1.25;
+    } else if (themeName === 'patrick_space') {
+      this.starfield.visible = false;
+      this.neonGrid.visible = false;
+      this.cyberDust.visible = true;
+      this.dustMat.color.set(0x38bdf8);
+      this.ambientLight.color.set(0x94a3b8);
+      this.ambientLight.intensity = 0.85;
+      this.sunLight.color.set(0xf8fafc);
+      this.sunLight.intensity = 1.65;
+      this.rimLight.color.set(0x38bdf8);
+      this.rimLight.intensity = 1.35;
+      this.pointLight1.intensity = 0;
+      this.pointLight2.intensity = 0;
+      this.renderer.toneMappingExposure = 1.16;
+    } else if (themeName === 'galaxy') {
       this.starfield.visible = true;
       this.neonGrid.visible = false;
       this.cyberDust.visible = true;

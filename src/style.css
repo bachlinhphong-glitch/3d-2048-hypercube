@@ -38,6 +38,60 @@ html, body {
 }
 
 /* ================= THEME STYLES ================= */
+body.theme-cat_moon {
+  --glass-bg: rgba(10, 14, 28, 0.88);
+  --glass-border: rgba(254, 240, 138, 0.35);
+  --accent-gold: #fef08a;
+  --accent-blue: #93c5fd;
+}
+
+body.theme-cat_moon .game-title {
+  background: linear-gradient(135deg, #ffffff 20%, #fef08a 60%, #93c5fd 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 12px rgba(254, 240, 138, 0.55));
+}
+
+body.theme-cat_moon #canvas-container {
+  background-image: url('../assets/backgrounds/cat_moon.png');
+}
+
+body.theme-elmo_fire {
+  --glass-bg: rgba(28, 8, 8, 0.88);
+  --glass-border: rgba(255, 107, 53, 0.45);
+  --accent-gold: #ff9f43;
+  --accent-blue: #ff5252;
+}
+
+body.theme-elmo_fire .game-title {
+  background: linear-gradient(135deg, #fff200 15%, #ff793f 55%, #ff5252 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 14px rgba(255, 82, 82, 0.65));
+}
+
+body.theme-elmo_fire #canvas-container {
+  background-image: url('../assets/backgrounds/elmo_fire.png');
+}
+
+body.theme-patrick_space {
+  --glass-bg: rgba(8, 16, 28, 0.88);
+  --glass-border: rgba(56, 189, 248, 0.35);
+  --accent-gold: #f472b6;
+  --accent-blue: #38bdf8;
+}
+
+body.theme-patrick_space .game-title {
+  background: linear-gradient(135deg, #ffffff 20%, #f472b6 55%, #38bdf8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.55));
+}
+
+body.theme-patrick_space #canvas-container {
+  background-image: url('../assets/backgrounds/patrick_space.png');
+}
+
 body.theme-galaxy {
   --glass-bg: rgba(18, 14, 38, 0.9);
   --glass-border: rgba(168, 85, 247, 0.35);
@@ -130,6 +184,10 @@ body.theme-telemetry .glass-select {
   height: 100%;
   z-index: 1;
   display: block;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: background-image 0.35s ease-out;
 }
 
 /* UI Overlay */
