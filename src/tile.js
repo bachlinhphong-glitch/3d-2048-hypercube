@@ -335,6 +335,10 @@ export class Tile3D {
       this.bombRing.rotation.x = Math.PI / 2;
       this.decorGroup.add(this.bombRing);
     }
+
+    if (this.innerMesh) {
+      this.innerMesh.userData = { isTile3D: true, tileInstance: this };
+    }
   }
 
   addBillboardLabel(size) {
@@ -343,6 +347,7 @@ export class Tile3D {
     this.labelSprite.scale.set(size * 0.9, size * 0.9, 1);
     this.labelSprite.position.set(0, 0, 0);
     this.labelSprite.renderOrder = 999;
+    this.labelSprite.userData = { isTile3D: true, tileInstance: this };
     this.group.add(this.labelSprite);
   }
 

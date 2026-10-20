@@ -753,12 +753,14 @@ class GameApp {
     const intersects = raycaster.intersectObjects(tileGroups, true);
     if (intersects.length === 0) return null;
 
-    let obj = intersects[0].object;
-    while (obj) {
-      if (obj.userData && obj.userData.tileInstance) {
-        return obj.userData.tileInstance;
+    for (let i = 0; i < intersects.length; i++) {
+      let obj = intersects[i].object;
+      while (obj) {
+        if (obj.userData && obj.userData.tileInstance) {
+          return obj.userData.tileInstance;
+        }
+        obj = obj.parent;
       }
-      obj = obj.parent;
     }
     return null;
   }
@@ -1231,6 +1233,9 @@ class GameApp {
         onSecondary: () => {
           this.hideModal();
           this.isAnimating = false;
+          if (this.isBossRaid) {
+            this.toggleBossRaid();
+          }
           this.startNewGame(false);
         }
       });
@@ -1460,6 +1465,9 @@ class GameApp {
     this.swapSelectedTile = null;
     this.container.style.cursor = 'pointer';
     document.body.classList.add('in-swap-mode');
+    if (this.sceneManager && this.sceneManager.controls) {
+      this.sceneManager.controls.enabled = false;
+    }
     this.updateSpellUI();
     this.showSpellToast('CHỌN KHỐI THỨ NHẤT TRÊN BÀN CỜ ĐỂ ĐỔI VỊ TRÍ...');
   }
@@ -1468,6 +1476,9 @@ class GameApp {
     if (!this.isSwapMode) return;
     this.isSwapMode = false;
     document.body.classList.remove('in-swap-mode');
+    if (this.sceneManager && this.sceneManager.controls) {
+      this.sceneManager.controls.enabled = true;
+    }
     if (this.hoveredTile) {
       if (this.hoveredTile !== this.swapSelectedTile) {
         this.hoveredTile.setHovered(false);
@@ -1507,6 +1518,9 @@ class GameApp {
       const tileA = this.swapSelectedTile;
       const tileB = clickedTile;
       document.body.classList.remove('in-swap-mode');
+      if (this.sceneManager && this.sceneManager.controls) {
+        this.sceneManager.controls.enabled = true;
+      }
       if (this.hoveredTile) {
         if (this.hoveredTile !== tileA && this.hoveredTile !== tileB) {
           this.hoveredTile.setHovered(false);

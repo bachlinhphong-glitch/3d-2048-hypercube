@@ -192,7 +192,24 @@ export class BossManager {
     this.lightningGeo.attributes.position.needsUpdate = true;
   }
 
+  clearAllTweens() {
+    gsap.killTweensOf(this.group.scale);
+    gsap.killTweensOf(this.group.position);
+    if (this.coreMesh) gsap.killTweensOf(this.coreMesh.scale);
+    if (this.coreMat && this.coreMat.emissive) gsap.killTweensOf(this.coreMat.emissive);
+    if (this.flashEl) gsap.killTweensOf(this.flashEl);
+    if (this.cutinBannerEl) gsap.killTweensOf(this.cutinBannerEl);
+    if (this.clearDelayedCall) {
+      this.clearDelayedCall.kill();
+      this.clearDelayedCall = null;
+    }
+    if (this.damageContainer) {
+      this.damageContainer.innerHTML = '';
+    }
+  }
+
   startRaid() {
+    this.clearAllTweens();
     this.clearVFX();
     this.isActive = true;
     this.phase = 1;
@@ -204,8 +221,8 @@ export class BossManager {
     this.isObliterating = false;
 
     this.group.visible = true;
-    this.group.scale.set(0.01, 0.01, 0.01);
     this.group.position.set(0, 5.2, -4.2);
+    this.group.scale.set(0.01, 0.01, 0.01);
     gsap.to(this.group.scale, { x: 1, y: 1, z: 1, duration: 0.9, ease: 'back.out(1.7)' });
 
     this.applyPhaseVisuals(1);
@@ -218,10 +235,14 @@ export class BossManager {
   }
 
   stopRaid() {
+    this.clearAllTweens();
+    this.clearVFX();
     this.isActive = false;
+    this.isDefeated = false;
+    this.isObliterating = false;
     this.group.visible = false;
     if (this.hudEl) this.hudEl.style.display = 'none';
-    this.clearVFX();
+    if (this.cutinBannerEl) this.cutinBannerEl.classList.remove('active');
   }
 
   applyPhaseVisuals(phase) {
@@ -563,7 +584,10 @@ export class BossManager {
     const s = totalSecs % 60;
     const timeStr = `${m > 0 ? m + 'm ' : ''}${s}s`;
 
-    gsap.delayedCall(1.8, () => {
+    if (this.clearDelayedCall) {
+      this.clearDelayedCall.kill();
+    }
+    this.clearDelayedCall = gsap.delayedCall(1.8, () => {
       this.showStageClearModal(timeStr);
     });
   }
@@ -633,7 +657,6 @@ export class BossManager {
       onPrimary: () => {
         this.gameApp.hideModal();
         this.gameApp.isAnimating = false;
-        this.stopRaid();
         this.gameApp.startNewGame(false);
       },
       onSecondary: () => {
@@ -654,13 +677,14 @@ export class BossManager {
       onPrimary: () => {
         this.gameApp.hideModal();
         this.gameApp.isAnimating = false;
-        this.startRaid();
         this.gameApp.startNewGame(false);
       },
       onSecondary: () => {
         this.gameApp.hideModal();
         this.gameApp.isAnimating = false;
-        this.stopRaid();
+        if (this.gameApp.isBossRaid) {
+          this.gameApp.toggleBossRaid();
+        }
         this.gameApp.startNewGame(false);
       }
     });

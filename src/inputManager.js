@@ -136,6 +136,14 @@ export class InputManager {
         return;
       }
 
+      // In Swap mode, prioritize clicking the tile rather than swiping
+      if (window.gameApp && window.gameApp.isSwapMode) {
+        if (this.onCanvasClick) {
+          this.onCanvasClick(this.pointerStartX, this.pointerStartY);
+        }
+        return;
+      }
+
       const dx = e.clientX - this.pointerStartX;
       const dy = e.clientY - this.pointerStartY;
       const minDistance = 22; // Responsive swipe threshold for mobile touch & mouse
@@ -147,12 +155,6 @@ export class InputManager {
           this.onCanvasClick(e.clientX, e.clientY);
         }
       } else {
-        // Distance >= minDistance: swipe or drag
-        // If game is in swap mode, do NOT trigger board moves on accidental swipe
-        if (window.gameApp && window.gameApp.isSwapMode) {
-          return;
-        }
-
         let direction = null;
         if (Math.abs(dx) > Math.abs(dy)) {
           direction = dx > 0 ? 'right' : 'left';
