@@ -9,11 +9,11 @@ export class SceneManager {
     this.theme = 'cat_moon'; // 'cat_moon', 'elmo_fire', 'patrick_space', 'galaxy', etc.
     this.backgroundCache = new Map();
 
-    this.defaultCamPos4x4 = new THREE.Vector3(0, 10.5, 7.6);
-    this.defaultTarget4x4 = new THREE.Vector3(0, 0.6, 0);
+    this.defaultCamPos4x4 = new THREE.Vector3(0, 11.5, 9.8);
+    this.defaultTarget4x4 = new THREE.Vector3(0, 1.6, -0.6);
 
-    this.defaultCamPos3x3 = new THREE.Vector3(0, 13.0, 9.5);
-    this.defaultTarget3x3 = new THREE.Vector3(0, 2.4, 0);
+    this.defaultCamPos3x3 = new THREE.Vector3(0, 13.8, 11.2);
+    this.defaultTarget3x3 = new THREE.Vector3(0, 2.6, -0.5);
 
     this.initScene();
     this.initCamera();
@@ -35,7 +35,7 @@ export class SceneManager {
 
   initCamera() {
     const aspect = this.container.clientWidth / this.container.clientHeight;
-    this.camera = new THREE.PerspectiveCamera(42, aspect, 0.1, 100);
+    this.camera = new THREE.PerspectiveCamera(44, aspect, 0.1, 100);
     this.camera.position.copy(this.defaultCamPos4x4);
     this.camera.lookAt(this.defaultTarget4x4);
   }
@@ -629,16 +629,16 @@ export class SceneManager {
     let targetPos, targetLook;
 
     if (preset === 1 || preset === 'iso') {
-      // 1. Isometric Standard 3D Diagonal View (Bao quát cả 3 trục)
-      targetPos = is3D ? new THREE.Vector3(0, 9.5, 7.5) : new THREE.Vector3(0, 10.5, 7.6);
+      // 1. Isometric Standard 3D Diagonal View (Bao quát cả 3 trục và Boss)
+      targetPos = is3D ? new THREE.Vector3(0, 11.5, 9.2) : new THREE.Vector3(0, 11.5, 9.8);
       targetLook = is3D ? this.defaultTarget3x3 : this.defaultTarget4x4;
     } else if (preset === 2 || preset === 'top') {
       // 2. Top-Down View (Nhìn thẳng từ đỉnh xuống như 2D)
-      targetPos = is3D ? new THREE.Vector3(0, 13.0, 0.01) : new THREE.Vector3(0, 13.0, 0.01);
+      targetPos = is3D ? new THREE.Vector3(0, 14.0, 0.01) : new THREE.Vector3(0, 14.0, 0.01);
       targetLook = is3D ? this.defaultTarget3x3 : this.defaultTarget4x4;
     } else if (preset === 3 || preset === 'side') {
       // 3. Front / Side Layer View (Nhìn ngang soi rõ độ cao giữa 3 tầng)
-      targetPos = is3D ? new THREE.Vector3(0, 3.5, 12.0) : new THREE.Vector3(0, 2.0, 10.0);
+      targetPos = is3D ? new THREE.Vector3(0, 4.0, 12.5) : new THREE.Vector3(0, 2.5, 10.5);
       targetLook = is3D ? this.defaultTarget3x3 : this.defaultTarget4x4;
     } else {
       targetPos = is3D ? this.defaultCamPos3x3 : this.defaultCamPos4x4;

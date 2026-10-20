@@ -387,8 +387,98 @@ def run_full_verification():
             }).get('result', {}).get('value', {})
             print(f"    -> Game state: FPS={stats_info.get('fps')}, Score={stats_info.get('score')}, Charges={stats_info.get('charges')}")
 
-            # Step 7: Capture Screenshot
-            print("\n[Step 7] Capturing Visual Verification Screenshot...")
+            # Step 7: Verify Boss Mode & Dark Singularity 3D Architecture
+            print("\n[Step 7] Testing Boss Mode & Dark Singularity 3D Architecture...")
+            boss_check = ws.call("Runtime.evaluate", {
+                "expression": """
+                (() => {
+                    const app = window.gameApp;
+                    if (!app.isBossRaid) app.toggleBossRaid();
+                    const bm = app.bossManager;
+                    return {
+                        isActive: bm.isActive,
+                        visible: bm.group.visible,
+                        phase: bm.phase,
+                        phaseBadge: bm.phaseBadgeEl ? bm.phaseBadgeEl.textContent : '',
+                        hasCoreMesh: !!bm.coreMesh,
+                        hasAccretion: !!bm.accretionDisk,
+                        ringCount: bm.ringGroup ? bm.ringGroup.children.length : 0,
+                        hasLightning: !!bm.lightningMesh
+                    };
+                })()
+                """,
+                "returnByValue": True
+            }).get('result', {}).get('value', {})
+            print(f"    -> Boss Singularity Check: {boss_check}")
+            assert boss_check.get('isActive') == True, "Boss mode must be active"
+            assert "CORE — PHASER 1" in boss_check.get('phaseBadge', ''), "Phase 1 badge must say CORE — PHASER 1"
+            assert boss_check.get('hasCoreMesh') == True, "Core sphere mesh must exist"
+            assert boss_check.get('hasAccretion') == True, "Accretion event horizon disk must exist"
+            assert boss_check.get('ringCount') == 3, "Must have 3 counter-rotating gimbal rings"
+            assert boss_check.get('hasLightning') == True, "Electronic lightning arcs must exist"
+            print("  ✓ Dark Singularity Core 3D & 3 Gimbal Rings verified 100%!")
+
+            # Step 8: Verify Game Over Modal & Click Restart
+            print("\n[Step 8] Testing Game Over Modal & Unfrozen Restart Button...")
+            modal_check = ws.call("Runtime.evaluate", {
+                "expression": """
+                (() => {
+                    const app = window.gameApp;
+                    // Trigger game over
+                    app.isAnimating = true;
+                    app.gameLogic.gameOver = true;
+                    app.showModal({
+                        title: '💀 THẤT BẠI (GAME OVER)',
+                        message: 'Test Game Over Message',
+                        primaryText: '🎮 Chơi lại ngay',
+                        secondaryText: '🎮 Ván mới',
+                        onPrimary: () => {
+                            app.hideModal();
+                            app.isAnimating = false;
+                            app.startNewGame(false);
+                        }
+                    });
+                    const overlay = document.getElementById('modal-overlay');
+                    return {
+                        isActive: overlay.classList.contains('active'),
+                        title: document.getElementById('modal-title').textContent,
+                        primaryBtnText: document.getElementById('modal-btn-primary').textContent
+                    };
+                })()
+                """,
+                "returnByValue": True
+            }).get('result', {}).get('value', {})
+            print(f"    -> Modal state before restart: {modal_check}")
+            assert modal_check.get('isActive') == True, "Modal must be active"
+            assert "THẤT BẠI" in modal_check.get('title', ''), "Title must contain THẤT BẠI"
+
+            # Click primary restart button
+            click_res = ws.call("Runtime.evaluate", {
+                "expression": """
+                (() => {
+                    const app = window.gameApp;
+                    const btn = document.getElementById('modal-btn-primary');
+                    btn.click();
+                    const overlay = document.getElementById('modal-overlay');
+                    return {
+                        isActive: overlay.classList.contains('active'),
+                        isAnimating: app.isAnimating,
+                        gameOver: app.gameLogic.gameOver,
+                        tileCount: app.tiles3D[0].flat().filter(Boolean).length
+                    };
+                })()
+                """,
+                "returnByValue": True
+            }).get('result', {}).get('value', {})
+            print(f"    -> State after clicking restart: {click_res}")
+            assert click_res.get('isActive') == False, "Modal overlay must be closed"
+            assert click_res.get('isAnimating') == False, "isAnimating must be false (unfrozen)"
+            assert click_res.get('gameOver') == False, "gameOver must be false"
+            assert click_res.get('tileCount') == 2, "Board must have 2 fresh spawned tiles"
+            print("  ✓ Game Over Restart Click verified 100% (Instant unfreeze & fresh board)!")
+
+            # Step 9: Capture Screenshot
+            print("\n[Step 9] Capturing Visual Verification Screenshot...")
             ss_res = ws.call("Page.captureScreenshot", {"format": "png"})
             if ss_res and 'data' in ss_res:
                 img_data = base64.b64decode(ss_res['data'])
@@ -403,6 +493,9 @@ def run_full_verification():
             print("==================================================")
             print("\n==================================================")
             print("   TELEMETRY & CRYSTAL OCTAHEDRON VERIFIED 100%!  ")
+            print("==================================================")
+            print("\n==================================================")
+            print("   DARK SINGULARITY & RESTART VERIFIED 100%!      ")
             print("==================================================")
 
         finally:

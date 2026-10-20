@@ -4,12 +4,12 @@ import { getGridPosition } from './board.js';
 import { soundManager } from './sound.js';
 
 /**
- * ⚡ BossManager — Clean & Modern 3-Phase Energy Core Mode
+ * ⚡ BossManager — Dark Singularity Core Mode (Hố Đen / Cầu Năng Lượng Hắc Ám)
  *
- * Minimalist, satisfying 3D puzzle aesthetic:
- * Phase 1: 500 HP | 60s (+45s on clear + cleanses low 2,4 tiles)
- * Phase 2: 1,500 HP | +45s (+60s on clear)
- * Phase 3: 2,048 HP — Merge 1024 + 1024 to 2048 to trigger the crystal stardust finale!
+ * 3-Phase Multi-Stage Challenge:
+ * Phase 1: CORE — PHASER 1 (500 HP | 60s, +45s on clear + cleanses low 2,4 tiles)
+ * Phase 2: CORE — PHASER 2 (1,500 HP | +45s, +60s on clear)
+ * Phase 3: CORE — ABSOLUTE OBLITERATION (2,048 HP — Merge 1024 + 1024 to 2048 to obliterate the Singularity)
  */
 export class BossManager {
   constructor(gameApp) {
@@ -26,20 +26,20 @@ export class BossManager {
     this.isDefeated = false;
     this.isObliterating = false;
 
-    // 3D Visual Group: Energy Core floating above board
+    // 3D Visual Group: Dark Singularity Core floating above board
     this.group = new THREE.Group();
-    this.group.position.set(0, 5.0, -4.2);
+    this.group.position.set(0, 5.2, -4.2);
     this.group.visible = false;
     this.scene.add(this.group);
 
     // Core Components
     this.coreMesh = null;
-    this.innerCrystal = null;
+    this.accretionDisk = null;
     this.ringGroup = new THREE.Group();
     this.group.add(this.ringGroup);
 
     // Dynamic Core Glow Light
-    this.coreLight = new THREE.PointLight(0x00f0ff, 2.2, 18);
+    this.coreLight = new THREE.PointLight(0x8b5cf6, 2.5, 18);
     this.coreLight.position.set(0, 0, 0.5);
     this.group.add(this.coreLight);
 
@@ -65,50 +65,131 @@ export class BossManager {
   }
 
   initCoreMeshes() {
-    // 1. Central Faceted Crystal Core
-    const coreGeo = new THREE.IcosahedronGeometry(1.5, 1);
+    // 1. Central Pitch-Black Light-Absorbing Singularity Sphere
+    const coreGeo = new THREE.SphereGeometry(1.35, 48, 48);
     this.coreMat = new THREE.MeshStandardMaterial({
-      color: 0x0d1f33,
-      emissive: 0x00f0ff,
-      emissiveIntensity: 0.85,
-      roughness: 0.12,
-      metalness: 0.88,
-      flatShading: true
+      color: 0x030306,
+      roughness: 0.22,
+      metalness: 0.96,
+      emissive: 0x1f062e,
+      emissiveIntensity: 0.8
     });
     this.coreMesh = new THREE.Mesh(coreGeo, this.coreMat);
     this.group.add(this.coreMesh);
 
-    // 2. Inner Glowing Octahedron Crystal
-    const innerGeo = new THREE.OctahedronGeometry(1.0, 0);
-    this.innerMat = new THREE.MeshBasicMaterial({
-      color: 0xffffff,
-      wireframe: true,
+    // 2. Accretion Event Horizon Disk
+    const accretionGeo = new THREE.RingGeometry(1.38, 2.2, 64);
+    this.accretionMat = new THREE.MeshBasicMaterial({
+      color: 0x8b5cf6,
+      side: THREE.DoubleSide,
       transparent: true,
-      opacity: 0.75
+      opacity: 0.45,
+      depthWrite: false
     });
-    this.innerCrystal = new THREE.Mesh(innerGeo, this.innerMat);
-    this.group.add(this.innerCrystal);
+    this.accretionDisk = new THREE.Mesh(accretionGeo, this.accretionMat);
+    this.accretionDisk.rotation.x = Math.PI / 3.4;
+    this.group.add(this.accretionDisk);
 
-    // 3. Elegant Orbital Rings (Smooth & Minimal)
-    const ringGeo1 = new THREE.TorusGeometry(2.25, 0.035, 12, 48);
+    // 3. Three High-Speed Counter-Rotating Mechanical Gimbal Rings
+    const ringGeo1 = new THREE.TorusGeometry(1.95, 0.045, 16, 72);
     this.ringMat1 = new THREE.MeshStandardMaterial({
-      color: 0x00f0ff,
-      emissive: 0x00a3cc,
-      metalness: 0.9,
-      roughness: 0.1
+      color: 0x12121c,
+      emissive: 0x8b5cf6,
+      emissiveIntensity: 0.95,
+      metalness: 0.94,
+      roughness: 0.16
     });
     this.ring1 = new THREE.Mesh(ringGeo1, this.ringMat1);
     this.ringGroup.add(this.ring1);
 
-    const ringGeo2 = new THREE.TorusGeometry(2.55, 0.03, 12, 48);
+    const ringGeo2 = new THREE.TorusGeometry(2.50, 0.040, 16, 72);
     this.ringMat2 = new THREE.MeshStandardMaterial({
-      color: 0xa855f7,
-      emissive: 0x7e22ce,
-      metalness: 0.9,
-      roughness: 0.1
+      color: 0x12121c,
+      emissive: 0xd90429,
+      emissiveIntensity: 0.95,
+      metalness: 0.94,
+      roughness: 0.16
     });
     this.ring2 = new THREE.Mesh(ringGeo2, this.ringMat2);
     this.ringGroup.add(this.ring2);
+
+    const ringGeo3 = new THREE.TorusGeometry(3.10, 0.038, 16, 72);
+    this.ringMat3 = new THREE.MeshStandardMaterial({
+      color: 0x12121c,
+      emissive: 0xc026d3,
+      emissiveIntensity: 0.95,
+      metalness: 0.94,
+      roughness: 0.16
+    });
+    this.ring3 = new THREE.Mesh(ringGeo3, this.ringMat3);
+    this.ringGroup.add(this.ring3);
+
+    // 4. Procedural Crackling Electronic Lightning Arcs (Blood Crimson & Deep Violet)
+    this.lightningCount = 10;
+    this.lightningSegments = 5;
+    const totalVerts = this.lightningCount * this.lightningSegments * 2;
+    this.lightningGeo = new THREE.BufferGeometry();
+    this.lightningPositions = new Float32Array(totalVerts * 3);
+    this.lightningGeo.setAttribute('position', new THREE.BufferAttribute(this.lightningPositions, 3));
+    this.lightningMat = new THREE.LineBasicMaterial({
+      color: 0x8b5cf6,
+      transparent: true,
+      opacity: 0.85,
+      blending: THREE.AdditiveBlending
+    });
+    this.lightningMesh = new THREE.LineSegments(this.lightningGeo, this.lightningMat);
+    this.group.add(this.lightningMesh);
+    this.lightningTimer = 0;
+  }
+
+  updateLightningArcs() {
+    if (!this.lightningGeo || !this.lightningPositions) return;
+    const pos = this.lightningPositions;
+    let ptr = 0;
+
+    for (let i = 0; i < this.lightningCount; i++) {
+      // Pick random point on singularity sphere (radius 1.35)
+      const u = Math.random();
+      const v = Math.random();
+      const theta = u * 2.0 * Math.PI;
+      const phi = Math.acos(2.0 * v - 1.0);
+      const rInner = 1.35;
+      const startX = rInner * Math.sin(phi) * Math.cos(theta);
+      const startY = rInner * Math.sin(phi) * Math.sin(theta);
+      const startZ = rInner * Math.cos(phi);
+
+      // Pick target on outer gimbal rings (radius 2.0 to 3.1)
+      const rOuter = 2.0 + Math.random() * 1.1;
+      const endX = rOuter * Math.sin(phi + (Math.random() - 0.5) * 0.5) * Math.cos(theta + (Math.random() - 0.5) * 0.5);
+      const endY = rOuter * Math.sin(phi + (Math.random() - 0.5) * 0.5) * Math.sin(theta + (Math.random() - 0.5) * 0.5);
+      const endZ = rOuter * Math.cos(phi + (Math.random() - 0.5) * 0.5);
+
+      // Jittered zigzag arc
+      let prevX = startX;
+      let prevY = startY;
+      let prevZ = startZ;
+
+      for (let s = 1; s <= this.lightningSegments; s++) {
+        const frac = s / this.lightningSegments;
+        const jitter = s < this.lightningSegments ? (Math.random() - 0.5) * 0.45 : 0;
+        const currX = startX + (endX - startX) * frac + jitter;
+        const currY = startY + (endY - startY) * frac + jitter;
+        const currZ = startZ + (endZ - startZ) * frac + jitter;
+
+        pos[ptr++] = prevX;
+        pos[ptr++] = prevY;
+        pos[ptr++] = prevZ;
+        pos[ptr++] = currX;
+        pos[ptr++] = currY;
+        pos[ptr++] = currZ;
+
+        prevX = currX;
+        prevY = currY;
+        prevZ = currZ;
+      }
+    }
+
+    this.lightningGeo.attributes.position.needsUpdate = true;
   }
 
   startRaid() {
@@ -123,14 +204,14 @@ export class BossManager {
 
     this.group.visible = true;
     this.group.scale.set(0.01, 0.01, 0.01);
-    this.group.position.set(0, 5.0, -4.2);
+    this.group.position.set(0, 5.2, -4.2);
     gsap.to(this.group.scale, { x: 1, y: 1, z: 1, duration: 0.9, ease: 'back.out(1.7)' });
 
     this.applyPhaseVisuals(1);
     if (this.hudEl) this.hudEl.style.display = 'flex';
     this.updateHUD();
 
-    this.triggerBanner('⚡ BOSS MODE ACTIVATED', 'PHASE 1 / 3 — 500 HP (60s)');
+    this.triggerBanner('⚔️ CORE — PHASER 1', '500 HP | 60s');
     soundManager.playPhaseTransition();
     soundManager.triggerHaptic('slide');
   }
@@ -146,35 +227,44 @@ export class BossManager {
     this.phase = phase;
     if (phase === 1) {
       this.maxHp = 500;
-      this.coreMat.emissive.setHex(0x00f0ff);
-      this.coreMat.emissiveIntensity = 0.85;
-      this.coreLight.color.setHex(0x00f0ff);
-      this.ringMat1.color.setHex(0x00f0ff);
-      this.ringMat1.emissive.setHex(0x00a3cc);
+      this.coreMat.emissive.setHex(0x1f062e);
+      this.coreMat.emissiveIntensity = 0.8;
+      this.coreLight.color.setHex(0x8b5cf6);
+      this.accretionMat.color.setHex(0x8b5cf6);
+      this.ringMat1.emissive.setHex(0x8b5cf6);
+      this.ringMat2.emissive.setHex(0xd90429);
+      this.ringMat3.emissive.setHex(0x6d28d9);
+      this.lightningMat.color.setHex(0x8b5cf6);
       if (this.phaseBadgeEl) {
-        this.phaseBadgeEl.textContent = 'PHASE 1 / 3';
+        this.phaseBadgeEl.textContent = 'CORE — PHASER 1';
         this.phaseBadgeEl.className = 'boss-phase-badge p1';
       }
     } else if (phase === 2) {
       this.maxHp = 1500;
-      this.coreMat.emissive.setHex(0xd946ef); // Radiant Neon Magenta
+      this.coreMat.emissive.setHex(0x3a0410);
       this.coreMat.emissiveIntensity = 1.35;
-      this.coreLight.color.setHex(0xd946ef);
-      this.ringMat1.color.setHex(0xf43f5e);
-      this.ringMat1.emissive.setHex(0xe11d48);
+      this.coreLight.color.setHex(0xd90429);
+      this.accretionMat.color.setHex(0xd90429);
+      this.ringMat1.emissive.setHex(0xd90429);
+      this.ringMat2.emissive.setHex(0xc026d3);
+      this.ringMat3.emissive.setHex(0xef4444);
+      this.lightningMat.color.setHex(0xd90429);
       if (this.phaseBadgeEl) {
-        this.phaseBadgeEl.textContent = 'PHASE 2 / 3';
+        this.phaseBadgeEl.textContent = 'CORE — PHASER 2';
         this.phaseBadgeEl.className = 'boss-phase-badge p2';
       }
     } else if (phase === 3) {
       this.maxHp = 2048;
-      this.coreMat.emissive.setHex(0xfbbf24); // Celestial Gold
+      this.coreMat.emissive.setHex(0x450a0a);
       this.coreMat.emissiveIntensity = 1.8;
       this.coreLight.color.setHex(0xfbbf24);
-      this.ringMat1.color.setHex(0xf59e0b);
-      this.ringMat1.emissive.setHex(0xd97706);
+      this.accretionMat.color.setHex(0xf59e0b);
+      this.ringMat1.emissive.setHex(0xfbbf24);
+      this.ringMat2.emissive.setHex(0xd90429);
+      this.ringMat3.emissive.setHex(0xa855f7);
+      this.lightningMat.color.setHex(0xfbbf24);
       if (this.phaseBadgeEl) {
-        this.phaseBadgeEl.textContent = 'FINAL PHASE';
+        this.phaseBadgeEl.textContent = 'CORE — ABSOLUTE OBLITERATION';
         this.phaseBadgeEl.className = 'boss-phase-badge p3';
       }
     }
@@ -209,25 +299,35 @@ export class BossManager {
       return;
     }
 
-    // Gentle floating breathing animation
-    const speed = this.phase === 3 ? 2.2 : (this.phase === 2 ? 1.6 : 1.0);
-    this.group.position.y = 5.0 + Math.sin(time * 1.6) * 0.18;
+    // High-speed counter-rotations and floating animation
+    const speed = this.phase === 3 ? 3.0 : (this.phase === 2 ? 2.2 : 1.6);
+    this.group.position.y = 5.2 + Math.sin(time * 2.0) * 0.16;
 
     if (this.coreMesh) {
-      this.coreMesh.rotation.y += delta * 0.35 * speed;
-      this.coreMesh.rotation.x += delta * 0.2 * speed;
+      this.coreMesh.rotation.y += delta * 0.5 * speed;
+      this.coreMesh.rotation.x += delta * 0.3 * speed;
     }
-    if (this.innerCrystal) {
-      this.innerCrystal.rotation.y -= delta * 0.6 * speed;
-      this.innerCrystal.rotation.z += delta * 0.4 * speed;
+    if (this.accretionDisk) {
+      this.accretionDisk.rotation.z += delta * 1.5 * speed;
     }
     if (this.ring1) {
-      this.ring1.rotation.x += delta * 0.7 * speed;
-      this.ring1.rotation.y += delta * 0.5 * speed;
+      this.ring1.rotation.x += delta * 2.2 * speed;
+      this.ring1.rotation.y += delta * 1.8 * speed;
     }
     if (this.ring2) {
-      this.ring2.rotation.y -= delta * 0.6 * speed;
-      this.ring2.rotation.z += delta * 0.4 * speed;
+      this.ring2.rotation.y -= delta * 2.6 * speed;
+      this.ring2.rotation.z += delta * 2.0 * speed;
+    }
+    if (this.ring3) {
+      this.ring3.rotation.z += delta * 2.4 * speed;
+      this.ring3.rotation.x -= delta * 1.6 * speed;
+    }
+
+    // Procedural Lightning Arcs Update (every 0.05s)
+    this.lightningTimer += delta;
+    if (this.lightningTimer > 0.05) {
+      this.lightningTimer = 0;
+      this.updateLightningArcs();
     }
   }
 
@@ -348,7 +448,7 @@ export class BossManager {
   onPhaseCleared() {
     if (this.phase === 1) {
       // Phase 1 -> Phase 2
-      this.emitExpandingRingWave(0x00f0ff);
+      this.emitExpandingRingWave(0xd90429);
       soundManager.playPhaseTransition();
       this.cleanseLowTiles();
 
@@ -357,10 +457,10 @@ export class BossManager {
       this.hp = 1500;
       this.updateHUD();
 
-      this.triggerBanner('✨ PHASE 2 / 3', '+45s & Đã dọn sạch các khối [2], [4]!');
+      this.triggerBanner('⚡ CORE — PHASER 2', '1,500 HP | +45s (Đã dọn gọn các khối [2], [4])');
     } else if (this.phase === 2) {
       // Phase 2 -> Phase 3
-      this.emitExpandingRingWave(0xd946ef);
+      this.emitExpandingRingWave(0xfbbf24);
       soundManager.playPhaseTransition();
 
       this.timer += 60.0;
@@ -368,7 +468,7 @@ export class BossManager {
       this.hp = 2048;
       this.updateHUD();
 
-      this.triggerBanner('🌟 FINAL PHASE', 'Gộp khối [1024 + 1024] thành [2048] để hoàn tất!');
+      this.triggerBanner('💥 CORE — ABSOLUTE OBLITERATION', 'Gộp khối [1024 + 1024] thành [2048] để hủy diệt!');
     }
   }
 
@@ -525,11 +625,13 @@ export class BossManager {
 
   showStageClearModal(clearTimeStr) {
     this.gameApp.showModal({
-      title: '✨ STAGE CLEAR — 2048 COMPLETE',
-      message: `Tuyệt phẩm! Bạn đã hòa hợp khối [2048] và hoàn tất trọn vẹn cả 3 Phase của Energy Core!\n\n⏱️ Thời gian hoàn thành: ${clearTimeStr}\nĐiểm số đạt được: ${this.gameApp.gameLogic.score.toLocaleString()} điểm`,
-      primaryText: 'Chơi ván mới',
-      secondaryText: 'Chia sẻ kết quả',
+      title: '✨ STAGE CLEAR — CORE DESTROYED',
+      message: `Tuyệt phẩm! Bạn đã hòa hợp khối [2048] và tiêu diệt hoàn toàn Dark Singularity Core!\n\n⏱️ Thời gian hoàn thành: ${clearTimeStr}\nĐiểm số đạt được: ${this.gameApp.gameLogic.score.toLocaleString()} điểm`,
+      primaryText: '🎮 Chơi lại ngay',
+      secondaryText: '📤 Chia sẻ kết quả',
       onPrimary: () => {
+        this.gameApp.hideModal();
+        this.gameApp.isAnimating = false;
         this.stopRaid();
         this.gameApp.startNewGame(false);
       },
@@ -544,15 +646,19 @@ export class BossManager {
     soundManager.playGameOver();
 
     this.gameApp.showModal({
-      title: '⌛ HẾT THỜI GIAN',
-      message: `Hết giờ trong chế độ Boss Mode!\nNăng lượng đã tiêu hao: ${(this.maxHp - this.hp).toLocaleString()} HP`,
-      primaryText: 'Thử lại ngay',
-      secondaryText: 'Thoát chế độ',
+      title: '💀 THẤT BẠI (GAME OVER)',
+      message: `Hết giờ trong chế độ Boss Mode!\nNăng lượng hắc ám đã tiêu hao: ${(this.maxHp - this.hp).toLocaleString()} / ${this.maxHp.toLocaleString()} HP`,
+      primaryText: '🎮 Chơi lại ngay',
+      secondaryText: '🎮 Ván mới',
       onPrimary: () => {
+        this.gameApp.hideModal();
+        this.gameApp.isAnimating = false;
         this.startRaid();
         this.gameApp.startNewGame(false);
       },
       onSecondary: () => {
+        this.gameApp.hideModal();
+        this.gameApp.isAnimating = false;
         this.stopRaid();
         this.gameApp.startNewGame(false);
       }
@@ -592,8 +698,8 @@ export class BossManager {
     this.gameApp.spawnSpecificTile(0, 0, 0, 1024);
     this.gameApp.spawnSpecificTile(0, 0, 1, 1024);
 
-    this.triggerBanner('⚡ TEST: FINAL PHASE READY', 'Trượt sang Trái (A / ←) để gộp 2 khối [1024] -> [2048]!');
-    this.gameApp.showSpellToast('⚡ Sẵn sàng: Trượt sang Trái để gộp 2048 và xem pháo hoa pha lê!');
+    this.triggerBanner('💥 CORE — ABSOLUTE OBLITERATION', 'Trượt sang Trái (A / ←) để gộp 2 khối [1024] -> [2048]!');
+    this.gameApp.showSpellToast('⚡ Sẵn sàng: Trượt sang Trái để hủy diệt Dark Singularity Core!');
   }
 
   clearVFX() {

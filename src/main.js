@@ -933,6 +933,7 @@ class GameApp {
   startNewGame(checkSaved = false) {
     this.hideModal();
     this.cancelSwapMode();
+    this.isAnimating = false;
 
     if (checkSaved && this.restoreSavedGame()) {
       this.isAnimating = false;
@@ -947,6 +948,7 @@ class GameApp {
     this.tiles3D = this.createEmptyTileGrid();
     this.particleSystem.clear();
     this.gameLogic.reset();
+    this.gameLogic.gameOver = false;
     this.rushTime = 30.0;
     this.updateScoreUI();
     this.updateSpellUI();
@@ -1201,16 +1203,27 @@ class GameApp {
     }
 
     if (result.gameOver) {
+      this.isAnimating = false; // UNFREEZE IMMEDIATELY
       if (this.aiBot) this.aiBot.stop();
+      if (this.isBossRaid && this.bossManager) {
+        this.bossManager.isDefeated = true;
+      }
       soundManager.playGameOver();
       this.clearSavedGameState();
       this.showModal({
-        title: `💀 ${t('modal_gameover_title')}`,
-        message: `${t('modal_gameover_msg')}\n${t('score')}: ${this.gameLogic.score}`,
-        primaryText: t('modal_btn_new_game'),
-        secondaryText: null,
+        title: '💀 THẤT BẠI (GAME OVER)',
+        message: `${t('modal_gameover_msg')}\n${t('score')}: ${this.gameLogic.score.toLocaleString()}`,
+        primaryText: '🎮 Chơi lại ngay',
+        secondaryText: '🎮 Ván mới',
         onPrimary: () => {
-          this.startNewGame();
+          this.hideModal();
+          this.isAnimating = false;
+          this.startNewGame(false);
+        },
+        onSecondary: () => {
+          this.hideModal();
+          this.isAnimating = false;
+          this.startNewGame(false);
         }
       });
       return;
@@ -1224,15 +1237,21 @@ class GameApp {
     this.modalTitle.textContent = title;
     this.modalMessage.textContent = message;
 
-    this.modalBtnPrimary.textContent = primaryText;
-    this.modalBtnPrimary.onclick = () => {
+    this.modalBtnPrimary.textContent = primaryText || '🎮 Chơi lại ngay';
+    this.modalBtnPrimary.onclick = (e) => {
+      if (e) e.stopPropagation();
+      this.hideModal();
+      this.isAnimating = false;
       if (onPrimary) onPrimary();
     };
 
     if (secondaryText) {
       this.modalBtnSecondary.textContent = secondaryText;
       this.modalBtnSecondary.style.display = 'inline-block';
-      this.modalBtnSecondary.onclick = () => {
+      this.modalBtnSecondary.onclick = (e) => {
+        if (e) e.stopPropagation();
+        this.hideModal();
+        this.isAnimating = false;
         if (onSecondary) onSecondary();
       };
     } else {
@@ -1244,6 +1263,7 @@ class GameApp {
 
   hideModal() {
     this.modalOverlay.classList.remove('active');
+    this.isAnimating = false;
   }
 
   updateSpellUI() {
@@ -1687,14 +1707,22 @@ class GameApp {
         this.gameLogic.gameOver = true;
         if (this.aiBot) this.aiBot.stop();
         this.clearSavedGameState();
+        this.isAnimating = false; // UNFREEZE
         soundManager.playGameOver();
         this.showModal({
-          title: '⌛ HẾT THỜI GIAN!',
-          message: `Hết giờ trong chế độ Time Rush!\nĐiểm số đạt được: ${this.gameLogic.score}`,
-          primaryText: 'Thử lại ngay',
-          secondaryText: null,
+          title: '💀 THẤT BẠI (GAME OVER)',
+          message: `Hết giờ trong chế độ Time Rush!\nĐiểm số đạt được: ${this.gameLogic.score.toLocaleString()}`,
+          primaryText: '🎮 Chơi lại ngay',
+          secondaryText: '🎮 Ván mới',
           onPrimary: () => {
-            this.startNewGame();
+            this.hideModal();
+            this.isAnimating = false;
+            this.startNewGame(false);
+          },
+          onSecondary: () => {
+            this.hideModal();
+            this.isAnimating = false;
+            this.startNewGame(false);
           }
         });
       }

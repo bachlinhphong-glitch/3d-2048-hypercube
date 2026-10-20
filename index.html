@@ -56,13 +56,13 @@
 
   <!-- Glassmorphism UI Overlay -->
   <div class="ui-overlay">
-    <!-- Top Header Bar (Clean 4-Cluster Architecture) -->
+    <!-- Top Header Bar (Ultra-Clean Streamlined Architecture) -->
     <header class="header-bar">
-      <!-- Cluster 1 (Left): Brand & FPS -->
+      <!-- Cluster 1 (Left): Brand -->
       <div class="header-brand-cluster">
         <h1 class="game-title">2048</h1>
-        <span class="fps-badge" id="fps-counter">60 FPS</span>
-        <span class="ai-status-badge" id="ai-status-badge" style="display:none;">🤖 AI</span>
+        <!-- Hidden elements preserved for headless testing & telemetry scripts -->
+        <span class="fps-badge" id="fps-counter" style="display:none;">60 FPS</span>
       </div>
 
       <!-- Cluster 2 (Center-Left): Score & Best Stats -->
@@ -77,24 +77,17 @@
         </div>
       </div>
 
-      <!-- Cluster 3 (Center-Right): Quick Play Controls -->
+      <!-- Cluster 3 (Center-Right): Rush & Boss Modes Only -->
       <div class="header-modes-cluster">
-        <select id="select-mode" class="glass-select" data-i18n-title="mode_tooltip" title="Chế độ không gian">
-          <option value="4x4" data-i18n="mode_4x4">📦 4x4 Classic</option>
-          <option value="3x3x3" data-i18n="mode_3x3x3">🌌 3x3x3 Hypercube</option>
-        </select>
         <button id="btn-toggle-rush" class="glass-btn rush-btn" data-i18n-title="rush_tooltip" title="Chế độ đếm ngược Time Rush">
           <span class="btn-icon">⚡</span><span class="btn-text" data-i18n="btn_rush">Rush</span>
         </button>
-        <button id="btn-toggle-boss" class="glass-btn boss-btn" data-i18n-title="boss_tooltip" title="Bật/Tắt Boss Mode (3 Phase)">
+        <button id="btn-toggle-boss" class="glass-btn boss-btn" data-i18n-title="boss_tooltip" title="Bật/Tắt Boss Mode">
           <span class="btn-icon">⚔️</span><span class="btn-text" data-i18n="btn_boss">Boss</span>
-        </button>
-        <button id="btn-ai-toggle" class="glass-btn ai-btn" data-i18n-title="ai_tooltip" title="Bật/Tắt AI tự động chơi">
-          <span class="btn-icon">🤖</span><span class="btn-text" data-i18n="btn_ai">AI</span>
         </button>
       </div>
 
-      <!-- Cluster 4 (Right): Primary Actions -->
+      <!-- Cluster 4 (Right): Primary Actions (New Game + Settings) -->
       <div class="header-actions-cluster">
         <button id="btn-new-game" class="glass-btn primary" data-i18n-title="new_game_tooltip" title="Bắt đầu ván mới">
           <span class="btn-icon">🎮</span><span class="btn-text" data-i18n="btn_new_game">Chơi mới</span>
@@ -120,7 +113,24 @@
         </div>
 
         <div class="settings-body">
-          <!-- 1. Ngôn ngữ -->
+          <!-- 1. Chế độ Không gian (Mode) -->
+          <div class="settings-row">
+            <label class="settings-label" data-i18n="mode_tooltip">🌌 Không gian chơi</label>
+            <select id="select-mode" class="settings-select">
+              <option value="4x4" data-i18n="mode_4x4">📦 4x4 Classic</option>
+              <option value="3x3x3" data-i18n="mode_3x3x3">🌌 3x3x3 Hypercube</option>
+            </select>
+          </div>
+
+          <!-- 2. AI Tự Động Chơi -->
+          <div class="settings-row">
+            <label class="settings-label" data-i18n="ai_tooltip">🤖 AI Auto-Play</label>
+            <button id="btn-ai-toggle" class="glass-btn ai-btn">
+              <span class="btn-icon">🤖</span><span class="btn-text" data-i18n="btn_ai">AI Tự Chơi</span>
+            </button>
+          </div>
+
+          <!-- 3. Ngôn ngữ -->
           <div class="settings-row">
             <label class="settings-label" data-i18n="setting_lang">🌐 Ngôn ngữ</label>
             <select id="select-lang" class="settings-select">
@@ -131,7 +141,7 @@
             </select>
           </div>
 
-          <!-- 2. Hình dạng khối 3D (8 tùy chọn) -->
+          <!-- 4. Hình dạng khối 3D (8 tùy chọn) -->
           <div class="settings-row">
             <label class="settings-label" data-i18n="setting_shape">🧊 Hình khối 3D</label>
             <select id="select-shape" class="settings-select">
@@ -146,7 +156,7 @@
             </select>
           </div>
 
-          <!-- 3. Giao diện & Ảnh nền -->
+          <!-- 5. Giao diện & Ảnh nền -->
           <div class="settings-row">
             <label class="settings-label" data-i18n="setting_theme">🎨 Giao diện nền</label>
             <div class="settings-theme-group">
@@ -173,7 +183,7 @@
             </div>
           </div>
 
-          <!-- 4. Tần số quét (FPS) -->
+          <!-- 6. Tần số quét (FPS) -->
           <div class="settings-row">
             <label class="settings-label" data-i18n="setting_fps">🚀 Tần số quét (FPS)</label>
             <select id="select-fps" class="settings-select">
@@ -183,7 +193,7 @@
             </select>
           </div>
 
-          <!-- 5. Âm thanh & Nhạc -->
+          <!-- 7. Âm thanh & Nhạc -->
           <div class="settings-row">
             <label class="settings-label" data-i18n="setting_audio">🔊 Âm thanh & Nhạc</label>
             <div class="settings-toggle-cluster">
@@ -196,7 +206,7 @@
             </div>
           </div>
 
-          <!-- 6. Chia sẻ -->
+          <!-- 8. Chia sẻ -->
           <div class="settings-row">
             <label class="settings-label" data-i18n="setting_share">📤 Chia sẻ</label>
             <button id="btn-share-score" class="glass-btn share-action-btn">
@@ -380,49 +390,26 @@
       </div>
     </div>
 
-    <!-- Bottom Controls Guide -->
+    <!-- Bottom Controls Guide (Sleek Compact Capsule) -->
     <footer class="bottom-bar">
-      <div class="hint-pill desktop-only">
-        <div class="hint-item">
-          <span class="hint-key">↑ ↓ ← →</span> / <span class="hint-key">W A S D</span>
-          <span data-i18n="hint_slide">Trượt phẳng</span>
-        </div>
-        <div class="hint-item">
-          <span class="hint-key">E / Q</span>
-          <span data-i18n="hint_layer">Lên/Xuống tầng 3D</span>
-        </div>
-        <div class="hint-item">
-          <span class="hint-key">H</span>
-          <span data-i18n="spell_hint">Gợi ý</span>
-        </div>
-        <div class="hint-item">
-          <span class="hint-key">Z</span>
-          <span data-i18n="spell_undo">Đi lại</span>
-        </div>
-        <div class="hint-item">
-          <span class="hint-key">X</span>
-          <span data-i18n="spell_swap">Đổi vị trí</span>
-        </div>
-        <div class="hint-item">
-          <span class="hint-key">1 2 3</span>
-          <span data-i18n="hint_cam">Góc nhìn</span>
-        </div>
-        <div class="hint-item">
-          <span class="hint-key">V/Tab</span>
-          <span data-i18n="hint_slice">Cắt lớp 3D</span>
-        </div>
-        <div class="hint-item">
-          <span class="hint-key">Shift</span>
-          <span data-i18n="hint_ghost">Dự đoán</span>
-        </div>
-        <div class="hint-item">
-          <span class="hint-key">Chuột phải</span>
-          <span data-i18n="hint_rotate">Xoay 3D</span>
-        </div>
+      <div class="hint-compact-pill desktop-only">
+        <span><kbd>WASD</kbd> / <kbd>↑↓←→</kbd> <span data-i18n="hint_slide">Trượt</span></span>
+        <span class="hint-sep">|</span>
+        <span><kbd>E</kbd>/<kbd>Q</kbd> <span data-i18n="hint_layer">Tầng</span></span>
+        <span class="hint-sep">|</span>
+        <span><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> <span data-i18n="hint_cam">Camera</span></span>
+        <span class="hint-sep">|</span>
+        <span><kbd>V</kbd> <span data-i18n="hint_slice">Cắt lớp</span></span>
+        <span class="hint-sep">|</span>
+        <span><kbd>Shift</kbd> <span data-i18n="hint_ghost">Dự đoán</span></span>
+        <span class="hint-sep">|</span>
+        <span><kbd>H</kbd> <span data-i18n="spell_hint">Gợi ý</span></span>
+        <span class="hint-sep">|</span>
+        <span><kbd>Z</kbd> <span data-i18n="spell_undo">Đi lại</span></span>
       </div>
-      <div class="hint-pill mobile-only">
+      <div class="hint-compact-pill mobile-only">
         <span data-i18n="hint_mobile_swipe">👆 Vuốt để trượt khối</span>
-        <span class="hint-dot">•</span>
+        <span class="hint-sep">•</span>
         <span data-i18n="hint_mobile_rotate">✌️ 2 ngón xoay bàn cờ</span>
       </div>
     </footer>
@@ -434,9 +421,9 @@
       <h2 id="modal-title" class="modal-title" data-i18n="modal_victory_title">CHIẾN THẮNG!</h2>
       <p id="modal-message" class="modal-message" data-i18n="modal_victory_msg">Chúc mừng bạn đã đạt khối 2048!</p>
       <div class="modal-actions">
-        <button id="modal-btn-secondary" class="modal-btn secondary" data-i18n="modal_btn_new_game">Chơi ván mới</button>
+        <button id="modal-btn-secondary" class="modal-btn secondary" data-i18n="modal_btn_new_game">🎮 Ván mới</button>
         <button id="modal-btn-share" class="modal-btn" style="background: linear-gradient(135deg, #00f0ff, #7928ca); color: #fff;" data-i18n="modal_btn_share">📤 Chia sẻ điểm</button>
-        <button id="modal-btn-primary" class="modal-btn primary" data-i18n="modal_btn_continue">Tiếp tục</button>
+        <button id="modal-btn-primary" class="modal-btn primary" data-i18n="modal_btn_continue">🎮 Chơi lại ngay</button>
       </div>
     </div>
   </div>
