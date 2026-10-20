@@ -95,14 +95,14 @@ function getSharedPlasmaTorus() {
 }
 
 export class Tile3D {
-  constructor(layer, row, col, value, scene, shape = 'rounded_cube', isBomb = false, bombCountdown = 5) {
+  constructor(layer, row, col, value, scene, shape = 'auto_evolution', isBomb = false, bombCountdown = 5) {
     this.id = nextTileId++;
     this.layer = layer;
     this.row = row;
     this.col = col;
     this.value = value;
     this.scene = scene;
-    this.shapeType = shape;
+    this.shapeType = shape || 'auto_evolution';
     this.isBomb = isBomb;
     this.bombCountdown = bombCountdown;
 
@@ -130,11 +130,13 @@ export class Tile3D {
 
   getEffectiveShape() {
     if (this.shapeType === 'auto_evolution') {
-      if (this.value <= 8) return 'rounded_cube';
-      if (this.value <= 32) return 'hex_prism';
-      if (this.value <= 128) return 'cyber_pyramid';
-      if (this.value <= 512) return 'star_dodecahedron';
-      return 'core_sphere';
+      if (this.value <= 4) return 'rounded_cube';         // 2, 4: Bo Góc êm mắt
+      if (this.value <= 16) return 'hex_prism';           // 8, 16: Lăng Trụ Lục Giác
+      if (this.value <= 64) return 'cyber_pyramid';        // 32, 64: Kim Tự Tháp Cyber
+      if (this.value <= 256) return 'crystal_octahedron'; // 128, 256: Bát Diện Pha Lê
+      if (this.value <= 512) return 'star_dodecahedron';  // 512: Thập Nhị Diện Tinh Tú
+      if (this.value <= 1024) return 'plasma_torus';      // 1024: Vòng Xoáy Plasma
+      return 'core_sphere';                               // 2048+: Lõi Cầu Thiên Hà Đa Tầng
     }
     return this.shapeType;
   }

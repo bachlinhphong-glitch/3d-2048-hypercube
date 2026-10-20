@@ -16,7 +16,7 @@ class GameApp {
   constructor() {
     this.container = document.getElementById('canvas-container');
     this.mode = localStorage.getItem('3d2048_last_mode') || '4x4';
-    this.currentShape = 'rounded_cube'; // 'rounded_cube', 'crystal_octahedron', 'core_sphere', 'auto_evolution'
+    this.currentShape = localStorage.getItem('3d2048_shape') || 'auto_evolution';
     const savedTheme = localStorage.getItem('3d2048_theme');
     const isThemeManual = localStorage.getItem('3d2048_theme_manual') === 'true';
     this.currentTheme = (savedTheme && (savedTheme !== 'cat_moon' || isThemeManual)) ? savedTheme : 'galaxy';
@@ -288,9 +288,17 @@ class GameApp {
       sliceControls.style.display = this.mode === '3x3x3' ? 'flex' : 'none';
     }
 
-    // Tile Shape Selector
+    // Tile Shape Selector (Header quick select & Settings modal select)
+    const headerShapeSelect = document.getElementById('header-select-shape');
     const shapeSelect = document.getElementById('select-shape');
+    if (headerShapeSelect) {
+      headerShapeSelect.value = this.currentShape;
+      headerShapeSelect.addEventListener('change', (e) => {
+        this.switchTileShape(e.target.value);
+      });
+    }
     if (shapeSelect) {
+      shapeSelect.value = this.currentShape;
       shapeSelect.addEventListener('change', (e) => {
         this.switchTileShape(e.target.value);
       });
@@ -462,6 +470,19 @@ class GameApp {
 
   switchTileShape(newShape) {
     this.currentShape = newShape;
+    try {
+      localStorage.setItem('3d2048_shape', newShape);
+    } catch {}
+
+    const headerShapeSelect = document.getElementById('header-select-shape');
+    if (headerShapeSelect && headerShapeSelect.value !== newShape) {
+      headerShapeSelect.value = newShape;
+    }
+    const shapeSelect = document.getElementById('select-shape');
+    if (shapeSelect && shapeSelect.value !== newShape) {
+      shapeSelect.value = newShape;
+    }
+
     for (let l = 0; l < this.tiles3D.length; l++) {
       for (let r = 0; r < this.tiles3D[l].length; r++) {
         for (let c = 0; c < this.tiles3D[l][r].length; c++) {

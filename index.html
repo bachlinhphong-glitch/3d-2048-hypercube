@@ -27,17 +27,17 @@
 
   <link rel="icon" type="image/svg+xml" href="./favicon.svg">
   <link rel="manifest" href="./manifest.json">
-  <link rel="stylesheet" href="./src/style.css?v=5.4.0">
+  <link rel="stylesheet" href="./src/style.css?v=5.5.0">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=5.4.0').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=5.5.0').then(reg => {
           reg.update();
         }).catch(() => {});
       });
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!sessionStorage.getItem('sw_reloaded_540')) {
-          sessionStorage.setItem('sw_reloaded_540', '1');
+        if (!sessionStorage.getItem('sw_reloaded_550')) {
+          sessionStorage.setItem('sw_reloaded_550', '1');
           window.location.reload();
         }
       });
@@ -85,8 +85,18 @@
         </div>
       </div>
 
-      <!-- Cluster 3 (Center-Right): Rush & Boss Modes Only -->
+      <!-- Cluster 3 (Center-Right): Shapes & Quick Modes -->
       <div class="header-modes-cluster">
+        <select id="header-select-shape" class="glass-select shape-quick-select" title="Chọn hình khối 3D" data-i18n-title="shape_tooltip">
+          <option value="auto_evolution" data-i18n="shape_auto" selected>🧬 Tiến Hóa Tự Động</option>
+          <option value="rounded_cube" data-i18n="shape_cube">🧊 Khối Bo Góc</option>
+          <option value="crystal_octahedron" data-i18n="shape_octahedron">💎 Bát Diện Kim Cương</option>
+          <option value="core_sphere" data-i18n="shape_sphere">🔮 Cầu Năng Lượng</option>
+          <option value="hex_prism" data-i18n="shape_hex">⬢ Lăng Trụ Lục Giác</option>
+          <option value="cyber_pyramid" data-i18n="shape_pyramid">🔺 Kim Tự Tháp</option>
+          <option value="star_dodecahedron" data-i18n="shape_dodecahedron">🌟 Thập Nhị Diện</option>
+          <option value="plasma_torus" data-i18n="shape_torus">🍩 Vòng Xoáy Năng Lượng</option>
+        </select>
         <button id="btn-toggle-rush" class="glass-btn rush-btn" data-i18n-title="rush_tooltip" title="Chế độ đếm ngược Time Rush">
           <span class="btn-icon">⚡</span><span class="btn-text" data-i18n="btn_rush">Rush</span>
         </button>
@@ -364,6 +374,7 @@
         <div class="settings-row">
           <label class="settings-label" data-i18n="setting_shape">🧊 Hình khối 3D</label>
           <select id="select-shape" class="settings-select">
+            <option value="auto_evolution" data-i18n="shape_auto" selected>🧬 Tiến Hóa Tự Động</option>
             <option value="rounded_cube" data-i18n="shape_cube">🧊 Khối Bo Góc</option>
             <option value="crystal_octahedron" data-i18n="shape_octahedron">💎 Bát Diện Kim Cương</option>
             <option value="core_sphere" data-i18n="shape_sphere">🔮 Cầu Năng Lượng</option>
@@ -371,7 +382,6 @@
             <option value="cyber_pyramid" data-i18n="shape_pyramid">🔺 Kim Tự Tháp</option>
             <option value="star_dodecahedron" data-i18n="shape_dodecahedron">🌟 Thập Nhị Diện</option>
             <option value="plasma_torus" data-i18n="shape_torus">🍩 Vòng Xoáy Năng Lượng</option>
-            <option value="auto_evolution" data-i18n="shape_auto">🧬 Tiến Hóa Tự Động</option>
           </select>
         </div>
 
@@ -437,6 +447,6 @@
   </div>
 
   <!-- Main Game Script -->
-  <script type="module" src="./src/main.js?v=5.4.0"></script>
+  <script type="module" src="./src/main.js?v=5.5.0"></script>
 </body>
 </html>

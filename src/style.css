@@ -322,6 +322,34 @@ body.theme-telemetry .glass-select {
   border-color: rgba(255, 255, 255, 0.3);
 }
 
+.shape-quick-select {
+  background: rgba(13, 17, 23, 0.88);
+  border: 1px solid rgba(0, 240, 255, 0.38);
+  color: #00f0ff;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+  max-width: 175px;
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.12);
+  white-space: nowrap;
+}
+
+.shape-quick-select:hover,
+.shape-quick-select:focus {
+  border-color: #00f0ff;
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.4);
+  background: rgba(13, 20, 32, 0.96);
+  color: #ffffff;
+}
+
+.shape-quick-select option {
+  background: #0d1117;
+  color: #f0f6fc;
+}
+
 /* Stats Section */
 .stats-section {
   display: flex;
@@ -1210,6 +1238,12 @@ body.theme-telemetry .glass-select {
     max-width: 110px;
   }
 
+  .shape-quick-select {
+    max-width: 125px;
+    font-size: 10px;
+    padding: 4px 6px;
+  }
+
   .stat-pill {
     min-width: 52px;
     padding: 2px 6px;
@@ -1333,6 +1367,12 @@ body.theme-telemetry .glass-select {
 
   .header-actions-cluster .btn-text {
     display: none;
+  }
+
+  .shape-quick-select {
+    max-width: 95px;
+    font-size: 9px;
+    padding: 3px 5px;
   }
 
   .stat-pill {

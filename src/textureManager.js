@@ -1,20 +1,20 @@
 import * as THREE from 'three';
 
 const TILE_STYLES = {
-  2:     { bg: '#0284c7', text: '#ffffff', emissive: '#0ea5e9', intensity: 0.35, rim: '#7dd3fc' },
-  4:     { bg: '#059669', text: '#ffffff', emissive: '#10b981', intensity: 0.40, rim: '#6ee7b7' },
-  8:     { bg: '#d97706', text: '#ffffff', emissive: '#f59e0b', intensity: 0.45, rim: '#fde68a' },
-  16:    { bg: '#ea580c', text: '#ffffff', emissive: '#f97316', intensity: 0.50, rim: '#fed7aa' },
-  32:    { bg: '#dc2626', text: '#ffffff', emissive: '#ef4444', intensity: 0.55, rim: '#fca5a5' },
-  64:    { bg: '#db2777', text: '#ffffff', emissive: '#ec4899', intensity: 0.60, rim: '#fbcfe8' },
-  128:   { bg: '#ca8a04', text: '#ffffff', emissive: '#eab308', intensity: 0.70, rim: '#fef08a' },
-  256:   { bg: '#7c3aed', text: '#ffffff', emissive: '#8b5cf6', intensity: 0.75, rim: '#ddd6fe' },
-  512:   { bg: '#4f46e5', text: '#ffffff', emissive: '#6366f1', intensity: 0.80, rim: '#c7d2fe' },
-  1024:  { bg: '#0891b2', text: '#ffffff', emissive: '#06b6d4', intensity: 0.90, rim: '#a5f3fc' },
-  2048:  { bg: '#b45309', text: '#ffffff', emissive: '#ffd700', intensity: 1.10, rim: '#fffbeb' },
-  4096:  { bg: '#9333ea', text: '#ffffff', emissive: '#c084fc', intensity: 1.20, rim: '#f3e8ff' },
-  8192:  { bg: '#059669', text: '#ffffff', emissive: '#34d399', intensity: 1.30, rim: '#d1fae5' },
-  16384: { bg: '#e11d48', text: '#ffffff', emissive: '#fb7185', intensity: 1.40, rim: '#ffe4e6' }
+  2:     { bg: '#2563eb', text: '#ffffff', emissive: '#3b82f6', intensity: 0.38, rim: '#93c5fd' },  // Vibrant Royal Azure
+  4:     { bg: '#0891b2', text: '#ffffff', emissive: '#06b6d4', intensity: 0.42, rim: '#67e8f9' },  // Electric Cyan Teal
+  8:     { bg: '#059669', text: '#ffffff', emissive: '#10b981', intensity: 0.48, rim: '#6ee7b7' },  // Emerald Jade
+  16:    { bg: '#d97706', text: '#ffffff', emissive: '#f59e0b', intensity: 0.52, rim: '#fde68a' },  // Warm Amber Gold
+  32:    { bg: '#ea580c', text: '#ffffff', emissive: '#f97316', intensity: 0.58, rim: '#fed7aa' },  // Sunset Tangerine
+  64:    { bg: '#e11d48', text: '#ffffff', emissive: '#f43f5e', intensity: 0.65, rim: '#fecdd3' },  // Crimson Coral
+  128:   { bg: '#c026d3', text: '#ffffff', emissive: '#d946ef', intensity: 0.72, rim: '#f5d0fe' },  // Neon Fuchsia
+  256:   { bg: '#7c3aed', text: '#ffffff', emissive: '#8b5cf6', intensity: 0.78, rim: '#ddd6fe' },  // Royal Amethyst
+  512:   { bg: '#4f46e5', text: '#ffffff', emissive: '#6366f1', intensity: 0.85, rim: '#c7d2fe' },  // Astral Indigo
+  1024:  { bg: '#0284c7', text: '#ffffff', emissive: '#00f0ff', intensity: 0.95, rim: '#e0f2fe' },  // Hyper Diamond Cyan
+  2048:  { bg: '#b45309', text: '#ffffff', emissive: '#ffd700', intensity: 1.15, rim: '#fffbeb' },  // Imperial Gold Singularity
+  4096:  { bg: '#9333ea', text: '#ffffff', emissive: '#c084fc', intensity: 1.25, rim: '#f3e8ff' },  // Cosmic Plasma Orchid
+  8192:  { bg: '#059669', text: '#ffffff', emissive: '#34d399', intensity: 1.35, rim: '#d1fae5' },  // Celestial Jade Aurora
+  16384: { bg: '#e11d48', text: '#ffffff', emissive: '#fb7185', intensity: 1.45, rim: '#ffe4e6' }   // Supernova Magenta
 };
 
 export class TextureManager {
@@ -79,45 +79,87 @@ export class TextureManager {
 
     const style = this.getStyle(value);
 
-    // 1. Rich multi-stop gradient background
+    // 1. Rich multi-stop gradient background with high visual depth
     const grad = ctx.createLinearGradient(0, 0, size, size);
     if (isBomb) {
       grad.addColorStop(0, '#ff4757');
       grad.addColorStop(0.5, '#b31217');
-      grad.addColorStop(1, '#530a0d');
+      grad.addColorStop(1, '#3b0609');
     } else if (this.isHyperNeon) {
-      grad.addColorStop(0, this.adjustBrightness(style.bg, 35));
-      grad.addColorStop(0.5, style.bg);
-      grad.addColorStop(1, this.adjustBrightness(style.bg, -30));
+      grad.addColorStop(0, this.adjustBrightness(style.bg, 40));
+      grad.addColorStop(0.48, style.bg);
+      grad.addColorStop(1, this.adjustBrightness(style.bg, -35));
     } else {
-      grad.addColorStop(0, this.adjustBrightness(style.bg, 25));
-      grad.addColorStop(0.5, style.bg);
-      grad.addColorStop(1, this.adjustBrightness(style.bg, -25));
+      grad.addColorStop(0, this.adjustBrightness(style.bg, 32));
+      grad.addColorStop(0.45, style.bg);
+      grad.addColorStop(1, this.adjustBrightness(style.bg, -30));
     }
 
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, size, size);
 
-    // 2. Glossy curved specular highlight (lacquer/glass sheen)
+    // 2. Luminous inner vignette behind the number (adds convex depth)
+    const centerRadial = ctx.createRadialGradient(size / 2, size / 2 - 15, 20, size / 2, size / 2, size * 0.48);
+    centerRadial.addColorStop(0, 'rgba(255, 255, 255, 0.24)');
+    centerRadial.addColorStop(0.65, 'rgba(255, 255, 255, 0.05)');
+    centerRadial.addColorStop(1, 'rgba(0, 0, 0, 0.28)');
+    ctx.fillStyle = centerRadial;
+    ctx.fillRect(0, 0, size, size);
+
+    // 3. Subtle micro geometric grid sheen (luxury tactile detail)
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+    ctx.lineWidth = 1;
+    for (let i = 48; i < size; i += 48) {
+      ctx.beginPath();
+      ctx.moveTo(i, 24);
+      ctx.lineTo(i, size - 24);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(24, i);
+      ctx.lineTo(size - 24, i);
+      ctx.stroke();
+    }
+
+    // 4. Glossy curved specular highlight (curved liquid glass sheen)
     ctx.save();
     ctx.beginPath();
-    ctx.ellipse(size / 2, 75, size * 0.42, 75, 0, 0, Math.PI * 2);
-    const sheenGrad = ctx.createLinearGradient(0, 0, 0, 150);
-    sheenGrad.addColorStop(0, 'rgba(255, 255, 255, 0.40)');
+    ctx.ellipse(size / 2, 70, size * 0.42, 65, 0, 0, Math.PI * 2);
+    const sheenGrad = ctx.createLinearGradient(0, 0, 0, 140);
+    sheenGrad.addColorStop(0, 'rgba(255, 255, 255, 0.46)');
+    sheenGrad.addColorStop(0.7, 'rgba(255, 255, 255, 0.12)');
     sheenGrad.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
     ctx.fillStyle = sheenGrad;
     ctx.fill();
     ctx.restore();
 
-    // 3. Soft rounded inset border highlight matching tile bevel
-    ctx.strokeStyle = isBomb ? 'rgba(255, 250, 100, 0.45)' : 'rgba(255, 255, 255, 0.26)';
-    ctx.lineWidth = 8;
+    // 5. Dual Inset Precision Bevel (Outer smooth rim + Inner hairline)
+    ctx.strokeStyle = isBomb ? 'rgba(255, 250, 100, 0.55)' : 'rgba(255, 255, 255, 0.35)';
+    ctx.lineWidth = 7;
     ctx.beginPath();
-    ctx.roundRect(24, 24, size - 48, size - 48, 56);
+    ctx.roundRect(22, 22, size - 44, size - 44, 52);
     ctx.stroke();
 
-    // 4. Large crisp typography with bold 3D depth
-    ctx.fillStyle = isBomb ? '#ffffff' : style.text;
+    ctx.strokeStyle = isBomb ? 'rgba(255, 200, 50, 0.25)' : 'rgba(255, 255, 255, 0.14)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(32, 32, size - 64, size - 64, 44);
+    ctx.stroke();
+
+    // 6. Corner micro-dots (jewel precision accents)
+    ctx.fillStyle = isBomb ? '#fffa65' : (style.rim || '#ffffff');
+    const dotDist = 38;
+    [
+      [dotDist, dotDist],
+      [size - dotDist, dotDist],
+      [dotDist, size - dotDist],
+      [size - dotDist, size - dotDist]
+    ].forEach(([cx, cy]) => {
+      ctx.beginPath();
+      ctx.arc(cx, cy, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    // 7. Large crisp typography with multi-tier glow & embossed shadow
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
@@ -127,16 +169,32 @@ export class TextureManager {
     else if (str.length === 4) fontSize = 125;
     else if (str.length >= 5) fontSize = 95;
 
-    ctx.font = `900 ${fontSize}px "Montserrat", "Inter", "Segoe UI", sans-serif`;
-    
+    ctx.font = `900 ${fontSize}px "Outfit", "Montserrat", "Inter", -apple-system, sans-serif`;
+
     // Ambient drop shadow
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.75)';
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.85)';
     ctx.shadowBlur = 18;
     ctx.shadowOffsetY = 10;
     ctx.fillText(str, size / 2, size / 2 + (isBomb ? -26 : 6));
 
+    // Luminous emissive color bloom
+    ctx.shadowColor = isBomb ? '#ff3838' : (style.emissive || style.bg);
+    ctx.shadowBlur = 14;
+    ctx.shadowOffsetY = 0;
+    ctx.fillText(str, size / 2, size / 2 + (isBomb ? -26 : 6));
+
     // Crisp foreground text overlay
     ctx.shadowColor = 'transparent';
+    if (value === 2048) {
+      const goldGrad = ctx.createLinearGradient(0, size * 0.35, 0, size * 0.65);
+      goldGrad.addColorStop(0, '#ffffff');
+      goldGrad.addColorStop(0.4, '#fffbeb');
+      goldGrad.addColorStop(0.7, '#fef08a');
+      goldGrad.addColorStop(1, '#facc15');
+      ctx.fillStyle = goldGrad;
+    } else {
+      ctx.fillStyle = isBomb ? '#ffffff' : style.text;
+    }
     ctx.fillText(str, size / 2, size / 2 + (isBomb ? -26 : 6));
 
     // If bomb, draw bomb countdown indicator
@@ -160,7 +218,7 @@ export class TextureManager {
     return texture;
   }
 
-  // Create circular billboard sprite texture for Spheres & Octahedrons
+  // Create circular billboard sprite texture for Spheres, Octahedrons & Complex 3D Models
   createSpriteTexture(value, isBomb = false, bombCountdown = 0) {
     const cacheKey = `sprite_${value}_${isBomb}_${bombCountdown}`;
     if (this.spriteTextureCache.has(cacheKey)) {
@@ -178,31 +236,46 @@ export class TextureManager {
     // Clear transparent background
     ctx.clearRect(0, 0, size, size);
 
-    // Outer glowing neon ring
-    ctx.save();
+    // Ethereal translucent glass lens backing (smooth falloff so 3D crystal shines through)
+    const radGrad = ctx.createRadialGradient(size / 2, size / 2, 20, size / 2, size / 2, 230);
+    radGrad.addColorStop(0, isBomb ? 'rgba(180, 20, 20, 0.85)' : 'rgba(10, 16, 28, 0.72)');
+    radGrad.addColorStop(0.75, isBomb ? 'rgba(120, 10, 10, 0.45)' : 'rgba(10, 16, 28, 0.35)');
+    radGrad.addColorStop(1, 'rgba(10, 16, 28, 0.0)');
+    ctx.fillStyle = radGrad;
     ctx.beginPath();
-    ctx.arc(size / 2, size / 2, 224, 0, Math.PI * 2);
-    ctx.strokeStyle = isBomb ? '#ff3838' : (style.emissive || style.bg);
-    ctx.lineWidth = 18;
-    ctx.shadowColor = isBomb ? '#ff3838' : (style.emissive || style.bg);
-    ctx.shadowBlur = 25;
-    ctx.stroke();
-
-    // Dark cosmic glass core disc
-    ctx.beginPath();
-    ctx.arc(size / 2, size / 2, 214, 0, Math.PI * 2);
-    ctx.fillStyle = isBomb ? 'rgba(180, 20, 20, 0.92)' : 'rgba(10, 16, 28, 0.90)';
+    ctx.arc(size / 2, size / 2, 230, 0, Math.PI * 2);
     ctx.fill();
 
-    // Inner gold/cyan accent rim
+    // Outer glowing holographic neon ring
+    ctx.save();
     ctx.beginPath();
-    ctx.arc(size / 2, size / 2, 195, 0, Math.PI * 2);
-    ctx.strokeStyle = isBomb ? '#fffa65' : 'rgba(255, 255, 255, 0.4)';
-    ctx.lineWidth = 4;
+    ctx.arc(size / 2, size / 2, 218, 0, Math.PI * 2);
+    ctx.strokeStyle = isBomb ? '#ff3838' : (style.emissive || style.bg);
+    ctx.lineWidth = 14;
+    ctx.shadowColor = isBomb ? '#ff3838' : (style.emissive || style.bg);
+    ctx.shadowBlur = 24;
     ctx.stroke();
 
+    // Inner subtle gold/cyan accent rim
+    ctx.beginPath();
+    ctx.arc(size / 2, size / 2, 198, 0, Math.PI * 2);
+    ctx.strokeStyle = isBomb ? '#fffa65' : 'rgba(255, 255, 255, 0.45)';
+    ctx.lineWidth = 3;
+    ctx.shadowColor = 'transparent';
+    ctx.stroke();
+
+    // Cardinal Micro Ticks
+    ctx.fillStyle = isBomb ? '#fffa65' : (style.rim || '#ffffff');
+    const tickAngles = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2];
+    tickAngles.forEach(angle => {
+      const tx = size / 2 + Math.cos(angle) * 208;
+      const ty = size / 2 + Math.sin(angle) * 208;
+      ctx.beginPath();
+      ctx.arc(tx, ty, 4, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
     // Number text
-    ctx.fillStyle = '#ffffff';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
@@ -212,9 +285,23 @@ export class TextureManager {
     else if (str.length === 4) fontSize = 110;
     else if (str.length >= 5) fontSize = 85;
 
-    ctx.font = `900 ${fontSize}px "Montserrat", "Inter", "Segoe UI", sans-serif`;
-    ctx.shadowColor = 'rgba(0,0,0,0.85)';
-    ctx.shadowBlur = 14;
+    ctx.font = `900 ${fontSize}px "Outfit", "Montserrat", "Inter", -apple-system, sans-serif`;
+    
+    // Deep ambient shadow
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.88)';
+    ctx.shadowBlur = 16;
+    ctx.shadowOffsetY = 6;
+    ctx.fillText(str, size / 2, size / 2 + (isBomb ? -26 : 5));
+
+    // Luminous halo
+    ctx.shadowColor = isBomb ? '#ff3838' : (style.emissive || style.bg);
+    ctx.shadowBlur = 12;
+    ctx.shadowOffsetY = 0;
+    ctx.fillText(str, size / 2, size / 2 + (isBomb ? -26 : 5));
+
+    // Foreground text
+    ctx.shadowColor = 'transparent';
+    ctx.fillStyle = value === 2048 ? '#fef08a' : '#ffffff';
     ctx.fillText(str, size / 2, size / 2 + (isBomb ? -26 : 5));
 
     if (isBomb) {
