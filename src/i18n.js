@@ -121,7 +121,29 @@ export const DICTIONARY = {
     toast_swap_prompt: 'Chạm 2 khối liên tiếp để đổi vị trí!',
     toast_swap_success: 'Đổi vị trí thành công!',
     toast_ai_start: '🤖 AI AUTO-PLAY: ĐANG TỰ ĐỘNG CHƠI...',
-    toast_ai_stop: '⏸️ AI AUTO-PLAY: ĐÃ TẠM DỪNG'
+    toast_ai_stop: '⏸️ AI AUTO-PLAY: ĐÃ TẠM DỪNG',
+
+    // Quests & 3D Trophy
+    btn_quests: 'Cúp & Nhiệm vụ',
+    quests_tooltip: 'Xem nhiệm vụ và Cúp 2048 3D độc quyền',
+    trophy_modal_title: '🏆 NHIỆM VỤ & CÚP 2048 ĐỘC QUYỀN',
+    trophy_modal_subtitle: 'Hoàn thành 7 nhiệm vụ để mở khóa Cúp Vàng 3D vinh danh bậc thầy',
+    trophy_celebrate_btn: '🎉 Tung Pháo Hoa Ăn Mừng',
+    trophy_drag_hint: '🔄 Giữ chuột hoặc vuốt để xoay cúp 360°',
+    quest_1_title: 'Khởi Đầu Vinh Quang',
+    quest_1_desc: 'Tạo thành công khối số 128 trên bàn cờ',
+    quest_2_title: 'Bậc Thầy Không Gian',
+    quest_2_desc: 'Khám phá cả 3 không gian: 4x4, 3x3x3 và 4D',
+    quest_3_title: 'Chiến Binh Thời Gian',
+    quest_3_desc: 'Đạt tối thiểu 1,000 điểm trong chế độ ⚡ Rush',
+    quest_4_title: 'Kẻ Khiêu Chiến Hư Không',
+    quest_4_desc: 'Gây ít nhất 300 sát thương lên Boss Singularity',
+    quest_5_title: 'Pháp Sư Tối Thượng',
+    quest_5_desc: 'Thi triển cả 3 phép bổ trợ (Gợi ý, Đi lại, Đổi chỗ)',
+    quest_6_title: 'Bão Combo Liên Hoàn',
+    quest_6_desc: 'Kích hoạt hợp nhất từ 3 khối trở lên trong 1 nước đi',
+    quest_7_title: 'Đỉnh Cao Huyền Thoại',
+    quest_7_desc: 'Chinh phục đỉnh cao và tạo ra khối số 2048 vĩ đại'
   },
 
   en: {
@@ -237,7 +259,29 @@ export const DICTIONARY = {
     toast_swap_prompt: 'Tap 2 tiles in sequence to swap them!',
     toast_swap_success: 'Tiles swapped successfully!',
     toast_ai_start: '🤖 AI AUTO-PLAY: RUNNING...',
-    toast_ai_stop: '⏸️ AI AUTO-PLAY: PAUSED'
+    toast_ai_stop: '⏸️ AI AUTO-PLAY: PAUSED',
+
+    // Quests & 3D Trophy
+    btn_quests: 'Trophy & Quests',
+    quests_tooltip: 'View quests & exclusive 3D 2048 Trophy',
+    trophy_modal_title: '🏆 QUESTS & EXCLUSIVE 3D TROPHY',
+    trophy_modal_subtitle: 'Complete all 7 quests to unlock the golden 3D Master Trophy',
+    trophy_celebrate_btn: '🎉 Celebrate with Confetti',
+    trophy_drag_hint: '🔄 Drag or swipe to rotate trophy 360°',
+    quest_1_title: 'Glorious Awakening',
+    quest_1_desc: 'Successfully merge up to tile 128',
+    quest_2_title: 'Dimension Walker',
+    quest_2_desc: 'Play all 3 spatial modes: 4x4, 3x3x3 & 4D',
+    quest_3_title: 'Rush Vanguard',
+    quest_3_desc: 'Score at least 1,000 points in ⚡ Rush Mode',
+    quest_4_title: 'Void Breaker',
+    quest_4_desc: 'Deal at least 300 damage to Boss Singularity',
+    quest_5_title: 'Spell Weaver',
+    quest_5_desc: 'Cast all 3 summoner spells: Hint, Undo, Swap',
+    quest_6_title: 'Chain Reaction',
+    quest_6_desc: 'Trigger 3 or more merges in a single move',
+    quest_7_title: 'The 2048 Sovereign',
+    quest_7_desc: 'Conquer the summit and create the legendary 2048 tile'
   },
 
   ja: {
@@ -353,7 +397,29 @@ export const DICTIONARY = {
     toast_swap_prompt: '入れ替える2つのタイルを順番にタップしてください！',
     toast_swap_success: '入れ替えが完了しました！',
     toast_ai_start: '🤖 AI自動プレイ: 実行中...',
-    toast_ai_stop: '⏸️ AI自動プレイ: 一時停止'
+    toast_ai_stop: '⏸️ AI自動プレイ: 一時停止',
+
+    // Quests & 3D Trophy
+    btn_quests: 'トロフィー＆クエスト',
+    quests_tooltip: 'クエストと限定3Dトロフィーを表示',
+    trophy_modal_title: '🏆 クエスト＆限定3Dトロフィー',
+    trophy_modal_subtitle: '7つのクエストをすべて完了して限定3Dトロフィーをアンロック',
+    trophy_celebrate_btn: '🎉 紙吹雪でお祝い',
+    trophy_drag_hint: '🔄 ドラッグまたはスワイプでトロフィーを360度回転',
+    quest_1_title: '栄光の目覚め',
+    quest_1_desc: 'ボード上で128ブロックを作成',
+    quest_2_title: '空間の覇者',
+    quest_2_desc: '4x4、3x3x3、4Dの3つの次元をすべてプレイ',
+    quest_3_title: 'タイムウォリアー',
+    quest_3_desc: '⚡ Rushモードで1,000ポイント以上を獲得',
+    quest_4_title: '虚空の挑戦者',
+    quest_4_desc: 'ボスSingularityに300以上のダメージを与える',
+    quest_5_title: '魔法の支配者',
+    quest_5_desc: 'ヒント、やり直し、入れ替えの3つの呪文をすべて使用',
+    quest_6_title: '連鎖反応の嵐',
+    quest_6_desc: '1手で3回以上のブロック合体を達成',
+    quest_7_title: '2048の覇王',
+    quest_7_desc: '伝説の2048ブロックを作成して頂点に立つ'
   },
 
   ko: {
@@ -469,7 +535,29 @@ export const DICTIONARY = {
     toast_swap_prompt: '위치를 바꿀 2개의 타일을 차례로 터치하세요!',
     toast_swap_success: '타일 위치를 변경했습니다!',
     toast_ai_start: '🤖 AI 자동 재생: 작동 중...',
-    toast_ai_stop: '⏸️ AI 자동 재생: 일시 중지'
+    toast_ai_stop: '⏸️ AI 자동 재생: 일시 중지',
+
+    // Quests & 3D Trophy
+    btn_quests: '트로피 & 퀘스트',
+    quests_tooltip: '퀘스트 및 독점 3D 트로피 보기',
+    trophy_modal_title: '🏆 퀘스트 & 독점 3D 트로피',
+    trophy_modal_subtitle: '7개 퀘스트를 모두 완료하여 3D 마스터 골드 트로피 잠금 해제',
+    trophy_celebrate_btn: '🎉 폭죽으로 축하하기',
+    trophy_drag_hint: '🔄 드래그하거나 스와이프하여 트로피 360도 회전',
+    quest_1_title: '영광스러운 각성',
+    quest_1_desc: '보드에서 128 블록 생성',
+    quest_2_title: '차원의 방랑자',
+    quest_2_desc: '4x4, 3x3x3, 4D 3개 공간 모드 모두 플레이',
+    quest_3_title: '시간의 전사',
+    quest_3_desc: '⚡ Rush 모드에서 1,000점 이상 획득',
+    quest_4_title: '공허의 도전자',
+    quest_4_desc: '보스 Singularity에게 300 이상의 피해 주기',
+    quest_5_title: '주문의 지배자',
+    quest_5_desc: '힌트, 되돌리기, 위치 바꾸기 3가지 주문 모두 사용',
+    quest_6_title: '연쇄 콤보 폭풍',
+    quest_6_desc: '한 번의 이동으로 3회 이상 블록 병합',
+    quest_7_title: '전설의 2048',
+    quest_7_desc: '정상을 정복하고 전설의 2048 블록 완성'
   }
 };
 

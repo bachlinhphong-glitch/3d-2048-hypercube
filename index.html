@@ -27,17 +27,17 @@
 
   <link rel="icon" type="image/svg+xml" href="./favicon.svg">
   <link rel="manifest" href="./manifest.json">
-  <link rel="stylesheet" href="./src/style.css?v=5.5.0">
+  <link rel="stylesheet" href="./src/style.css?v=5.6.0">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=5.5.0').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=5.6.0').then(reg => {
           reg.update();
         }).catch(() => {});
       });
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!sessionStorage.getItem('sw_reloaded_550')) {
-          sessionStorage.setItem('sw_reloaded_550', '1');
+        if (!sessionStorage.getItem('sw_reloaded_560')) {
+          sessionStorage.setItem('sw_reloaded_560', '1');
           window.location.reload();
         }
       });
@@ -105,8 +105,12 @@
         </button>
       </div>
 
-      <!-- Cluster 4 (Right): Primary Actions (New Game + Settings) -->
+      <!-- Cluster 4 (Right): Primary Actions (Quests + New Game + Settings) -->
       <div class="header-actions-cluster">
+        <button id="btn-quests-toggle" class="glass-btn quest-btn" data-i18n-title="quests_tooltip" title="Nhiệm vụ & Cúp 3D">
+          <span class="btn-icon">🏆</span><span class="btn-text" data-i18n="btn_quests">Cúp</span>
+          <span id="quest-badge" class="quest-badge">0/7</span>
+        </button>
         <button id="btn-new-game" class="glass-btn primary" data-i18n-title="new_game_tooltip" title="Bắt đầu ván mới">
           <span class="btn-icon">🎮</span><span class="btn-text" data-i18n="btn_new_game">Chơi mới</span>
         </button>
@@ -330,6 +334,49 @@
     </div>
   </div>
 
+  <!-- 🏆 Missions & Exclusive 3D 2048 Trophy Modal -->
+  <div id="trophy-modal" class="trophy-modal-overlay" style="display: none;">
+    <div class="trophy-modal-card">
+      <div class="trophy-modal-header">
+        <div class="trophy-title-wrap">
+          <span class="trophy-header-icon">🏆</span>
+          <div>
+            <h2 class="trophy-modal-title" data-i18n="trophy_modal_title">NHIỆM VỤ & CÚP 2048 ĐỘC QUYỀN</h2>
+            <p class="trophy-modal-subtitle" data-i18n="trophy_modal_subtitle">Hoàn thành 7 nhiệm vụ để mở khóa Cúp Vàng 3D vinh danh bậc thầy</p>
+          </div>
+        </div>
+        <button id="trophy-modal-close" class="settings-close-btn" aria-label="Đóng">✕</button>
+      </div>
+
+      <div class="trophy-modal-body">
+        <!-- Left: 3D Trophy Showcase Stage -->
+        <div class="trophy-3d-stage">
+          <div id="trophy-status-pill" class="trophy-status-pill locked">🔒 KHÓA — CÒN 7 NHIỆM VỤ</div>
+          <div id="trophy-3d-viewport" class="trophy-3d-viewport"></div>
+          <div class="trophy-interaction-hint" data-i18n="trophy_drag_hint">🔄 Giữ chuột hoặc vuốt để xoay cúp 360°</div>
+          <div class="trophy-stage-actions">
+            <button id="trophy-celebrate-btn" class="glass-btn trophy-btn" data-i18n="trophy_celebrate_btn">
+              🎉 Tung Pháo Hoa Ăn Mừng
+            </button>
+          </div>
+        </div>
+
+        <!-- Right: Quests Progress List -->
+        <div class="trophy-quests-pane">
+          <div class="trophy-progress-overview">
+            <div class="trophy-progress-label">Tiến độ mở khóa Cúp 3D:</div>
+            <div class="trophy-progress-track">
+              <div id="trophy-progress-fill" class="trophy-progress-fill" style="width: 0%;"></div>
+            </div>
+            <div id="trophy-progress-text" class="trophy-progress-count">0 / 7 (0%)</div>
+          </div>
+          <div id="trophy-quests-list" class="trophy-quests-list"></div>
+        </div>
+      </div>
+      <div id="trophy-confetti-container" class="trophy-confetti-container"></div>
+    </div>
+  </div>
+
   <!-- ⚙️ Compact Settings Modal (Top-Level Fixed Viewport Modal) -->
   <div id="settings-modal" class="settings-modal-overlay" style="display: none;">
     <div class="settings-modal-card">
@@ -447,6 +494,6 @@
   </div>
 
   <!-- Main Game Script -->
-  <script type="module" src="./src/main.js?v=5.5.0"></script>
+  <script type="module" src="./src/main.js?v=5.6.0"></script>
 </body>
 </html>

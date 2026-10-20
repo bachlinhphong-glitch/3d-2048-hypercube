@@ -11,6 +11,8 @@ import { GhostPreview } from './ghostPreview.js';
 import { AIBot } from './aiBot.js';
 import { BossManager } from './bossManager.js';
 import { i18n, t, setLanguage, getCurrentLanguage } from './i18n.js';
+import { QuestManager } from './questManager.js';
+import { createTrophyMesh } from './trophy.js';
 
 class GameApp {
   constructor() {
@@ -29,6 +31,9 @@ class GameApp {
     this.aiBot = new AIBot(this);
     this.bossManager = new BossManager(this);
     this.isBossRaid = false;
+    this.trophyMascot = null;
+    this.questManager = new QuestManager(this);
+    this.questManager.recordMode(this.mode);
     window.gameApp = this;
 
     // 3D tiles grid: tiles3D[layer][row][col]
@@ -418,6 +423,7 @@ class GameApp {
     this.updateScoreUI();
     this.updateSpellUI();
     this.switchTheme(this.currentTheme);
+    this.updateTrophyMascot();
   }
 
   registerInteraction() {
@@ -449,6 +455,9 @@ class GameApp {
     this.board.setMode(newMode);
     this.sceneManager.setMode(newMode);
     this.gameLogic.setMode(newMode);
+    if (this.questManager) {
+      this.questManager.recordMode(newMode);
+    }
 
     const sliceControls = document.getElementById('slice-controls');
     if (sliceControls) {
@@ -1172,6 +1181,26 @@ class GameApp {
       this.particleSystem.screenShake(this.sceneManager.camera, maxMergedVal >= 128 ? 0.35 : 0.2);
     }
 
+    // Record move merges and max tile value into QuestManager
+    if (this.questManager) {
+      let currentMaxTile = 0;
+      for (let l = 0; l < this.tiles3D.length; l++) {
+        for (let r = 0; r < this.tiles3D[l].length; r++) {
+          for (let c = 0; c < this.tiles3D[l][r].length; c++) {
+            const tile = this.tiles3D[l][r][c];
+            if (tile && tile.value > currentMaxTile) {
+              currentMaxTile = tile.value;
+            }
+          }
+        }
+      }
+      this.questManager.recordMoveMergesAndTiles(this.comboCount, Math.max(maxMergedVal, currentMaxTile));
+      if (this.isRushMode) {
+        this.questManager.recordRushScore(this.gameLogic.score);
+      }
+      this.updateTrophyMascot();
+    }
+
     // Rush mode time additions for merges
     if (this.isRushMode && maxMergedVal > 0) {
       if (maxMergedVal <= 8) this.addRushTime(0.8);
@@ -1400,6 +1429,9 @@ class GameApp {
     }
 
     soundManager.playSpellHint();
+    if (this.questManager) {
+      this.questManager.recordSpell('hint');
+    }
     const dirMap = {
       up: 'TRƯỢT LÊN TRÊN (W / ↑)',
       down: 'TRƯỢT XUỐNG DƯỚI (S / ↓)',
@@ -1436,6 +1468,9 @@ class GameApp {
     const res = this.gameLogic.undo();
     if (res && res.success) {
       soundManager.playSpellUndo();
+      if (this.questManager) {
+        this.questManager.recordSpell('undo');
+      }
 
       // Clean all tiles in scene and grid completely
       this.cleanAllSceneTiles();
@@ -1570,6 +1605,9 @@ class GameApp {
       this.tiles3D[posB.l][posB.r][posB.c] = tileA;
 
       soundManager.playSpellSwap();
+      if (this.questManager) {
+        this.questManager.recordSpell('swap');
+      }
 
       const pA = getGridPosition(posA.l, posA.r, posA.c);
       const pB = getGridPosition(posB.l, posB.r, posB.c);
@@ -1780,8 +1818,26 @@ class GameApp {
       this.bossManager.update(delta, this.clock.getElapsedTime());
     }
 
+    if (this.trophyMascot) {
+      this.trophyMascot.rotation.y += 0.015;
+    }
+
     this.particleSystem.update(delta);
     this.sceneManager.render(this.clock.getElapsedTime());
+  }
+
+  updateTrophyMascot() {
+    if (!this.questManager) return;
+    const isUnlocked = this.questManager.isAllCompleted();
+    if (isUnlocked && !this.trophyMascot) {
+      this.trophyMascot = createTrophyMesh(true);
+      this.trophyMascot.scale.set(0.18, 0.18, 0.18);
+      this.trophyMascot.position.set(-2.8, 0.25, -2.8);
+      this.sceneManager.scene.add(this.trophyMascot);
+    } else if (!isUnlocked && this.trophyMascot) {
+      this.sceneManager.scene.remove(this.trophyMascot);
+      this.trophyMascot = null;
+    }
   }
 }
 

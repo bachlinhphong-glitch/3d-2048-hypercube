@@ -608,6 +608,51 @@ class SoundManager {
       osc.stop(t + idx * 0.06 + 1.65);
     });
   }
+
+  // Grand Royal Fanfare for Unlocking the Exclusive 3D 2048 Trophy
+  playTrophyUnlockFanfare() {
+    this.triggerHaptic('win');
+    if (this.muted) return;
+    this.ensureContext();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+    // Rapid ascending golden trumpet fanfare: C4, E4, G4, C5, E5, G5, C6
+    const introNotes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50];
+    introNotes.forEach((freq, idx) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'triangle';
+      const noteTime = t + idx * 0.08;
+      osc.frequency.setValueAtTime(freq, noteTime);
+
+      gain.gain.setValueAtTime(0.18, noteTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, noteTime + 0.35);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(noteTime);
+      osc.stop(noteTime + 0.36);
+    });
+
+    // Sustained Majestic C Major Golden Chords at the climax
+    const climaxTime = t + introNotes.length * 0.08 + 0.05;
+    const chordNotes = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+    chordNotes.forEach((freq) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(freq, climaxTime);
+
+      gain.gain.setValueAtTime(0.12, climaxTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, climaxTime + 2.2);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(climaxTime);
+      osc.stop(climaxTime + 2.25);
+    });
+  }
 }
 
 export const soundManager = new SoundManager();

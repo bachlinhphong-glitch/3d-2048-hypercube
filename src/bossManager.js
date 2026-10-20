@@ -369,6 +369,9 @@ export class BossManager {
     // Deduct HP directly
     this.hp = Math.max(0, this.hp - damage);
     this.updateHUD();
+    if (this.game && this.game.questManager) {
+      this.game.questManager.recordBossDamage(damage);
+    }
 
     const origin = getGridPosition(tileGridPos.l, tileGridPos.r, tileGridPos.c);
     const coreTarget = this.group.position.clone();
