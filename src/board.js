@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 
 let currentMode = '4x4'; // '4x4' or '3x3x3'
+let layerSpacingMultiplier = 1.0; // 1.0 = normal, 1.85 = exploded view
 
 export function setBoardMode(mode) {
   currentMode = mode;
@@ -9,6 +10,14 @@ export function setBoardMode(mode) {
 
 export function getBoardMode() {
   return currentMode;
+}
+
+export function setLayerSpacingMultiplier(mult) {
+  layerSpacingMultiplier = mult;
+}
+
+export function getLayerSpacingMultiplier() {
+  return layerSpacingMultiplier;
 }
 
 export function getTileDimensions() {
@@ -21,8 +30,9 @@ export function getTileDimensions() {
 export function getGridPosition(layer, row, col) {
   if (currentMode === '3x3x3') {
     const pitch = 2.05;
+    const yPitch = 2.05 * layerSpacingMultiplier;
     const x = (col - 1) * pitch;
-    const y = (layer - 1) * pitch + 2.4;
+    const y = (layer - 1) * yPitch + 2.4;
     const z = (row - 1) * pitch;
     return { x, y, z };
   } else {
@@ -225,6 +235,7 @@ export class Board {
     this.group.add(mergedCages);
 
     // 4. Layer Separation Guides (Faint glowing planes)
+    this.layerPlanes = [];
     for (let l = 0; l < 3; l++) {
       const planeGeo = new THREE.PlaneGeometry(cubeSpan - 0.2, cubeSpan - 0.2);
       const planeMat = new THREE.MeshBasicMaterial({
@@ -235,9 +246,19 @@ export class Board {
       });
       const plane = new THREE.Mesh(planeGeo, planeMat);
       plane.rotation.x = -Math.PI / 2;
-      const y = (l - 1) * pitch + 2.4 - 0.8;
+      const y = (l - 1) * pitch * layerSpacingMultiplier + 2.4 - 0.8;
       plane.position.set(0, y, 0);
+      this.layerPlanes.push(plane);
       this.group.add(plane);
+    }
+  }
+
+  updateExplodedPlanes(mult) {
+    if (!this.layerPlanes || this.layerPlanes.length === 0) return;
+    const pitch = 2.05;
+    for (let l = 0; l < this.layerPlanes.length; l++) {
+      const y = (l - 1) * pitch * mult + 2.4 - 0.8;
+      this.layerPlanes[l].position.y = y;
     }
   }
 }

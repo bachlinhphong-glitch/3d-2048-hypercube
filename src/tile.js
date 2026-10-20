@@ -118,24 +118,24 @@ export class Tile3D {
     if (effShape === 'rounded_cube') {
       const geo = getSharedRoundedBox(size, height);
       const mats = textureManager.getTileMaterials(this.value, this.isBomb, this.bombCountdown);
-      this.innerMesh = new THREE.Mesh(geo, mats);
+      this.innerMesh = new THREE.Mesh(geo, mats.map(m => m.clone()));
       this.group.add(this.innerMesh);
     } else if (effShape === 'crystal_octahedron') {
       const radius = size * 0.58;
       const { geo, edges } = getSharedOctahedron();
       const mat = textureManager.getOctahedronMaterial(this.value, this.isBomb);
-      this.innerMesh = new THREE.Mesh(geo, mat);
+      this.innerMesh = new THREE.Mesh(geo, mat.clone());
       this.innerMesh.scale.set(radius, radius, radius);
       this.group.add(this.innerMesh);
 
       // Inner glowing core
       const coreMat = textureManager.getOctahedronCoreMaterial(this.value, this.isBomb);
-      const coreMesh = new THREE.Mesh(geo, coreMat);
+      const coreMesh = new THREE.Mesh(geo, coreMat.clone());
       coreMesh.scale.set(radius * 0.48, radius * 0.48, radius * 0.48);
       this.decorGroup.add(coreMesh);
 
       const lineMat = textureManager.getOctahedronLineMaterial(this.isBomb);
-      const lines = new THREE.LineSegments(edges, lineMat);
+      const lines = new THREE.LineSegments(edges, lineMat.clone());
       lines.scale.set(radius * 1.002, radius * 1.002, radius * 1.002);
       this.decorGroup.add(lines);
 
@@ -144,7 +144,7 @@ export class Tile3D {
       const radius = size * 0.5;
       const geo = getSharedSphere();
       const mat = textureManager.getSphereMaterial(this.value, this.isBomb);
-      this.innerMesh = new THREE.Mesh(geo, mat);
+      this.innerMesh = new THREE.Mesh(geo, mat.clone());
       this.innerMesh.scale.set(radius * 0.82, radius * 0.82, radius * 0.82);
       this.group.add(this.innerMesh);
 
@@ -152,14 +152,14 @@ export class Tile3D {
       const torusGeo = getSharedTorus();
       const torusMat = textureManager.getTorusMaterial(this.value, this.isBomb);
 
-      const ring1 = new THREE.Mesh(torusGeo, torusMat);
+      const ring1 = new THREE.Mesh(torusGeo, torusMat.clone());
       ring1.scale.set(radius * 0.85, radius * 0.85, radius * 0.85);
       ring1.rotation.x = Math.PI / 4;
       ring1.rotation.y = Math.PI / 6;
       this.decorGroup.add(ring1);
       this.ring1 = ring1;
 
-      const ring2 = new THREE.Mesh(torusGeo, torusMat);
+      const ring2 = new THREE.Mesh(torusGeo, torusMat.clone());
       ring2.scale.set(radius * 0.96, radius * 0.96, radius * 0.96);
       ring2.rotation.x = -Math.PI / 4;
       ring2.rotation.z = Math.PI / 3;
@@ -292,6 +292,47 @@ export class Tile3D {
         ease: 'power2.inOut'
       });
     }
+  }
+
+  setSliceDim(dimmed, targetOpacity = 0.12, targetScale = 0.82) {
+    this.isDimmed = dimmed;
+    const finalOpacity = dimmed ? targetOpacity : 1.0;
+    const finalScale = dimmed ? targetScale : 1.0;
+
+    gsap.to(this.group.scale, {
+      x: finalScale,
+      y: finalScale,
+      z: finalScale,
+      duration: 0.28,
+      ease: 'power2.out'
+    });
+
+    this.group.traverse((child) => {
+      if (child.isMesh) {
+        if (Array.isArray(child.material)) {
+          child.material.forEach((mat) => {
+            mat.transparent = true;
+            gsap.to(mat, { opacity: finalOpacity, duration: 0.25 });
+          });
+        } else if (child.material) {
+          child.material.transparent = true;
+          gsap.to(child.material, { opacity: finalOpacity, duration: 0.25 });
+        }
+      }
+      if (child.isSprite && child.material) {
+        child.material.transparent = true;
+        gsap.to(child.material, { opacity: finalOpacity, duration: 0.25 });
+      }
+    });
+  }
+
+  updateExplodedPosition(duration = 0.32) {
+    const targetPos = getGridPosition(this.layer, this.row, this.col);
+    return gsap.to(this.group.position, {
+      y: targetPos.y,
+      duration: duration,
+      ease: 'power2.out'
+    });
   }
 
   spawnAnimation() {

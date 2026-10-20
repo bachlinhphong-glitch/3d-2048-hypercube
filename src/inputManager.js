@@ -1,9 +1,11 @@
 export class InputManager {
-  constructor(domElement, onMoveCallback, onSpellCallback = null, onCanvasClickCallback = null) {
+  constructor(domElement, onMoveCallback, onSpellCallback = null, onCanvasClickCallback = null, onCameraSnapCallback = null, onSliceCycleCallback = null) {
     this.domElement = domElement;
     this.onMove = onMoveCallback;
     this.onSpell = onSpellCallback;
     this.onCanvasClick = onCanvasClickCallback;
+    this.onCameraSnap = onCameraSnapCallback;
+    this.onSliceCycle = onSliceCycleCallback;
 
     this.pointerStartX = 0;
     this.pointerStartY = 0;
@@ -39,6 +41,31 @@ export class InputManager {
       }
       if (e.code === 'Escape') {
         if (this.onSpell && this.onSpell.cancel) this.onSpell.cancel();
+        return;
+      }
+
+      // Camera Snap Hotkeys
+      if (e.code === 'Digit1' && !e.ctrlKey && !e.altKey) {
+        if (this.onCameraSnap) this.onCameraSnap(1);
+        return;
+      }
+      if (e.code === 'Digit2' && !e.ctrlKey && !e.altKey) {
+        if (this.onCameraSnap) this.onCameraSnap(2);
+        return;
+      }
+      if (e.code === 'Digit3' && !e.ctrlKey && !e.altKey) {
+        if (this.onCameraSnap) this.onCameraSnap(3);
+        return;
+      }
+
+      // Slice Mode Cycle (V or Tab)
+      if (e.code === 'KeyV' && !e.ctrlKey && !e.altKey) {
+        if (this.onSliceCycle) this.onSliceCycle();
+        return;
+      }
+      if (e.code === 'Tab') {
+        e.preventDefault();
+        if (this.onSliceCycle) this.onSliceCycle();
         return;
       }
 
@@ -133,22 +160,6 @@ export class InputManager {
       this.isPointerDown = false;
     });
 
-    // 3. UI Buttons for 3D Layer Movement
-    const btnUp = document.getElementById('btn-layer-up');
-    const btnDown = document.getElementById('btn-layer-down');
-
-    if (btnUp) {
-      btnUp.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (this.enabled) this.onMove('layerUp');
-      });
-    }
-
-    if (btnDown) {
-      btnDown.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (this.enabled) this.onMove('layerDown');
-      });
-    }
+    // 3. UI Buttons for movement are handled by main.js via #dir-pad
   }
 }

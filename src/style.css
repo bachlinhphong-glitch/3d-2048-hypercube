@@ -184,6 +184,9 @@ body.theme-telemetry .glass-select {
   height: 100%;
   z-index: 1;
   display: block;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -199,6 +202,9 @@ body.theme-telemetry .glass-select {
   height: 100%;
   z-index: 10;
   pointer-events: none;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -1131,4 +1137,251 @@ body.in-swap-mode #canvas-container::after {
   0% { transform: scale(1); filter: brightness(1); }
   30% { transform: scale(1.18); filter: brightness(2.2); border-color: #ffd700; box-shadow: 0 0 35px #ffd700; }
   100% { transform: scale(1); filter: brightness(1); }
+}
+
+/* ================= V3.0 SPATIAL UX ADDITIONS ================= */
+
+/* --- Custom Background Theme --- */
+body.theme-custom {
+  --glass-bg: rgba(10, 10, 10, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --accent-gold: #ffd700;
+  --accent-blue: #00f0ff;
+}
+
+body.theme-custom .game-title {
+  background: linear-gradient(135deg, #ffffff 20%, #ffd700 60%, #00f0ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.5));
+}
+
+/* The background-image is set dynamically via JS for custom theme */
+
+/* --- Camera Snap Bar (top-right fixed) --- */
+.camera-snap-bar {
+  position: fixed;
+  top: 80px;
+  right: 14px;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  pointer-events: auto;
+}
+
+.cam-btn {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--glass-bg, rgba(22, 27, 34, 0.88));
+  border: 1px solid var(--glass-border, rgba(255,255,255,0.12));
+  border-radius: 10px;
+  color: var(--text-main, #f0f6fc);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  padding: 6px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.cam-btn svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.cam-btn:hover {
+  background: rgba(0, 240, 255, 0.18);
+  border-color: rgba(0, 240, 255, 0.45);
+  transform: scale(1.08);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+}
+
+.cam-btn:active {
+  transform: scale(0.95);
+}
+
+/* --- Slice Controls (bottom center, 3x3x3 only) --- */
+.slice-controls {
+  position: fixed;
+  bottom: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
+  pointer-events: auto;
+  background: var(--glass-bg, rgba(22, 27, 34, 0.88));
+  border: 1px solid var(--glass-border, rgba(255,255,255,0.12));
+  border-radius: 14px;
+  padding: 8px 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.slice-btn {
+  padding: 5px 11px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 9px;
+  border: 1px solid transparent;
+  background: rgba(255,255,255,0.06);
+  color: var(--text-dim, #8b949e);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+  pointer-events: auto;
+}
+
+.slice-btn:hover {
+  background: rgba(0, 240, 255, 0.12);
+  color: #00f0ff;
+  border-color: rgba(0, 240, 255, 0.3);
+}
+
+.slice-btn.active {
+  background: rgba(0, 240, 255, 0.18);
+  color: #00f0ff;
+  border-color: rgba(0, 240, 255, 0.5);
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.25);
+}
+
+/* --- D-Pad Direction Controls --- */
+.dir-pad {
+  position: fixed;
+  right: 14px;
+  bottom: 90px;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  pointer-events: auto;
+}
+
+.dpad-middle-row,
+.dpad-depth-row {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  align-items: center;
+}
+
+.dpad-depth-row {
+  margin-top: 4px;
+  gap: 6px;
+}
+
+.dpad-btn {
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--glass-bg, rgba(22, 27, 34, 0.88));
+  border: 1px solid var(--glass-border, rgba(255,255,255,0.12));
+  border-radius: 12px;
+  color: var(--text-main, #f0f6fc);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  padding: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dpad-btn svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+  flex-shrink: 0;
+}
+
+.dpad-btn:hover {
+  background: rgba(0, 240, 255, 0.15);
+  border-color: rgba(0, 240, 255, 0.4);
+  transform: scale(1.08);
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.25);
+}
+
+.dpad-btn:active {
+  transform: scale(0.92);
+  background: rgba(0, 240, 255, 0.25);
+}
+
+.dpad-btn.dpad-center {
+  background: rgba(0, 240, 255, 0.08);
+  border-color: rgba(0, 240, 255, 0.2);
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.dpad-btn.dpad-center:hover {
+  background: rgba(0, 240, 255, 0.2);
+}
+
+.dpad-layer {
+  min-width: 40px;
+  min-height: 40px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 5px 8px;
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.dpad-layer span {
+  font-size: 9px;
+  font-weight: 800;
+  font-family: ui-monospace, monospace;
+  color: var(--accent-blue, #38bdf8);
+  line-height: 1;
+}
+
+.dpad-layer svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Hide old layer-controls since D-pad replaces them */
+#layer-controls {
+  display: none !important;
+}
+
+/* --- Responsive: hide D-pad on very small screens or show smaller --- */
+@media (max-width: 380px) {
+  .dir-pad {
+    right: 6px;
+    bottom: 80px;
+  }
+  .dpad-btn {
+    min-width: 38px;
+    min-height: 38px;
+    padding: 6px;
+  }
+  .camera-snap-bar {
+    right: 6px;
+    top: 70px;
+  }
+  .cam-btn {
+    width: 30px;
+    height: 30px;
+  }
+  .slice-controls {
+    bottom: 60px;
+    padding: 5px 8px;
+    gap: 4px;
+  }
+  .slice-btn {
+    padding: 4px 8px;
+    font-size: 10px;
+  }
 }

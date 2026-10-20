@@ -1,12 +1,13 @@
 import * as THREE from 'three';
 import { SceneManager } from './sceneManager.js';
-import { Board, getGridPosition, getBoardMode } from './board.js';
+import { Board, getGridPosition, getBoardMode, setLayerSpacingMultiplier } from './board.js';
 import { Tile3D } from './tile.js';
 import { ParticleSystem } from './particles.js';
 import { Game2048Logic } from './gameLogic.js';
 import { InputManager } from './inputManager.js';
 import { soundManager } from './sound.js';
 import { textureManager } from './textureManager.js';
+import { GhostPreview } from './ghostPreview.js';
 
 class GameApp {
   constructor() {
@@ -46,6 +47,14 @@ class GameApp {
     this.hoveredTile = null;
     this.toastTimeout = null;
 
+    // Slice View State (for 3x3x3 X-Ray / Exploded View)
+    this.sliceMode = 'all'; // 'all' | 0 | 1 | 2 | 'exploded'
+    this._sliceCycleOrder = ['all', 0, 1, 2, 'exploded'];
+    this._sliceCycleIdx = 0;
+
+    // Combo counter for merge audio
+    this.comboCount = 0;
+
     // Hardware Adaptive Performance State
     this.targetFps = localStorage.getItem('3d2048_target_fps') || '120';
     this.lastRenderTimestamp = performance.now();
@@ -55,6 +64,7 @@ class GameApp {
     this.initUI();
     this.initTelemetryCanvas();
     this.initInput();
+    this.initGhostPreview();
     this.startNewGame();
 
     // Dedicated timer running fixed 5 times/second (every 200ms) for DOM stats, APM, FPS & Canvas graph
@@ -95,7 +105,7 @@ class GameApp {
     this.rushToggleBtn = document.getElementById('btn-toggle-rush');
     this.rushFloatingContainer = document.getElementById('rush-floating-fx');
 
-    // 3D Layer Controls (Only for 3x3x3 Hypercube)
+    // 3D Layer Controls — replaced by D-Pad; kept for backward compat reference only
     this.layerControlsEl = document.getElementById('layer-controls');
 
     // Action Buttons
@@ -124,6 +134,15 @@ class GameApp {
       });
     }
 
+    const dpadDepth = document.querySelector('.dpad-depth-row');
+    if (dpadDepth) {
+      dpadDepth.style.display = this.mode === '3x3x3' ? 'flex' : 'none';
+    }
+    const sliceControls = document.getElementById('slice-controls');
+    if (sliceControls) {
+      sliceControls.style.display = this.mode === '3x3x3' ? 'flex' : 'none';
+    }
+
     // Tile Shape Selector
     const shapeSelect = document.getElementById('select-shape');
     if (shapeSelect) {
@@ -134,14 +153,43 @@ class GameApp {
 
     // Theme & Background Selector
     const themeSelect = document.getElementById('select-theme');
+    const bgUploadInput = document.getElementById('bg-upload-input');
     if (themeSelect) {
       themeSelect.value = this.currentTheme;
       themeSelect.addEventListener('change', (e) => {
+        if (e.target.value === 'custom') {
+          if (bgUploadInput) bgUploadInput.click();
+          return;
+        }
         this.switchTheme(e.target.value);
         localStorage.setItem('3d2048_theme', e.target.value);
         const label = e.target.options[e.target.selectedIndex].text;
         this.showSpellToast(`HÌNH NỀN: ${label}`);
         this.registerInteraction();
+      });
+    }
+    if (bgUploadInput) {
+      bgUploadInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) {
+          if (themeSelect) themeSelect.value = this.currentTheme;
+          return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+          this.showSpellToast('Ảnh quá lớn! Chọn ảnh < 5MB');
+          if (themeSelect) themeSelect.value = this.currentTheme;
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          try { localStorage.setItem('3d2048_custom_bg', ev.target.result); } catch {}
+          this.switchTheme('custom');
+          localStorage.setItem('3d2048_theme', 'custom');
+          this.showSpellToast('🖼️ Đã đặt ảnh nền của bạn!');
+        };
+        reader.readAsDataURL(file);
+        // Reset so same file can be re-selected
+        bgUploadInput.value = '';
       });
     }
 
@@ -248,8 +296,22 @@ class GameApp {
     this.gameLogic.setMode(newMode);
 
     if (this.layerControlsEl) {
-      this.layerControlsEl.style.display = newMode === '3x3x3' ? 'flex' : 'none';
+      this.layerControlsEl.style.display = 'none'; // replaced by D-Pad
     }
+
+    const sliceControls = document.getElementById('slice-controls');
+    if (sliceControls) {
+      sliceControls.style.display = newMode === '3x3x3' ? 'flex' : 'none';
+    }
+
+    const dpadDepth = document.querySelector('.dpad-depth-row');
+    if (dpadDepth) {
+      dpadDepth.style.display = newMode === '3x3x3' ? 'flex' : 'none';
+    }
+
+    // Reset slice mode
+    this._sliceCycleIdx = 0;
+    this.sliceMode = 'all';
 
     this.sceneManager.requestShadowUpdate(30);
     this.startNewGame();
@@ -275,6 +337,21 @@ class GameApp {
     document.body.className = `theme-${newTheme}`;
     this.sceneManager.setTheme(newTheme);
 
+    // Custom background: read from localStorage and set as CSS background-image
+    if (newTheme === 'custom') {
+      try {
+        const customBg = localStorage.getItem('3d2048_custom_bg');
+        if (customBg) {
+          const container = document.getElementById('canvas-container');
+          if (container) container.style.backgroundImage = `url('${customBg}')`;
+        }
+      } catch {}
+    } else {
+      // Let CSS handle background for built-in themes
+      const container = document.getElementById('canvas-container');
+      if (container) container.style.backgroundImage = '';
+    }
+
     const isNeon = newTheme === 'neon';
     this.particleSystem.setHyperNeon(isNeon);
     textureManager.setHyperNeon(isNeon);
@@ -295,6 +372,53 @@ class GameApp {
       }
     }
     this.sceneManager.requestShadowUpdate(25);
+  }
+
+  setSliceMode(mode) {
+    this.sliceMode = mode;
+
+    if (mode === 'exploded') {
+      setLayerSpacingMultiplier(1.85);
+      if (this.board) this.board.updateExplodedPlanes(1.85);
+    } else {
+      setLayerSpacingMultiplier(1.0);
+      if (this.board) this.board.updateExplodedPlanes(1.0);
+    }
+
+    for (let l = 0; l < this.tiles3D.length; l++) {
+      for (let r = 0; r < this.tiles3D[l].length; r++) {
+        for (let c = 0; c < this.tiles3D[l][r].length; c++) {
+          const tile = this.tiles3D[l][r][c];
+          if (!tile) continue;
+          if (mode === 'all' || mode === 'exploded') {
+            tile.setSliceDim(false);
+          } else {
+            const isDimmed = (l !== mode);
+            tile.setSliceDim(isDimmed);
+          }
+          tile.updateExplodedPosition(0.32);
+        }
+      }
+    }
+
+    // Update button active state
+    const bar = document.getElementById('slice-controls');
+    if (bar) {
+      bar.querySelectorAll('.slice-btn').forEach(btn => {
+        const val = btn.dataset.slice;
+        const parsed = (val === 'all' || val === 'exploded') ? val : parseInt(val, 10);
+        btn.classList.toggle('active', parsed === mode);
+      });
+    }
+
+    this.sceneManager.requestShadowUpdate(15);
+  }
+
+  cycleSliceMode() {
+    if (this.mode !== '3x3x3') return;
+    this._sliceCycleIdx = (this._sliceCycleIdx + 1) % this._sliceCycleOrder.length;
+    const next = this._sliceCycleOrder[this._sliceCycleIdx];
+    this.setSliceMode(next);
   }
 
   toggleRushMode() {
@@ -324,7 +448,9 @@ class GameApp {
         swap: () => this.handleSpellSwap(),
         cancel: () => this.cancelSwapMode()
       },
-      (clientX, clientY) => this.handleCanvasClick(clientX, clientY)
+      (clientX, clientY) => this.handleCanvasClick(clientX, clientY),
+      (preset) => this.sceneManager.snapCamera(preset),
+      () => this.cycleSliceMode()
     );
 
     this.container.addEventListener('pointermove', (e) => {
@@ -340,6 +466,75 @@ class GameApp {
         this.hoveredTile = null;
       }
     });
+
+    this.setupDirPad();
+    this.setupCameraSnapBar();
+    this.setupSliceControls();
+  }
+
+  setupDirPad() {
+    const dirPad = document.getElementById('dir-pad');
+    if (!dirPad) return;
+
+    dirPad.querySelectorAll('.dpad-btn[data-dir]').forEach(btn => {
+      const dir = btn.dataset.dir;
+
+      // Ghost preview on hover & pointer
+      btn.addEventListener('pointerenter', () => {
+        if (dir !== 'iso' && this.ghostPreview) {
+          this.ghostPreview.showGhost(dir);
+        }
+      });
+      btn.addEventListener('pointerleave', () => {
+        if (this.ghostPreview) this.ghostPreview.hideGhost();
+      });
+      btn.addEventListener('pointercancel', () => {
+        if (this.ghostPreview) this.ghostPreview.hideGhost();
+      });
+
+      // Click / tap to move
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (this.ghostPreview) this.ghostPreview.hideGhost();
+        if (!this.inputManager.enabled) return;
+        if (dir === 'iso') {
+          this.sceneManager.snapCamera(1);
+        } else {
+          this.handleMove(dir);
+        }
+      });
+    });
+  }
+
+  setupCameraSnapBar() {
+    const bar = document.getElementById('camera-snap-bar');
+    if (!bar) return;
+    bar.querySelectorAll('.cam-btn[data-preset]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const preset = parseInt(btn.dataset.preset, 10);
+        this.sceneManager.snapCamera(preset);
+        this.registerInteraction();
+      });
+    });
+  }
+
+  setupSliceControls() {
+    const bar = document.getElementById('slice-controls');
+    if (!bar) return;
+    bar.querySelectorAll('.slice-btn[data-slice]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const val = btn.dataset.slice;
+        const parsed = (val === 'all' || val === 'exploded') ? val : parseInt(val, 10);
+        this.setSliceMode(parsed);
+        this.registerInteraction();
+      });
+    });
+  }
+
+  initGhostPreview() {
+    this.ghostPreview = new GhostPreview(this.sceneManager.scene, this.gameLogic);
   }
 
   handleCanvasPointerMove(clientX, clientY) {
@@ -460,6 +655,9 @@ class GameApp {
     this.gameLogic.setTile(l, r, c, { value, id: tile3D.id, isBomb, bombCountdown });
 
     tile3D.spawnAnimation();
+    if (this.mode === '3x3x3' && typeof this.sliceMode === 'number') {
+      tile3D.setSliceDim(l !== this.sliceMode);
+    }
     this.sceneManager.requestShadowUpdate(20);
     if (isBomb) {
       soundManager.playBombTick();
@@ -483,6 +681,7 @@ class GameApp {
 
   async handleMove(direction) {
     this.registerInteraction();
+    if (this.ghostPreview) this.ghostPreview.hideGhost();
     if (this.isAnimating) return;
     if (this.isSwapMode) {
       this.cancelSwapMode();
@@ -492,6 +691,7 @@ class GameApp {
     if (!result.moved) return;
 
     this.isAnimating = true;
+    this.comboCount = 0; // Reset combo per move
     this.recentMoves.push(performance.now());
     this.sceneManager.requestShadowUpdate(25);
 
@@ -587,16 +787,30 @@ class GameApp {
         m.sourceTile.dispose(true);
         surviving.upgradeTo(m.newValue);
 
+        this.comboCount++;
         const pos = getGridPosition(m.targetL, m.targetR, m.targetC);
-        this.particleSystem.burst(pos.x, pos.y, pos.z, m.newValue);
-        soundManager.playMerge(m.newValue);
+        const burstCount = m.newValue >= 512 ? 3 : 1;
+        for (let b = 0; b < burstCount; b++) {
+          this.particleSystem.burst(pos.x, pos.y + 0.5 * b, pos.z, m.newValue);
+        }
+        soundManager.playMerge(m.newValue, this.comboCount);
+        if (m.newValue >= 512) {
+          this.particleSystem.screenShake(this.sceneManager.camera, 0.18);
+        }
       } else if (!surviving) {
         this.tiles3D[m.targetL][m.targetR][m.targetC] = m.sourceTile;
         m.sourceTile.upgradeTo(m.newValue);
 
+        this.comboCount++;
         const pos = getGridPosition(m.targetL, m.targetR, m.targetC);
-        this.particleSystem.burst(pos.x, pos.y, pos.z, m.newValue);
-        soundManager.playMerge(m.newValue);
+        const burstCount = m.newValue >= 512 ? 3 : 1;
+        for (let b = 0; b < burstCount; b++) {
+          this.particleSystem.burst(pos.x, pos.y + 0.5 * b, pos.z, m.newValue);
+        }
+        soundManager.playMerge(m.newValue, this.comboCount);
+        if (m.newValue >= 512) {
+          this.particleSystem.screenShake(this.sceneManager.camera, 0.18);
+        }
       }
     });
 

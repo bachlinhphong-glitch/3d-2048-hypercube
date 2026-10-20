@@ -37,21 +37,22 @@ class SoundManager {
     if (!this.ctx) return;
 
     const t = this.ctx.currentTime;
+    // Warm tactile thud/pop on tile slide
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
 
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(180, t);
-    osc.frequency.exponentialRampToValueAtTime(320, t + 0.08);
+    osc.frequency.setValueAtTime(150, t);
+    osc.frequency.exponentialRampToValueAtTime(70, t + 0.07);
 
-    gain.gain.setValueAtTime(0.08, t);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+    gain.gain.setValueAtTime(0.12, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
 
     osc.connect(gain);
     gain.connect(this.ctx.destination);
 
     osc.start(t);
-    osc.stop(t + 0.1);
+    osc.stop(t + 0.08);
   }
 
   playLayerMove(direction = 'up') {
@@ -82,32 +83,54 @@ class SoundManager {
     osc.stop(t + 0.16);
   }
 
-  playMerge(value = 4) {
+  playMerge(value = 4, combo = 0) {
     if (this.muted) return;
     this.ensureContext();
     if (!this.ctx) return;
 
     const t = this.ctx.currentTime;
-    const power = Math.max(1, Math.min(11, Math.log2(value)));
-    const baseFreq = 260 + power * 40;
+    // Pentatonic / Major Scale (Đồ - Rê - Mi - Sol - La - Đố)
+    const scale = [
+      261.63, // C4 (Đồ)
+      293.66, // D4 (Rê)
+      329.63, // E4 (Mi)
+      392.00, // G4 (Sol)
+      440.00, // A4 (La)
+      523.25, // C5 (Đố)
+      587.33, // D5 (Rế)
+      659.25, // E5 (Mí)
+      783.99, // G5 (Sốl)
+      880.00, // A5 (Lá)
+      1046.50, // C6 (Đố cao)
+      1174.66, // D6
+      1318.51, // E6
+      1567.98  // G6
+    ];
 
-    [baseFreq, baseFreq * 1.5].forEach((freq, i) => {
+    const power = Math.max(0, Math.round(Math.log2(value)) - 2); // 4 -> 0, 8 -> 1, 16 -> 2...
+    const noteIndex = Math.min(scale.length - 1, power + Math.min(6, combo));
+    const baseFreq = scale[noteIndex];
+
+    // Dual harmonic tone: triangle (warm fundamental) + sine (sweet 5th/octave overtone)
+    [
+      { type: 'triangle', freq: baseFreq, vol: 0.15, mult: 1.0 },
+      { type: 'sine', freq: baseFreq * 1.5, vol: 0.08, mult: 1.03 }
+    ].forEach((voice) => {
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
 
-      osc.type = i === 0 ? 'triangle' : 'sine';
-      osc.frequency.setValueAtTime(freq, t);
-      osc.frequency.exponentialRampToValueAtTime(freq * 1.05, t + 0.18);
+      osc.type = voice.type;
+      osc.frequency.setValueAtTime(voice.freq, t);
+      osc.frequency.exponentialRampToValueAtTime(voice.freq * voice.mult, t + 0.2);
 
-      const vol = 0.12 / (i + 1);
-      gain.gain.setValueAtTime(vol, t);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+      gain.gain.setValueAtTime(voice.vol, t);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.26);
 
       osc.connect(gain);
       gain.connect(this.ctx.destination);
 
       osc.start(t);
-      osc.stop(t + 0.22);
+      osc.stop(t + 0.26);
     });
   }
 

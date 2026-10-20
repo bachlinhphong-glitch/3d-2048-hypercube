@@ -496,6 +496,8 @@ export class Game2048Logic {
 
     let moved = false;
     let scoreAdded = 0;
+    const movements = [];
+    const merges = [];
     const mergedGrid = this.createEmptyGrid();
     const newGrid = this.createEmptyGrid();
 
@@ -535,17 +537,37 @@ export class Game2048Logic {
             mergedGrid[nextL][nextR][nextC] = true;
             newGrid[nextL][nextR][nextC] = { ...tile, value: newValue };
             moved = true;
+
+            movements.push({
+              from: { l, r, c },
+              to: { l: nextL, r: nextR, c: nextC },
+              value: tile.value,
+              isMerge: true
+            });
+
+            merges.push({
+              from1: newGrid[nextL][nextR][nextC]._origPos || { l: nextL, r: nextR, c: nextC },
+              from2: { l, r, c },
+              to: { l: nextL, r: nextR, c: nextC },
+              value: newValue
+            });
           } else {
-            newGrid[currL][currR][currC] = { ...tile };
+            newGrid[currL][currR][currC] = { ...tile, _origPos: { l, r, c } };
             if (currL !== l || currR !== r || currC !== c) {
               moved = true;
+              movements.push({
+                from: { l, r, c },
+                to: { l: currL, r: currR, c: currC },
+                value: tile.value,
+                isMerge: false
+              });
             }
           }
         }
       }
     }
 
-    return { moved, grid: newGrid, scoreAdded };
+    return { moved, grid: newGrid, scoreAdded, movements, merges };
   }
 
   evaluateBoard(grid, scoreAdded) {

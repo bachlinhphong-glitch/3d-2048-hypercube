@@ -1,0 +1,13 @@
+{
+  "name": "3D 2048 Hypercube",
+  "short_name": "2048 3D",
+  "description": "3D 2048 với không gian Hypercube — WebGL Three.js",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#07090e",
+  "theme_color": "#00f0ff",
+  "icons": [
+    {"src": "./favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable"}
+  ]
+}

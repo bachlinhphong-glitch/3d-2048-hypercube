@@ -371,7 +371,19 @@ export class SceneManager {
       patrick_space: './assets/backgrounds/patrick_space.png'
     };
 
-    if (imageThemes[themeName]) {
+    let customBg = null;
+    try {
+      customBg = localStorage.getItem('3d2048_custom_bg');
+    } catch {}
+
+    if (themeName === 'custom' && customBg) {
+      this.scene.background = null;
+      this.renderer.setClearColor(0x000000, 0);
+      this.container.style.backgroundImage = `url("${customBg}")`;
+      this.container.style.backgroundSize = 'cover';
+      this.container.style.backgroundPosition = 'center';
+      this.container.style.backgroundRepeat = 'no-repeat';
+    } else if (imageThemes[themeName]) {
       this.scene.background = null;
       this.renderer.setClearColor(0x000000, 0);
       this.container.style.backgroundImage = `url("${imageThemes[themeName]}")`;
@@ -385,6 +397,7 @@ export class SceneManager {
     }
 
     const fogColors = {
+      custom: 0x070914,
       cat_moon: 0x060814,
       elmo_fire: 0x1f0604,
       patrick_space: 0x050a14,
@@ -399,7 +412,21 @@ export class SceneManager {
     const fogCol = fogColors[themeName] || 0x0d1117;
     this.scene.fog.color.set(fogCol);
 
-    if (themeName === 'cat_moon') {
+    if (themeName === 'custom') {
+      this.starfield.visible = false;
+      this.neonGrid.visible = false;
+      this.cyberDust.visible = true;
+      this.dustMat.color.set(0x38bdf8);
+      this.ambientLight.color.set(0xffffff);
+      this.ambientLight.intensity = 0.9;
+      this.sunLight.color.set(0xfff7ed);
+      this.sunLight.intensity = 1.6;
+      this.rimLight.color.set(0x38bdf8);
+      this.rimLight.intensity = 1.2;
+      this.pointLight1.intensity = 0;
+      this.pointLight2.intensity = 0;
+      this.renderer.toneMappingExposure = 1.15;
+    } else if (themeName === 'cat_moon') {
       this.starfield.visible = false;
       this.neonGrid.visible = false;
       this.cyberDust.visible = true;
@@ -575,18 +602,39 @@ export class SceneManager {
   }
 
   resetCamera() {
+    this.snapCamera(1);
+  }
+
+  snapCamera(preset = 1) {
     this.requestShadowUpdate(55);
     gsap.killTweensOf(this.camera.position);
     gsap.killTweensOf(this.controls.target);
 
-    const targetPos = this.mode === '3x3x3' ? this.defaultCamPos3x3 : this.defaultCamPos4x4;
-    const targetLook = this.mode === '3x3x3' ? this.defaultTarget3x3 : this.defaultTarget4x4;
+    const is3D = this.mode === '3x3x3';
+    let targetPos, targetLook;
+
+    if (preset === 1 || preset === 'iso') {
+      // 1. Isometric Standard 3D Diagonal View (Bao quát cả 3 trục)
+      targetPos = is3D ? new THREE.Vector3(0, 9.5, 7.5) : new THREE.Vector3(0, 10.5, 7.6);
+      targetLook = is3D ? this.defaultTarget3x3 : this.defaultTarget4x4;
+    } else if (preset === 2 || preset === 'top') {
+      // 2. Top-Down View (Nhìn thẳng từ đỉnh xuống như 2D)
+      targetPos = is3D ? new THREE.Vector3(0, 13.0, 0.01) : new THREE.Vector3(0, 13.0, 0.01);
+      targetLook = is3D ? this.defaultTarget3x3 : this.defaultTarget4x4;
+    } else if (preset === 3 || preset === 'side') {
+      // 3. Front / Side Layer View (Nhìn ngang soi rõ độ cao giữa 3 tầng)
+      targetPos = is3D ? new THREE.Vector3(0, 3.5, 12.0) : new THREE.Vector3(0, 2.0, 10.0);
+      targetLook = is3D ? this.defaultTarget3x3 : this.defaultTarget4x4;
+    } else {
+      targetPos = is3D ? this.defaultCamPos3x3 : this.defaultCamPos4x4;
+      targetLook = is3D ? this.defaultTarget3x3 : this.defaultTarget4x4;
+    }
 
     gsap.to(this.camera.position, {
       x: targetPos.x,
       y: targetPos.y,
       z: targetPos.z,
-      duration: 0.8,
+      duration: 0.65,
       ease: 'power2.inOut',
       onUpdate: () => {
         this.controls.update();
@@ -598,7 +646,7 @@ export class SceneManager {
       x: targetLook.x,
       y: targetLook.y,
       z: targetLook.z,
-      duration: 0.8,
+      duration: 0.65,
       ease: 'power2.inOut'
     });
   }

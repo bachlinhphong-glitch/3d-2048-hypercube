@@ -10,8 +10,16 @@
   <meta name="format-detection" content="telephone=no">
   <title>3D 2048 & Hypercube — WebGL Three.js & GSAP</title>
   <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+  <link rel="manifest" href="./manifest.json">
   <link rel="stylesheet" href="./src/style.css">
-  
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+  </script>
+
   <!-- Import Map for ES Modules pointing to ./libs/ -->
   <script type="importmap">
   {
@@ -92,7 +100,12 @@
             <option value="classic">🌙 Dark Obsidian</option>
             <option value="telemetry">📊 Hiệu Năng HUD</option>
           </optgroup>
+          <optgroup label="🖼️ Ảnh Tùy Chỉnh">
+            <option value="custom">🖼️ Ảnh của bạn (Upload)</option>
+          </optgroup>
         </select>
+
+        <input type="file" id="bg-upload-input" accept="image/*" style="display:none">
 
         <select id="select-fps" class="glass-select" title="Tối ưu phần cứng & Tần số quét màn hình (FPS)">
           <option value="max">🚀 Tối đa (165Hz/300Hz)</option>
@@ -115,14 +128,15 @@
       <div id="rush-floating-fx"></div>
     </div>
 
-    <!-- 3D Layer Movement Controls (For 3x3x3 Hypercube) -->
-    <div id="layer-controls" class="layer-controls">
-      <button id="btn-layer-up" class="layer-btn" title="Đẩy khối lên tầng trên (Phím E / Space)">
-        <span>🔼 Lên tầng (E)</span>
-      </button>
-      <button id="btn-layer-down" class="layer-btn" title="Ép khối xuống tầng dưới (Phím Q / Shift)">
-        <span>🔽 Xuống tầng (Q)</span>
-      </button>
+    <!-- 3D Layer Movement Controls replaced by D-Pad below -->
+
+    <!-- X-Ray / Slice Controls (only for 3x3x3) -->
+    <div id="slice-controls" class="slice-controls" style="display:none">
+      <button class="slice-btn active" data-slice="all">Tất cả</button>
+      <button class="slice-btn" data-slice="0">Tầng 0</button>
+      <button class="slice-btn" data-slice="1">Tầng 1</button>
+      <button class="slice-btn" data-slice="2">Tầng 2</button>
+      <button class="slice-btn" data-slice="exploded">💥 Tách tầng</button>
     </div>
 
     <!-- Telemetry Map & Performance Graph Panel -->
@@ -192,6 +206,57 @@
     <!-- Spell Toast Alert / Recharge Banner -->
     <div id="spell-toast" class="spell-toast"></div>
 
+    <!-- Camera Snap Bar (top-right corner) -->
+    <div id="camera-snap-bar" class="camera-snap-bar">
+      <button class="cam-btn" data-preset="1" title="Isometric (1)">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M8 2L14 5.5V10.5L8 14L2 10.5V5.5L8 2Z"/>
+        </svg>
+      </button>
+      <button class="cam-btn" data-preset="2" title="Top-Down (2)">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="8" cy="8" r="5"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/>
+        </svg>
+      </button>
+      <button class="cam-btn" data-preset="3" title="Front View (3)">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="2" y="4" width="12" height="8" rx="1"/>
+          <line x1="2" y1="8" x2="14" y2="8"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- D-Pad Direction Controls (right side) -->
+    <div id="dir-pad" class="dir-pad">
+      <button class="dpad-btn" data-dir="up" title="Lên (W/↑)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5m0 0l-7 7m7-7 7 7"/></svg>
+      </button>
+      <div class="dpad-middle-row">
+        <button class="dpad-btn" data-dir="left" title="Trái (A/←)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5m0 0l7 7m-7-7 7-7"/></svg>
+        </button>
+        <button class="dpad-btn dpad-center" data-dir="iso" title="Reset Camera">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+        </button>
+        <button class="dpad-btn" data-dir="right" title="Phải (D/→)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14m0 0-7-7m7 7-7 7"/></svg>
+        </button>
+      </div>
+      <button class="dpad-btn" data-dir="down" title="Xuống (S/↓)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14m0 0 7-7m-7 7-7-7"/></svg>
+      </button>
+      <div class="dpad-depth-row">
+        <button class="dpad-btn dpad-layer" id="btn-layer-up" data-dir="layerUp" title="Lên tầng (E)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 15 7-7 7 7"/><path d="M5 19h14" opacity=".4"/></svg>
+          <span>E</span>
+        </button>
+        <button class="dpad-btn dpad-layer" id="btn-layer-down" data-dir="layerDown" title="Xuống tầng (Q)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 9 7 7 7-7"/><path d="M5 5h14" opacity=".4"/></svg>
+          <span>Q</span>
+        </button>
+      </div>
+    </div>
+
     <!-- Bottom Controls Guide -->
     <footer class="bottom-bar">
       <div class="hint-pill desktop-only">
@@ -214,6 +279,18 @@
         <div class="hint-item">
           <span class="hint-key">X</span>
           <span>Đổi vị trí</span>
+        </div>
+        <div class="hint-item">
+          <span class="hint-key">1 2 3</span>
+          <span>Góc nhìn</span>
+        </div>
+        <div class="hint-item">
+          <span class="hint-key">V/Tab</span>
+          <span>Cắt lớp 3D</span>
+        </div>
+        <div class="hint-item">
+          <span class="hint-key">Shift</span>
+          <span>Dự đoán</span>
         </div>
         <div class="hint-item">
           <span class="hint-key">Chuột phải</span>
