@@ -107,6 +107,11 @@ class GameApp {
     this.modalBtnPrimary = document.getElementById('modal-btn-primary');
     this.modalBtnSecondary = document.getElementById('modal-btn-secondary');
 
+    if (this.modalOverlay) {
+      this.modalOverlay.style.display = 'none';
+      this.modalOverlay.style.pointerEvents = 'none';
+    }
+
     // Rush Mode Elements
     this.rushPanel = document.getElementById('rush-panel');
     this.rushTimerEl = document.getElementById('rush-timer-val');
@@ -136,13 +141,6 @@ class GameApp {
     const settingsModal = document.getElementById('settings-modal');
     const settingsToggleBtn = document.getElementById('btn-settings-toggle');
     const settingsCloseBtn = document.getElementById('btn-close-settings');
-    const settingsCard = settingsModal ? settingsModal.querySelector('.settings-modal-card') : null;
-
-    if (settingsCard) {
-      settingsCard.addEventListener('click', (e) => e.stopPropagation());
-      settingsCard.addEventListener('pointerdown', (e) => e.stopPropagation());
-      settingsCard.addEventListener('pointerup', (e) => e.stopPropagation());
-    }
 
     if (settingsToggleBtn && settingsModal) {
       settingsToggleBtn.addEventListener('click', (e) => {
@@ -1269,11 +1267,13 @@ class GameApp {
     }
 
     this.modalOverlay.style.display = 'flex';
+    this.modalOverlay.style.pointerEvents = 'auto';
     this.modalOverlay.classList.add('active');
   }
 
   hideModal() {
     this.modalOverlay.classList.remove('active');
+    this.modalOverlay.style.pointerEvents = 'none';
     setTimeout(() => {
       if (!this.modalOverlay.classList.contains('active')) {
         this.modalOverlay.style.display = 'none';

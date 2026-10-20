@@ -1,6 +1,6 @@
-const CACHE_NAME = 'v5.0-2048-hypercube';
+const CACHE_NAME = 'v5.3.0-2048-hypercube';
 const CACHE_URLS = [
-  '.',
+  './',
   './index.html',
   './manifest.json',
   './favicon.svg',
@@ -28,10 +28,10 @@ const CACHE_URLS = [
 ];
 
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(CACHE_URLS)).catch(() => {})
   );
-  self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {

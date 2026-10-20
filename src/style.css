@@ -447,6 +447,10 @@ body.theme-telemetry .glass-select {
 
 .settings-modal-card {
   width: min(94vw, 440px);
+  max-height: min(90vh, 680px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
   background: var(--glass-bg, rgba(17, 24, 39, 0.95));
   border: 1px solid rgba(0, 240, 255, 0.28);
   border-radius: 18px;
@@ -462,7 +466,7 @@ body.theme-telemetry .glass-select {
 }
 
 .settings-modal-card * {
-  touch-action: manipulation;
+  touch-action: auto !important;
   pointer-events: auto;
 }
 
@@ -541,8 +545,8 @@ body.theme-telemetry .glass-select {
 }
 
 .settings-select {
-  background: rgba(13, 17, 23, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(13, 17, 23, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   color: #ffffff;
   padding: 6px 10px;
   font-size: 12px;
@@ -551,7 +555,39 @@ body.theme-telemetry .glass-select {
   outline: none;
   cursor: pointer;
   transition: all 0.18s;
+  min-width: 0;
   max-width: 220px;
+  position: relative;
+  z-index: 2610 !important;
+  pointer-events: auto !important;
+  touch-action: auto !important;
+  -webkit-user-select: auto !important;
+  user-select: auto !important;
+}
+
+@media (max-width: 480px) {
+  .settings-modal-card {
+    padding: 16px 14px;
+    width: 95vw;
+  }
+  .settings-row {
+    gap: 8px;
+  }
+  .settings-select {
+    max-width: 170px;
+    font-size: 11px;
+    padding: 5px 8px;
+  }
+}
+
+.settings-row button,
+.settings-row select,
+.settings-row input {
+  position: relative;
+  z-index: 2610 !important;
+  pointer-events: auto !important;
+  touch-action: auto !important;
+  cursor: pointer !important;
 }
 
 .settings-select:hover,
