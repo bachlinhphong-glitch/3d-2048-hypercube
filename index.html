@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>3D 2048 & Hypercube — WebGL Three.js & GSAP</title>
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+  <link rel="stylesheet" href="./src/style.css">
+  
+  <!-- Import Map for ES Modules pointing to ./libs/ -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./libs/three.module.js",
+      "three/addons/controls/OrbitControls.js": "./libs/controls/OrbitControls.js",
+      "three/addons/geometries/RoundedBoxGeometry.js": "./libs/geometries/RoundedBoxGeometry.js",
+      "three/addons/": "./libs/",
+      "three/examples/jsm/": "./libs/",
+      "gsap": "./libs/gsap.module.js"
+    }
+  }
+  </script>
+</head>
+<body class="theme-classic">
+  <!-- 3D WebGL Canvas Container -->
+  <div id="canvas-container"></div>
+
+  <!-- Glassmorphism UI Overlay -->
+  <div class="ui-overlay">
+    <!-- Top Header Bar -->
+    <header class="header-bar">
+      <div class="brand-section">
+        <h1 class="game-title">2048</h1>
+        <span class="game-badge">3D Hyper</span>
+        <span class="fps-badge" id="fps-counter">60 FPS</span>
+      </div>
+
+      <!-- Mode, Shape & Theme Selectors -->
+      <div class="selectors-section">
+        <select id="select-mode" class="glass-select" title="Chế độ không gian">
+          <option value="4x4">📦 4x4 Classic</option>
+          <option value="3x3x3">🌌 3x3x3 Hypercube</option>
+        </select>
+
+        <select id="select-shape" class="glass-select" title="Hình dạng khối 3D">
+          <option value="rounded_cube">🧊 Khối Bo Góc</option>
+          <option value="crystal_octahedron">💎 Bát Diện Kim Cương</option>
+          <option value="core_sphere">🔮 Cầu Năng Lượng</option>
+          <option value="auto_evolution">🧬 Tiến Hóa (Auto)</option>
+        </select>
+
+        <select id="select-theme" class="glass-select" title="Giao diện hiển thị">
+          <option value="classic">🌙 Dark Glass</option>
+          <option value="telemetry">📊 Hiệu Năng HUD</option>
+          <option value="neon">⚡ Hyper Neon</option>
+        </select>
+      </div>
+
+      <!-- Score & Best Score -->
+      <div class="stats-section">
+        <div class="stat-pill" id="score-badge">
+          <div class="stat-label">Điểm số</div>
+          <div class="stat-value" id="score-val">0</div>
+        </div>
+        <div class="stat-pill best">
+          <div class="stat-label">Kỷ lục</div>
+          <div class="stat-value" id="best-val">0</div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="actions-section">
+        <button id="btn-toggle-rush" class="glass-btn rush-btn" title="Chế độ đếm ngược Time Rush">⚡ Rush</button>
+        <button id="btn-sound-toggle" class="glass-btn" title="Bật/Tắt âm thanh">🔊 Bật</button>
+        <button id="btn-reset-camera" class="glass-btn" title="Đặt lại camera">🎥 Camera</button>
+        <button id="btn-new-game" class="glass-btn primary" title="Bắt đầu ván mới">🎮 Chơi mới</button>
+      </div>
+    </header>
+
+    <!-- Side Panel: Time Rush Overdrive Mode -->
+    <div id="rush-panel" class="rush-panel">
+      <div class="rush-title">
+        <span>⚡ Time Rush</span>
+        <span>💣 Bom</span>
+      </div>
+      <div class="rush-timer" id="rush-timer-val">30.0s</div>
+      <div class="rush-progress-track">
+        <div id="rush-progress-bar" class="rush-progress-bar"></div>
+      </div>
+      <div id="rush-floating-fx"></div>
+    </div>
+
+    <!-- 3D Layer Movement Controls (For 3x3x3 Hypercube) -->
+    <div id="layer-controls" class="layer-controls">
+      <button id="btn-layer-up" class="layer-btn" title="Đẩy khối lên tầng trên (Phím E / Space)">
+        <span>🔼 Lên tầng (E)</span>
+      </button>
+      <button id="btn-layer-down" class="layer-btn" title="Ép khối xuống tầng dưới (Phím Q / Shift)">
+        <span>🔽 Xuống tầng (Q)</span>
+      </button>
+    </div>
+
+    <!-- Telemetry Map & Performance Graph Panel -->
+    <div id="telemetry-panel" class="telemetry-panel">
+      <div class="telemetry-header">
+        <span>// TELEMETRY HUD</span>
+        <span>SYS_OK</span>
+      </div>
+      <canvas id="telemetry-canvas" width="240" height="55"></canvas>
+      <div class="telemetry-grid">
+        <div class="telemetry-item">FPS: <span id="stat-fps">60</span></div>
+        <div class="telemetry-item">FRAME: <span id="stat-ms">16.6ms</span></div>
+        <div class="telemetry-item">DRAWS: <span id="stat-calls">2</span></div>
+        <div class="telemetry-item">TRIS: <span id="stat-tris">1.2k</span></div>
+        <div class="telemetry-item">APM: <span id="stat-apm">0</span></div>
+        <div class="telemetry-item">DENSITY: <span id="stat-density">12%</span></div>
+      </div>
+    </div>
+
+    <!-- Summoner Spells Bar (Phép Bổ Trợ Kiểu Flash LMHT: Gợi ý, Đi lại, Đổi vị trí) -->
+    <div id="spell-bar" class="spell-bar">
+      <button id="btn-spell-hint" class="spell-btn" title="💡 Gợi ý nước đi tối ưu (Phím H)">
+        <div class="spell-btn-glow"></div>
+        <span class="spell-icon">💡</span>
+        <span class="spell-name">Gợi ý</span>
+        <span class="spell-badge" id="badge-spell-hint">2</span>
+        <span class="spell-hotkey">H</span>
+      </button>
+
+      <button id="btn-spell-undo" class="spell-btn" title="⏪ Đi lại nước trước (Phím Z)">
+        <div class="spell-btn-glow"></div>
+        <span class="spell-icon">⏪</span>
+        <span class="spell-name">Đi lại</span>
+        <span class="spell-badge" id="badge-spell-undo">2</span>
+        <span class="spell-hotkey">Z</span>
+      </button>
+
+      <button id="btn-spell-swap" class="spell-btn" title="⚡ Dịch chuyển / Đổi vị trí 2 khối (Phím X)">
+        <div class="spell-btn-glow"></div>
+        <span class="spell-icon">⚡</span>
+        <span class="spell-name">Đổi vị trí</span>
+        <span class="spell-badge" id="badge-spell-swap">2</span>
+        <span class="spell-hotkey">X</span>
+      </button>
+    </div>
+
+    <!-- Spell Toast Alert / Recharge Banner -->
+    <div id="spell-toast" class="spell-toast"></div>
+
+    <!-- Bottom Controls Guide -->
+    <footer class="bottom-bar">
+      <div class="hint-pill">
+        <div class="hint-item">
+          <span class="hint-key">↑ ↓ ← →</span> / <span class="hint-key">W A S D</span>
+          <span>Trượt phẳng</span>
+        </div>
+        <div class="hint-item">
+          <span class="hint-key">E / Q</span>
+          <span>Lên/Xuống tầng 3D</span>
+        </div>
+        <div class="hint-item">
+          <span class="hint-key">H</span>
+          <span>Gợi ý</span>
+        </div>
+        <div class="hint-item">
+          <span class="hint-key">Z</span>
+          <span>Đi lại</span>
+        </div>
+        <div class="hint-item">
+          <span class="hint-key">X</span>
+          <span>Đổi vị trí</span>
+        </div>
+        <div class="hint-item">
+          <span class="hint-key">Chuột phải</span>
+          <span>Xoay 3D</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Game Over / Victory Modal -->
+  <div id="modal-overlay" class="modal-overlay">
+    <div class="modal-card">
+      <h2 id="modal-title" class="modal-title">CHIẾN THẮNG!</h2>
+      <p id="modal-message" class="modal-message">Chúc mừng bạn đã đạt khối 2048!</p>
+      <div class="modal-actions">
+        <button id="modal-btn-secondary" class="modal-btn secondary">Chơi ván mới</button>
+        <button id="modal-btn-primary" class="modal-btn primary">Tiếp tục</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Game Script -->
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

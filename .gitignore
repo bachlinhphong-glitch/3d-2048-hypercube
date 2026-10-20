@@ -1,0 +1,14 @@
+# Dev & temp folders
+.edge_temp_profile/
+__pycache__/
+*.pyc
+
+# Local screenshots
+screenshot_initial.png
+screenshot_4x4_initial.png
+
+# Dependencies & build
+node_modules/
+dist/
+.DS_Store
+Thumbs.db
