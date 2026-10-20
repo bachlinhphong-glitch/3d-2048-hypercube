@@ -532,7 +532,7 @@ class GameApp {
     const debugBossBtn = document.getElementById('btn-debug-boss-p3');
     if (bossBtn) {
       bossBtn.classList.toggle('active', this.isBossRaid);
-      bossBtn.textContent = this.isBossRaid ? '⚔️ Đang Đánh Boss' : '⚔️ Boss Raid';
+      bossBtn.textContent = this.isBossRaid ? '⚡ Boss Mode: BẬT' : '⚡ Boss Mode';
     }
     if (debugBossBtn) {
       debugBossBtn.style.display = this.isBossRaid ? 'inline-flex' : 'none';
