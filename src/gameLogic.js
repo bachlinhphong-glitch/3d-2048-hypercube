@@ -15,13 +15,15 @@ export class Game2048Logic {
     this.moveCount = 0;
 
     // Summoner Spells / Phép bổ trợ (Gợi ý, Đi lại, Đổi vị trí)
-    this.maxCharges = 2;
-    this.spellCharges = {
-      hint: 2,
-      undo: 2,
-      swap: 2
+    // Tối đa 2 lần trong 1 game. Dùng 1 lần thì rơi vào hồi chiêu.
+    // Hồi chiêu khi đạt mốc 256, sau đó gấp đôi (512, 1024, 2048...).
+    this.maxSpellUses = 2;
+    this.nextRechargeMilestone = 256;
+    this.spells = {
+      hint: { used: 0, ready: true },
+      undo: { used: 0, ready: true },
+      swap: { used: 0, ready: true }
     };
-    this.maxTileValueAchieved = 4;
     this.history = [];
   }
 
@@ -81,13 +83,14 @@ export class Game2048Logic {
     this.gameOver = false;
     this.moveCount = 0;
 
-    // Reset summoner spells to initial 2 charges
-    this.spellCharges = {
-      hint: 2,
-      undo: 2,
-      swap: 2
+    // Reset summoner spells (mỗi bổ trợ tối đa 2 lần/game, dùng 1 lần thì chờ hồi chiêu mốc 256)
+    this.maxSpellUses = 2;
+    this.nextRechargeMilestone = 256;
+    this.spells = {
+      hint: { used: 0, ready: true },
+      undo: { used: 0, ready: true },
+      swap: { used: 0, ready: true }
     };
-    this.maxTileValueAchieved = 4;
     this.history = [];
   }
 
@@ -324,7 +327,7 @@ export class Game2048Logic {
       const isOver = !this.hasValidMoves();
       this.gameOver = isOver;
 
-      // Check if new highest tile created -> Summoner Spell Cooldown Recharge!
+      // Check if merged tile reaches or exceeds the cooldown milestone (256, 512, 1024, ...)
       let maxTileMerged = 0;
       for (const m of movements) {
         if (m.mergedInto && m.newValue) {
@@ -333,13 +336,22 @@ export class Game2048Logic {
       }
 
       let spellRecharged = false;
-      let newMilestone = this.maxTileValueAchieved;
-      if (maxTileMerged > this.maxTileValueAchieved) {
-        this.maxTileValueAchieved = maxTileMerged;
-        spellRecharged = true;
-        newMilestone = maxTileMerged;
-        for (const k in this.spellCharges) {
-          this.spellCharges[k] = Math.min(this.maxCharges, this.spellCharges[k] + 1);
+      let milestoneAchieved = 0;
+      if (maxTileMerged >= this.nextRechargeMilestone) {
+        milestoneAchieved = this.nextRechargeMilestone;
+        let rechargedCount = 0;
+        for (const k in this.spells) {
+          if (!this.spells[k].ready && this.spells[k].used < this.maxSpellUses) {
+            this.spells[k].ready = true;
+            rechargedCount++;
+          }
+        }
+        if (rechargedCount > 0) {
+          spellRecharged = true;
+        }
+        // Advance milestone to next power of 2 (gấp đôi: 256 -> 512 -> 1024 -> 2048...)
+        while (this.nextRechargeMilestone <= maxTileMerged) {
+          this.nextRechargeMilestone *= 2;
         }
       }
 
@@ -353,8 +365,9 @@ export class Game2048Logic {
         won: wonThisTurn,
         gameOver: isOver,
         spellRecharged,
-        newMilestone,
-        spellCharges: { ...this.spellCharges }
+        milestoneAchieved,
+        nextRechargeMilestone: this.nextRechargeMilestone,
+        spells: this.getSpellsState()
       };
     }
 
@@ -373,36 +386,73 @@ export class Game2048Logic {
       grid: gridCopy,
       score: this.score,
       moveCount: this.moveCount,
-      maxTileValueAchieved: this.maxTileValueAchieved
+      nextRechargeMilestone: this.nextRechargeMilestone,
+      spells: JSON.parse(JSON.stringify(this.spells))
     });
     if (this.history.length > 25) {
       this.history.shift();
     }
   }
 
+  canUseSpell(type) {
+    const spell = this.spells[type];
+    if (!spell) return false;
+    return spell.ready && spell.used < this.maxSpellUses;
+  }
+
+  getSpellStatus(type) {
+    const spell = this.spells[type];
+    if (!spell) return 'depleted';
+    if (spell.used >= this.maxSpellUses) return 'depleted';
+    if (!spell.ready) return 'cooldown';
+    return 'ready';
+  }
+
+  getSpellsState() {
+    return {
+      spells: JSON.parse(JSON.stringify(this.spells)),
+      nextMilestone: this.nextRechargeMilestone,
+      maxUses: this.maxSpellUses
+    };
+  }
+
+  canHint() {
+    return this.canUseSpell('hint');
+  }
+
+  useHint() {
+    if (!this.canHint()) return false;
+    this.spells.hint.used++;
+    this.spells.hint.ready = false;
+    return true;
+  }
+
   canUndo() {
-    return this.spellCharges.undo > 0 && this.history.length > 0;
+    return this.canUseSpell('undo') && this.history.length > 0;
   }
 
   undo() {
     if (!this.canUndo()) return null;
     const previous = this.history.pop();
-    this.spellCharges.undo--;
+    this.spells.undo.used++;
+    this.spells.undo.ready = false;
     this.grid = previous.grid;
     this.score = previous.score;
     this.moveCount = previous.moveCount;
-    this.maxTileValueAchieved = previous.maxTileValueAchieved;
+    if (previous.nextRechargeMilestone) {
+      this.nextRechargeMilestone = previous.nextRechargeMilestone;
+    }
     this.gameOver = false;
     return {
       success: true,
       grid: this.grid,
       score: this.score,
-      spellCharges: { ...this.spellCharges }
+      spells: this.getSpellsState()
     };
   }
 
   canSwap() {
-    return this.spellCharges.swap > 0;
+    return this.canUseSpell('swap');
   }
 
   swapTiles(posA, posB) {
@@ -417,11 +467,12 @@ export class Game2048Logic {
     this.grid[posA.l][posA.r][posA.c] = tileB;
     this.grid[posB.l][posB.r][posB.c] = tileA;
 
-    this.spellCharges.swap--;
+    this.spells.swap.used++;
+    this.spells.swap.ready = false;
     this.gameOver = !this.hasValidMoves();
     return {
       success: true,
-      spellCharges: { ...this.spellCharges }
+      spells: this.getSpellsState()
     };
   }
 
@@ -538,7 +589,7 @@ export class Game2048Logic {
   }
 
   getBestMove() {
-    if (this.spellCharges.hint <= 0) return null;
+    if (!this.canHint()) return null;
 
     const directions = this.mode === '3x3x3'
       ? ['up', 'down', 'left', 'right', 'layerUp', 'layerDown']
@@ -558,11 +609,11 @@ export class Game2048Logic {
     }
 
     if (bestDir) {
-      this.spellCharges.hint--;
+      this.useHint();
     }
     return {
       direction: bestDir,
-      spellCharges: { ...this.spellCharges }
+      spells: this.getSpellsState()
     };
   }
 }

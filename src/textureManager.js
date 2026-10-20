@@ -232,23 +232,19 @@ export class TextureManager {
     const multiplier = this.isHyperNeon ? 1.5 : 1.0;
     const emissiveIntensity = (isBomb ? 0.7 : style.intensity) * multiplier;
 
-    // Premium physical material with lacquer clearcoat
-    const faceMatWithText = new THREE.MeshPhysicalMaterial({
+    // High-performance glossy standard material (ultra-fast 60+ FPS on all GPUs)
+    const faceMatWithText = new THREE.MeshStandardMaterial({
       map: texture,
-      roughness: 0.16,
-      metalness: 0.25,
-      clearcoat: 0.85,
-      clearcoatRoughness: 0.12,
+      roughness: 0.18,
+      metalness: 0.22,
       emissive: emissiveColor,
       emissiveIntensity: emissiveIntensity
     });
 
-    const solidSideMat = new THREE.MeshPhysicalMaterial({
+    const solidSideMat = new THREE.MeshStandardMaterial({
       color: new THREE.Color(isBomb ? 0xcc1111 : style.bg),
-      roughness: 0.16,
-      metalness: 0.25,
-      clearcoat: 0.85,
-      clearcoatRoughness: 0.12,
+      roughness: 0.18,
+      metalness: 0.22,
       emissive: emissiveColor,
       emissiveIntensity: emissiveIntensity * 0.35
     });
@@ -276,15 +272,13 @@ export class TextureManager {
     const color = new THREE.Color(isBomb ? 0xff3838 : style.bg);
     const emissive = new THREE.Color(isBomb ? 0xff1111 : style.emissive);
     
-    // High-performance diamond crystal (zero framebuffer copies)
-    const mat = new THREE.MeshPhysicalMaterial({
+    // High-performance crystal standard material (fast 60+ FPS on all GPUs)
+    const mat = new THREE.MeshStandardMaterial({
       color: color,
-      roughness: 0.08,
+      roughness: 0.12,
       metalness: 0.25,
       transparent: true,
-      opacity: 0.90,
-      clearcoat: 1.0,
-      clearcoatRoughness: 0.08,
+      opacity: 0.92,
       emissive: emissive,
       emissiveIntensity: isBomb ? 0.75 : (this.isHyperNeon ? 0.9 : 0.45)
     });
@@ -330,12 +324,10 @@ export class TextureManager {
     const style = this.getStyle(value);
     const color = new THREE.Color(isBomb ? 0xff3838 : style.bg);
     const emissive = new THREE.Color(isBomb ? 0xff1111 : style.emissive);
-    const mat = new THREE.MeshPhysicalMaterial({
+    const mat = new THREE.MeshStandardMaterial({
       color: color,
-      roughness: 0.12,
+      roughness: 0.14,
       metalness: 0.35,
-      clearcoat: 0.9,
-      clearcoatRoughness: 0.08,
       emissive: emissive,
       emissiveIntensity: isBomb ? 0.9 : (this.isHyperNeon ? 0.95 : 0.55)
     });

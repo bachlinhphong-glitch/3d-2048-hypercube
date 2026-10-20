@@ -588,7 +588,7 @@ class GameApp {
 
     this.updateScoreUI(result.scoreAdded);
     if (result.spellRecharged) {
-      this.triggerSpellRecharge(result.newMilestone);
+      this.triggerSpellRecharge(result.milestoneAchieved);
     }
     await new Promise(r => setTimeout(r, 60));
 
@@ -657,17 +657,46 @@ class GameApp {
   }
 
   updateSpellUI() {
-    const charges = this.gameLogic.spellCharges;
-    if (this.badgeSpellHint) this.badgeSpellHint.textContent = charges.hint;
-    if (this.badgeSpellUndo) this.badgeSpellUndo.textContent = charges.undo;
-    if (this.badgeSpellSwap) this.badgeSpellSwap.textContent = charges.swap;
+    const spellTypes = ['hint', 'undo', 'swap'];
+    const spellNames = { hint: 'Hint', undo: 'Undo', swap: 'Swap' };
 
-    if (this.btnSpellHint) this.btnSpellHint.classList.toggle('depleted', charges.hint <= 0);
-    if (this.btnSpellUndo) this.btnSpellUndo.classList.toggle('depleted', charges.undo <= 0);
-    if (this.btnSpellSwap) {
-      this.btnSpellSwap.classList.toggle('depleted', charges.swap <= 0);
-      this.btnSpellSwap.classList.toggle('active-swap', this.isSwapMode);
-    }
+    spellTypes.forEach(type => {
+      const status = this.gameLogic.getSpellStatus(type);
+      const spell = this.gameLogic.spells[type];
+      const remaining = Math.max(0, this.gameLogic.maxSpellUses - (spell ? spell.used : 0));
+      const btn = this[`btnSpell${spellNames[type]}`];
+      const badge = this[`badgeSpell${spellNames[type]}`];
+
+      if (btn) {
+        btn.classList.toggle('depleted', status === 'depleted');
+        btn.classList.toggle('in-cooldown', status === 'cooldown');
+        btn.classList.toggle('ready', status === 'ready');
+        if (type === 'swap') {
+          btn.classList.toggle('active-swap', this.isSwapMode);
+        }
+
+        if (status === 'depleted') {
+          btn.title = 'Đã hết lượt trong ván này (tối đa 2 lần/game)';
+        } else if (status === 'cooldown') {
+          btn.title = `Đang hồi chiêu! Tạo khối [${this.gameLogic.nextRechargeMilestone}] để hồi chiêu.`;
+        } else {
+          btn.title = `Sẵn sàng sử dụng (Còn ${remaining}/${this.gameLogic.maxSpellUses} lần)`;
+        }
+      }
+
+      if (badge) {
+        if (status === 'depleted') {
+          badge.textContent = '0';
+          badge.title = 'Đã hết 2 lượt';
+        } else if (status === 'cooldown') {
+          badge.textContent = `⏱${this.gameLogic.nextRechargeMilestone}`;
+          badge.title = `Cần khối ${this.gameLogic.nextRechargeMilestone} để hồi`;
+        } else {
+          badge.textContent = `${remaining}`;
+          badge.title = `Còn ${remaining}/${this.gameLogic.maxSpellUses} lượt`;
+        }
+      }
+    });
   }
 
   showSpellToast(text, isRecharge = false) {
@@ -681,10 +710,10 @@ class GameApp {
       if (this.spellToastEl) {
         this.spellToastEl.classList.remove('active');
       }
-    }, 2500);
+    }, 2800);
   }
 
-  triggerSpellRecharge(newMilestone) {
+  triggerSpellRecharge(milestone) {
     soundManager.playSpellRecharge();
 
     [this.btnSpellHint, this.btnSpellUndo, this.btnSpellSwap].forEach(btn => {
@@ -695,15 +724,20 @@ class GameApp {
       }
     });
 
-    this.showSpellToast(`HỒI CHIÊU: +1 LƯỢT KỸ NĂNG VỚI KHỐI [${newMilestone}]!`, true);
+    this.showSpellToast(`⚡ HỒI CHIÊU: ĐẠT MỐC [${milestone}] ĐÃ HỒI LẠI KỸ NĂNG!`, true);
     this.updateSpellUI();
   }
 
   handleSpellHint() {
     if (this.isAnimating || this.gameLogic.gameOver) return;
 
-    if (this.gameLogic.spellCharges.hint <= 0) {
-      this.showSpellToast('Hết lượt Gợi ý! Tạo ô kỷ lục mới để hồi chiêu.');
+    const status = this.gameLogic.getSpellStatus('hint');
+    if (status === 'depleted') {
+      this.showSpellToast('HẾT LƯỢT: Bạn đã dùng tối đa 2 lần Gợi ý trong ván này!');
+      return;
+    }
+    if (status === 'cooldown') {
+      this.showSpellToast(`ĐANG HỒI CHIÊU: Hãy tạo khối [${this.gameLogic.nextRechargeMilestone}] để hồi chiêu!`);
       return;
     }
 
@@ -732,8 +766,13 @@ class GameApp {
     if (this.isAnimating) return;
     if (this.isSwapMode) this.cancelSwapMode();
 
-    if (this.gameLogic.spellCharges.undo <= 0) {
-      this.showSpellToast('Hết lượt Đi lại! Tạo ô kỷ lục mới để hồi chiêu.');
+    const status = this.gameLogic.getSpellStatus('undo');
+    if (status === 'depleted') {
+      this.showSpellToast('HẾT LƯỢT: Bạn đã dùng tối đa 2 lần Đi lại trong ván này!');
+      return;
+    }
+    if (status === 'cooldown') {
+      this.showSpellToast(`ĐANG HỒI CHIÊU: Hãy tạo khối [${this.gameLogic.nextRechargeMilestone}] để hồi chiêu!`);
       return;
     }
 
@@ -780,8 +819,13 @@ class GameApp {
       return;
     }
 
-    if (this.gameLogic.spellCharges.swap <= 0) {
-      this.showSpellToast('Hết lượt Đổi vị trí! Tạo ô kỷ lục mới để hồi chiêu.');
+    const status = this.gameLogic.getSpellStatus('swap');
+    if (status === 'depleted') {
+      this.showSpellToast('HẾT LƯỢT: Bạn đã dùng tối đa 2 lần Đổi vị trí trong ván này!');
+      return;
+    }
+    if (status === 'cooldown') {
+      this.showSpellToast(`ĐANG HỒI CHIÊU: Hãy tạo khối [${this.gameLogic.nextRechargeMilestone}] để hồi chiêu!`);
       return;
     }
 

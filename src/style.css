@@ -99,10 +99,9 @@ body.theme-telemetry .glass-select {
   margin: 0 auto;
   pointer-events: auto;
   background: var(--glass-bg);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
   will-change: transform;
   transform: translateZ(0);
+  contain: paint;
   border: 1px solid var(--glass-border);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
   border-radius: var(--radius-lg);
@@ -279,7 +278,6 @@ body.theme-telemetry .glass-select {
 .layer-btn {
   background: var(--glass-bg);
   border: 1px solid rgba(56, 189, 248, 0.4);
-  backdrop-filter: blur(10px);
   color: #38bdf8;
   padding: 14px 18px;
   font-size: 13px;
@@ -308,8 +306,6 @@ body.theme-telemetry .glass-select {
   flex-direction: column;
   gap: 8px;
   background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   will-change: transform;
   border: 1px solid rgba(255, 56, 56, 0.4);
   box-shadow: 0 8px 24px rgba(255, 0, 60, 0.2);
@@ -441,7 +437,6 @@ body.theme-telemetry .glass-select {
   align-items: center;
   gap: 16px;
   background: rgba(22, 27, 34, 0.88);
-  backdrop-filter: blur(10px);
   will-change: transform;
   transform: translateZ(0);
   border: 1px solid var(--glass-border);
@@ -475,8 +470,7 @@ body.theme-telemetry .glass-select {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(9, 12, 16, 0.75);
-  backdrop-filter: blur(12px);
+  background: rgba(9, 12, 16, 0.88);
   z-index: 100;
   display: flex;
   justify-content: center;
@@ -585,9 +579,7 @@ body.theme-telemetry .glass-select {
   position: relative;
   width: 72px;
   height: 78px;
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: rgba(15, 23, 42, 0.92);
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 16px;
   display: flex;
@@ -603,18 +595,18 @@ body.theme-telemetry .glass-select {
   touch-action: manipulation;
 }
 
-.spell-btn:hover:not(.depleted):not(.active-swap) {
+.spell-btn:hover:not(.depleted):not(.in-cooldown):not(.active-swap) {
   transform: translateY(-3px);
   border-color: rgba(56, 189, 248, 0.6);
   box-shadow: 0 12px 28px rgba(0, 240, 255, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 
-.spell-btn:hover:not(.depleted):not(.active-swap) .spell-svg {
+.spell-btn:hover:not(.depleted):not(.in-cooldown):not(.active-swap) .spell-svg {
   color: #00f0ff;
   filter: drop-shadow(0 0 6px rgba(0, 240, 255, 0.6));
 }
 
-.spell-btn:active:not(.depleted) {
+.spell-btn:active:not(.depleted):not(.in-cooldown) {
   transform: translateY(0) scale(0.97);
 }
 
@@ -623,6 +615,17 @@ body.theme-telemetry .glass-select {
   filter: grayscale(0.9);
   cursor: not-allowed;
   border-color: rgba(255, 255, 255, 0.08);
+}
+
+.spell-btn.in-cooldown {
+  opacity: 0.68;
+  cursor: not-allowed;
+  border-color: rgba(245, 158, 11, 0.35);
+  background: rgba(24, 20, 15, 0.92);
+}
+
+.spell-btn.in-cooldown .spell-svg {
+  color: #a1a1aa;
 }
 
 .spell-btn.active-swap {
@@ -715,8 +718,21 @@ body.theme-telemetry .glass-select {
 }
 
 .spell-btn.depleted .spell-badge {
-  background: #475569;
+  background: #334155;
   color: #94a3b8;
+  box-shadow: none;
+}
+
+.spell-btn.in-cooldown .spell-badge {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #0f172a;
+  font-weight: 900;
+  width: auto;
+  min-width: 24px;
+  padding: 0 4px;
+  border-radius: 10px;
+  font-size: 9px;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.45);
 }
 
 /* Subtle Swap Mode Focus / Dim Background */
@@ -739,8 +755,7 @@ body.in-swap-mode #canvas-container::after {
   top: 78px;
   left: 50%;
   transform: translateX(-50%) translateY(-10px);
-  background: rgba(11, 15, 25, 0.94);
-  backdrop-filter: blur(12px);
+  background: rgba(11, 15, 25, 0.96);
   border: 1.5px solid #00f0ff;
   color: #ffffff;
   padding: 10px 24px;
