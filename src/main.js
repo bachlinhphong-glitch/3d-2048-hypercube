@@ -912,6 +912,12 @@ class GameApp {
       this.updateScoreUI();
       this.updateSpellUI();
       this.showSpellToast('💾 Đã khôi phục ván chơi trước!');
+
+      if (!this.gameLogic.hasValidMoves()) {
+        setTimeout(() => {
+          this.triggerGameOverModal();
+        }, 300);
+      }
       return true;
     } catch (e) {
       console.warn('Could not restore saved game:', e);
@@ -1043,8 +1049,18 @@ class GameApp {
       this.cancelSwapMode();
     }
 
+    if (this.gameLogic.gameOver || !this.gameLogic.hasValidMoves()) {
+      this.triggerGameOverModal();
+      return;
+    }
+
     const result = this.gameLogic.move(direction);
-    if (!result.moved) return;
+    if (!result.moved) {
+      if (!this.gameLogic.hasValidMoves()) {
+        this.triggerGameOverModal();
+      }
+      return;
+    }
 
     this.isAnimating = true;
     this.comboCount = 0; // Reset combo per move
@@ -1242,6 +1258,10 @@ class GameApp {
 
     this.spawnTile();
 
+    // Check game over right after the new tile has been placed on the grid
+    const isGameOver = !this.gameLogic.hasValidMoves();
+    this.gameLogic.gameOver = isGameOver;
+
     if (result.won) {
       soundManager.playWin();
       this.saveGameState();
@@ -1262,38 +1282,45 @@ class GameApp {
       return;
     }
 
-    if (result.gameOver) {
-      this.isAnimating = false; // UNFREEZE IMMEDIATELY
-      if (this.aiBot) this.aiBot.stop();
-      if (this.isBossRaid && this.bossManager) {
-        this.bossManager.isDefeated = true;
-      }
-      soundManager.playGameOver();
-      this.clearSavedGameState();
-      this.showModal({
-        title: '💀 THẤT BẠI (GAME OVER)',
-        message: `${t('modal_gameover_msg')}\n${t('score')}: ${this.gameLogic.score.toLocaleString()}`,
-        primaryText: '🎮 Chơi lại ngay',
-        secondaryText: '🎮 Ván mới',
-        onPrimary: () => {
-          this.hideModal();
-          this.isAnimating = false;
-          this.startNewGame(false);
-        },
-        onSecondary: () => {
-          this.hideModal();
-          this.isAnimating = false;
-          if (this.isBossRaid) {
-            this.toggleBossRaid();
-          }
-          this.startNewGame(false);
-        }
-      });
+    if (isGameOver) {
+      this.triggerGameOverModal();
       return;
     }
 
     this.saveGameState();
     this.isAnimating = false;
+  }
+
+  triggerGameOverModal(customMessage) {
+    this.gameLogic.gameOver = true;
+    this.isAnimating = false; // UNFREEZE IMMEDIATELY
+    if (this.aiBot) this.aiBot.stop();
+    if (this.isBossRaid && this.bossManager) {
+      this.bossManager.isDefeated = true;
+    }
+    soundManager.playGameOver();
+    this.clearSavedGameState();
+
+    const msg = customMessage || `${t('modal_gameover_msg')}\n${t('score')}: ${this.gameLogic.score.toLocaleString()}`;
+    this.showModal({
+      title: '💀 THẤT BẠI (GAME OVER)',
+      message: msg,
+      primaryText: '🎮 Chơi lại ngay',
+      secondaryText: '🎮 Ván mới',
+      onPrimary: () => {
+        this.hideModal();
+        this.isAnimating = false;
+        this.startNewGame(false);
+      },
+      onSecondary: () => {
+        this.hideModal();
+        this.isAnimating = false;
+        if (this.isBossRaid) {
+          this.toggleBossRaid();
+        }
+        this.startNewGame(false);
+      }
+    });
   }
 
   showModal({ title, message, primaryText, secondaryText, onPrimary, onSecondary }) {
@@ -1321,17 +1348,17 @@ class GameApp {
       this.modalBtnSecondary.style.display = 'none';
     }
 
-    this.modalOverlay.style.display = 'flex';
-    this.modalOverlay.style.pointerEvents = 'auto';
+    this.modalOverlay.style.setProperty('display', 'flex', 'important');
+    this.modalOverlay.style.setProperty('pointer-events', 'auto', 'important');
     this.modalOverlay.classList.add('active');
   }
 
   hideModal() {
     this.modalOverlay.classList.remove('active');
-    this.modalOverlay.style.pointerEvents = 'none';
+    this.modalOverlay.style.setProperty('pointer-events', 'none', 'important');
     setTimeout(() => {
       if (!this.modalOverlay.classList.contains('active')) {
-        this.modalOverlay.style.display = 'none';
+        this.modalOverlay.style.setProperty('display', 'none', 'important');
       }
     }, 240);
     this.isAnimating = false;

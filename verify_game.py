@@ -418,37 +418,50 @@ def run_full_verification():
             assert boss_check.get('hasLightning') == True, "Electronic lightning arcs must exist"
             print("  ✓ Dark Singularity Core 3D & 3 Gimbal Rings verified 100%!")
 
-            # Step 8: Verify Game Over Modal & Click Restart
-            print("\n[Step 8] Testing Game Over Modal & Unfrozen Restart Button...")
+            # Step 8: Verify Real-World Game Over on Full Stuck Board (User Screenshot Reproduction)
+            print("\n[Step 8] Testing Real-World Game Over Detection on User's Stuck Board...")
             modal_check = ws.call("Runtime.evaluate", {
                 "expression": """
-                (() => {
+                (async () => {
                     const app = window.gameApp;
-                    // Trigger game over
-                    app.isAnimating = true;
-                    app.gameLogic.gameOver = true;
-                    app.showModal({
-                        title: '💀 THẤT BẠI (GAME OVER)',
-                        message: 'Test Game Over Message',
-                        primaryText: '🎮 Chơi lại ngay',
-                        secondaryText: '🎮 Ván mới',
-                        onPrimary: () => {
-                            app.hideModal();
-                            app.isAnimating = false;
-                            app.startNewGame(false);
+                    // Clean board and inject exact 16-tile stuck state from user screenshot:
+                    // [ 2,  16,   4,   2 ]
+                    // [ 256, 512, 128,  16 ]
+                    // [ 16,  64,  32,   8 ]
+                    // [ 4,   8,  16,   4 ]
+                    app.cleanAllSceneTiles();
+                    app.tiles3D = app.createEmptyTileGrid();
+
+                    const gridValues = [
+                        [ 2,  16,   4,   2 ],
+                        [ 256, 512, 128,  16 ],
+                        [ 16,  64,  32,   8 ],
+                        [ 4,   8,  16,   4 ]
+                    ];
+
+                    for (let r = 0; r < 4; r++) {
+                        for (let c = 0; c < 4; c++) {
+                            app.spawnSpecificTile(0, r, c, gridValues[r][c]);
                         }
-                    });
+                    }
+
+                    // Attempt a move on this full stuck board
+                    await app.handleMove('up');
+
                     const overlay = document.getElementById('modal-overlay');
                     return {
+                        tileCount: app.tiles3D[0].flat().filter(Boolean).length,
+                        hasValidMoves: app.gameLogic.hasValidMoves(),
                         isActive: overlay.classList.contains('active'),
                         title: document.getElementById('modal-title').textContent,
                         primaryBtnText: document.getElementById('modal-btn-primary').textContent
                     };
                 })()
                 """,
+                "awaitPromise": True,
                 "returnByValue": True
             }).get('result', {}).get('value', {})
-            print(f"    -> Modal state before restart: {modal_check}")
+            print(f"    -> Modal state after moving on stuck board: {modal_check}")
             assert modal_check.get('isActive') == True, "Modal must be active"
             assert "THẤT BẠI" in modal_check.get('title', ''), "Title must contain THẤT BẠI"
 
