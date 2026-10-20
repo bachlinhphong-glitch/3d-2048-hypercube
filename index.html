@@ -117,30 +117,48 @@
       </div>
     </div>
 
-    <!-- Summoner Spells Bar (Phép Bổ Trợ Kiểu Flash LMHT: Gợi ý, Đi lại, Đổi vị trí) -->
+    <!-- Summoner Spells Bar (Hệ thống Kỹ Năng: Gợi ý, Đi lại, Đổi vị trí - Inline SVG Icons) -->
     <div id="spell-bar" class="spell-bar">
-      <button id="btn-spell-hint" class="spell-btn" title="💡 Gợi ý nước đi tối ưu (Phím H)">
+      <button id="btn-spell-hint" class="spell-btn" title="Gợi ý nước đi tối ưu (Phím H)">
         <div class="spell-btn-glow"></div>
-        <span class="spell-icon">💡</span>
-        <span class="spell-name">Gợi ý</span>
         <span class="spell-badge" id="badge-spell-hint">2</span>
-        <span class="spell-hotkey">H</span>
+        <div class="spell-icon-box">
+          <svg class="spell-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5" />
+            <path d="M9 18h6" />
+            <path d="M10 22h4" />
+          </svg>
+        </div>
+        <span class="spell-name">Gợi ý</span>
+        <kbd class="spell-kbd">H</kbd>
       </button>
 
-      <button id="btn-spell-undo" class="spell-btn" title="⏪ Đi lại nước trước (Phím Z)">
+      <button id="btn-spell-undo" class="spell-btn" title="Đi lại nước trước (Phím Z)">
         <div class="spell-btn-glow"></div>
-        <span class="spell-icon">⏪</span>
-        <span class="spell-name">Đi lại</span>
         <span class="spell-badge" id="badge-spell-undo">2</span>
-        <span class="spell-hotkey">Z</span>
+        <div class="spell-icon-box">
+          <svg class="spell-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+            <path d="M3 3v5h5" />
+          </svg>
+        </div>
+        <span class="spell-name">Đi lại</span>
+        <kbd class="spell-kbd">Z</kbd>
       </button>
 
-      <button id="btn-spell-swap" class="spell-btn" title="⚡ Dịch chuyển / Đổi vị trí 2 khối (Phím X)">
+      <button id="btn-spell-swap" class="spell-btn" title="Đổi vị trí 2 khối trên bàn cờ (Phím X)">
         <div class="spell-btn-glow"></div>
-        <span class="spell-icon">⚡</span>
-        <span class="spell-name">Đổi vị trí</span>
         <span class="spell-badge" id="badge-spell-swap">2</span>
-        <span class="spell-hotkey">X</span>
+        <div class="spell-icon-box">
+          <svg class="spell-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 3 4 7l4 4" />
+            <path d="M4 7h16" />
+            <path d="m16 21 4-4-4-4" />
+            <path d="M20 17H4" />
+          </svg>
+        </div>
+        <span class="spell-name">Đổi vị trí</span>
+        <kbd class="spell-kbd">X</kbd>
       </button>
     </div>
 

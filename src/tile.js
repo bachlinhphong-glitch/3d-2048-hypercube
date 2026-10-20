@@ -67,11 +67,15 @@ export class Tile3D {
     this.bombCountdown = bombCountdown;
 
     this.group = new THREE.Group();
+    this.group.userData = { isTile3D: true, tileInstance: this };
     this.innerMesh = null;
     this.decorGroup = new THREE.Group();
     this.labelSprite = null;
     this.bombRing = null;
-    this.selectedMesh = null;
+    this.selectionOutline = null;
+    this.hoverOutline = null;
+    this.isSelected = false;
+    this.isHovered = false;
 
     this.group.add(this.decorGroup);
 
@@ -198,26 +202,95 @@ export class Tile3D {
   }
 
   setSelected(isSelected) {
-    if (this.selectedMesh) {
-      this.decorGroup.remove(this.selectedMesh);
-      if (this.selectedMesh.geometry) this.selectedMesh.geometry.dispose();
-      if (this.selectedMesh.material) this.selectedMesh.material.dispose();
-      this.selectedMesh = null;
+    this.isSelected = isSelected;
+
+    // Clean up hover outline if currently present
+    if (this.hoverOutline) {
+      this.group.remove(this.hoverOutline);
+      if (this.hoverOutline.geometry) this.hoverOutline.geometry.dispose();
+      if (this.hoverOutline.material) this.hoverOutline.material.dispose();
+      this.hoverOutline = null;
     }
+
+    // Clean up previous selection outline
+    if (this.selectionOutline) {
+      this.group.remove(this.selectionOutline);
+      if (this.selectionOutline.geometry) this.selectionOutline.geometry.dispose();
+      if (this.selectionOutline.material) this.selectionOutline.material.dispose();
+      this.selectionOutline = null;
+    }
+
+    const basePos = getGridPosition(this.layer, this.row, this.col);
 
     if (isSelected) {
       const { size, height } = getTileDimensions();
-      const ringGeo = new THREE.RingGeometry(size * 0.52, size * 0.68, 32);
-      const ringMat = new THREE.MeshBasicMaterial({
+      const boxGeo = new THREE.BoxGeometry(size * 1.025, height * 1.025, size * 1.025);
+      const edgesGeo = new THREE.EdgesGeometry(boxGeo);
+      boxGeo.dispose();
+      const lineMat = new THREE.LineBasicMaterial({
         color: 0x00f0ff,
-        side: THREE.DoubleSide,
         transparent: true,
-        opacity: 0.9
+        opacity: 0.95
       });
-      this.selectedMesh = new THREE.Mesh(ringGeo, ringMat);
-      this.selectedMesh.rotation.x = -Math.PI / 2;
-      this.selectedMesh.position.y = height / 2 + 0.04;
-      this.decorGroup.add(this.selectedMesh);
+      this.selectionOutline = new THREE.LineSegments(edgesGeo, lineMat);
+      this.group.add(this.selectionOutline);
+
+      // Smoothly lift up by 0.3 units on Y-axis with subtle bounce
+      gsap.to(this.group.position, {
+        y: basePos.y + 0.3,
+        duration: 0.22,
+        ease: 'back.out(1.8)'
+      });
+    } else {
+      // Smoothly lower back down to base position
+      gsap.to(this.group.position, {
+        y: basePos.y,
+        duration: 0.2,
+        ease: 'power2.inOut'
+      });
+    }
+  }
+
+  setHovered(isHovered) {
+    if (this.isHovered === isHovered) return;
+    this.isHovered = isHovered;
+    if (this.isSelected) return; // Do not override lift or outline if selected
+
+    const basePos = getGridPosition(this.layer, this.row, this.col);
+
+    if (isHovered) {
+      if (!this.hoverOutline) {
+        const { size, height } = getTileDimensions();
+        const boxGeo = new THREE.BoxGeometry(size * 1.015, height * 1.015, size * 1.015);
+        const edgesGeo = new THREE.EdgesGeometry(boxGeo);
+        boxGeo.dispose();
+        const lineMat = new THREE.LineBasicMaterial({
+          color: 0x38bdf8,
+          transparent: true,
+          opacity: 0.8
+        });
+        this.hoverOutline = new THREE.LineSegments(edgesGeo, lineMat);
+        this.group.add(this.hoverOutline);
+      }
+
+      gsap.to(this.group.position, {
+        y: basePos.y + 0.1,
+        duration: 0.16,
+        ease: 'power2.out'
+      });
+    } else {
+      if (this.hoverOutline) {
+        this.group.remove(this.hoverOutline);
+        if (this.hoverOutline.geometry) this.hoverOutline.geometry.dispose();
+        if (this.hoverOutline.material) this.hoverOutline.material.dispose();
+        this.hoverOutline = null;
+      }
+
+      gsap.to(this.group.position, {
+        y: basePos.y,
+        duration: 0.16,
+        ease: 'power2.inOut'
+      });
     }
   }
 
@@ -236,6 +309,21 @@ export class Tile3D {
     this.row = targetRow;
     this.col = targetCol;
     const targetPos = getGridPosition(targetLayer, targetRow, targetCol);
+
+    if (this.selectionOutline) {
+      this.group.remove(this.selectionOutline);
+      if (this.selectionOutline.geometry) this.selectionOutline.geometry.dispose();
+      if (this.selectionOutline.material) this.selectionOutline.material.dispose();
+      this.selectionOutline = null;
+    }
+    if (this.hoverOutline) {
+      this.group.remove(this.hoverOutline);
+      if (this.hoverOutline.geometry) this.hoverOutline.geometry.dispose();
+      if (this.hoverOutline.material) this.hoverOutline.material.dispose();
+      this.hoverOutline = null;
+    }
+    this.isSelected = false;
+    this.isHovered = false;
 
     return gsap.to(this.group.position, {
       x: targetPos.x,
@@ -277,16 +365,32 @@ export class Tile3D {
     if (this.bombRing) {
       this.bombRing.rotation.z += delta * 3.0;
     }
-
-    if (this.selectedMesh) {
-      this.selectedMesh.rotation.z += delta * 2.5;
-    }
   }
 
   dispose(immediate = false) {
+    gsap.killTweensOf(this.group);
+    gsap.killTweensOf(this.group.position);
+    gsap.killTweensOf(this.group.scale);
+    gsap.killTweensOf(this.group.rotation);
+
+    if (this.selectionOutline) {
+      this.group.remove(this.selectionOutline);
+      if (this.selectionOutline.geometry) this.selectionOutline.geometry.dispose();
+      if (this.selectionOutline.material) this.selectionOutline.material.dispose();
+      this.selectionOutline = null;
+    }
+    if (this.hoverOutline) {
+      this.group.remove(this.hoverOutline);
+      if (this.hoverOutline.geometry) this.hoverOutline.geometry.dispose();
+      if (this.hoverOutline.material) this.hoverOutline.material.dispose();
+      this.hoverOutline = null;
+    }
+    this.isSelected = false;
+    this.isHovered = false;
+
     if (immediate) {
       if (this.group.parent) {
-        this.scene.remove(this.group);
+        this.group.parent.remove(this.group);
       }
       return;
     }
@@ -299,7 +403,7 @@ export class Tile3D {
       ease: 'power2.in',
       onComplete: () => {
         if (this.group.parent) {
-          this.scene.remove(this.group);
+          this.group.parent.remove(this.group);
         }
       }
     });

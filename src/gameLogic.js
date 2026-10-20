@@ -418,6 +418,7 @@ export class Game2048Logic {
     this.grid[posB.l][posB.r][posB.c] = tileA;
 
     this.spellCharges.swap--;
+    this.gameOver = !this.hasValidMoves();
     return {
       success: true,
       spellCharges: { ...this.spellCharges }

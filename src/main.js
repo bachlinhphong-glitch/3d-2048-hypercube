@@ -43,6 +43,7 @@ class GameApp {
     // Summoner Spells State (Gợi ý, Đi lại, Đổi vị trí)
     this.isSwapMode = false;
     this.swapSelectedTile = null;
+    this.hoveredTile = null;
     this.toastTimeout = null;
 
     this.initUI();
@@ -150,13 +151,22 @@ class GameApp {
     this.spellToastEl = document.getElementById('spell-toast');
 
     if (this.btnSpellHint) {
-      this.btnSpellHint.addEventListener('click', () => this.handleSpellHint());
+      this.btnSpellHint.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.handleSpellHint();
+      });
     }
     if (this.btnSpellUndo) {
-      this.btnSpellUndo.addEventListener('click', () => this.handleSpellUndo());
+      this.btnSpellUndo.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.handleSpellUndo();
+      });
     }
     if (this.btnSpellSwap) {
-      this.btnSpellSwap.addEventListener('click', () => this.handleSpellSwap());
+      this.btnSpellSwap.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.handleSpellSwap();
+      });
     }
 
     this.updateScoreUI();
@@ -265,6 +275,59 @@ class GameApp {
       },
       (clientX, clientY) => this.handleCanvasClick(clientX, clientY)
     );
+
+    this.container.addEventListener('pointermove', (e) => {
+      if (!this.isSwapMode || this.isAnimating) return;
+      this.handleCanvasPointerMove(e.clientX, e.clientY);
+    });
+
+    this.container.addEventListener('pointerleave', () => {
+      if (this.hoveredTile) {
+        if (this.hoveredTile !== this.swapSelectedTile) {
+          this.hoveredTile.setHovered(false);
+        }
+        this.hoveredTile = null;
+      }
+    });
+  }
+
+  handleCanvasPointerMove(clientX, clientY) {
+    if (!this.isSwapMode || this.isAnimating || this.gameLogic.gameOver) return;
+
+    const rect = this.container.getBoundingClientRect();
+    const x = ((clientX - rect.left) / rect.width) * 2 - 1;
+    const y = -((clientY - rect.top) / rect.height) * 2 + 1;
+
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(new THREE.Vector2(x, y), this.sceneManager.camera);
+
+    const activeTileMeshes = [];
+    const tileMeshMap = new Map();
+
+    for (let l = 0; l < this.tiles3D.length; l++) {
+      for (let r = 0; r < this.tiles3D[l].length; r++) {
+        for (let c = 0; c < this.tiles3D[l][r].length; c++) {
+          const tile = this.tiles3D[l][r][c];
+          if (tile && tile.innerMesh) {
+            activeTileMeshes.push(tile.innerMesh);
+            tileMeshMap.set(tile.innerMesh, tile);
+          }
+        }
+      }
+    }
+
+    const intersects = raycaster.intersectObjects(activeTileMeshes, false);
+    const hitTile = (intersects.length > 0) ? tileMeshMap.get(intersects[0].object) : null;
+
+    if (hitTile !== this.hoveredTile) {
+      if (this.hoveredTile && this.hoveredTile !== this.swapSelectedTile) {
+        this.hoveredTile.setHovered(false);
+      }
+      this.hoveredTile = hitTile;
+      if (hitTile && hitTile !== this.swapSelectedTile) {
+        hitTile.setHovered(true);
+      }
+    }
   }
 
   updateScoreUI(addedScore = 0) {
@@ -278,27 +341,55 @@ class GameApp {
     }
   }
 
-  startNewGame() {
-    this.hideModal();
-
-    // Clear existing 3D tiles
-    for (let l = 0; l < this.tiles3D.length; l++) {
-      for (let r = 0; r < this.tiles3D[l].length; r++) {
-        for (let c = 0; c < this.tiles3D[l][r].length; c++) {
-          if (this.tiles3D[l][r][c]) {
-            this.tiles3D[l][r][c].dispose(true);
-            this.tiles3D[l][r][c] = null;
+  cleanAllSceneTiles() {
+    // 1. Dispose all tiles tracked in this.tiles3D
+    if (this.tiles3D) {
+      for (let l = 0; l < this.tiles3D.length; l++) {
+        for (let r = 0; r < this.tiles3D[l].length; r++) {
+          for (let c = 0; c < this.tiles3D[l][r].length; c++) {
+            if (this.tiles3D[l][r][c]) {
+              this.tiles3D[l][r][c].dispose(true);
+              this.tiles3D[l][r][c] = null;
+            }
           }
         }
       }
     }
+
+    // 2. Safety sweep: sweep the Three.js scene for ANY orphaned Tile3D groups
+    const orphanedTileGroups = [];
+    this.sceneManager.scene.children.forEach(child => {
+      if (child.userData && child.userData.isTile3D) {
+        orphanedTileGroups.push(child);
+      }
+    });
+
+    orphanedTileGroups.forEach(grp => {
+      gsap.killTweensOf(grp);
+      gsap.killTweensOf(grp.position);
+      gsap.killTweensOf(grp.scale);
+      gsap.killTweensOf(grp.rotation);
+      if (grp.userData && grp.userData.tileInstance) {
+        grp.userData.tileInstance.dispose(true);
+      }
+      if (grp.parent) {
+        grp.parent.remove(grp);
+      }
+    });
+  }
+
+  startNewGame() {
+    this.hideModal();
+    this.cancelSwapMode();
+
+    // Clean all 3D tiles from grid and scene
+    this.cleanAllSceneTiles();
 
     this.tiles3D = this.createEmptyTileGrid();
     this.particleSystem.clear();
     this.gameLogic.reset();
     this.rushTime = 30.0;
     this.updateScoreUI();
-    this.cancelSwapMode();
     this.updateSpellUI();
 
     // Spawn 2 initial tiles
@@ -341,6 +432,9 @@ class GameApp {
 
   async handleMove(direction) {
     if (this.isAnimating) return;
+    if (this.isSwapMode) {
+      this.cancelSwapMode();
+    }
 
     const result = this.gameLogic.move(direction);
     if (!result.moved) return;
@@ -391,7 +485,39 @@ class GameApp {
             const unchanged = oldTiles3D[l][r][c];
             if (unchanged && unchanged.id === logicTile.id) {
               this.tiles3D[l][r][c] = unchanged;
+            } else if (unchanged && unchanged.value === logicTile.value) {
+              // Self-healing fallback: sync ID
+              logicTile.id = unchanged.id;
+              this.tiles3D[l][r][c] = unchanged;
+            } else if (logicTile) {
+              // Resilient spawn if tile was somehow missing
+              const freshTile = new Tile3D(l, r, c, logicTile.value, this.sceneManager.scene, this.currentShape, logicTile.isBomb, logicTile.bombCountdown);
+              freshTile.group.scale.set(1, 1, 1);
+              this.tiles3D[l][r][c] = freshTile;
+              logicTile.id = freshTile.id;
             }
+          }
+        }
+      }
+    }
+
+    // Safety sweep: ensure any tile from oldTiles3D not preserved or merged is explicitly disposed
+    const activeTileSet = new Set();
+    for (let l = 0; l < this.gameLogic.layers; l++) {
+      for (let r = 0; r < this.gameLogic.rows; r++) {
+        for (let c = 0; c < this.gameLogic.cols; c++) {
+          if (this.tiles3D[l][r][c]) activeTileSet.add(this.tiles3D[l][r][c]);
+        }
+      }
+    }
+    mergesToProcess.forEach(m => activeTileSet.add(m.sourceTile));
+
+    for (let l = 0; l < oldTiles3D.length; l++) {
+      for (let r = 0; r < oldTiles3D[l].length; r++) {
+        for (let c = 0; c < oldTiles3D[l][r].length; c++) {
+          const oldT = oldTiles3D[l][r][c];
+          if (oldT && !activeTileSet.has(oldT)) {
+            oldT.dispose(true);
           }
         }
       }
@@ -569,7 +695,7 @@ class GameApp {
       }
     });
 
-    this.showSpellToast(`⚡ HỒI CHIÊU: +1 LƯỢT KỸ NĂNG VỚI KHỐI [${newMilestone}]!`, true);
+    this.showSpellToast(`HỒI CHIÊU: +1 LƯỢT KỸ NĂNG VỚI KHỐI [${newMilestone}]!`, true);
     this.updateSpellUI();
   }
 
@@ -577,41 +703,42 @@ class GameApp {
     if (this.isAnimating || this.gameLogic.gameOver) return;
 
     if (this.gameLogic.spellCharges.hint <= 0) {
-      this.showSpellToast('❌ Hết lượt Gợi ý! Tạo ô kỷ lục mới để hồi chiêu.');
+      this.showSpellToast('Hết lượt Gợi ý! Tạo ô kỷ lục mới để hồi chiêu.');
       return;
     }
 
     const res = this.gameLogic.getBestMove();
     if (!res || !res.direction) {
-      this.showSpellToast('❌ Không tìm thấy nước đi tối ưu!');
+      this.showSpellToast('Không tìm thấy nước đi tối ưu!');
       return;
     }
 
     soundManager.playSpellHint();
     const dirMap = {
-      up: '⬆️ TRƯỢT LÊN TRÊN (W / ↑)',
-      down: '⬇️ TRƯỢT XUỐNG DƯỚI (S / ↓)',
-      left: '⬅️ TRƯỢT SANG TRÁI (A / ←)',
-      right: '➔ TRƯỢT SANG PHẢI (D / →)',
-      layerUp: '🔼 LÊN TẦNG TRÊN (E / Space)',
-      layerDown: '🔽 XUỐNG TẦNG DƯỚI (Q / Shift)'
+      up: 'TRƯỢT LÊN TRÊN (W / ↑)',
+      down: 'TRƯỢT XUỐNG DƯỚI (S / ↓)',
+      left: 'TRƯỢT SANG TRÁI (A / ←)',
+      right: 'TRƯỢT SANG PHẢI (D / →)',
+      layerUp: 'LÊN TẦNG TRÊN (E / Space)',
+      layerDown: 'XUỐNG TẦNG DƯỚI (Q / Shift)'
     };
 
     const dirText = dirMap[res.direction] || res.direction;
-    this.showSpellToast(`💡 GỢI Ý TỐI ƯU: ${dirText}`);
+    this.showSpellToast(`GỢI Ý TỐI ƯU: ${dirText}`);
     this.updateSpellUI();
   }
 
   handleSpellUndo() {
     if (this.isAnimating) return;
+    if (this.isSwapMode) this.cancelSwapMode();
 
     if (this.gameLogic.spellCharges.undo <= 0) {
-      this.showSpellToast('❌ Hết lượt Đi lại! Tạo ô kỷ lục mới để hồi chiêu.');
+      this.showSpellToast('Hết lượt Đi lại! Tạo ô kỷ lục mới để hồi chiêu.');
       return;
     }
 
     if (this.gameLogic.history.length === 0) {
-      this.showSpellToast('❌ Chưa có nước đi nào để hoàn tác!');
+      this.showSpellToast('Chưa có nước đi nào để hoàn tác!');
       return;
     }
 
@@ -619,17 +746,8 @@ class GameApp {
     if (res && res.success) {
       soundManager.playSpellUndo();
 
-      // Dispose all existing 3D tiles immediately
-      for (let l = 0; l < this.tiles3D.length; l++) {
-        for (let r = 0; r < this.tiles3D[l].length; r++) {
-          for (let c = 0; c < this.tiles3D[l][r].length; c++) {
-            if (this.tiles3D[l][r][c]) {
-              this.tiles3D[l][r][c].dispose(true);
-              this.tiles3D[l][r][c] = null;
-            }
-          }
-        }
-      }
+      // Clean all tiles in scene and grid completely
+      this.cleanAllSceneTiles();
 
       // Re-create 3D tiles according to restored grid
       this.tiles3D = this.createEmptyTileGrid();
@@ -641,6 +759,8 @@ class GameApp {
               const tile3D = new Tile3D(l, r, c, cell.value, this.sceneManager.scene, this.currentShape, cell.isBomb, cell.bombCountdown);
               tile3D.group.scale.set(1, 1, 1);
               this.tiles3D[l][r][c] = tile3D;
+              // Synchronize cell.id so future moves match correctly
+              cell.id = tile3D.id;
             }
           }
         }
@@ -648,7 +768,7 @@ class GameApp {
 
       this.updateScoreUI();
       this.updateSpellUI();
-      this.showSpellToast('⏪ ĐÃ HOÀN TÁC NƯỚC ĐI VỪA RỒI!');
+      this.showSpellToast('ĐÃ HOÀN TÁC NƯỚC ĐI VỪA RỒI!');
     }
   }
 
@@ -661,31 +781,39 @@ class GameApp {
     }
 
     if (this.gameLogic.spellCharges.swap <= 0) {
-      this.showSpellToast('❌ Hết lượt Đổi vị trí! Tạo ô kỷ lục mới để hồi chiêu.');
+      this.showSpellToast('Hết lượt Đổi vị trí! Tạo ô kỷ lục mới để hồi chiêu.');
       return;
     }
 
     this.isSwapMode = true;
     this.swapSelectedTile = null;
-    this.container.style.cursor = 'crosshair';
+    this.container.style.cursor = 'pointer';
+    document.body.classList.add('in-swap-mode');
     this.updateSpellUI();
-    this.showSpellToast('⚡ CHỌN KHỐI THỨ NHẤT TRÊN BÀN CỜ ĐỂ ĐỔI VỊ TRÍ...');
+    this.showSpellToast('CHỌN KHỐI THỨ NHẤT TRÊN BÀN CỜ ĐỂ ĐỔI VỊ TRÍ...');
   }
 
   cancelSwapMode() {
     if (!this.isSwapMode) return;
     this.isSwapMode = false;
+    document.body.classList.remove('in-swap-mode');
+    if (this.hoveredTile) {
+      if (this.hoveredTile !== this.swapSelectedTile) {
+        this.hoveredTile.setHovered(false);
+      }
+      this.hoveredTile = null;
+    }
     if (this.swapSelectedTile) {
       this.swapSelectedTile.setSelected(false);
       this.swapSelectedTile = null;
     }
     this.container.style.cursor = 'default';
     this.updateSpellUI();
-    this.showSpellToast('⚡ Đã hủy chế độ Đổi vị trí.');
+    this.showSpellToast('Đã hủy chế độ Đổi vị trí.');
   }
 
-  handleCanvasClick(clientX, clientY) {
-    if (!this.isSwapMode) return;
+  async handleCanvasClick(clientX, clientY) {
+    if (!this.isSwapMode || this.isAnimating || this.gameLogic.gameOver) return;
 
     const rect = this.container.getBoundingClientRect();
     const x = ((clientX - rect.left) / rect.width) * 2 - 1;
@@ -718,20 +846,30 @@ class GameApp {
 
     if (!this.swapSelectedTile) {
       this.swapSelectedTile = clickedTile;
+      if (clickedTile.isHovered) clickedTile.setHovered(false);
       clickedTile.setSelected(true);
       soundManager.playSlide();
-      this.showSpellToast(`⚡ ĐÃ CHỌN Ô [${clickedTile.value}]. CHỌN Ô THỨ HAI...`);
+      this.showSpellToast(`ĐÃ CHỌN Ô [${clickedTile.value}]. CHỌN TIẾP Ô THỨ HAI...`);
     } else if (this.swapSelectedTile === clickedTile) {
       clickedTile.setSelected(false);
       this.swapSelectedTile = null;
-      this.showSpellToast('⚡ Đã bỏ chọn. Hãy chọn lại ô thứ nhất.');
+      this.showSpellToast('Đã bỏ chọn. Hãy chọn lại ô thứ nhất.');
     } else {
       const tileA = this.swapSelectedTile;
       const tileB = clickedTile;
+      document.body.classList.remove('in-swap-mode');
+      if (this.hoveredTile) {
+        if (this.hoveredTile !== tileA && this.hoveredTile !== tileB) {
+          this.hoveredTile.setHovered(false);
+        }
+        this.hoveredTile = null;
+      }
       tileA.setSelected(false);
+      tileB.setHovered(false);
       this.swapSelectedTile = null;
       this.isSwapMode = false;
       this.container.style.cursor = 'default';
+      this.isAnimating = true;
 
       const posA = { l: tileA.layer, r: tileA.row, c: tileA.col };
       const posB = { l: tileB.layer, r: tileB.row, c: tileB.col };
@@ -741,17 +879,21 @@ class GameApp {
       this.tiles3D[posA.l][posA.r][posA.c] = tileB;
       this.tiles3D[posB.l][posB.r][posB.c] = tileA;
 
-      tileA.slideTo(posB.l, posB.r, posB.c, 0.22);
-      tileB.slideTo(posA.l, posA.r, posA.c, 0.22);
+      soundManager.playSpellSwap();
 
       const pA = getGridPosition(posA.l, posA.r, posA.c);
       const pB = getGridPosition(posB.l, posB.r, posB.c);
       this.particleSystem.burst(pA.x, pA.y, pA.z, tileB.value);
       this.particleSystem.burst(pB.x, pB.y, pB.z, tileA.value);
 
-      soundManager.playSpellSwap();
+      await Promise.all([
+        tileA.slideTo(posB.l, posB.r, posB.c, 0.24),
+        tileB.slideTo(posA.l, posA.r, posA.c, 0.24)
+      ]);
+
+      this.isAnimating = false;
       this.updateSpellUI();
-      this.showSpellToast(`⚡ ĐÃ ĐỔI VỊ TRÍ [${tileA.value}] ⇄ [${tileB.value}] THÀNH CÔNG!`);
+      this.showSpellToast(`ĐÃ ĐỔI VỊ TRÍ [${tileA.value}] ⇄ [${tileB.value}] THÀNH CÔNG!`);
     }
   }
 

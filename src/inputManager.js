@@ -81,6 +81,7 @@ export class InputManager {
     this.domElement.addEventListener('pointerdown', (e) => {
       // Only process left click or touch for swipe
       if (e.button !== 0 && e.pointerType === 'mouse') return;
+      if (e.target && e.target.closest && e.target.closest('.ui-overlay, button, select, header, footer')) return;
 
       this.isPointerDown = true;
       this.pointerStartX = e.clientX;
@@ -92,6 +93,11 @@ export class InputManager {
       if (!this.isPointerDown) return;
       this.isPointerDown = false;
       if (!this.enabled) return;
+
+      // Do not process swipes or canvas clicks if released on UI overlay elements
+      if (e.target && e.target.closest && e.target.closest('.ui-overlay, button, select, header, footer')) {
+        return;
+      }
 
       const dx = e.clientX - this.pointerStartX;
       const dy = e.clientY - this.pointerStartY;
