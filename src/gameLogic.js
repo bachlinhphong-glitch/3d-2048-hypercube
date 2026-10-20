@@ -27,6 +27,14 @@ export class Game2048Logic {
     this.history = [];
   }
 
+  get spellCharges() {
+    return {
+      hint: Math.max(0, this.maxSpellUses - this.spells.hint.used),
+      undo: Math.max(0, this.maxSpellUses - this.spells.undo.used),
+      swap: Math.max(0, this.maxSpellUses - this.spells.swap.used)
+    };
+  }
+
   initDimensions() {
     if (this.mode === '3x3x3') {
       this.layers = 3;
@@ -92,6 +100,14 @@ export class Game2048Logic {
       swap: { used: 0, ready: true }
     };
     this.history = [];
+  }
+
+  get spellCharges() {
+    return {
+      hint: Math.max(0, this.maxSpellUses - this.spells.hint.used),
+      undo: Math.max(0, this.maxSpellUses - this.spells.undo.used),
+      swap: Math.max(0, this.maxSpellUses - this.spells.swap.used)
+    };
   }
 
   serializeState() {
@@ -508,7 +524,7 @@ export class Game2048Logic {
     };
   }
 
-  simulateMove(direction) {
+  simulateMove(direction, sourceGrid = null) {
     const vectors = {
       up:        { l: 0,  r: -1, c: 0 },
       down:      { l: 0,  r: 1,  c: 0 },
@@ -532,11 +548,12 @@ export class Game2048Logic {
     const merges = [];
     const mergedGrid = this.createEmptyGrid();
     const newGrid = this.createEmptyGrid();
+    const activeGrid = sourceGrid || this.grid;
 
     for (const l of layerIndices) {
       for (const r of rowIndices) {
         for (const c of colIndices) {
-          const tile = this.grid[l][r][c];
+          const tile = activeGrid[l][r][c];
           if (!tile) continue;
 
           let currL = l, currR = r, currC = c;

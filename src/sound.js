@@ -39,20 +39,49 @@ class SoundManager {
   }
 
   triggerHaptic(type = 'slide') {
-    if (!('vibrate' in navigator)) return;
-    try {
-      if (type === 'slide') {
-        navigator.vibrate(12);
-      } else if (type === 'merge_small') {
-        navigator.vibrate([16, 14, 18]);
-      } else if (type === 'merge_big') {
-        navigator.vibrate([35, 25, 45, 25, 60]);
-      } else if (type === 'win') {
-        navigator.vibrate([50, 40, 80, 40, 140]);
-      } else if (type === 'bomb') {
-        navigator.vibrate([80, 30, 100]);
-      }
-    } catch {}
+    // 1. Mobile Phone / Tablet vibration
+    if ('vibrate' in navigator) {
+      try {
+        if (type === 'slide') {
+          navigator.vibrate(12);
+        } else if (type === 'merge_small') {
+          navigator.vibrate([16, 14, 18]);
+        } else if (type === 'merge_big') {
+          navigator.vibrate([35, 25, 45, 25, 60]);
+        } else if (type === 'win') {
+          navigator.vibrate([50, 40, 80, 40, 140]);
+        } else if (type === 'bomb') {
+          navigator.vibrate([80, 30, 100]);
+        }
+      } catch {}
+    }
+
+    // 2. Gamepad DualSense / Xbox Controller vibration
+    if ('getGamepads' in navigator) {
+      try {
+        const gamepads = navigator.getGamepads();
+        for (const gp of gamepads) {
+          if (gp && gp.vibrationActuator && gp.vibrationActuator.playEffect) {
+            let duration = 120, weak = 0.25, strong = 0.15;
+            if (type === 'merge_small') {
+              duration = 160; weak = 0.5; strong = 0.3;
+            } else if (type === 'merge_big') {
+              duration = 300; weak = 0.8; strong = 0.9;
+            } else if (type === 'bomb') {
+              duration = 450; weak = 1.0; strong = 1.0;
+            } else if (type === 'win') {
+              duration = 600; weak = 0.7; strong = 0.5;
+            }
+            gp.vibrationActuator.playEffect('dual-rumble', {
+              startDelay: 0,
+              duration,
+              weakMagnitude: weak,
+              strongMagnitude: strong
+            }).catch(() => {});
+          }
+        }
+      } catch {}
+    }
   }
 
   // Procedural Lofi Ambient Chords BGM (Zero byte asset overhead)

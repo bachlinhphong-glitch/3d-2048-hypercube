@@ -97,8 +97,31 @@ export class Tile3D {
     return this.shapeType;
   }
 
+  disposeClonedMaterials() {
+    if (this.innerMesh) {
+      if (Array.isArray(this.innerMesh.material)) {
+        this.innerMesh.material.forEach(m => m.dispose && m.dispose());
+      } else if (this.innerMesh.material && this.innerMesh.material.dispose) {
+        this.innerMesh.material.dispose();
+      }
+    }
+    if (this.decorGroup) {
+      this.decorGroup.traverse((child) => {
+        if (child === this.bombRing) return;
+        if (child.material) {
+          if (Array.isArray(child.material)) {
+            child.material.forEach(m => m.dispose && m.dispose());
+          } else if (child.material.dispose) {
+            child.material.dispose();
+          }
+        }
+      });
+    }
+  }
+
   buildGeometry() {
-    // Clean up existing mesh references without destroying shared geometries or cached materials
+    // Clean up existing mesh references and dispose cloned materials
+    this.disposeClonedMaterials();
     if (this.innerMesh) {
       this.group.remove(this.innerMesh);
       this.innerMesh = null;
@@ -430,6 +453,7 @@ export class Tile3D {
     this.isHovered = false;
 
     if (immediate) {
+      this.disposeClonedMaterials();
       if (this.group.parent) {
         this.group.parent.remove(this.group);
       }
@@ -443,6 +467,7 @@ export class Tile3D {
       duration: 0.12,
       ease: 'power2.in',
       onComplete: () => {
+        this.disposeClonedMaterials();
         if (this.group.parent) {
           this.group.parent.remove(this.group);
         }

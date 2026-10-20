@@ -8,11 +8,12 @@ import { InputManager } from './inputManager.js';
 import { soundManager } from './sound.js';
 import { textureManager } from './textureManager.js';
 import { GhostPreview } from './ghostPreview.js';
+import { AIBot } from './aiBot.js';
 
 class GameApp {
   constructor() {
     this.container = document.getElementById('canvas-container');
-    this.mode = '4x4'; // '4x4' or '3x3x3'
+    this.mode = localStorage.getItem('3d2048_last_mode') || '4x4';
     this.currentShape = 'rounded_cube'; // 'rounded_cube', 'crystal_octahedron', 'core_sphere', 'auto_evolution'
     this.currentTheme = localStorage.getItem('3d2048_theme') || 'cat_moon';
 
@@ -21,6 +22,8 @@ class GameApp {
     this.gameLogic = new Game2048Logic(this.mode);
     this.board = new Board(this.mode);
     this.sceneManager.scene.add(this.board.group);
+    this.aiBot = new AIBot(this);
+    window.gameApp = this;
 
     // 3D tiles grid: tiles3D[layer][row][col]
     this.tiles3D = this.createEmptyTileGrid();
@@ -163,9 +166,29 @@ class GameApp {
       });
     }
 
+    // AI Auto-Play Button & Status Indicator
+    const aiBtn = document.getElementById('btn-ai-toggle');
+    const aiStatusBadge = document.getElementById('ai-status-badge');
+    if (aiBtn) {
+      aiBtn.addEventListener('click', () => {
+        const isRunning = this.aiBot.toggle();
+        aiBtn.classList.toggle('active', isRunning);
+        aiBtn.textContent = isRunning ? '⏸️ Dừng AI' : '🤖 AI Tự Chơi';
+        if (aiStatusBadge) aiStatusBadge.style.display = isRunning ? 'inline-flex' : 'none';
+        this.showSpellToast(isRunning ? '🤖 AI AUTO-PLAY: ĐANG TỰ ĐỘNG CHƠI...' : '⏸️ AI AUTO-PLAY: ĐÃ TẠM DỪNG');
+        this.registerInteraction();
+      });
+      this.aiBot.onStatusChange = (running) => {
+        aiBtn.classList.toggle('active', running);
+        aiBtn.textContent = running ? '⏸️ Dừng AI' : '🤖 AI Tự Chơi';
+        if (aiStatusBadge) aiStatusBadge.style.display = running ? 'inline-flex' : 'none';
+      };
+    }
+
     // Dimension Mode Selector
     const modeSelect = document.getElementById('select-mode');
     if (modeSelect) {
+      modeSelect.value = this.mode;
       modeSelect.addEventListener('change', (e) => {
         this.switchDimensionMode(e.target.value);
       });
@@ -328,6 +351,7 @@ class GameApp {
   switchDimensionMode(newMode) {
     if (this.mode === newMode) return;
     this.mode = newMode;
+    localStorage.setItem('3d2048_last_mode', newMode);
     this.board.setMode(newMode);
     this.sceneManager.setMode(newMode);
     this.gameLogic.setMode(newMode);
@@ -1032,6 +1056,7 @@ class GameApp {
     }
 
     if (result.gameOver) {
+      if (this.aiBot) this.aiBot.stop();
       soundManager.playGameOver();
       this.clearSavedGameState();
       this.showModal({
@@ -1514,6 +1539,7 @@ class GameApp {
       if (this.rushTime <= 0) {
         this.rushTime = 0;
         this.gameLogic.gameOver = true;
+        if (this.aiBot) this.aiBot.stop();
         this.clearSavedGameState();
         soundManager.playGameOver();
         this.showModal({

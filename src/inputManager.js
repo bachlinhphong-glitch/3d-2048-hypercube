@@ -13,8 +13,11 @@ export class InputManager {
     this.pointerStartTime = 0;
 
     this.enabled = true;
+    this.lastButtonStates = {};
+    this.stickReset = true;
 
     this.bindEvents();
+    this.initGamepad();
   }
 
   setEnabled(val) {
@@ -162,5 +165,88 @@ export class InputManager {
     });
 
     // 3. UI Buttons for movement are handled by main.js via #dir-pad
+  }
+
+  initGamepad() {
+    window.addEventListener('gamepadconnected', (e) => {
+      console.log('🎮 Gamepad connected:', e.gamepad.id);
+    });
+
+    const poll = () => {
+      if (this.enabled && 'getGamepads' in navigator) {
+        const gamepads = navigator.getGamepads();
+        for (const gp of gamepads) {
+          if (gp) {
+            this.handleGamepad(gp);
+            break;
+          }
+        }
+      }
+      requestAnimationFrame(poll);
+    };
+    requestAnimationFrame(poll);
+  }
+
+  handleGamepad(gp) {
+    if (!gp || !gp.buttons) return;
+
+    // 1. D-Pad buttons (12: Up, 13: Down, 14: Left, 15: Right)
+    const dpadMap = {
+      12: 'up',
+      13: 'down',
+      14: 'left',
+      15: 'right'
+    };
+    for (const [btnIdx, dir] of Object.entries(dpadMap)) {
+      const idx = Number(btnIdx);
+      const isPressed = gp.buttons[idx] && gp.buttons[idx].pressed;
+      if (isPressed && !this.lastButtonStates[idx]) {
+        this.onMove(dir);
+      }
+      this.lastButtonStates[idx] = !!isPressed;
+    }
+
+    // 2. Shoulder buttons (R1 / RB: layerUp, L1 / LB: layerDown)
+    const shoulderMap = {
+      5: 'layerUp',   // R1 / RB
+      4: 'layerDown'  // L1 / LB
+    };
+    for (const [btnIdx, dir] of Object.entries(shoulderMap)) {
+      const idx = Number(btnIdx);
+      const isPressed = gp.buttons[idx] && gp.buttons[idx].pressed;
+      if (isPressed && !this.lastButtonStates[idx]) {
+        this.onMove(dir);
+      }
+      this.lastButtonStates[idx] = !!isPressed;
+    }
+
+    // 3. Triangle / Y Button (Button 3): Cycle Slice Mode
+    const yPressed = gp.buttons[3] && gp.buttons[3].pressed;
+    if (yPressed && !this.lastButtonStates[3]) {
+      if (this.onSliceCycle) this.onSliceCycle();
+    }
+    this.lastButtonStates[3] = !!yPressed;
+
+    // 4. Analog Stick (Left Stick axes 0 & 1)
+    if (gp.axes && gp.axes.length >= 2) {
+      const ax = gp.axes[0];
+      const ay = gp.axes[1];
+      const mag = Math.hypot(ax, ay);
+
+      if (mag < 0.28) {
+        this.stickReset = true;
+      } else if (this.stickReset && mag >= 0.58) {
+        this.stickReset = false;
+        let direction = null;
+        if (Math.abs(ax) > Math.abs(ay)) {
+          direction = ax > 0 ? 'right' : 'left';
+        } else {
+          direction = ay > 0 ? 'down' : 'up';
+        }
+        if (direction) {
+          this.onMove(direction);
+        }
+      }
+    }
   }
 }

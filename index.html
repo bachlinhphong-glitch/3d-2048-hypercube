@@ -9,6 +9,22 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="format-detection" content="telephone=no">
   <title>3D 2048 & Hypercube — WebGL Three.js & GSAP</title>
+  <meta name="description" content="Trải nghiệm đỉnh cao tựa game 2048 không gian 3 chiều và Hypercube 3x3x3 đa tầng, đồ họa WebGL Three.js mượt mà >60 FPS, âm thanh đa tầng và AI tự chơi.">
+
+  <!-- Open Graph / Facebook / Discord Embed -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://bachlinhphong-glitch.github.io/3d-2048-hypercube/">
+  <meta property="og:title" content="3D 2048 & Hypercube — Spatial UX & PWA Edition">
+  <meta property="og:description" content="Trải nghiệm đỉnh cao tựa game 2048 không gian 3 chiều và Hypercube 3x3x3 đa tầng, đồ họa WebGL Three.js mượt mà >60 FPS, âm thanh đa tầng và AI tự chơi.">
+  <meta property="og:image" content="https://bachlinhphong-glitch.github.io/3d-2048-hypercube/assets/backgrounds/cat_moon.png">
+
+  <!-- Twitter / X Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://bachlinhphong-glitch.github.io/3d-2048-hypercube/">
+  <meta name="twitter:title" content="3D 2048 & Hypercube — Spatial UX & PWA Edition">
+  <meta name="twitter:description" content="Trải nghiệm đỉnh cao tựa game 2048 không gian 3 chiều và Hypercube 3x3x3 đa tầng, đồ họa WebGL Three.js mượt mà >60 FPS, âm thanh đa tầng và AI tự chơi.">
+  <meta name="twitter:image" content="https://bachlinhphong-glitch.github.io/3d-2048-hypercube/assets/backgrounds/cat_moon.png">
+
   <link rel="icon" type="image/svg+xml" href="./favicon.svg">
   <link rel="manifest" href="./manifest.json">
   <link rel="stylesheet" href="./src/style.css">
@@ -48,6 +64,7 @@
           <span class="game-badge">3D Hyper</span>
           <span class="gpu-badge" id="gpu-badge" title="Card đồ họa phát hiện trên máy">GPU</span>
           <span class="fps-badge" id="fps-counter">60 FPS</span>
+          <span class="ai-status-badge" id="ai-status-badge" style="display:none;">🤖 AI THINKING...</span>
         </div>
 
         <!-- Score & Best Score -->
@@ -65,6 +82,7 @@
         <!-- Action Buttons -->
         <div class="actions-section">
           <button id="btn-toggle-rush" class="glass-btn rush-btn" title="Chế độ đếm ngược Time Rush">⚡ Rush</button>
+          <button id="btn-ai-toggle" class="glass-btn ai-btn" title="Bật/Tắt AI tự động tính toán và đi từng nước">🤖 AI Tự Chơi</button>
           <button id="btn-sound-toggle" class="glass-btn" title="Bật/Tắt âm thanh hiệu ứng (SFX)">🔊 SFX</button>
           <button id="btn-bgm-toggle" class="glass-btn" title="Bật/Tắt Nhạc nền Lofi Ambient">🎵 Nhạc</button>
           <button id="btn-share-score" class="glass-btn" title="Chia sẻ điểm số hoặc chụp ảnh bàn cờ">📤 Chia sẻ</button>
