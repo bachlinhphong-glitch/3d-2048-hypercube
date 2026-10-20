@@ -1,4 +1,4 @@
-const CACHE_NAME = 'v3.1-2048-hypercube';
+const CACHE_NAME = 'v3.2-2048-hypercube';
 const CACHE_URLS = [
   '.',
   './index.html',
@@ -40,17 +40,29 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
+// Network-First caching strategy: Always attempt fresh fetch from network and update cache;
+// fallback to cache only when offline or network fails.
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) return cached;
-      return fetch(event.request).then((response) => {
-        if (!response || response.status !== 200 || response.type === 'opaque') return response;
-        const clone = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone)).catch(() => {});
-        return response;
-      }).catch(() => cached);
-    })
+    fetch(event.request)
+      .then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          const responseClone = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseClone);
+          }).catch(() => {});
+        }
+        return networkResponse;
+      })
+      .catch(async () => {
+        const cached = await caches.match(event.request);
+        if (cached) return cached;
+        if (event.request.mode === 'navigate') {
+          return (await caches.match('./index.html')) || (await caches.match('.'));
+        }
+        return null;
+      })
   );
 });

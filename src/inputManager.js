@@ -69,6 +69,9 @@ export class InputManager {
         return;
       }
 
+      // Block move execution if Shift key is held for Ghost Preview
+      if (e.shiftKey) return;
+
       let direction = null;
       switch (e.code) {
         case 'ArrowUp':
@@ -92,8 +95,6 @@ export class InputManager {
           direction = 'layerUp';
           break;
         case 'KeyQ':
-        case 'ShiftLeft':
-        case 'ShiftRight':
           direction = 'layerDown';
           break;
       }
