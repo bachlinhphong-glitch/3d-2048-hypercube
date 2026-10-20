@@ -6,7 +6,8 @@ export class SceneManager {
   constructor(container) {
     this.container = container;
     this.mode = '4x4';
-    this.theme = 'classic'; // 'classic', 'telemetry', 'neon'
+    this.theme = 'galaxy'; // 'galaxy', 'sunset', 'aurora', 'neon', 'studio', 'classic', 'telemetry'
+    this.backgroundCache = new Map();
 
     this.defaultCamPos4x4 = new THREE.Vector3(0, 10.5, 7.6);
     this.defaultTarget4x4 = new THREE.Vector3(0, 0.6, 0);
@@ -20,6 +21,7 @@ export class SceneManager {
     this.initEnvironmentMap();
     this.initLights();
     this.initThemeDecorations();
+    this.setTheme(this.theme);
     this.initControls();
     this.handleResize();
 
@@ -28,8 +30,7 @@ export class SceneManager {
 
   initScene() {
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0x0a0e17);
-    this.scene.fog = new THREE.FogExp2(0x0a0e17, 0.018);
+    this.scene.fog = new THREE.FogExp2(0x0a0518, 0.015);
   }
 
   initCamera() {
@@ -194,57 +195,281 @@ export class SceneManager {
   }
 
   initThemeDecorations() {
-    // 1. Synthwave Neon Grid Helper
-    this.neonGrid = new THREE.GridHelper(30, 30, 0xff007f, 0x7928ca);
+    // 1. Synthwave Neon Grid Floor
+    this.neonGrid = new THREE.GridHelper(32, 32, 0xff007f, 0x7928ca);
     this.neonGrid.position.y = -0.52;
     this.neonGrid.visible = false;
     this.scene.add(this.neonGrid);
 
-    // 2. Floating Cyber Dust Particles (for Neon Theme)
+    // 2. 3D Celestial Starfield (450 multi-colored stars on a spherical shell)
+    const starCount = 450;
+    const starGeo = new THREE.BufferGeometry();
+    const starPos = new Float32Array(starCount * 3);
+    const starColors = new Float32Array(starCount * 3);
+    const cWhite = new THREE.Color(0xffffff);
+    const cBlue = new THREE.Color(0x93c5fd);
+    const cPurple = new THREE.Color(0xd8b4fe);
+    const cGold = new THREE.Color(0xfef08a);
+
+    for (let i = 0; i < starCount; i++) {
+      const u = Math.random();
+      const v = Math.random();
+      const theta = u * 2.0 * Math.PI;
+      const phi = Math.acos(2.0 * v - 1.0);
+      const r = 30 + Math.random() * 22;
+
+      starPos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+      starPos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+      starPos[i * 3 + 2] = r * Math.cos(phi);
+
+      const pick = Math.random();
+      const col = pick < 0.45 ? cWhite : pick < 0.7 ? cBlue : pick < 0.88 ? cPurple : cGold;
+      starColors[i * 3] = col.r;
+      starColors[i * 3 + 1] = col.g;
+      starColors[i * 3 + 2] = col.b;
+    }
+    starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+    starGeo.setAttribute('color', new THREE.BufferAttribute(starColors, 3));
+
+    const starMat = new THREE.PointsMaterial({
+      size: 0.22,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.85
+    });
+    this.starfield = new THREE.Points(starGeo, starMat);
+    this.starfield.visible = true;
+    this.scene.add(this.starfield);
+
+    // 3. Floating Atmospheric Dust Particles
     const dustCount = 80;
     const dustGeo = new THREE.BufferGeometry();
     const dustPositions = new Float32Array(dustCount * 3);
     for (let i = 0; i < dustCount * 3; i += 3) {
-      dustPositions[i] = (Math.random() - 0.5) * 20;
-      dustPositions[i + 1] = Math.random() * 10 - 1;
-      dustPositions[i + 2] = (Math.random() - 0.5) * 20;
+      dustPositions[i] = (Math.random() - 0.5) * 22;
+      dustPositions[i + 1] = Math.random() * 12 - 1.5;
+      dustPositions[i + 2] = (Math.random() - 0.5) * 22;
     }
     dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPositions, 3));
-    const dustMat = new THREE.PointsMaterial({
-      color: 0x00f0ff,
-      size: 0.12,
+    this.dustMat = new THREE.PointsMaterial({
+      color: 0x38bdf8,
+      size: 0.14,
       transparent: true,
-      opacity: 0.6
+      opacity: 0.7
     });
-    this.cyberDust = new THREE.Points(dustGeo, dustMat);
-    this.cyberDust.visible = false;
+    this.cyberDust = new THREE.Points(dustGeo, this.dustMat);
+    this.cyberDust.visible = true;
     this.scene.add(this.cyberDust);
+  }
+
+  getBackgroundTexture(themeName) {
+    if (this.backgroundCache.has(themeName)) {
+      return this.backgroundCache.get(themeName);
+    }
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d');
+
+    if (themeName === 'galaxy') {
+      // Cosmic Deep Space with Purple & Cyan Nebula Clouds
+      const grad = ctx.createRadialGradient(256, 256, 30, 256, 256, 360);
+      grad.addColorStop(0, '#1b1035');
+      grad.addColorStop(0.35, '#110b26');
+      grad.addColorStop(0.68, '#08081a');
+      grad.addColorStop(1, '#020108');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 512, 512);
+
+      // Nebula cloud puffs
+      ctx.fillStyle = 'rgba(139, 92, 246, 0.14)';
+      ctx.beginPath();
+      ctx.arc(170, 190, 150, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = 'rgba(14, 165, 233, 0.1)';
+      ctx.beginPath();
+      ctx.arc(350, 310, 160, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (themeName === 'sunset') {
+      // Synthwave Retro Sunset Horizon
+      const grad = ctx.createLinearGradient(0, 0, 0, 512);
+      grad.addColorStop(0, '#160424');
+      grad.addColorStop(0.35, '#3b0a40');
+      grad.addColorStop(0.65, '#7a1452');
+      grad.addColorStop(0.84, '#cf430b');
+      grad.addColorStop(1, '#f59f00');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 512, 512);
+
+      // Distant Sunset Horizon Glow
+      const hGlow = ctx.createRadialGradient(256, 440, 30, 256, 440, 280);
+      hGlow.addColorStop(0, 'rgba(255, 235, 120, 0.5)');
+      hGlow.addColorStop(0.35, 'rgba(255, 90, 95, 0.28)');
+      hGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = hGlow;
+      ctx.fillRect(0, 180, 512, 332);
+    } else if (themeName === 'aurora') {
+      // Polar Arctic Night with Emerald Aurora Borealis
+      const grad = ctx.createLinearGradient(0, 0, 0, 512);
+      grad.addColorStop(0, '#020a14');
+      grad.addColorStop(0.38, '#031b24');
+      grad.addColorStop(0.7, '#04382e');
+      grad.addColorStop(1, '#021c15');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 512, 512);
+
+      // Luminous Aurora Glow
+      const aGrad = ctx.createRadialGradient(256, 190, 40, 256, 190, 300);
+      aGrad.addColorStop(0, 'rgba(52, 211, 153, 0.38)');
+      aGrad.addColorStop(0.4, 'rgba(6, 182, 212, 0.22)');
+      aGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = aGrad;
+      ctx.fillRect(0, 0, 512, 390);
+    } else if (themeName === 'studio') {
+      // Architectural Slate & Charcoal Studio Vignette
+      const grad = ctx.createRadialGradient(256, 210, 30, 256, 210, 360);
+      grad.addColorStop(0, '#263142');
+      grad.addColorStop(0.55, '#171e28');
+      grad.addColorStop(1, '#0e1218');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 512, 512);
+    } else if (themeName === 'neon') {
+      const grad = ctx.createRadialGradient(256, 256, 50, 256, 256, 360);
+      grad.addColorStop(0, '#150624');
+      grad.addColorStop(0.7, '#0a0312');
+      grad.addColorStop(1, '#05010a');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 512, 512);
+    } else if (themeName === 'telemetry') {
+      ctx.fillStyle = '#050c12';
+      ctx.fillRect(0, 0, 512, 512);
+    } else {
+      // Classic Dark Glass
+      const grad = ctx.createRadialGradient(256, 256, 50, 256, 256, 360);
+      grad.addColorStop(0, '#131b26');
+      grad.addColorStop(0.7, '#0d1117');
+      grad.addColorStop(1, '#070a0e');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 512, 512);
+    }
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    this.backgroundCache.set(themeName, tex);
+    return tex;
   }
 
   setTheme(themeName) {
     this.theme = themeName;
-    if (themeName === 'neon') {
-      this.scene.background.set(0x0a0518);
-      this.scene.fog.color.set(0x0a0518);
+    this.scene.background = this.getBackgroundTexture(themeName);
+
+    const fogColors = {
+      galaxy: 0x09081a,
+      sunset: 0x3b0a40,
+      aurora: 0x031b24,
+      neon: 0x0a0518,
+      studio: 0x171e28,
+      telemetry: 0x050c12,
+      classic: 0x0d1117
+    };
+    const fogCol = fogColors[themeName] || 0x0d1117;
+    this.scene.fog.color.set(fogCol);
+
+    if (themeName === 'galaxy') {
+      this.starfield.visible = true;
+      this.neonGrid.visible = false;
+      this.cyberDust.visible = true;
+      this.dustMat.color.set(0xa78bfa);
+      this.ambientLight.color.set(0xc4b5fd);
+      this.ambientLight.intensity = 0.95;
+      this.sunLight.color.set(0xfff7ed);
+      this.sunLight.intensity = 1.6;
+      this.rimLight.color.set(0x38bdf8);
+      this.rimLight.intensity = 1.2;
+      this.pointLight1.intensity = 0;
+      this.pointLight2.intensity = 0;
+      this.renderer.toneMappingExposure = 1.18;
+    } else if (themeName === 'sunset') {
+      this.starfield.visible = true;
       this.neonGrid.visible = true;
       this.cyberDust.visible = true;
-      this.pointLight1.intensity = 2.4;
-      this.pointLight2.intensity = 2.4;
+      this.dustMat.color.set(0xfb923c);
+      this.ambientLight.color.set(0xfde047);
+      this.ambientLight.intensity = 0.75;
+      this.sunLight.color.set(0xfb923c);
+      this.sunLight.intensity = 1.8;
+      this.rimLight.color.set(0xf43f5e);
+      this.rimLight.intensity = 1.4;
+      this.pointLight1.intensity = 1.6;
+      this.pointLight1.color.set(0xff5722);
+      this.pointLight2.intensity = 1.6;
+      this.pointLight2.color.set(0xff007f);
       this.renderer.toneMappingExposure = 1.25;
-    } else if (themeName === 'telemetry') {
-      this.scene.background.set(0x050c12);
-      this.scene.fog.color.set(0x050c12);
+    } else if (themeName === 'aurora') {
+      this.starfield.visible = true;
+      this.neonGrid.visible = false;
+      this.cyberDust.visible = true;
+      this.dustMat.color.set(0x34d399);
+      this.ambientLight.color.set(0x99f6e4);
+      this.ambientLight.intensity = 0.85;
+      this.sunLight.color.set(0x67e8f9);
+      this.sunLight.intensity = 1.55;
+      this.rimLight.color.set(0x10b981);
+      this.rimLight.intensity = 1.35;
+      this.pointLight1.intensity = 0;
+      this.pointLight2.intensity = 0;
+      this.renderer.toneMappingExposure = 1.15;
+    } else if (themeName === 'neon') {
+      this.starfield.visible = false;
+      this.neonGrid.visible = true;
+      this.cyberDust.visible = true;
+      this.dustMat.color.set(0x00f0ff);
+      this.pointLight1.intensity = 2.4;
+      this.pointLight1.color.set(0xff007f);
+      this.pointLight2.intensity = 2.4;
+      this.pointLight2.color.set(0x00f0ff);
+      this.ambientLight.color.set(0xdbeafe);
+      this.ambientLight.intensity = 0.7;
+      this.sunLight.intensity = 1.2;
+      this.rimLight.color.set(0x00f0ff);
+      this.renderer.toneMappingExposure = 1.25;
+    } else if (themeName === 'studio') {
+      this.starfield.visible = false;
       this.neonGrid.visible = false;
       this.cyberDust.visible = false;
+      this.ambientLight.color.set(0xffffff);
+      this.ambientLight.intensity = 0.95;
+      this.sunLight.color.set(0xffffff);
+      this.sunLight.intensity = 1.5;
+      this.rimLight.color.set(0x94a3b8);
+      this.rimLight.intensity = 0.8;
+      this.pointLight1.intensity = 0;
+      this.pointLight2.intensity = 0;
+      this.renderer.toneMappingExposure = 1.12;
+    } else if (themeName === 'telemetry') {
+      this.starfield.visible = false;
+      this.neonGrid.visible = false;
+      this.cyberDust.visible = false;
+      this.ambientLight.color.set(0x00f0ff);
+      this.ambientLight.intensity = 0.65;
+      this.sunLight.intensity = 1.4;
+      this.rimLight.color.set(0x00f0ff);
       this.pointLight1.intensity = 0;
       this.pointLight2.intensity = 0;
       this.renderer.toneMappingExposure = 1.05;
     } else {
       // Classic
-      this.scene.background.set(0x0d1117);
-      this.scene.fog.color.set(0x0d1117);
+      this.starfield.visible = false;
       this.neonGrid.visible = false;
       this.cyberDust.visible = false;
+      this.ambientLight.color.set(0xdbeafe);
+      this.ambientLight.intensity = 0.85;
+      this.sunLight.color.set(0xfff7ed);
+      this.sunLight.intensity = 1.6;
+      this.rimLight.color.set(0x38bdf8);
+      this.rimLight.intensity = 1.0;
       this.pointLight1.intensity = 0;
       this.pointLight2.intensity = 0;
       this.renderer.toneMappingExposure = 1.1;
@@ -363,18 +588,21 @@ export class SceneManager {
   }
 
   render(time = 0) {
-    if (this.theme === 'neon') {
-      // Rotate colored point lights around board
+    if (this.theme === 'neon' || this.theme === 'sunset') {
       const t = time * 0.8;
       this.pointLight1.position.x = Math.cos(t) * 7;
       this.pointLight1.position.z = Math.sin(t) * 7;
       this.pointLight2.position.x = Math.cos(t + Math.PI) * 7;
       this.pointLight2.position.z = Math.sin(t + Math.PI) * 7;
+    }
 
-      // Slowly pulse cyber dust
-      if (this.cyberDust) {
-        this.cyberDust.rotation.y = time * 0.05;
-      }
+    if (this.starfield && this.starfield.visible) {
+      this.starfield.rotation.y = time * 0.012;
+      this.starfield.rotation.x = Math.sin(time * 0.008) * 0.03;
+    }
+
+    if (this.cyberDust && this.cyberDust.visible) {
+      this.cyberDust.rotation.y = time * 0.035;
     }
 
     this.controls.update();

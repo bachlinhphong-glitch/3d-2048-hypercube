@@ -13,7 +13,7 @@ class GameApp {
     this.container = document.getElementById('canvas-container');
     this.mode = '4x4'; // '4x4' or '3x3x3'
     this.currentShape = 'rounded_cube'; // 'rounded_cube', 'crystal_octahedron', 'core_sphere', 'auto_evolution'
-    this.currentTheme = 'classic'; // 'classic', 'telemetry', 'neon'
+    this.currentTheme = localStorage.getItem('3d2048_theme') || 'galaxy';
 
     this.sceneManager = new SceneManager(this.container);
     this.particleSystem = new ParticleSystem(this.sceneManager.scene);
@@ -132,11 +132,16 @@ class GameApp {
       });
     }
 
-    // Theme Selector
+    // Theme & Background Selector
     const themeSelect = document.getElementById('select-theme');
     if (themeSelect) {
+      themeSelect.value = this.currentTheme;
       themeSelect.addEventListener('change', (e) => {
         this.switchTheme(e.target.value);
+        localStorage.setItem('3d2048_theme', e.target.value);
+        const label = e.target.options[e.target.selectedIndex].text;
+        this.showSpellToast(`HÌNH NỀN: ${label}`);
+        this.registerInteraction();
       });
     }
 
@@ -210,6 +215,7 @@ class GameApp {
 
     this.updateScoreUI();
     this.updateSpellUI();
+    this.switchTheme(this.currentTheme);
   }
 
   registerInteraction() {
