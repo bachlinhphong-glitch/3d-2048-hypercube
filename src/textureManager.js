@@ -132,6 +132,7 @@ export class TextureManager {
     texture.generateMipmaps = true;
     texture.minFilter = THREE.LinearMipmapLinearFilter;
     texture.magFilter = THREE.LinearFilter;
+    texture.anisotropy = 4;
     texture.needsUpdate = true;
 
     this.textureCache.set(cacheKey, texture);

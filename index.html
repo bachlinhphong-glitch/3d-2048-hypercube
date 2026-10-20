@@ -32,10 +32,11 @@
       <div class="brand-section">
         <h1 class="game-title">2048</h1>
         <span class="game-badge">3D Hyper</span>
+        <span class="gpu-badge" id="gpu-badge" title="Card đồ họa phát hiện trên máy">GPU</span>
         <span class="fps-badge" id="fps-counter">60 FPS</span>
       </div>
 
-      <!-- Mode, Shape & Theme Selectors -->
+      <!-- Mode, Shape, Theme & Hardware FPS Selectors -->
       <div class="selectors-section">
         <select id="select-mode" class="glass-select" title="Chế độ không gian">
           <option value="4x4">📦 4x4 Classic</option>
@@ -53,6 +54,12 @@
           <option value="classic">🌙 Dark Glass</option>
           <option value="telemetry">📊 Hiệu Năng HUD</option>
           <option value="neon">⚡ Hyper Neon</option>
+        </select>
+
+        <select id="select-fps" class="glass-select" title="Tối ưu phần cứng & Tần số quét màn hình (FPS)">
+          <option value="max">🚀 Tối đa (165Hz/300Hz)</option>
+          <option value="120" selected>⚡ Cân bằng (120 FPS)</option>
+          <option value="60">🔋 Tiết kiệm pin (60 FPS)</option>
         </select>
       </div>
 
@@ -112,6 +119,8 @@
         <div class="telemetry-item">FRAME: <span id="stat-ms">16.6ms</span></div>
         <div class="telemetry-item">DRAWS: <span id="stat-calls">2</span></div>
         <div class="telemetry-item">TRIS: <span id="stat-tris">1.2k</span></div>
+        <div class="telemetry-item">GPU: <span id="stat-gpu">Auto</span></div>
+        <div class="telemetry-item">TARGET: <span id="stat-fps-target">120</span></div>
         <div class="telemetry-item">APM: <span id="stat-apm">0</span></div>
         <div class="telemetry-item">DENSITY: <span id="stat-density">12%</span></div>
       </div>

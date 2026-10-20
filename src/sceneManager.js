@@ -44,7 +44,9 @@ export class SceneManager {
       antialias: true,
       powerPreference: 'high-performance',
       stencil: false,
-      depth: true
+      depth: true,
+      preserveDrawingBuffer: false,
+      failIfMajorPerformanceCaveat: false
     });
     this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
     this.renderer.setPixelRatio(1.0);
@@ -55,7 +57,52 @@ export class SceneManager {
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.15;
 
+    // WebGL Context Restoration for dual-GPU laptops (NVIDIA Optimus / Iris Xe switching)
+    this.renderer.domElement.addEventListener('webglcontextlost', (e) => {
+      e.preventDefault();
+      console.warn('⚠️ WebGL Context Lost! Switching GPU or display mode...');
+    }, false);
+
+    this.renderer.domElement.addEventListener('webglcontextrestored', () => {
+      console.log('✅ WebGL Context Restored! Reinitializing 3D pipeline...');
+      this.initEnvironmentMap();
+    }, false);
+
     this.container.appendChild(this.renderer.domElement);
+  }
+
+  getGPUInfo() {
+    try {
+      const gl = this.renderer.getContext();
+      const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+      if (debugInfo) {
+        const unmaskedRenderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) || '';
+        let cleanName = unmaskedRenderer;
+        if (/RTX\s*\d+/i.test(unmaskedRenderer)) {
+          const match = unmaskedRenderer.match(/RTX\s*[0-9]+[A-Za-z\s]*/i);
+          if (match) cleanName = 'NVIDIA ' + match[0].trim();
+        } else if (/Iris/i.test(unmaskedRenderer)) {
+          cleanName = 'Intel Iris Xe';
+        } else if (/GeForce/i.test(unmaskedRenderer)) {
+          const match = unmaskedRenderer.match(/GeForce\s*[^,\(\)]+/i);
+          if (match) cleanName = match[0].trim();
+        } else if (/Radeon/i.test(unmaskedRenderer)) {
+          const match = unmaskedRenderer.match(/Radeon\s*[^,\(\)]+/i);
+          if (match) cleanName = match[0].trim();
+        } else {
+          const match = unmaskedRenderer.match(/(?:NVIDIA|Intel|AMD|Apple)\s*[^,\(\)]+/i);
+          if (match) cleanName = match[0].trim();
+        }
+        return {
+          renderer: cleanName,
+          full: unmaskedRenderer,
+          vendor: gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL) || ''
+        };
+      }
+    } catch (e) {
+      console.warn('Could not query GPU info:', e);
+    }
+    return { renderer: 'Hardware WebGL', full: 'Generic WebGL', vendor: 'Generic' };
   }
 
   initEnvironmentMap() {

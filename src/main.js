@@ -46,6 +46,12 @@ class GameApp {
     this.hoveredTile = null;
     this.toastTimeout = null;
 
+    // Hardware Adaptive Performance State
+    this.targetFps = localStorage.getItem('3d2048_target_fps') || '120';
+    this.lastRenderTimestamp = performance.now();
+    this.lastUserInteraction = performance.now();
+    this.lastIdleTimestamp = performance.now();
+
     this.initUI();
     this.initTelemetryCanvas();
     this.initInput();
@@ -134,6 +140,34 @@ class GameApp {
       });
     }
 
+    // Hardware FPS Profile Selector
+    this.fpsSelect = document.getElementById('select-fps');
+    if (this.fpsSelect) {
+      this.fpsSelect.value = this.targetFps;
+      this.fpsSelect.addEventListener('change', (e) => {
+        this.targetFps = e.target.value;
+        localStorage.setItem('3d2048_target_fps', this.targetFps);
+        const label = e.target.options[e.target.selectedIndex].text;
+        this.showSpellToast(`CẤU HÌNH PHẦN CỨNG: ${label}`);
+        this.registerInteraction();
+      });
+    }
+
+    // Auto-detect & Display Hardware GPU
+    this.gpuBadgeEl = document.getElementById('gpu-badge');
+    this.gpuInfo = this.sceneManager.getGPUInfo();
+    if (this.gpuBadgeEl && this.gpuInfo) {
+      this.gpuBadgeEl.textContent = this.gpuInfo.renderer;
+      this.gpuBadgeEl.title = `Card đồ họa: ${this.gpuInfo.full}`;
+    }
+
+    // Track user activity to support Smart Idle Throttling
+    const recordActivity = () => this.registerInteraction();
+    window.addEventListener('pointerdown', recordActivity, { passive: true });
+    window.addEventListener('pointermove', recordActivity, { passive: true });
+    window.addEventListener('keydown', recordActivity, { passive: true });
+    window.addEventListener('touchstart', recordActivity, { passive: true });
+
     // Rush Mode Toggle
     if (this.rushToggleBtn) {
       this.rushToggleBtn.addEventListener('click', () => {
@@ -173,6 +207,10 @@ class GameApp {
     this.updateSpellUI();
   }
 
+  registerInteraction() {
+    this.lastUserInteraction = performance.now();
+  }
+
   initTelemetryCanvas() {
     this.telemetryPanel = document.getElementById('telemetry-panel');
     this.telemetryCanvas = document.getElementById('telemetry-canvas');
@@ -184,6 +222,8 @@ class GameApp {
       ms: document.getElementById('stat-ms'),
       calls: document.getElementById('stat-calls'),
       tris: document.getElementById('stat-tris'),
+      gpu: document.getElementById('stat-gpu'),
+      fpsTarget: document.getElementById('stat-fps-target'),
       apm: document.getElementById('stat-apm'),
       density: document.getElementById('stat-density')
     };
@@ -431,6 +471,7 @@ class GameApp {
   }
 
   async handleMove(direction) {
+    this.registerInteraction();
     if (this.isAnimating) return;
     if (this.isSwapMode) {
       this.cancelSwapMode();
@@ -857,6 +898,7 @@ class GameApp {
   }
 
   async handleCanvasClick(clientX, clientY) {
+    this.registerInteraction();
     if (!this.isSwapMode || this.isAnimating || this.gameLogic.gameOver) return;
 
     const rect = this.container.getBoundingClientRect();
@@ -1014,6 +1056,8 @@ class GameApp {
       if (s.ms) s.ms.textContent = `${frameTime.toFixed(1)}ms`;
       if (s.calls) s.calls.textContent = `${stats.calls}`;
       if (s.tris) s.tris.textContent = `${stats.triangles}`;
+      if (s.gpu && this.gpuInfo) s.gpu.textContent = this.gpuInfo.renderer;
+      if (s.fpsTarget) s.fpsTarget.textContent = this.targetFps === 'max' ? 'MAX' : `${this.targetFps}`;
       if (s.apm) s.apm.textContent = `${apm}`;
       if (s.density) s.density.textContent = `${density}%`;
     }
@@ -1047,11 +1091,43 @@ class GameApp {
     ctx.stroke();
   }
 
-  animate() {
-    requestAnimationFrame(() => this.animate());
-    const delta = Math.min(this.clock.getDelta(), 0.1);
+  animate(timestamp = performance.now()) {
+    requestAnimationFrame((t) => this.animate(t));
 
-    // Update Rush Mode internal countdown (pure math - zero DOM writes in rAF)
+    // 1. Hardware Target FPS Limiter (Tối ưu phần cứng & tần số quét 60 / 120 / 165 / 300)
+    if (this.targetFps !== 'max') {
+      const targetFpsNum = parseInt(this.targetFps, 10) || 120;
+      const targetInterval = 1000 / targetFpsNum;
+      const elapsed = timestamp - this.lastRenderTimestamp;
+      if (elapsed < targetInterval - 0.75) {
+        return; // Bỏ qua render frame để giảm nhiệt độ máy, êm quạt và tiết kiệm pin
+      }
+      this.lastRenderTimestamp = timestamp - (elapsed % targetInterval);
+    } else {
+      this.lastRenderTimestamp = timestamp;
+    }
+
+    const delta = Math.min(this.clock.getDelta(), 0.05);
+
+    // 2. Smart Idle Power-Saver (Giảm tải khi người chơi đang suy nghĩ)
+    const idleTime = timestamp - this.lastUserInteraction;
+    const isBusy = this.isAnimating || 
+                   this.particleSystem.activeCount > 0 || 
+                   this.isRushMode || 
+                   this.currentTheme === 'neon' || 
+                   this.currentShape === 'crystal_octahedron' || 
+                   this.currentShape === 'auto_evolution';
+
+    if (!isBusy && idleTime > 3500) {
+      const idleInterval = 1000 / 30; // 30 FPS khi đứng yên để máy không bị quá nhiệt
+      const idleElapsed = timestamp - this.lastIdleTimestamp;
+      if (idleElapsed < idleInterval - 1.0) {
+        return;
+      }
+      this.lastIdleTimestamp = timestamp;
+    }
+
+    // 3. Update Rush Mode internal countdown (pure math - zero DOM writes in rAF)
     if (this.isRushMode && !this.gameLogic.gameOver && !this.isAnimating) {
       this.rushTime -= delta;
       if (this.rushTime <= 0) {
@@ -1070,7 +1146,7 @@ class GameApp {
       }
     }
 
-    // Update Active 3D Tiles (spin octahedron, torus ring, bomb pulse)
+    // 4. Update Active 3D Tiles (spin octahedron, torus ring, bomb pulse)
     for (let l = 0; l < this.tiles3D.length; l++) {
       for (let r = 0; r < this.tiles3D[l].length; r++) {
         for (let c = 0; c < this.tiles3D[l][r].length; c++) {
@@ -1080,7 +1156,7 @@ class GameApp {
       }
     }
 
-    // Frame stats (pure math - no DOM manipulation in rAF)
+    // 5. Frame stats (pure math - no DOM manipulation in rAF)
     this.frameCount++;
     this.lastFrameTime = delta * 1000;
 
