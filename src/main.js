@@ -168,6 +168,11 @@ class GameApp {
     window.addEventListener('keydown', recordActivity, { passive: true });
     window.addEventListener('touchstart', recordActivity, { passive: true });
 
+    // Unlock iOS Safari / Mobile Web Audio Context on first user touch/click
+    const unlockAudio = () => soundManager.ensureContext();
+    window.addEventListener('touchstart', unlockAudio, { once: true, passive: true });
+    window.addEventListener('pointerdown', unlockAudio, { once: true, passive: true });
+
     // Rush Mode Toggle
     if (this.rushToggleBtn) {
       this.rushToggleBtn.addEventListener('click', () => {

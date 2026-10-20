@@ -274,8 +274,8 @@ export class SceneManager {
     };
 
     this.controls.touches = {
-      ONE: null,
-      TWO: THREE.TOUCH.DOLLY_PAN
+      ONE: null, // 1-finger touch reserved for game swipe / tap
+      TWO: THREE.TOUCH.DOLLY_ROTATE // 2-finger touch allows zoom and 3D orbit
     };
 
     this.controls.addEventListener('change', () => {
@@ -315,8 +315,42 @@ export class SceneManager {
   handleResize() {
     const width = this.container.clientWidth;
     const height = this.container.clientHeight;
-    this.camera.aspect = width / height;
+    const aspect = width / height;
+    this.camera.aspect = aspect;
+
+    // Mobile / Tablet portrait dynamic FOV adaptation
+    // Standard 42 deg FOV is designed for landscape monitors.
+    // In portrait on phones (aspect ~0.45 - 0.6) or tablets (aspect ~0.75), a fixed vertical FOV
+    // would clip the left/right edges of the 3D board!
+    // We adjust FOV dynamically so the board is always perfectly fitted horizontally and vertically.
+    if (aspect < 0.65) {
+      // Tall smartphones (iPhone 12-16, Samsung Galaxy, Pixel)
+      const baseFovRad = 42 * (Math.PI / 180);
+      const targetVFOVDeg = 2 * Math.atan(Math.tan(baseFovRad / 2) / (aspect * 1.05)) * (180 / Math.PI);
+      this.camera.fov = Math.min(68, Math.max(46, targetVFOVDeg));
+    } else if (aspect < 1.0) {
+      // Wider phones / small foldable portrait
+      const baseFovRad = 42 * (Math.PI / 180);
+      const targetVFOVDeg = 2 * Math.atan(Math.tan(baseFovRad / 2) / (aspect * 1.08)) * (180 / Math.PI);
+      this.camera.fov = Math.min(58, Math.max(44, targetVFOVDeg));
+    } else if (aspect < 1.35) {
+      // Tablets (iPad portrait, Galaxy Tab portrait)
+      this.camera.fov = 48;
+    } else {
+      // Desktop / Landscape tablets
+      this.camera.fov = 42;
+    }
     this.camera.updateProjectionMatrix();
+
+    // Mobile hardware pixel ratio clamping:
+    // Mobile screens often have 3x or 3.5x DPR. Clamping to max 1.75 on mobile preserves razor-sharp
+    // visuals while preventing GPU thermal throttling and battery drain.
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+                     (navigator.maxTouchPoints && navigator.maxTouchPoints > 1);
+    const maxDPR = isMobile ? 1.75 : 1.0;
+    const dpr = Math.min(window.devicePixelRatio || 1, maxDPR);
+    this.renderer.setPixelRatio(dpr);
+
     this.renderer.setSize(width, height);
   }
 

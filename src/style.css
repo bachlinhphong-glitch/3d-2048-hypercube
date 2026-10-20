@@ -30,6 +30,11 @@ html, body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color: var(--text-main);
   touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* ================= THEME STYLES ================= */
@@ -84,7 +89,7 @@ body.theme-telemetry .glass-select {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 16px 20px;
+  padding: max(10px, env(safe-area-inset-top, 10px)) max(12px, env(safe-area-inset-right, 12px)) max(14px, env(safe-area-inset-bottom, 14px)) max(12px, env(safe-area-inset-left, 12px));
 }
 
 /* Header Bar */
@@ -92,8 +97,7 @@ body.theme-telemetry .glass-select {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: nowrap;
-  gap: 8px;
+  gap: 10px;
   max-width: 96vw;
   width: 96vw;
   margin: 0 auto;
@@ -107,6 +111,14 @@ body.theme-telemetry .glass-select {
   border-radius: var(--radius-lg);
   padding: 8px 16px;
   transition: all 0.3s ease;
+}
+
+.header-main-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex: 1;
 }
 
 .brand-section {
@@ -561,19 +573,218 @@ body.theme-telemetry .glass-select {
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-@media (max-width: 900px) {
+.mobile-only {
+  display: none !important;
+}
+
+.desktop-only {
+  display: flex !important;
+}
+
+/* ==========================================================================
+   Responsive Mobile & Tablet Optimization (iOS / Android / iPad / Tablet)
+   ========================================================================== */
+
+/* Tablet & iPad (Portrait & Landscape: 641px - 1024px) */
+@media (max-width: 1024px) {
   .header-bar {
-    padding: 10px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 8px 12px;
+    width: 98vw;
+    max-width: 98vw;
+  }
+
+  .header-main-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
     gap: 8px;
   }
+
   .selectors-section {
-    flex-wrap: wrap;
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 2px;
   }
-  .hint-pill {
-    font-size: 11px;
-    padding: 6px 12px;
+  .selectors-section::-webkit-scrollbar {
+    display: none;
+  }
+
+  .glass-select {
+    flex-shrink: 0;
+  }
+
+  .spell-bar {
+    bottom: max(20px, env(safe-area-inset-bottom, 20px));
+  }
+}
+
+/* Smartphone Portrait & Small Tablets (<= 640px) */
+@media (max-width: 640px) {
+  .header-bar {
+    padding: 6px 8px;
+    gap: 5px;
+    width: 98vw;
+    border-radius: 12px;
+  }
+
+  .game-title {
+    font-size: 19px;
+    letter-spacing: -0.5px;
+  }
+
+  .game-badge {
+    display: none; /* Hide non-essential pill on narrow screens */
+  }
+
+  .gpu-badge {
+    max-width: 90px;
+    font-size: 8.5px;
+    padding: 2px 5px;
+  }
+
+  .fps-badge {
+    font-size: 9px;
+    padding: 2px 5px;
+  }
+
+  .stats-section {
+    gap: 4px;
+  }
+
+  .stat-pill {
+    min-width: 54px;
+    padding: 2px 6px;
+  }
+
+  .stat-label {
+    font-size: 7.5px;
+  }
+
+  .stat-value {
+    font-size: 13px;
+  }
+
+  .actions-section {
+    gap: 3px;
+  }
+
+  .glass-btn {
+    padding: 4px 7px;
+    font-size: 10.5px;
+  }
+
+  /* Compact Selectors Carousel */
+  .selectors-section {
+    gap: 4px;
+  }
+
+  .glass-select {
+    font-size: 10px;
+    padding: 4px 6px;
+  }
+
+  /* Side panels on mobile */
+  .rush-panel {
+    left: 10px;
+    width: 150px;
+    padding: 8px 10px;
+  }
+
+  .layer-controls {
+    right: 10px;
     gap: 8px;
-    flex-wrap: wrap;
+  }
+
+  .layer-btn {
+    padding: 10px 12px;
+    font-size: 11px;
+  }
+
+  /* Summoner Spell Buttons for Thumbs */
+  .spell-bar {
+    bottom: max(14px, env(safe-area-inset-bottom, 14px));
+    gap: 10px;
+  }
+
+  .spell-btn {
+    width: 62px;
+    height: 66px;
+    border-radius: 14px;
+    gap: 2px;
+  }
+
+  .spell-svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .spell-name {
+    font-size: 9px;
+  }
+
+  .spell-kbd {
+    display: none !important; /* Hide keyboard keys on mobile */
+  }
+
+  .spell-badge {
+    top: -5px;
+    right: -5px;
+    width: 18px;
+    height: 18px;
+    font-size: 9px;
+  }
+
+  .spell-btn.in-cooldown .spell-badge {
+    font-size: 8.5px;
+    padding: 0 3px;
+  }
+
+  /* Bottom Controls Pill */
+  .desktop-only {
+    display: none !important;
+  }
+
+  .mobile-only {
+    display: flex !important;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    padding: 5px 12px;
+  }
+
+  .bottom-bar {
+    margin-bottom: 74px; /* Space above spell buttons */
+  }
+
+  .hint-dot {
+    color: var(--accent-blue);
+    opacity: 0.8;
+  }
+
+  /* Modals */
+  .modal-card {
+    padding: 24px 20px;
+    width: 92%;
+  }
+
+  .modal-title {
+    font-size: 22px;
+  }
+
+  .modal-message {
+    font-size: 13px;
+  }
+
+  .modal-btn {
+    padding: 10px 16px;
+    font-size: 13px;
   }
 }
 

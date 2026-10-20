@@ -2,7 +2,12 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0d1117">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="format-detection" content="telephone=no">
   <title>3D 2048 & Hypercube — WebGL Three.js & GSAP</title>
   <link rel="icon" type="image/svg+xml" href="./favicon.svg">
   <link rel="stylesheet" href="./src/style.css">
@@ -29,11 +34,33 @@
   <div class="ui-overlay">
     <!-- Top Header Bar -->
     <header class="header-bar">
-      <div class="brand-section">
-        <h1 class="game-title">2048</h1>
-        <span class="game-badge">3D Hyper</span>
-        <span class="gpu-badge" id="gpu-badge" title="Card đồ họa phát hiện trên máy">GPU</span>
-        <span class="fps-badge" id="fps-counter">60 FPS</span>
+      <div class="header-main-row">
+        <div class="brand-section">
+          <h1 class="game-title">2048</h1>
+          <span class="game-badge">3D Hyper</span>
+          <span class="gpu-badge" id="gpu-badge" title="Card đồ họa phát hiện trên máy">GPU</span>
+          <span class="fps-badge" id="fps-counter">60 FPS</span>
+        </div>
+
+        <!-- Score & Best Score -->
+        <div class="stats-section">
+          <div class="stat-pill" id="score-badge">
+            <div class="stat-label">Điểm số</div>
+            <div class="stat-value" id="score-val">0</div>
+          </div>
+          <div class="stat-pill best">
+            <div class="stat-label">Kỷ lục</div>
+            <div class="stat-value" id="best-val">0</div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="actions-section">
+          <button id="btn-toggle-rush" class="glass-btn rush-btn" title="Chế độ đếm ngược Time Rush">⚡ Rush</button>
+          <button id="btn-sound-toggle" class="glass-btn" title="Bật/Tắt âm thanh">🔊 Bật</button>
+          <button id="btn-reset-camera" class="glass-btn" title="Đặt lại camera">🎥 Camera</button>
+          <button id="btn-new-game" class="glass-btn primary" title="Bắt đầu ván mới">🎮 Chơi mới</button>
+        </div>
       </div>
 
       <!-- Mode, Shape, Theme & Hardware FPS Selectors -->
@@ -61,26 +88,6 @@
           <option value="120" selected>⚡ Cân bằng (120 FPS)</option>
           <option value="60">🔋 Tiết kiệm pin (60 FPS)</option>
         </select>
-      </div>
-
-      <!-- Score & Best Score -->
-      <div class="stats-section">
-        <div class="stat-pill" id="score-badge">
-          <div class="stat-label">Điểm số</div>
-          <div class="stat-value" id="score-val">0</div>
-        </div>
-        <div class="stat-pill best">
-          <div class="stat-label">Kỷ lục</div>
-          <div class="stat-value" id="best-val">0</div>
-        </div>
-      </div>
-
-      <!-- Action Buttons -->
-      <div class="actions-section">
-        <button id="btn-toggle-rush" class="glass-btn rush-btn" title="Chế độ đếm ngược Time Rush">⚡ Rush</button>
-        <button id="btn-sound-toggle" class="glass-btn" title="Bật/Tắt âm thanh">🔊 Bật</button>
-        <button id="btn-reset-camera" class="glass-btn" title="Đặt lại camera">🎥 Camera</button>
-        <button id="btn-new-game" class="glass-btn primary" title="Bắt đầu ván mới">🎮 Chơi mới</button>
       </div>
     </header>
 
@@ -176,7 +183,7 @@
 
     <!-- Bottom Controls Guide -->
     <footer class="bottom-bar">
-      <div class="hint-pill">
+      <div class="hint-pill desktop-only">
         <div class="hint-item">
           <span class="hint-key">↑ ↓ ← →</span> / <span class="hint-key">W A S D</span>
           <span>Trượt phẳng</span>
@@ -201,6 +208,11 @@
           <span class="hint-key">Chuột phải</span>
           <span>Xoay 3D</span>
         </div>
+      </div>
+      <div class="hint-pill mobile-only">
+        <span>👆 Vuốt để trượt khối</span>
+        <span class="hint-dot">•</span>
+        <span>✌️ 2 ngón xoay bàn cờ</span>
       </div>
     </footer>
   </div>

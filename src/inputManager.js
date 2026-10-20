@@ -79,9 +79,15 @@ export class InputManager {
 
     // 2. Mouse Drag & Touch Swipe Controls
     this.domElement.addEventListener('pointerdown', (e) => {
-      // Only process left click or touch for swipe
+      // Only process primary pointer (first finger / left mouse button)
+      if (!e.isPrimary) {
+        this.isPointerDown = false;
+        return;
+      }
       if (e.button !== 0 && e.pointerType === 'mouse') return;
-      if (e.target && e.target.closest && e.target.closest('.ui-overlay, button, select, header, footer')) return;
+      if (e.target && e.target.closest && e.target.closest('button, select, input, .spell-btn, .modal-card, .header-bar, .rush-panel')) {
+        return;
+      }
 
       this.isPointerDown = true;
       this.pointerStartX = e.clientX;
@@ -94,8 +100,8 @@ export class InputManager {
       this.isPointerDown = false;
       if (!this.enabled) return;
 
-      // Do not process swipes or canvas clicks if released on UI overlay elements
-      if (e.target && e.target.closest && e.target.closest('.ui-overlay, button, select, header, footer')) {
+      // Do not process swipes if released on interactive control elements
+      if (e.target && e.target.closest && e.target.closest('button, select, input, .spell-btn, .modal-card, .header-bar, .rush-panel')) {
         return;
       }
 
@@ -103,7 +109,7 @@ export class InputManager {
       const dy = e.clientY - this.pointerStartY;
       const dt = Date.now() - this.pointerStartTime;
 
-      const minDistance = 25; // Minimum px to count as swipe
+      const minDistance = 22; // Responsive swipe threshold for mobile touch & mouse
       const distance = Math.hypot(dx, dy);
 
       if (distance >= minDistance) {
@@ -118,7 +124,7 @@ export class InputManager {
           this.onMove(direction);
         }
       } else if (dt < 400 && this.onCanvasClick) {
-        // Registered as a click/tap on the canvas
+        // Registered as a clean tap on the 3D canvas
         this.onCanvasClick(e.clientX, e.clientY);
       }
     });
