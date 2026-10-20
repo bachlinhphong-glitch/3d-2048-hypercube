@@ -1268,11 +1268,17 @@ class GameApp {
       this.modalBtnSecondary.style.display = 'none';
     }
 
+    this.modalOverlay.style.display = 'flex';
     this.modalOverlay.classList.add('active');
   }
 
   hideModal() {
     this.modalOverlay.classList.remove('active');
+    setTimeout(() => {
+      if (!this.modalOverlay.classList.contains('active')) {
+        this.modalOverlay.style.display = 'none';
+      }
+    }, 240);
     this.isAnimating = false;
   }
 

@@ -428,8 +428,8 @@ body.theme-telemetry .glass-select {
   background: rgba(4, 7, 14, 0.82) !important;
   backdrop-filter: blur(14px) !important;
   -webkit-backdrop-filter: blur(14px) !important;
-  z-index: 2400 !important;
-  display: flex !important;
+  z-index: 2600 !important;
+  display: none !important;
   align-items: center !important;
   justify-content: center !important;
   padding: 16px;
@@ -440,6 +440,7 @@ body.theme-telemetry .glass-select {
 }
 
 .settings-modal-overlay.active {
+  display: flex !important;
   opacity: 1 !important;
   pointer-events: auto !important;
 }
@@ -1014,7 +1015,7 @@ body.theme-telemetry .glass-select {
   backdrop-filter: blur(14px) !important;
   -webkit-backdrop-filter: blur(14px) !important;
   z-index: 2500 !important;
-  display: flex !important;
+  display: none !important;
   justify-content: center !important;
   align-items: center !important;
   opacity: 0;
@@ -1023,6 +1024,7 @@ body.theme-telemetry .glass-select {
 }
 
 .modal-overlay.active {
+  display: flex !important;
   opacity: 1 !important;
   pointer-events: auto !important;
 }
@@ -1038,11 +1040,12 @@ body.theme-telemetry .glass-select {
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75), 0 0 30px rgba(0, 240, 255, 0.1);
   transform: scale(0.92);
   transition: transform 0.28s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  pointer-events: auto !important;
+  pointer-events: none;
 }
 
 .modal-overlay.active .modal-card {
   transform: scale(1);
+  pointer-events: auto !important;
 }
 
 .modal-title {
