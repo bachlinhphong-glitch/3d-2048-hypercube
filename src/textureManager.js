@@ -26,8 +26,29 @@ export class TextureManager {
   }
 
   setHyperNeon(enabled) {
+    if (this.isHyperNeon === enabled) return;
     this.isHyperNeon = enabled;
+    this.materialCache.forEach(mat => {
+      if (mat && mat.dispose) mat.dispose();
+    });
     this.materialCache.clear();
+  }
+
+  disposeAll() {
+    this.materialCache.forEach(mat => {
+      if (mat && mat.dispose) mat.dispose();
+    });
+    this.materialCache.clear();
+
+    this.textureCache.forEach(tex => {
+      if (tex && tex.dispose) tex.dispose();
+    });
+    this.textureCache.clear();
+
+    this.spriteTextureCache.forEach(tex => {
+      if (tex && tex.dispose) tex.dispose();
+    });
+    this.spriteTextureCache.clear();
   }
 
   getStyle(value) {

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { SceneManager } from './sceneManager.js';
-import { Board, getGridPosition, getBoardMode, setLayerSpacingMultiplier } from './board.js';
+import { Board, getGridPosition, setLayerSpacingMultiplier } from './board.js';
 import { Tile3D } from './tile.js';
 import { ParticleSystem } from './particles.js';
 import { Game2048Logic } from './gameLogic.js';
@@ -111,9 +111,6 @@ class GameApp {
     this.rushProgressBar = document.getElementById('rush-progress-bar');
     this.rushToggleBtn = document.getElementById('btn-toggle-rush');
     this.rushFloatingContainer = document.getElementById('rush-floating-fx');
-
-    // 3D Layer Controls — replaced by D-Pad; kept for backward compat reference only
-    this.layerControlsEl = document.getElementById('layer-controls');
 
     // Apply Initial Translations
     i18n.applyToDOM();
@@ -229,18 +226,11 @@ class GameApp {
       });
     }
 
-    // Boss Raid Button & Debug Button
+    // Boss Mode Button & Testing Shortcut
     const bossBtn = document.getElementById('btn-toggle-boss');
-    const debugBossBtn = document.getElementById('btn-debug-boss-p3');
     if (bossBtn) {
       bossBtn.addEventListener('click', () => {
         this.toggleBossRaid();
-      });
-    }
-    if (debugBossBtn) {
-      debugBossBtn.addEventListener('click', () => {
-        if (!this.isBossRaid) this.toggleBossRaid();
-        this.bossManager.setupTestPhase3();
       });
     }
 
@@ -253,22 +243,19 @@ class GameApp {
       }
     });
 
-    // AI Auto-Play Button & Status Indicator
+    // AI Auto-Play Button
     const aiBtn = document.getElementById('btn-ai-toggle');
-    const aiStatusBadge = document.getElementById('ai-status-badge');
     if (aiBtn) {
       aiBtn.addEventListener('click', () => {
         const isRunning = this.aiBot.toggle();
         aiBtn.classList.toggle('active', isRunning);
         aiBtn.innerHTML = `<span class="btn-icon">${isRunning ? '⏸️' : '🤖'}</span><span class="btn-text">${isRunning ? t('btn_ai_active') : t('btn_ai')}</span>`;
-        if (aiStatusBadge) aiStatusBadge.style.display = isRunning ? 'inline-flex' : 'none';
         this.showSpellToast(isRunning ? t('toast_ai_start') : t('toast_ai_stop'));
         this.registerInteraction();
       });
       this.aiBot.onStatusChange = (running) => {
         aiBtn.classList.toggle('active', running);
         aiBtn.innerHTML = `<span class="btn-icon">${running ? '⏸️' : '🤖'}</span><span class="btn-text">${running ? t('btn_ai_active') : t('btn_ai')}</span>`;
-        if (aiStatusBadge) aiStatusBadge.style.display = running ? 'inline-flex' : 'none';
       };
     }
 
@@ -443,10 +430,6 @@ class GameApp {
     this.sceneManager.setMode(newMode);
     this.gameLogic.setMode(newMode);
 
-    if (this.layerControlsEl) {
-      this.layerControlsEl.style.display = 'none'; // replaced by D-Pad
-    }
-
     const sliceControls = document.getElementById('slice-controls');
     if (sliceControls) {
       sliceControls.style.display = newMode === '3x3x3' ? 'flex' : 'none';
@@ -589,13 +572,9 @@ class GameApp {
   toggleBossRaid() {
     this.isBossRaid = !this.isBossRaid;
     const bossBtn = document.getElementById('btn-toggle-boss');
-    const debugBossBtn = document.getElementById('btn-debug-boss-p3');
     if (bossBtn) {
       bossBtn.classList.toggle('active', this.isBossRaid);
       bossBtn.innerHTML = `<span class="btn-icon">⚔️</span><span class="btn-text">${this.isBossRaid ? t('btn_boss_active') : t('btn_boss')}</span>`;
-    }
-    if (debugBossBtn) {
-      debugBossBtn.style.display = this.isBossRaid ? 'inline-flex' : 'none';
     }
     if (this.isBossRaid) {
       this.bossManager.startRaid();
@@ -931,6 +910,7 @@ class GameApp {
   }
 
   startNewGame(checkSaved = false) {
+    if (this.aiBot) this.aiBot.stop();
     this.hideModal();
     this.cancelSwapMode();
     this.isAnimating = false;

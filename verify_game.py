@@ -411,7 +411,7 @@ def run_full_verification():
             }).get('result', {}).get('value', {})
             print(f"    -> Boss Singularity Check: {boss_check}")
             assert boss_check.get('isActive') == True, "Boss mode must be active"
-            assert "CORE — PHASER 1" in boss_check.get('phaseBadge', ''), "Phase 1 badge must say CORE — PHASER 1"
+            assert "CORE — PHASE 1" in boss_check.get('phaseBadge', ''), "Phase 1 badge must say CORE — PHASE 1"
             assert boss_check.get('hasCoreMesh') == True, "Core sphere mesh must exist"
             assert boss_check.get('hasAccretion') == True, "Accretion event horizon disk must exist"
             assert boss_check.get('ringCount') == 3, "Must have 3 counter-rotating gimbal rings"

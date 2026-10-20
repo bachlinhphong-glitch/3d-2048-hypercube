@@ -217,8 +217,9 @@ body.theme-telemetry .glass-select {
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: nowrap;
   gap: 12px;
-  max-width: 98vw;
+  max-width: 1200px;
   width: 98vw;
   margin: 0 auto;
   pointer-events: auto;
@@ -261,18 +262,6 @@ body.theme-telemetry .glass-select {
   border: 1px solid rgba(46, 204, 113, 0.35);
   padding: 2px 6px;
   border-radius: 12px;
-  white-space: nowrap;
-}
-
-.ai-status-badge {
-  font-size: 9px;
-  font-weight: 800;
-  background: rgba(16, 185, 129, 0.2);
-  color: #34d399;
-  border: 1px solid #10b981;
-  padding: 2px 6px;
-  border-radius: 10px;
-  animation: ai-pulse 1.2s infinite alternate;
   white-space: nowrap;
 }
 
@@ -595,12 +584,6 @@ body.theme-telemetry .glass-select {
   to { box-shadow: 0 0 20px rgba(0, 240, 255, 0.9); }
 }
 
-.glass-btn.debug-boss-btn {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  color: #fff;
-  border-color: #fbbf24;
-}
-
 .boss-hud {
   position: absolute;
   top: 72px;
@@ -821,31 +804,6 @@ body.theme-telemetry .glass-select {
   z-index: 9999;
 }
 
-@keyframes ai-pulse {
-  from { box-shadow: 0 0 8px rgba(16, 185, 129, 0.4); }
-  to { box-shadow: 0 0 18px rgba(16, 185, 129, 0.9); }
-}
-
-.ai-status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  background: rgba(16, 185, 129, 0.2);
-  border: 1px solid #10b981;
-  color: #34d399;
-  font-size: 10px;
-  font-weight: 700;
-  padding: 3px 8px;
-  border-radius: var(--radius-full);
-  letter-spacing: 0.5px;
-  animation: ai-blink 1s ease-in-out infinite;
-}
-
-@keyframes ai-blink {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(0.96); }
-}
-
 .glass-btn#btn-bgm-toggle.active {
   background: linear-gradient(135deg, rgba(0, 240, 255, 0.3) 0%, rgba(121, 40, 202, 0.5) 100%);
   box-shadow: 0 0 12px rgba(0, 240, 255, 0.5);
@@ -862,40 +820,6 @@ body.theme-telemetry .glass-select {
   background: linear-gradient(135deg, rgba(0, 240, 255, 0.25), rgba(121, 40, 202, 0.25));
   border-color: #00f0ff;
   color: #00f0ff;
-}
-
-/* ================= 3D LAYER CONTROLS (3x3x3 Mode) ================= */
-.layer-controls {
-  position: absolute;
-  right: 24px;
-  top: 50%;
-  transform: translateY(-50%);
-  display: none; /* Shown in 3x3x3 */
-  flex-direction: column;
-  gap: 12px;
-  pointer-events: auto;
-  z-index: 20;
-}
-
-.layer-btn {
-  background: var(--glass-bg);
-  border: 1px solid rgba(56, 189, 248, 0.4);
-  color: #38bdf8;
-  padding: 14px 18px;
-  font-size: 13px;
-  font-weight: 700;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-  transition: all 0.2s;
-}
-
-.layer-btn:hover {
-  background: rgba(56, 189, 248, 0.2);
-  transform: scale(1.05);
 }
 
 /* ================= RUSH OVERDRIVE PANEL ================= */
@@ -1255,52 +1179,12 @@ body.theme-telemetry .glass-select {
     padding: 5px 8px;
     font-size: 10.5px;
   }
-}
-
-/* Ultra-compact screens (<= 420px) */
-@media (max-width: 420px) {
-  .header-bar {
-    padding: 4px 6px;
-    gap: 4px;
-  }
-
-  .fps-badge {
-    display: none;
-  }
-
-  .game-title {
-    font-size: 16px;
-  }
-
-  .header-actions-cluster .btn-text {
-    display: none;
-  }
-
-  .stat-pill {
-    min-width: 44px;
-    padding: 2px 4px;
-  }
-
-  .stat-value {
-    font-size: 12px;
-  }
-}
 
   /* Side panels on mobile */
   .rush-panel {
     left: 10px;
     width: 150px;
     padding: 8px 10px;
-  }
-
-  .layer-controls {
-    right: 10px;
-    gap: 8px;
-  }
-
-  .layer-btn {
-    padding: 10px 12px;
-    font-size: 11px;
   }
 
   /* Summoner Spell Buttons for Thumbs */
@@ -1381,6 +1265,35 @@ body.theme-telemetry .glass-select {
   .modal-btn {
     padding: 10px 16px;
     font-size: 13px;
+  }
+}
+
+/* Ultra-compact screens (<= 420px) */
+@media (max-width: 420px) {
+  .header-bar {
+    padding: 4px 6px;
+    gap: 4px;
+  }
+
+  .fps-badge {
+    display: none;
+  }
+
+  .game-title {
+    font-size: 16px;
+  }
+
+  .header-actions-cluster .btn-text {
+    display: none;
+  }
+
+  .stat-pill {
+    min-width: 44px;
+    padding: 2px 4px;
+  }
+
+  .stat-value {
+    font-size: 12px;
   }
 }
 
@@ -1826,11 +1739,6 @@ body.theme-custom .game-title {
 .dpad-layer svg {
   width: 16px;
   height: 16px;
-}
-
-/* Hide old layer-controls since D-pad replaces them */
-#layer-controls {
-  display: none !important;
 }
 
 /* --- Responsive: hide D-pad on very small screens or show smaller --- */

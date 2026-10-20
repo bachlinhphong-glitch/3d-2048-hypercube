@@ -147,6 +147,11 @@ export class Tile3D {
         this.innerMesh.material.dispose();
       }
     }
+    if (this.labelSprite) {
+      if (this.labelSprite.material && this.labelSprite.material.dispose) {
+        this.labelSprite.material.dispose();
+      }
+    }
     if (this.decorGroup) {
       this.decorGroup.traverse((child) => {
         if (child === this.bombRing) return;

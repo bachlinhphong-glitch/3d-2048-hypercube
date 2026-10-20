@@ -196,4 +196,16 @@ export class ParticleSystem {
     this.activeCount = 0;
     this.instancedMesh.instanceMatrix.needsUpdate = true;
   }
+
+  dispose() {
+    this.clear();
+    if (this.instancedMesh && this.instancedMesh.parent) {
+      this.instancedMesh.parent.remove(this.instancedMesh);
+    }
+    if (this.sharedGeo) this.sharedGeo.dispose();
+    if (this.sharedMat) this.sharedMat.dispose();
+    if (this.instancedMesh && this.instancedMesh.dispose) {
+      this.instancedMesh.dispose();
+    }
+  }
 }

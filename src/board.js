@@ -261,4 +261,17 @@ export class Board {
       this.layerPlanes[l].position.y = y;
     }
   }
+
+  dispose() {
+    while (this.group.children.length > 0) {
+      const child = this.group.children[0];
+      this.group.remove(child);
+      if (child.geometry) child.geometry.dispose();
+      if (child.material) {
+        if (Array.isArray(child.material)) child.material.forEach(m => m.dispose && m.dispose());
+        else if (child.material.dispose) child.material.dispose();
+      }
+    }
+    this.layerPlanes = [];
+  }
 }

@@ -211,7 +211,7 @@ export class BossManager {
     if (this.hudEl) this.hudEl.style.display = 'flex';
     this.updateHUD();
 
-    this.triggerBanner('⚔️ CORE — PHASER 1', '500 HP | 60s');
+    this.triggerBanner('⚔️ CORE — PHASE 1', '500 HP | 60s');
     soundManager.playPhaseTransition();
     soundManager.triggerHaptic('slide');
   }
@@ -236,7 +236,7 @@ export class BossManager {
       this.ringMat3.emissive.setHex(0x6d28d9);
       this.lightningMat.color.setHex(0x8b5cf6);
       if (this.phaseBadgeEl) {
-        this.phaseBadgeEl.textContent = 'CORE — PHASER 1';
+        this.phaseBadgeEl.textContent = 'CORE — PHASE 1';
         this.phaseBadgeEl.className = 'boss-phase-badge p1';
       }
     } else if (phase === 2) {
@@ -250,7 +250,7 @@ export class BossManager {
       this.ringMat3.emissive.setHex(0xef4444);
       this.lightningMat.color.setHex(0xd90429);
       if (this.phaseBadgeEl) {
-        this.phaseBadgeEl.textContent = 'CORE — PHASER 2';
+        this.phaseBadgeEl.textContent = 'CORE — PHASE 2';
         this.phaseBadgeEl.className = 'boss-phase-badge p2';
       }
     } else if (phase === 3) {
@@ -264,7 +264,7 @@ export class BossManager {
       this.ringMat3.emissive.setHex(0xa855f7);
       this.lightningMat.color.setHex(0xfbbf24);
       if (this.phaseBadgeEl) {
-        this.phaseBadgeEl.textContent = 'CORE — ABSOLUTE OBLITERATION';
+        this.phaseBadgeEl.textContent = 'CORE — PHASE 3';
         this.phaseBadgeEl.className = 'boss-phase-badge p3';
       }
     }
@@ -457,7 +457,7 @@ export class BossManager {
       this.hp = 1500;
       this.updateHUD();
 
-      this.triggerBanner('⚡ CORE — PHASER 2', '1,500 HP | +45s (Đã dọn gọn các khối [2], [4])');
+      this.triggerBanner('⚡ CORE — PHASE 2', '1,500 HP | +45s (Đã dọn gọn các khối [2], [4])');
     } else if (this.phase === 2) {
       // Phase 2 -> Phase 3
       this.emitExpandingRingWave(0xfbbf24);
@@ -468,7 +468,7 @@ export class BossManager {
       this.hp = 2048;
       this.updateHUD();
 
-      this.triggerBanner('💥 CORE — ABSOLUTE OBLITERATION', 'Gộp khối [1024 + 1024] thành [2048] để hủy diệt!');
+      this.triggerBanner('💥 CORE — PHASE 3', '2,048 HP | Gộp khối [1024 + 1024] -> [2048] để hủy diệt!');
     }
   }
 
@@ -698,7 +698,7 @@ export class BossManager {
     this.gameApp.spawnSpecificTile(0, 0, 0, 1024);
     this.gameApp.spawnSpecificTile(0, 0, 1, 1024);
 
-    this.triggerBanner('💥 CORE — ABSOLUTE OBLITERATION', 'Trượt sang Trái (A / ←) để gộp 2 khối [1024] -> [2048]!');
+    this.triggerBanner('💥 CORE — PHASE 3', 'Trượt sang Trái (A / ←) để gộp 2 khối [1024] -> [2048]!');
     this.gameApp.showSpellToast('⚡ Sẵn sàng: Trượt sang Trái để hủy diệt Dark Singularity Core!');
   }
 
