@@ -409,6 +409,24 @@ body.theme-telemetry .glass-select {
   border-color: #fffa65;
 }
 
+.glass-btn#btn-bgm-toggle.active {
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.3) 0%, rgba(121, 40, 202, 0.5) 100%);
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.5);
+  border-color: #00f0ff;
+  color: #00f0ff;
+}
+
+.glass-btn#btn-sound-toggle.muted {
+  opacity: 0.55;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.glass-btn#btn-share-score:hover {
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.25), rgba(121, 40, 202, 0.25));
+  border-color: #00f0ff;
+  color: #00f0ff;
+}
+
 /* ================= 3D LAYER CONTROLS (3x3x3 Mode) ================= */
 .layer-controls {
   position: absolute;

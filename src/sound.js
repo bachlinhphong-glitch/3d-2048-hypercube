@@ -4,6 +4,10 @@ class SoundManager {
     this.ctx = null;
     this.muted = false;
     this.initialized = false;
+    this.bgmPlaying = false;
+    this.bgmTimer = null;
+    this.bgmMasterGain = null;
+    this.bgmFilter = null;
   }
 
   init() {
@@ -28,10 +32,116 @@ class SoundManager {
 
   toggleMute() {
     this.muted = !this.muted;
+    if (this.muted && this.bgmPlaying) {
+      this.stopBGM();
+    }
     return this.muted;
   }
 
+  triggerHaptic(type = 'slide') {
+    if (!('vibrate' in navigator)) return;
+    try {
+      if (type === 'slide') {
+        navigator.vibrate(12);
+      } else if (type === 'merge_small') {
+        navigator.vibrate([16, 14, 18]);
+      } else if (type === 'merge_big') {
+        navigator.vibrate([35, 25, 45, 25, 60]);
+      } else if (type === 'win') {
+        navigator.vibrate([50, 40, 80, 40, 140]);
+      } else if (type === 'bomb') {
+        navigator.vibrate([80, 30, 100]);
+      }
+    } catch {}
+  }
+
+  // Procedural Lofi Ambient Chords BGM (Zero byte asset overhead)
+  startBGM() {
+    if (this.muted) return;
+    this.ensureContext();
+    if (!this.ctx) return;
+    if (this.bgmPlaying) return;
+    this.bgmPlaying = true;
+
+    // Peaceful chord progression: Cmaj7 -> Am7 -> Fmaj7 -> G7sus
+    const chords = [
+      [130.81, 164.81, 196.00, 246.94], // Cmaj7
+      [110.00, 130.81, 164.81, 196.00], // Am7
+      [87.31, 110.00, 130.81, 164.81],  // Fmaj7
+      [98.00, 123.47, 146.83, 174.61]   // G7sus
+    ];
+
+    let chordIdx = 0;
+    this.bgmMasterGain = this.ctx.createGain();
+    this.bgmMasterGain.gain.setValueAtTime(0.001, this.ctx.currentTime);
+    this.bgmMasterGain.gain.exponentialRampToValueAtTime(0.045, this.ctx.currentTime + 1.5);
+
+    // Warm dreamy lofi lowpass filter
+    this.bgmFilter = this.ctx.createBiquadFilter();
+    this.bgmFilter.type = 'lowpass';
+    this.bgmFilter.frequency.setValueAtTime(480, this.ctx.currentTime);
+    this.bgmFilter.Q.setValueAtTime(1.1, this.ctx.currentTime);
+
+    this.bgmMasterGain.connect(this.bgmFilter);
+    this.bgmFilter.connect(this.ctx.destination);
+
+    const playNextChord = () => {
+      if (!this.bgmPlaying || !this.ctx) return;
+      const t = this.ctx.currentTime;
+      const notes = chords[chordIdx];
+      chordIdx = (chordIdx + 1) % chords.length;
+
+      notes.forEach((freq, idx) => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = idx % 2 === 0 ? 'sine' : 'triangle';
+        osc.detune.setValueAtTime((Math.random() - 0.5) * 6, t);
+        osc.frequency.setValueAtTime(freq, t);
+
+        const chordDuration = 3.8;
+        gain.gain.setValueAtTime(0.0001, t);
+        gain.gain.linearRampToValueAtTime(0.06, t + 0.8);
+        gain.gain.linearRampToValueAtTime(0.04, t + chordDuration - 0.6);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + chordDuration);
+
+        osc.connect(gain);
+        gain.connect(this.bgmMasterGain);
+
+        osc.start(t);
+        osc.stop(t + chordDuration);
+      });
+
+      this.bgmTimer = setTimeout(playNextChord, 3500);
+    };
+
+    playNextChord();
+  }
+
+  stopBGM() {
+    this.bgmPlaying = false;
+    if (this.bgmTimer) {
+      clearTimeout(this.bgmTimer);
+      this.bgmTimer = null;
+    }
+    if (this.bgmMasterGain && this.ctx) {
+      const t = this.ctx.currentTime;
+      this.bgmMasterGain.gain.linearRampToValueAtTime(0.0001, t + 0.5);
+    }
+  }
+
+  toggleBGM() {
+    if (this.bgmPlaying) {
+      this.stopBGM();
+      return false;
+    } else {
+      this.startBGM();
+      return true;
+    }
+  }
+
   playSlide() {
+    this.triggerHaptic('slide');
     if (this.muted) return;
     this.ensureContext();
     if (!this.ctx) return;
@@ -56,6 +166,7 @@ class SoundManager {
   }
 
   playLayerMove(direction = 'up') {
+    this.triggerHaptic('slide');
     if (this.muted) return;
     this.ensureContext();
     if (!this.ctx) return;
@@ -84,6 +195,7 @@ class SoundManager {
   }
 
   playMerge(value = 4, combo = 0) {
+    this.triggerHaptic(value >= 512 ? 'merge_big' : 'merge_small');
     if (this.muted) return;
     this.ensureContext();
     if (!this.ctx) return;
@@ -183,6 +295,7 @@ class SoundManager {
   }
 
   playBombExplode() {
+    this.triggerHaptic('bomb');
     if (this.muted) return;
     this.ensureContext();
     if (!this.ctx) return;
@@ -229,6 +342,7 @@ class SoundManager {
   }
 
   playWin() {
+    this.triggerHaptic('win');
     if (this.muted) return;
     this.ensureContext();
     if (!this.ctx) return;

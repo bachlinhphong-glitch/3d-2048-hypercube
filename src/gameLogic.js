@@ -94,6 +94,38 @@ export class Game2048Logic {
     this.history = [];
   }
 
+  serializeState() {
+    return {
+      grid: this.grid.map(layer =>
+        layer.map(row =>
+          row.map(cell => cell ? { value: cell.value, isBomb: !!cell.isBomb, bombCountdown: cell.bombCountdown || 0 } : null)
+        )
+      ),
+      score: this.score,
+      won: this.won,
+      keepPlaying: this.keepPlaying,
+      gameOver: this.gameOver,
+      isRushMode: this.isRushMode,
+      nextRechargeMilestone: this.nextRechargeMilestone,
+      spells: JSON.parse(JSON.stringify(this.spells)),
+      history: this.history.slice(-5)
+    };
+  }
+
+  deserializeState(data) {
+    if (!data || !data.grid) return false;
+    this.grid = data.grid;
+    this.score = data.score || 0;
+    this.won = !!data.won;
+    this.keepPlaying = !!data.keepPlaying;
+    this.gameOver = !!data.gameOver;
+    this.isRushMode = !!data.isRushMode;
+    this.nextRechargeMilestone = data.nextRechargeMilestone || 256;
+    if (data.spells) this.spells = data.spells;
+    if (data.history) this.history = data.history;
+    return true;
+  }
+
   getEmptyCells() {
     const cells = [];
     for (let l = 0; l < this.layers; l++) {

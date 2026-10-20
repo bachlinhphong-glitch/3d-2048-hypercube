@@ -722,4 +722,11 @@ export class SceneManager {
     this.controls.update();
     this.renderer.render(this.scene, this.camera);
   }
+
+  async captureSnapshotBlob() {
+    this.renderer.render(this.scene, this.camera);
+    return new Promise(resolve => {
+      this.renderer.domElement.toBlob(blob => resolve(blob), 'image/png');
+    });
+  }
 }

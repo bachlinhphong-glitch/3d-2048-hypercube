@@ -65,7 +65,7 @@ class GameApp {
     this.initTelemetryCanvas();
     this.initInput();
     this.initGhostPreview();
-    this.startNewGame();
+    this.startNewGame(true);
 
     // Dedicated timer running fixed 5 times/second (every 200ms) for DOM stats, APM, FPS & Canvas graph
     // Eliminates Layout Thrashing in requestAnimationFrame
@@ -110,7 +110,7 @@ class GameApp {
 
     // Action Buttons
     document.getElementById('btn-new-game').addEventListener('click', () => {
-      this.startNewGame();
+      this.startNewGame(false);
     });
 
     document.getElementById('btn-reset-camera').addEventListener('click', () => {
@@ -121,8 +121,45 @@ class GameApp {
     if (muteBtn) {
       muteBtn.addEventListener('click', () => {
         const isMuted = soundManager.toggleMute();
-        muteBtn.textContent = isMuted ? '🔇 Tắt' : '🔊 Bật';
+        muteBtn.textContent = isMuted ? '🔇 Tắt' : '🔊 SFX';
         muteBtn.classList.toggle('muted', isMuted);
+      });
+    }
+
+    const bgmBtn = document.getElementById('btn-bgm-toggle');
+    if (bgmBtn) {
+      const savedBgm = localStorage.getItem('3d2048_bgm') === 'true';
+      if (savedBgm) {
+        bgmBtn.textContent = '🎵 Bật';
+        bgmBtn.classList.add('active');
+        const startOnUserAction = () => {
+          soundManager.startBGM();
+          window.removeEventListener('pointerdown', startOnUserAction);
+        };
+        window.addEventListener('pointerdown', startOnUserAction, { once: true });
+      }
+
+      bgmBtn.addEventListener('click', () => {
+        const isPlaying = soundManager.toggleBGM();
+        bgmBtn.textContent = isPlaying ? '🎵 Bật' : '🎵 Tắt';
+        bgmBtn.classList.toggle('active', isPlaying);
+        localStorage.setItem('3d2048_bgm', isPlaying ? 'true' : 'false');
+        this.showSpellToast(isPlaying ? '🎵 Nhạc nền Lofi: BẬT' : '🔇 Nhạc nền Lofi: TẮT');
+        this.registerInteraction();
+      });
+    }
+
+    const shareBtn = document.getElementById('btn-share-score');
+    if (shareBtn) {
+      shareBtn.addEventListener('click', () => {
+        this.shareScore();
+      });
+    }
+
+    const modalShareBtn = document.getElementById('modal-btn-share');
+    if (modalShareBtn) {
+      modalShareBtn.addEventListener('click', () => {
+        this.shareScore();
       });
     }
 
@@ -314,7 +351,7 @@ class GameApp {
     this.sliceMode = 'all';
 
     this.sceneManager.requestShadowUpdate(30);
-    this.startNewGame();
+    this.startNewGame(true);
   }
 
   switchTileShape(newShape) {
@@ -624,9 +661,122 @@ class GameApp {
     });
   }
 
-  startNewGame() {
+  saveGameState() {
+    try {
+      if (this.gameLogic.gameOver) {
+        this.clearSavedGameState();
+        return;
+      }
+      const state = this.gameLogic.serializeState();
+      state.rushTime = this.rushTime;
+      localStorage.setItem(`3d2048_saved_${this.mode}`, JSON.stringify(state));
+    } catch {}
+  }
+
+  clearSavedGameState() {
+    try {
+      localStorage.removeItem(`3d2048_saved_${this.mode}`);
+    } catch {}
+  }
+
+  restoreSavedGame() {
+    try {
+      const raw = localStorage.getItem(`3d2048_saved_${this.mode}`);
+      if (!raw) return false;
+      const data = JSON.parse(raw);
+      if (!data || !data.grid || data.gameOver) return false;
+
+      let tileCount = 0;
+      data.grid.forEach(layer => layer.forEach(row => row.forEach(c => { if (c) tileCount++; })));
+      if (tileCount === 0) return false;
+
+      this.cleanAllSceneTiles();
+      this.tiles3D = this.createEmptyTileGrid();
+      this.particleSystem.clear();
+
+      this.gameLogic.deserializeState(data);
+      this.rushTime = data.rushTime || 30.0;
+
+      for (let l = 0; l < data.grid.length; l++) {
+        for (let r = 0; r < data.grid[l].length; r++) {
+          for (let c = 0; c < data.grid[l][r].length; c++) {
+            const cell = data.grid[l][r][c];
+            if (cell) {
+              const tile3D = new Tile3D(l, r, c, cell.value, this.sceneManager.scene, this.currentShape, cell.isBomb, cell.bombCountdown);
+              this.tiles3D[l][r][c] = tile3D;
+              this.gameLogic.setTile(l, r, c, { value: cell.value, id: tile3D.id, isBomb: cell.isBomb, bombCountdown: cell.bombCountdown });
+              tile3D.spawnAnimation();
+            }
+          }
+        }
+      }
+
+      this.updateScoreUI();
+      this.updateSpellUI();
+      this.showSpellToast('💾 Đã khôi phục ván chơi trước!');
+      return true;
+    } catch (e) {
+      console.warn('Could not restore saved game:', e);
+      return false;
+    }
+  }
+
+  async shareScore() {
+    this.registerInteraction();
+    const score = this.gameLogic.score;
+    const modeName = this.mode === '3x3x3' ? '3x3x3 Hypercube' : '4x4 Classic';
+    const shareText = `🎮 Tôi vừa đạt ${score.toLocaleString()} điểm ở chế độ ${modeName} trong tựa game 3D 2048 & Hypercube! Bạn có vượt qua được không?`;
+    const shareUrl = 'https://bachlinhphong-glitch.github.io/3d-2048-hypercube/';
+
+    let snapshotFile = null;
+    try {
+      if (this.sceneManager && this.sceneManager.captureSnapshotBlob) {
+        const blob = await this.sceneManager.captureSnapshotBlob();
+        if (blob) {
+          snapshotFile = new File([blob], `2048-score-${score}.png`, { type: 'image/png' });
+        }
+      }
+    } catch (e) {
+      console.warn('Canvas snapshot error:', e);
+    }
+
+    if (navigator.share) {
+      try {
+        const shareData = {
+          title: '3D 2048 & Hypercube WebGL',
+          text: shareText,
+          url: shareUrl
+        };
+        if (snapshotFile && navigator.canShare && navigator.canShare({ files: [snapshotFile] })) {
+          shareData.files = [snapshotFile];
+        }
+        await navigator.share(shareData);
+        this.showSpellToast('🎉 Đã chia sẻ thành công!');
+        return;
+      } catch (err) {
+        if (err.name === 'AbortError') return;
+        console.warn('Share error:', err);
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
+      this.showSpellToast('📋 Đã sao chép link & điểm số vào bộ nhớ đệm!');
+    } catch {
+      this.showSpellToast(`Điểm của bạn: ${score.toLocaleString()} điểm!`);
+    }
+  }
+
+  startNewGame(checkSaved = false) {
     this.hideModal();
     this.cancelSwapMode();
+
+    if (checkSaved && this.restoreSavedGame()) {
+      this.isAnimating = false;
+      return;
+    }
+
+    this.clearSavedGameState();
 
     // Clean all 3D tiles from grid and scene
     this.cleanAllSceneTiles();
@@ -642,6 +792,7 @@ class GameApp {
     this.spawnTile();
     this.spawnTile();
 
+    this.saveGameState();
     this.isAnimating = false;
   }
 
@@ -862,6 +1013,7 @@ class GameApp {
 
     if (result.won) {
       soundManager.playWin();
+      this.saveGameState();
       this.showModal({
         title: '🎉 CHIẾN THẮNG!',
         message: 'Tuyệt vời! Bạn đã mở khóa được khối 2048 danh giá.',
@@ -881,6 +1033,7 @@ class GameApp {
 
     if (result.gameOver) {
       soundManager.playGameOver();
+      this.clearSavedGameState();
       this.showModal({
         title: '💀 HẾT NƯỚC ĐI!',
         message: `Bàn cờ đã đầy và không còn nước gộp khả dụng.\nĐiểm số: ${this.gameLogic.score}`,
@@ -893,6 +1046,7 @@ class GameApp {
       return;
     }
 
+    this.saveGameState();
     this.isAnimating = false;
   }
 
@@ -1074,6 +1228,7 @@ class GameApp {
       this.updateScoreUI();
       this.updateSpellUI();
       this.showSpellToast('ĐÃ HOÀN TÁC NƯỚC ĐI VỪA RỒI!');
+      this.saveGameState();
     }
   }
 
@@ -1205,6 +1360,7 @@ class GameApp {
       this.isAnimating = false;
       this.updateSpellUI();
       this.showSpellToast(`ĐÃ ĐỔI VỊ TRÍ [${tileA.value}] ⇄ [${tileB.value}] THÀNH CÔNG!`);
+      this.saveGameState();
     }
   }
 
@@ -1358,6 +1514,7 @@ class GameApp {
       if (this.rushTime <= 0) {
         this.rushTime = 0;
         this.gameLogic.gameOver = true;
+        this.clearSavedGameState();
         soundManager.playGameOver();
         this.showModal({
           title: '⌛ HẾT THỜI GIAN!',
