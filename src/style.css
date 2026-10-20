@@ -417,6 +417,282 @@ body.theme-telemetry .glass-select {
   animation: ai-pulse 1.4s infinite alternate;
 }
 
+/* ================= ⚔️ BOSS RAID MULTI-PHASE HUD ================= */
+.glass-btn.boss-btn.active {
+  background: linear-gradient(135deg, #ff0055 0%, #aa0033 100%);
+  box-shadow: 0 0 16px rgba(255, 0, 85, 0.7);
+  border-color: #ff3377;
+  color: #ffffff;
+  animation: boss-btn-pulse 1.2s infinite alternate;
+}
+
+@keyframes boss-btn-pulse {
+  from { box-shadow: 0 0 8px rgba(255, 0, 85, 0.4); }
+  to { box-shadow: 0 0 20px rgba(255, 0, 85, 0.95); }
+}
+
+.glass-btn.debug-boss-btn {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #fff;
+  border-color: #fbbf24;
+}
+
+.boss-hud {
+  position: absolute;
+  top: 74px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(92%, 520px);
+  background: rgba(13, 17, 23, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 0, 85, 0.35);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 16px rgba(255, 0, 85, 0.25);
+  border-radius: var(--radius-md);
+  padding: 8px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 50;
+  pointer-events: auto;
+  transition: all 0.3s ease;
+}
+
+.boss-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.boss-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.boss-icon {
+  font-size: 14px;
+}
+
+.boss-name {
+  font-size: 12px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.8px;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+}
+
+.boss-phase-badge {
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.boss-phase-badge.p1 {
+  background: rgba(0, 240, 255, 0.2);
+  border: 1px solid #00f0ff;
+  color: #00f0ff;
+}
+
+.boss-phase-badge.p2 {
+  background: rgba(255, 0, 85, 0.25);
+  border: 1px solid #ff0055;
+  color: #ff3377;
+  animation: p2-flicker 1.5s infinite alternate;
+}
+
+@keyframes p2-flicker {
+  from { opacity: 0.8; }
+  to { opacity: 1; text-shadow: 0 0 8px #ff0055; }
+}
+
+.boss-phase-badge.p3 {
+  background: rgba(255, 215, 0, 0.25);
+  border: 1px solid #ffd700;
+  color: #ffd700;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+  animation: p3-glow 1s infinite alternate;
+}
+
+@keyframes p3-glow {
+  from { box-shadow: 0 0 4px #ffd700; }
+  to { box-shadow: 0 0 14px #ffd700; }
+}
+
+.boss-timer-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: monospace;
+}
+
+.boss-timer-val {
+  font-size: 13px;
+  font-weight: 800;
+  color: #f0f6fc;
+}
+
+.boss-timer-val.danger {
+  color: #ff3838;
+  animation: timer-danger 0.6s infinite alternate;
+}
+
+@keyframes timer-danger {
+  from { transform: scale(1); }
+  to { transform: scale(1.1); text-shadow: 0 0 10px #ff0000; }
+}
+
+.boss-hp-track {
+  position: relative;
+  width: 100%;
+  height: 14px;
+  background: rgba(0, 0, 0, 0.65);
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  overflow: hidden;
+}
+
+.boss-hp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00f0ff 0%, #ff0055 50%, #ffd700 100%);
+  box-shadow: 0 0 12px rgba(255, 0, 85, 0.8);
+  transition: width 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.boss-hp-text {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9.5px;
+  font-weight: 800;
+  color: #ffffff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+  pointer-events: none;
+}
+
+/* AAA Action Cut-in Warning Banner */
+.boss-cutin-banner {
+  position: fixed;
+  top: 38%;
+  left: 0;
+  width: 100%;
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0;
+  transform: translateY(-50%) scale(0.92);
+  transition: opacity 0.25s ease, transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+.boss-cutin-banner.active {
+  opacity: 1;
+  transform: translateY(-50%) scale(1);
+}
+
+.cutin-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(90deg, rgba(255,0,85,0) 0%, rgba(20,5,15,0.95) 15%, rgba(40,10,25,0.98) 50%, rgba(20,5,15,0.95) 85%, rgba(255,0,85,0) 100%);
+  padding: 16px 20px;
+  border-top: 2px solid #ff0055;
+  border-bottom: 2px solid #ffd700;
+  box-shadow: 0 0 35px rgba(255, 0, 85, 0.6);
+}
+
+.cutin-text-block {
+  text-align: center;
+}
+
+.cutin-title {
+  font-size: clamp(20px, 4.5vw, 36px);
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: #fff;
+  text-shadow: 0 0 18px #ff0055, 0 0 30px #ffd700;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.cutin-subtitle {
+  font-size: clamp(11px, 2.2vw, 16px);
+  color: #fffa65;
+  font-weight: 700;
+  margin: 4px 0 0 0;
+  letter-spacing: 1px;
+}
+
+/* 3D Floating Damage Numbers */
+.boss-damage-container {
+  position: fixed;
+  top: 32%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 100;
+}
+
+.boss-damage-number {
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-family: 'Impact', 'Arial Black', sans-serif;
+  letter-spacing: 1.5px;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: damage-fly 0.95s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+}
+
+.boss-damage-number.normal {
+  font-size: 24px;
+  color: #00f0ff;
+  text-shadow: 0 0 8px #0088cc, 2px 2px 0 #000;
+}
+
+.boss-damage-number.critical {
+  font-size: 38px;
+  color: #ffd700;
+  background: linear-gradient(180deg, #fff 0%, #ffd700 45%, #ff0055 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 14px rgba(255, 0, 85, 0.9));
+  transform-origin: center;
+}
+
+@keyframes damage-fly {
+  0% { opacity: 0; transform: translate(calc(-50%), 0) scale(0.5); }
+  20% { opacity: 1; transform: translate(calc(-50%), -20px) scale(1.25); }
+  70% { opacity: 1; transform: translate(calc(-50%), -50px) scale(1.0); }
+  100% { opacity: 0; transform: translate(calc(-50%), -80px) scale(0.8); }
+}
+
+/* Golden Screen Flash */
+.cinematic-flash {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #ffd700;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* Eclipse Mode Sky / Canvas Tint */
+body.eclipse-mode #canvas-container {
+  background: radial-gradient(circle at 50% 30%, #3d0510 0%, #150206 60%, #080002 100%) !important;
+}
+
 @keyframes ai-pulse {
   from { box-shadow: 0 0 8px rgba(16, 185, 129, 0.4); }
   to { box-shadow: 0 0 18px rgba(16, 185, 129, 0.9); }

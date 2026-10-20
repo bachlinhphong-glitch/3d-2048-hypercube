@@ -82,6 +82,8 @@
         <!-- Action Buttons -->
         <div class="actions-section">
           <button id="btn-toggle-rush" class="glass-btn rush-btn" title="Chế độ đếm ngược Time Rush">⚡ Rush</button>
+          <button id="btn-toggle-boss" class="glass-btn boss-btn" title="Kích hoạt chế độ Boss Raid 3 Phase">⚔️ Boss Raid</button>
+          <button id="btn-debug-boss-p3" class="glass-btn debug-boss-btn" title="Phím tắt: Alt+B — Tạo 2 khối 1024 để test kết liễu Phase 3" style="display:none;">⚡ Test Phase 3</button>
           <button id="btn-ai-toggle" class="glass-btn ai-btn" title="Bật/Tắt AI tự động tính toán và đi từng nước">🤖 AI Tự Chơi</button>
           <button id="btn-sound-toggle" class="glass-btn" title="Bật/Tắt âm thanh hiệu ứng (SFX)">🔊 SFX</button>
           <button id="btn-bgm-toggle" class="glass-btn" title="Bật/Tắt Nhạc nền Lofi Ambient">🎵 Nhạc</button>
@@ -134,6 +136,43 @@
         </select>
       </div>
     </header>
+
+    <!-- ⚔️ 3-Phase Boss Raid Multi-Tier HUD -->
+    <div id="boss-hud" class="boss-hud" style="display: none;">
+      <div class="boss-info-row">
+        <div class="boss-title-wrap">
+          <span class="boss-icon">⚔️</span>
+          <span class="boss-name">HƯ KHÔNG THẦN MA</span>
+          <span id="boss-phase-badge" class="boss-phase-badge p1">PHASE 1: HỘ THỂ MA TƯỢNG</span>
+        </div>
+        <div class="boss-timer-wrap">
+          <span class="timer-icon">⏳</span>
+          <span id="boss-timer-val" class="boss-timer-val">01:00</span>
+        </div>
+      </div>
+      <div class="boss-hp-track">
+        <div id="boss-hp-fill" class="boss-hp-fill" style="width: 100%;"></div>
+        <div id="boss-hp-text" class="boss-hp-text">500 / 500 HP</div>
+      </div>
+    </div>
+
+    <!-- AAA Action Cut-in Warning Banner -->
+    <div id="boss-cutin-banner" class="boss-cutin-banner">
+      <div class="cutin-content">
+        <div class="cutin-line left"></div>
+        <div class="cutin-text-block">
+          <h2 id="boss-cutin-title" class="cutin-title">⚡ PHASE 2: AWAKENED ⚡</h2>
+          <p id="boss-cutin-subtitle" class="cutin-subtitle">Cuồng Nộ Thiên Ma xuất thế! (+45s)</p>
+        </div>
+        <div class="cutin-line right"></div>
+      </div>
+    </div>
+
+    <!-- 3D Floating Damage Numbers Overlay -->
+    <div id="boss-damage-container" class="boss-damage-container"></div>
+
+    <!-- Golden Cinematic Screen Flash -->
+    <div id="cinematic-flash" class="cinematic-flash"></div>
 
     <!-- Side Panel: Time Rush Overdrive Mode -->
     <div id="rush-panel" class="rush-panel">

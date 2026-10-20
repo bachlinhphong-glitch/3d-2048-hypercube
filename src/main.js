@@ -9,6 +9,7 @@ import { soundManager } from './sound.js';
 import { textureManager } from './textureManager.js';
 import { GhostPreview } from './ghostPreview.js';
 import { AIBot } from './aiBot.js';
+import { BossManager } from './bossManager.js';
 
 class GameApp {
   constructor() {
@@ -23,6 +24,8 @@ class GameApp {
     this.board = new Board(this.mode);
     this.sceneManager.scene.add(this.board.group);
     this.aiBot = new AIBot(this);
+    this.bossManager = new BossManager(this);
+    this.isBossRaid = false;
     window.gameApp = this;
 
     // 3D tiles grid: tiles3D[layer][row][col]
@@ -165,6 +168,30 @@ class GameApp {
         this.shareScore();
       });
     }
+
+    // Boss Raid Button & Debug Button
+    const bossBtn = document.getElementById('btn-toggle-boss');
+    const debugBossBtn = document.getElementById('btn-debug-boss-p3');
+    if (bossBtn) {
+      bossBtn.addEventListener('click', () => {
+        this.toggleBossRaid();
+      });
+    }
+    if (debugBossBtn) {
+      debugBossBtn.addEventListener('click', () => {
+        if (!this.isBossRaid) this.toggleBossRaid();
+        this.bossManager.setupTestPhase3();
+      });
+    }
+
+    // Keyboard shortcut Alt+B for testing Phase 3
+    window.addEventListener('keydown', (e) => {
+      if (e.altKey && (e.code === 'KeyB' || e.key === 'b' || e.key === 'B')) {
+        e.preventDefault();
+        if (!this.isBossRaid) this.toggleBossRaid();
+        this.bossManager.setupTestPhase3();
+      }
+    });
 
     // AI Auto-Play Button & Status Indicator
     const aiBtn = document.getElementById('btn-ai-toggle');
@@ -497,6 +524,33 @@ class GameApp {
 
     this.rushTime = 30.0;
     this.startNewGame();
+  }
+
+  toggleBossRaid() {
+    this.isBossRaid = !this.isBossRaid;
+    const bossBtn = document.getElementById('btn-toggle-boss');
+    const debugBossBtn = document.getElementById('btn-debug-boss-p3');
+    if (bossBtn) {
+      bossBtn.classList.toggle('active', this.isBossRaid);
+      bossBtn.textContent = this.isBossRaid ? '⚔️ Đang Đánh Boss' : '⚔️ Boss Raid';
+    }
+    if (debugBossBtn) {
+      debugBossBtn.style.display = this.isBossRaid ? 'inline-flex' : 'none';
+    }
+    if (this.isBossRaid) {
+      this.bossManager.startRaid();
+    } else {
+      this.bossManager.stopRaid();
+    }
+    this.registerInteraction();
+  }
+
+  spawnSpecificTile(l, r, c, value) {
+    const tile3D = new Tile3D(l, r, c, value, this.sceneManager.scene, this.currentShape, false, 0);
+    this.tiles3D[l][r][c] = tile3D;
+    this.gameLogic.setTile(l, r, c, { value, id: tile3D.id, isBomb: false, bombCountdown: 0 });
+    tile3D.spawnAnimation();
+    return tile3D;
   }
 
   initInput() {
@@ -972,6 +1026,9 @@ class GameApp {
         if (m.newValue >= 512) {
           this.particleSystem.screenShake(this.sceneManager.camera, 0.18);
         }
+        if (this.isBossRaid && this.bossManager) {
+          this.bossManager.onTileMerge(m.newValue, { l: m.targetL, r: m.targetR, c: m.targetC });
+        }
       } else if (!surviving) {
         this.tiles3D[m.targetL][m.targetR][m.targetC] = m.sourceTile;
         m.sourceTile.upgradeTo(m.newValue);
@@ -985,6 +1042,9 @@ class GameApp {
         soundManager.playMerge(m.newValue, this.comboCount);
         if (m.newValue >= 512) {
           this.particleSystem.screenShake(this.sceneManager.camera, 0.18);
+        }
+        if (this.isBossRaid && this.bossManager) {
+          this.bossManager.onTileMerge(m.newValue, { l: m.targetL, r: m.targetR, c: m.targetC });
         }
       }
     });
@@ -1520,6 +1580,7 @@ class GameApp {
     const isBusy = this.isAnimating || 
                    this.particleSystem.activeCount > 0 || 
                    this.isRushMode || 
+                   this.isBossRaid ||
                    this.currentTheme === 'neon' || 
                    this.currentShape === 'crystal_octahedron' || 
                    this.currentShape === 'auto_evolution';
@@ -1567,6 +1628,10 @@ class GameApp {
     // 5. Frame stats (pure math - no DOM manipulation in rAF)
     this.frameCount++;
     this.lastFrameTime = delta * 1000;
+
+    if (this.bossManager) {
+      this.bossManager.update(delta, this.clock.getElapsedTime());
+    }
 
     this.particleSystem.update(delta);
     this.sceneManager.render(this.clock.getElapsedTime());

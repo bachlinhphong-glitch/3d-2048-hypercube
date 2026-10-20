@@ -569,6 +569,21 @@ export class SceneManager {
     }
   }
 
+  setEclipseMode(enabled) {
+    if (enabled) {
+      document.body.classList.add('eclipse-mode');
+      this.ambientLight.color.set(0x4a0e17);
+      this.ambientLight.intensity = 1.2;
+      this.sunLight.color.set(0xff2200);
+      this.sunLight.intensity = 1.8;
+      this.rimLight.color.set(0xffaa00);
+      this.renderer.toneMappingExposure = 1.35;
+    } else {
+      document.body.classList.remove('eclipse-mode');
+      this.setTheme(this.theme);
+    }
+  }
+
   setMode(mode) {
     this.mode = mode;
     this.resetCamera();

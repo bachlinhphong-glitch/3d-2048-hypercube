@@ -504,6 +504,116 @@ class SoundManager {
       osc.stop(t + i * 0.05 + 0.38);
     });
   }
+
+  // ⚔️ Boss Raid Procedural Audio
+  playBossLaser(damage = 128) {
+    if (this.muted) return;
+    this.ensureContext();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = damage >= 512 ? 'sawtooth' : 'sine';
+    const startFreq = damage >= 512 ? 980 : 650;
+    osc.frequency.setValueAtTime(startFreq, t);
+    osc.frequency.exponentialRampToValueAtTime(110, t + 0.22);
+
+    gain.gain.setValueAtTime(0.2, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.25);
+  }
+
+  playBossHit(damage = 128) {
+    if (this.muted) return;
+    this.ensureContext();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(120, t);
+    osc.frequency.exponentialRampToValueAtTime(38, t + 0.3);
+
+    gain.gain.setValueAtTime(0.25, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.35);
+  }
+
+  playPhaseTransition() {
+    if (this.muted) return;
+    this.ensureContext();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+    // Deep thunderous warhorn / gong
+    const freqs = [110, 164.81, 220, 329.63];
+    freqs.forEach((freq) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(freq, t);
+      osc.frequency.exponentialRampToValueAtTime(freq * 0.7, t + 1.2);
+
+      gain.gain.setValueAtTime(0.12, t);
+      gain.gain.linearRampToValueAtTime(0.18, t + 0.15);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 1.4);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(t);
+      osc.stop(t + 1.4);
+    });
+  }
+
+  playBossObliteration() {
+    if (this.muted) return;
+    this.ensureContext();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+    // 1. White noise / rumble burst
+    const bufferSize = this.ctx.sampleRate * 0.8;
+    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = Math.random() * 2 - 1;
+    }
+    const noise = this.ctx.createBufferSource();
+    noise.buffer = buffer;
+    const noiseGain = this.ctx.createGain();
+    noiseGain.gain.setValueAtTime(0.35, t);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.8);
+    noise.connect(noiseGain);
+    noiseGain.connect(this.ctx.destination);
+    noise.start(t);
+
+    // 2. Triumphant Golden Celestial Chord (C Major Power Triad)
+    const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50];
+    notes.forEach((freq, idx) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, t + 0.2 + idx * 0.04);
+      gain.gain.setValueAtTime(0.15, t + 0.2 + idx * 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 2.5);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(t + 0.2 + idx * 0.04);
+      osc.stop(t + 2.6);
+    });
+  }
 }
 
 export const soundManager = new SoundManager();
