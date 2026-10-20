@@ -17,7 +17,9 @@ class GameApp {
     this.container = document.getElementById('canvas-container');
     this.mode = localStorage.getItem('3d2048_last_mode') || '4x4';
     this.currentShape = 'rounded_cube'; // 'rounded_cube', 'crystal_octahedron', 'core_sphere', 'auto_evolution'
-    this.currentTheme = localStorage.getItem('3d2048_theme') || 'cat_moon';
+    const savedTheme = localStorage.getItem('3d2048_theme');
+    const isThemeManual = localStorage.getItem('3d2048_theme_manual') === 'true';
+    this.currentTheme = (savedTheme && (savedTheme !== 'cat_moon' || isThemeManual)) ? savedTheme : 'galaxy';
 
     this.sceneManager = new SceneManager(this.container);
     this.particleSystem = new ParticleSystem(this.sceneManager.scene);
@@ -134,11 +136,19 @@ class GameApp {
     const settingsModal = document.getElementById('settings-modal');
     const settingsToggleBtn = document.getElementById('btn-settings-toggle');
     const settingsCloseBtn = document.getElementById('btn-close-settings');
+    const settingsCard = settingsModal ? settingsModal.querySelector('.settings-modal-card') : null;
+
+    if (settingsCard) {
+      settingsCard.addEventListener('click', (e) => e.stopPropagation());
+      settingsCard.addEventListener('pointerdown', (e) => e.stopPropagation());
+      settingsCard.addEventListener('pointerup', (e) => e.stopPropagation());
+    }
 
     if (settingsToggleBtn && settingsModal) {
-      settingsToggleBtn.addEventListener('click', () => {
+      settingsToggleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
         settingsModal.style.display = 'flex';
-        requestAnimationFrame(() => settingsModal.classList.add('active'));
+        settingsModal.classList.add('active');
       });
     }
 
@@ -151,7 +161,10 @@ class GameApp {
     };
 
     if (settingsCloseBtn) {
-      settingsCloseBtn.addEventListener('click', closeSettings);
+      settingsCloseBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeSettings();
+      });
     }
     if (settingsModal) {
       settingsModal.addEventListener('click', (e) => {
@@ -297,6 +310,7 @@ class GameApp {
         }
         this.switchTheme(e.target.value);
         localStorage.setItem('3d2048_theme', e.target.value);
+        localStorage.setItem('3d2048_theme_manual', 'true');
         const label = e.target.options[e.target.selectedIndex].text;
         this.showSpellToast(`HÌNH NỀN: ${label}`);
         this.registerInteraction();
@@ -716,33 +730,45 @@ class GameApp {
     this.ghostPreview = new GhostPreview(this.sceneManager.scene, this.gameLogic);
   }
 
-  handleCanvasPointerMove(clientX, clientY) {
-    if (!this.isSwapMode || this.isAnimating || this.gameLogic.gameOver) return;
-
+  findTileFromPoint(clientX, clientY) {
+    if (!this.container || !this.sceneManager || !this.sceneManager.camera) return null;
     const rect = this.container.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return null;
     const x = ((clientX - rect.left) / rect.width) * 2 - 1;
     const y = -((clientY - rect.top) / rect.height) * 2 + 1;
 
     const raycaster = new THREE.Raycaster();
     raycaster.setFromCamera(new THREE.Vector2(x, y), this.sceneManager.camera);
 
-    const activeTileMeshes = [];
-    const tileMeshMap = new Map();
-
+    const tileGroups = [];
     for (let l = 0; l < this.tiles3D.length; l++) {
       for (let r = 0; r < this.tiles3D[l].length; r++) {
         for (let c = 0; c < this.tiles3D[l][r].length; c++) {
           const tile = this.tiles3D[l][r][c];
-          if (tile && tile.innerMesh) {
-            activeTileMeshes.push(tile.innerMesh);
-            tileMeshMap.set(tile.innerMesh, tile);
+          if (tile && tile.group) {
+            tileGroups.push(tile.group);
           }
         }
       }
     }
 
-    const intersects = raycaster.intersectObjects(activeTileMeshes, false);
-    const hitTile = (intersects.length > 0) ? tileMeshMap.get(intersects[0].object) : null;
+    const intersects = raycaster.intersectObjects(tileGroups, true);
+    if (intersects.length === 0) return null;
+
+    let obj = intersects[0].object;
+    while (obj) {
+      if (obj.userData && obj.userData.tileInstance) {
+        return obj.userData.tileInstance;
+      }
+      obj = obj.parent;
+    }
+    return null;
+  }
+
+  handleCanvasPointerMove(clientX, clientY) {
+    if (!this.isSwapMode || this.isAnimating || this.gameLogic.gameOver) return;
+
+    const hitTile = this.findTileFromPoint(clientX, clientY);
 
     if (hitTile !== this.hoveredTile) {
       if (this.hoveredTile && this.hoveredTile !== this.swapSelectedTile) {
@@ -936,6 +962,10 @@ class GameApp {
     // Spawn 2 initial tiles
     this.spawnTile();
     this.spawnTile();
+
+    if (this.isBossRaid && this.bossManager) {
+      this.bossManager.startRaid();
+    }
 
     this.saveGameState();
     this.isAnimating = false;
@@ -1451,34 +1481,11 @@ class GameApp {
     this.registerInteraction();
     if (!this.isSwapMode || this.isAnimating || this.gameLogic.gameOver) return;
 
-    const rect = this.container.getBoundingClientRect();
-    const x = ((clientX - rect.left) / rect.width) * 2 - 1;
-    const y = -((clientY - rect.top) / rect.height) * 2 + 1;
-
-    const raycaster = new THREE.Raycaster();
-    raycaster.setFromCamera(new THREE.Vector2(x, y), this.sceneManager.camera);
-
-    const activeTileMeshes = [];
-    const tileMeshMap = new Map();
-
-    for (let l = 0; l < this.tiles3D.length; l++) {
-      for (let r = 0; r < this.tiles3D[l].length; r++) {
-        for (let c = 0; c < this.tiles3D[l][r].length; c++) {
-          const tile = this.tiles3D[l][r][c];
-          if (tile && tile.innerMesh) {
-            activeTileMeshes.push(tile.innerMesh);
-            tileMeshMap.set(tile.innerMesh, tile);
-          }
-        }
-      }
+    const clickedTile = this.findTileFromPoint(clientX, clientY);
+    if (!clickedTile) {
+      this.showSpellToast('HÃY BẤM VÀO MỘT KHỐI SỐ TRÊN BÀN CỜ ĐỂ ĐỔI VỊ TRÍ!');
+      return;
     }
-
-    const intersects = raycaster.intersectObjects(activeTileMeshes, false);
-    if (intersects.length === 0) return;
-
-    const hitTileMesh = intersects[0].object;
-    const clickedTile = tileMeshMap.get(hitTileMesh);
-    if (!clickedTile) return;
 
     if (!this.swapSelectedTile) {
       this.swapSelectedTile = clickedTile;
@@ -1510,7 +1517,13 @@ class GameApp {
       const posA = { l: tileA.layer, r: tileA.row, c: tileA.col };
       const posB = { l: tileB.layer, r: tileB.row, c: tileB.col };
 
-      this.gameLogic.swapTiles(posA, posB);
+      const swapResult = this.gameLogic.swapTiles(posA, posB);
+      if (!swapResult || !swapResult.success) {
+        this.isAnimating = false;
+        this.updateSpellUI();
+        this.showSpellToast('Không thể đổi vị trí hai ô này!');
+        return;
+      }
 
       this.tiles3D[posA.l][posA.r][posA.c] = tileB;
       this.tiles3D[posB.l][posB.r][posB.c] = tileA;

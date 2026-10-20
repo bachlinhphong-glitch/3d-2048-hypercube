@@ -30,6 +30,8 @@ export const DICTIONARY = {
 
     // Settings Modal
     settings_title: 'Cài Đặt',
+    setting_mode: '🌌 Chế độ chơi',
+    setting_ai: '🤖 AI Tự chơi',
     setting_lang: '🌐 Ngôn ngữ',
     setting_shape: '🧊 Hình khối 3D',
     setting_theme: '🎨 Giao diện nền',
@@ -144,6 +146,8 @@ export const DICTIONARY = {
 
     // Settings Modal
     settings_title: 'Settings',
+    setting_mode: '🌌 Game Mode',
+    setting_ai: '🤖 AI Auto-Play',
     setting_lang: '🌐 Language',
     setting_shape: '🧊 3D Tile Shape',
     setting_theme: '🎨 Theme & Backdrop',
@@ -258,6 +262,8 @@ export const DICTIONARY = {
 
     // Settings Modal
     settings_title: '設定',
+    setting_mode: '🌌 プレイ空間',
+    setting_ai: '🤖 AI自動プレイ',
     setting_lang: '🌐 言語 (Language)',
     setting_shape: '🧊 3Dタイルの形状',
     setting_theme: '🎨 テーマ＆背景',
@@ -372,6 +378,8 @@ export const DICTIONARY = {
 
     // Settings Modal
     settings_title: '설정',
+    setting_mode: '🌌 플레이 모드',
+    setting_ai: '🤖 AI 자동 플레이',
     setting_lang: '🌐 언어 (Language)',
     setting_shape: '🧊 3D 타일 모양',
     setting_theme: '🎨 테마 및 배경',

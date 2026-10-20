@@ -193,6 +193,7 @@ export class BossManager {
   }
 
   startRaid() {
+    this.clearVFX();
     this.isActive = true;
     this.phase = 1;
     this.maxHp = 500;

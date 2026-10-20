@@ -523,6 +523,8 @@ export class Tile3D {
     this.isSelected = false;
     this.isHovered = false;
 
+    gsap.killTweensOf(this.group.position);
+
     return gsap.to(this.group.position, {
       x: targetPos.x,
       y: targetPos.y,

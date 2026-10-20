@@ -116,7 +116,7 @@ export class InputManager {
         return;
       }
       if (e.button !== 0 && e.pointerType === 'mouse') return;
-      if (e.target && e.target.closest && e.target.closest('button, select, input, .spell-btn, .modal-card, .header-bar, .rush-panel')) {
+      if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel')) {
         return;
       }
 
@@ -132,18 +132,27 @@ export class InputManager {
       if (!this.enabled) return;
 
       // Do not process swipes if released on interactive control elements
-      if (e.target && e.target.closest && e.target.closest('button, select, input, .spell-btn, .modal-card, .header-bar, .rush-panel')) {
+      if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel')) {
         return;
       }
 
       const dx = e.clientX - this.pointerStartX;
       const dy = e.clientY - this.pointerStartY;
-      const dt = Date.now() - this.pointerStartTime;
-
       const minDistance = 22; // Responsive swipe threshold for mobile touch & mouse
       const distance = Math.hypot(dx, dy);
 
-      if (distance >= minDistance) {
+      if (distance < minDistance) {
+        if (this.onCanvasClick) {
+          // Registered as a clean tap/click on the 3D canvas
+          this.onCanvasClick(e.clientX, e.clientY);
+        }
+      } else {
+        // Distance >= minDistance: swipe or drag
+        // If game is in swap mode, do NOT trigger board moves on accidental swipe
+        if (window.gameApp && window.gameApp.isSwapMode) {
+          return;
+        }
+
         let direction = null;
         if (Math.abs(dx) > Math.abs(dy)) {
           direction = dx > 0 ? 'right' : 'left';
@@ -154,9 +163,6 @@ export class InputManager {
         if (direction) {
           this.onMove(direction);
         }
-      } else if (dt < 400 && this.onCanvasClick) {
-        // Registered as a clean tap on the 3D canvas
-        this.onCanvasClick(e.clientX, e.clientY);
       }
     });
 

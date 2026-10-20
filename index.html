@@ -50,7 +50,7 @@
   }
   </script>
 </head>
-<body class="theme-cat_moon">
+<body class="theme-galaxy">
   <!-- 3D WebGL Canvas Container -->
   <div id="canvas-container"></div>
 
@@ -100,122 +100,6 @@
         </button>
       </div>
     </header>
-
-    <!-- ⚙️ Compact Settings Modal -->
-    <div id="settings-modal" class="settings-modal-overlay" style="display: none;">
-      <div class="settings-modal-card">
-        <div class="settings-header">
-          <div class="settings-title-wrap">
-            <span class="settings-icon">⚙️</span>
-            <h3 class="settings-title" data-i18n="settings_title">Cài Đặt</h3>
-          </div>
-          <button id="btn-close-settings" class="settings-close-btn" title="Đóng">✕</button>
-        </div>
-
-        <div class="settings-body">
-          <!-- 1. Chế độ Không gian (Mode) -->
-          <div class="settings-row">
-            <label class="settings-label" data-i18n="mode_tooltip">🌌 Không gian chơi</label>
-            <select id="select-mode" class="settings-select">
-              <option value="4x4" data-i18n="mode_4x4">📦 4x4 Classic</option>
-              <option value="3x3x3" data-i18n="mode_3x3x3">🌌 3x3x3 Hypercube</option>
-            </select>
-          </div>
-
-          <!-- 2. AI Tự Động Chơi -->
-          <div class="settings-row">
-            <label class="settings-label" data-i18n="ai_tooltip">🤖 AI Auto-Play</label>
-            <button id="btn-ai-toggle" class="glass-btn ai-btn">
-              <span class="btn-icon">🤖</span><span class="btn-text" data-i18n="btn_ai">AI Tự Chơi</span>
-            </button>
-          </div>
-
-          <!-- 3. Ngôn ngữ -->
-          <div class="settings-row">
-            <label class="settings-label" data-i18n="setting_lang">🌐 Ngôn ngữ</label>
-            <select id="select-lang" class="settings-select">
-              <option value="vi">🇻🇳 Tiếng Việt</option>
-              <option value="en">🇬🇧 English</option>
-              <option value="ja">🇯🇵 日本語</option>
-              <option value="ko">🇰🇷 한국어</option>
-            </select>
-          </div>
-
-          <!-- 4. Hình dạng khối 3D (8 tùy chọn) -->
-          <div class="settings-row">
-            <label class="settings-label" data-i18n="setting_shape">🧊 Hình khối 3D</label>
-            <select id="select-shape" class="settings-select">
-              <option value="rounded_cube" data-i18n="shape_cube">🧊 Khối Bo Góc</option>
-              <option value="crystal_octahedron" data-i18n="shape_octahedron">💎 Bát Diện Kim Cương</option>
-              <option value="core_sphere" data-i18n="shape_sphere">🔮 Cầu Năng Lượng</option>
-              <option value="hex_prism" data-i18n="shape_hex">⬢ Lăng Trụ Lục Giác</option>
-              <option value="cyber_pyramid" data-i18n="shape_pyramid">🔺 Kim Tự Tháp</option>
-              <option value="star_dodecahedron" data-i18n="shape_dodecahedron">🌟 Thập Nhị Diện</option>
-              <option value="plasma_torus" data-i18n="shape_torus">🍩 Vòng Xoáy Năng Lượng</option>
-              <option value="auto_evolution" data-i18n="shape_auto">🧬 Tiến Hóa Tự Động</option>
-            </select>
-          </div>
-
-          <!-- 5. Giao diện & Ảnh nền -->
-          <div class="settings-row">
-            <label class="settings-label" data-i18n="setting_theme">🎨 Giao diện nền</label>
-            <div class="settings-theme-group">
-              <select id="select-theme" class="settings-select">
-                <optgroup label="🌟 Hình nền Độc Lạ / Meme" data-i18n-label="theme_group_meme">
-                  <option value="cat_moon" selected data-i18n="theme_cat_moon">🐱 Mèo & Mặt Trăng</option>
-                  <option value="elmo_fire" data-i18n="theme_elmo_fire">🔥 Elmo Rực Lửa</option>
-                  <option value="patrick_space" data-i18n="theme_patrick_space">⭐ Patrick Ngắm Trái Đất</option>
-                </optgroup>
-                <optgroup label="🌌 Không gian Procedural 3D" data-i18n-label="theme_group_procedural">
-                  <option value="galaxy" data-i18n="theme_galaxy">🌌 Vũ Trụ Tinh Vân</option>
-                  <option value="sunset" data-i18n="theme_sunset">🌅 Hoàng Hôn Synthwave</option>
-                  <option value="aurora" data-i18n="theme_aurora">❄️ Cực Quang Bắc Cực</option>
-                  <option value="neon" data-i18n="theme_neon">⚡ Hyper Neon</option>
-                  <option value="studio" data-i18n="theme_studio">🏛️ Studio Tối Giản</option>
-                  <option value="classic" data-i18n="theme_classic">🌙 Dark Obsidian</option>
-                  <option value="telemetry" data-i18n="theme_telemetry">📊 Hiệu Năng HUD</option>
-                </optgroup>
-                <optgroup label="🖼️ Ảnh Tùy Chỉnh" data-i18n-label="theme_group_custom">
-                  <option value="custom" data-i18n="theme_custom">🖼️ Ảnh của bạn (Upload)</option>
-                </optgroup>
-              </select>
-              <input type="file" id="bg-upload-input" accept="image/*" style="display:none">
-            </div>
-          </div>
-
-          <!-- 6. Tần số quét (FPS) -->
-          <div class="settings-row">
-            <label class="settings-label" data-i18n="setting_fps">🚀 Tần số quét (FPS)</label>
-            <select id="select-fps" class="settings-select">
-              <option value="max" data-i18n="fps_max">🚀 Tối đa (165Hz/300Hz)</option>
-              <option value="120" selected data-i18n="fps_120">⚡ Cân bằng (120 FPS)</option>
-              <option value="60" data-i18n="fps_60">🔋 Tiết kiệm pin (60 FPS)</option>
-            </select>
-          </div>
-
-          <!-- 7. Âm thanh & Nhạc -->
-          <div class="settings-row">
-            <label class="settings-label" data-i18n="setting_audio">🔊 Âm thanh & Nhạc</label>
-            <div class="settings-toggle-cluster">
-              <button id="btn-sound-toggle" class="glass-btn audio-btn" title="Bật/Tắt âm thanh hiệu ứng (SFX)">
-                <span id="label-sfx" data-i18n="btn_sfx">🔊 SFX</span>
-              </button>
-              <button id="btn-bgm-toggle" class="glass-btn audio-btn" title="Bật/Tắt Nhạc nền Lofi Ambient">
-                <span id="label-bgm" data-i18n="btn_bgm">🎵 Nhạc nền</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- 8. Chia sẻ -->
-          <div class="settings-row">
-            <label class="settings-label" data-i18n="setting_share">📤 Chia sẻ</label>
-            <button id="btn-share-score" class="glass-btn share-action-btn">
-              <span data-i18n="btn_share">📤 Chia sẻ điểm số</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <!-- ⚡ Clean & Modern 3-Phase Energy Core HUD -->
     <div id="boss-hud" class="boss-hud" style="display: none;">
@@ -413,6 +297,122 @@
         <span data-i18n="hint_mobile_rotate">✌️ 2 ngón xoay bàn cờ</span>
       </div>
     </footer>
+  </div>
+
+  <!-- ⚙️ Compact Settings Modal (Top-Level Fixed Viewport Modal) -->
+  <div id="settings-modal" class="settings-modal-overlay" style="display: none;">
+    <div class="settings-modal-card">
+      <div class="settings-header">
+        <div class="settings-title-wrap">
+          <span class="settings-icon">⚙️</span>
+          <h3 class="settings-title" data-i18n="settings_title">Cài Đặt</h3>
+        </div>
+        <button id="btn-close-settings" class="settings-close-btn" title="Đóng">✕</button>
+      </div>
+
+      <div class="settings-body">
+        <!-- 1. Chế độ Không gian (Mode) -->
+        <div class="settings-row">
+          <label class="settings-label" data-i18n="setting_mode">🌌 Chế độ chơi</label>
+          <select id="select-mode" class="settings-select">
+            <option value="4x4" data-i18n="mode_4x4">📦 4x4 Classic</option>
+            <option value="3x3x3" data-i18n="mode_3x3x3">🌌 3x3x3 Hypercube</option>
+          </select>
+        </div>
+
+        <!-- 2. AI Tự Động Chơi -->
+        <div class="settings-row">
+          <label class="settings-label" data-i18n="setting_ai">🤖 AI Tự chơi</label>
+          <button id="btn-ai-toggle" class="glass-btn ai-btn">
+            <span class="btn-icon">🤖</span><span class="btn-text" data-i18n="btn_ai">AI Tự Chơi</span>
+          </button>
+        </div>
+
+        <!-- 3. Ngôn ngữ -->
+        <div class="settings-row">
+          <label class="settings-label" data-i18n="setting_lang">🌐 Ngôn ngữ</label>
+          <select id="select-lang" class="settings-select">
+            <option value="vi">🇻🇳 Tiếng Việt</option>
+            <option value="en">🇬🇧 English</option>
+            <option value="ja">🇯🇵 日本語</option>
+            <option value="ko">🇰🇷 한국어</option>
+          </select>
+        </div>
+
+        <!-- 4. Hình dạng khối 3D (8 tùy chọn) -->
+        <div class="settings-row">
+          <label class="settings-label" data-i18n="setting_shape">🧊 Hình khối 3D</label>
+          <select id="select-shape" class="settings-select">
+            <option value="rounded_cube" data-i18n="shape_cube">🧊 Khối Bo Góc</option>
+            <option value="crystal_octahedron" data-i18n="shape_octahedron">💎 Bát Diện Kim Cương</option>
+            <option value="core_sphere" data-i18n="shape_sphere">🔮 Cầu Năng Lượng</option>
+            <option value="hex_prism" data-i18n="shape_hex">⬢ Lăng Trụ Lục Giác</option>
+            <option value="cyber_pyramid" data-i18n="shape_pyramid">🔺 Kim Tự Tháp</option>
+            <option value="star_dodecahedron" data-i18n="shape_dodecahedron">🌟 Thập Nhị Diện</option>
+            <option value="plasma_torus" data-i18n="shape_torus">🍩 Vòng Xoáy Năng Lượng</option>
+            <option value="auto_evolution" data-i18n="shape_auto">🧬 Tiến Hóa Tự Động</option>
+          </select>
+        </div>
+
+        <!-- 5. Giao diện & Ảnh nền -->
+        <div class="settings-row">
+          <label class="settings-label" data-i18n="setting_theme">🎨 Giao diện nền</label>
+          <div class="settings-theme-group">
+            <select id="select-theme" class="settings-select">
+              <optgroup label="🌌 Không gian Procedural 3D" data-i18n-label="theme_group_procedural">
+                <option value="galaxy" selected data-i18n="theme_galaxy">🌌 Vũ Trụ Tinh Vân</option>
+                <option value="sunset" data-i18n="theme_sunset">🌅 Hoàng Hôn Synthwave</option>
+                <option value="aurora" data-i18n="theme_aurora">❄️ Cực Quang Bắc Cực</option>
+                <option value="neon" data-i18n="theme_neon">⚡ Hyper Neon</option>
+                <option value="studio" data-i18n="theme_studio">🏛️ Studio Tối Giản</option>
+                <option value="classic" data-i18n="theme_classic">🌙 Dark Obsidian</option>
+                <option value="telemetry" data-i18n="theme_telemetry">📊 Hiệu Năng HUD</option>
+              </optgroup>
+              <optgroup label="🌟 Hình nền Độc Lạ / Meme" data-i18n-label="theme_group_meme">
+                <option value="cat_moon" data-i18n="theme_cat_moon">🐱 Mèo & Mặt Trăng</option>
+                <option value="elmo_fire" data-i18n="theme_elmo_fire">🔥 Elmo Rực Lửa</option>
+                <option value="patrick_space" data-i18n="theme_patrick_space">⭐ Patrick Ngắm Trái Đất</option>
+              </optgroup>
+              <optgroup label="🖼️ Ảnh Tùy Chỉnh" data-i18n-label="theme_group_custom">
+                <option value="custom" data-i18n="theme_custom">🖼️ Ảnh của bạn (Upload)</option>
+              </optgroup>
+            </select>
+            <input type="file" id="bg-upload-input" accept="image/*" style="display:none">
+          </div>
+        </div>
+
+        <!-- 6. Tần số quét (FPS) -->
+        <div class="settings-row">
+          <label class="settings-label" data-i18n="setting_fps">🚀 Tần số quét (FPS)</label>
+          <select id="select-fps" class="settings-select">
+            <option value="max" data-i18n="fps_max">🚀 Tối đa (165Hz/300Hz)</option>
+            <option value="120" selected data-i18n="fps_120">⚡ Cân bằng (120 FPS)</option>
+            <option value="60" data-i18n="fps_60">🔋 Tiết kiệm pin (60 FPS)</option>
+          </select>
+        </div>
+
+        <!-- 7. Âm thanh & Nhạc -->
+        <div class="settings-row">
+          <label class="settings-label" data-i18n="setting_audio">🔊 Âm thanh & Nhạc</label>
+          <div class="settings-toggle-cluster">
+            <button id="btn-sound-toggle" class="glass-btn audio-btn" title="Bật/Tắt âm thanh hiệu ứng (SFX)">
+              <span id="label-sfx" data-i18n="btn_sfx">🔊 SFX</span>
+            </button>
+            <button id="btn-bgm-toggle" class="glass-btn audio-btn" title="Bật/Tắt Nhạc nền Lofi Ambient">
+              <span id="label-bgm" data-i18n="btn_bgm">🎵 Nhạc nền</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 8. Chia sẻ -->
+        <div class="settings-row">
+          <label class="settings-label" data-i18n="setting_share">📤 Chia sẻ</label>
+          <button id="btn-share-score" class="glass-btn share-action-btn">
+            <span data-i18n="btn_share">📤 Chia sẻ điểm số</span>
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Game Over / Victory Modal -->
