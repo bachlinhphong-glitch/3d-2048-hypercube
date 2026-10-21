@@ -484,7 +484,7 @@
     </div>
   </div>
 
-  <!-- Missions & Exclusive 3D 2048 Trophy Modal -->
+  <!-- Missions & Exclusive 3D 2048 Trophy Modal (Hall of Trophies) -->
   <div id="trophy-modal" class="trophy-modal-overlay" style="display: none;">
     <div class="trophy-modal-card">
       <div class="trophy-modal-header">
@@ -497,11 +497,30 @@
             <path d="M8 21h8"></path>
           </svg>
           <div>
-            <h2 class="trophy-modal-title" data-i18n="trophy_modal_title">NHIỆM VỤ & CÚP 2048 ĐỘC QUYỀN</h2>
-            <p class="trophy-modal-subtitle" data-i18n="trophy_modal_subtitle">Hoàn thành 7 nhiệm vụ để mở khóa Cúp Vàng 3D vinh danh bậc thầy</p>
+            <h2 id="trophy-main-title" class="trophy-modal-title" data-i18n="trophy_modal_title">PHÒNG TRUYỀN THỐNG CÚP 3D</h2>
+            <p id="trophy-main-subtitle" class="trophy-modal-subtitle" data-i18n="trophy_modal_subtitle">Chiêm ngưỡng 2 Cúp Danh Giá: Cúp C1 Bậc Thầy & Cúp Trảm Trùm Hắc Ám</p>
           </div>
         </div>
         <button id="trophy-modal-close" class="settings-close-btn" aria-label="Đóng">✕</button>
+      </div>
+
+      <!-- Trophy Switcher Tabs (C1 vs Boss) -->
+      <div class="trophy-tabs-nav">
+        <button id="trophy-tab-c1" class="trophy-tab-btn active" data-tab="c1">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tab-svg">
+            <path d="M6 9H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2"></path>
+            <path d="M18 9h2a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-2"></path>
+            <path d="M4 3h16v6a8 8 0 0 1-16 0V3z"></path>
+            <path d="M12 17v4"></path><path d="M8 21h8"></path>
+          </svg>
+          <span>🏆 Cúp C1 Bậc Thầy (7/7 Q)</span>
+        </button>
+        <button id="trophy-tab-boss" class="trophy-tab-btn" data-tab="boss">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tab-svg">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          </svg>
+          <span>⚔️ Cúp Trảm Trùm (不死斬り)</span>
+        </button>
       </div>
 
       <div class="trophy-modal-body">
@@ -511,23 +530,54 @@
           <div id="trophy-3d-viewport" class="trophy-3d-viewport"></div>
           <div class="trophy-interaction-hint" data-i18n="trophy_drag_hint">Giữ chuột hoặc vuốt để xoay cúp 360°</div>
           <div class="trophy-stage-actions">
-            <button id="trophy-celebrate-btn" class="glass-btn trophy-btn" data-i18n="trophy_celebrate_btn">
+            <button id="trophy-celebrate-btn" class="glass-btn trophy-btn">
               <svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.2L21.6 12l-7.2 2.4L12 21.6l-2.4-7.2L2.4 12l7.2-2.4z"/></svg>
-              <span>Tung Pháo Hoa Ăn Mừng</span>
+              <span id="trophy-celebrate-label">Tung Pháo Hoa C1 Hoàng Gia</span>
             </button>
           </div>
         </div>
 
-        <!-- Right: Quests Progress List -->
-        <div class="trophy-quests-pane">
+        <!-- Right: Quests Progress List (For C1) -->
+        <div id="trophy-c1-pane" class="trophy-quests-pane">
           <div class="trophy-progress-overview">
-            <div class="trophy-progress-label">Tiến độ mở khóa Cúp 3D:</div>
+            <div class="trophy-progress-label">Tiến độ mở khóa Cúp C1:</div>
             <div class="trophy-progress-track">
               <div id="trophy-progress-fill" class="trophy-progress-fill" style="width: 0%;"></div>
             </div>
             <div id="trophy-progress-text" class="trophy-progress-count">0 / 7 (0%)</div>
           </div>
           <div id="trophy-quests-list" class="trophy-quests-list"></div>
+        </div>
+
+        <!-- Right: Boss Slayer Showcase Pane (For Boss) -->
+        <div id="trophy-boss-pane" class="trophy-boss-pane" style="display: none;">
+          <div class="boss-trophy-info-card">
+            <div class="boss-trophy-tag">⚔️ HUYỀN THOẠI TRẢM TƯỚNG (SEKIRO STYLE)</div>
+            <h3 class="boss-trophy-title">Cúp Trảm Trùm Hắc Ám: 不死斬り</h3>
+            <p class="boss-trophy-desc">Được đúc từ đá Obsidian hắc thạch kết hợp song kiếm Bất Tử Đoạt Mệnh (Mortal Blade & Kusabimaru). Lơ lửng trên miệng cúp là Lõi Hư Không Dark Singularity cùng tàn tro huyết sắc rực lửa.</p>
+
+            <div class="boss-trophy-stats-box">
+              <div class="boss-t-stat">
+                <span class="label">Trạng thái:</span>
+                <span id="boss-t-status" class="val locked">🔒 Chưa tiêu diệt</span>
+              </div>
+              <div class="boss-t-stat">
+                <span class="label">Yêu cầu thử thách:</span>
+                <span class="val">Vượt 3 Phase (4,048 HP)</span>
+              </div>
+              <div class="boss-t-stat">
+                <span class="label">Đòn kết liễu:</span>
+                <span class="val gold">Khối [2048] Siêu Cấp</span>
+              </div>
+            </div>
+
+            <div class="boss-trophy-actions">
+              <button id="boss-trophy-play-btn" class="modal-btn primary" style="background: linear-gradient(135deg, #ef4444, #991b1b); border-color: #fca5a5; width: 100%;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                <span>Vào Đấu Trùm Ngay</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
       <div id="trophy-confetti-container" class="trophy-confetti-container"></div>
@@ -729,15 +779,20 @@
     </div>
   </div>
 
-  <!-- Grand Boss Victory & Achievement Modal -->
+  <!-- Grand Boss Victory & Achievement Modal (Sekiro / Isshin Ashina Slaying Climax) -->
   <div id="boss-victory-modal" class="boss-victory-modal-overlay" style="display: none;">
     <div class="boss-victory-card">
+      <!-- Sekiro Samurai Immortal Severance Banner -->
+      <div class="sekiro-severance-banner">
+        <div class="sekiro-kanji">不死斬り</div>
+        <div class="sekiro-sub">ĐOẠT MỆNH HOÀN TẤT • IMMORTAL SEVERANCE</div>
+      </div>
+
       <div class="boss-victory-banner-top">
         <div class="boss-trophy-glow"></div>
         <div class="boss-victory-badge-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="8" r="7"></circle>
-            <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
           </svg>
         </div>
         <h2 id="boss-victory-heading" class="boss-victory-title" data-i18n="boss_victory_heading">CHIẾN CÔNG HIỂN HÁCH!</h2>
@@ -780,16 +835,16 @@
       </div>
 
       <div class="boss-victory-actions">
-        <button id="boss-victory-btn-share" class="modal-btn secondary">
-          <svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-          <span data-i18n="boss_btn_share">Chia sẻ chiến tích</span>
+        <button id="boss-victory-btn-view-trophy" class="modal-btn secondary" style="border-color: #ef4444; color: #fca5a5;">
+          <svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <span>Chiêm Ngưỡng Cúp Trảm Trùm 3D</span>
         </button>
         <button id="boss-victory-btn-continue" class="boss-v-start-btn">
           <span data-i18n="boss_btn_continue">Nhận vinh danh & Tiếp tục</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
         </button>
       </div>
-      <div id="boss-victory-confetti" class="trophy-confetti-container"></div>
+      <div id="boss-victory-confetti" class="boss-embers-container"></div>
     </div>
   </div>
 

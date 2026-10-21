@@ -12,7 +12,7 @@ import { AIBot } from './aiBot.js';
 import { BossManager } from './bossManager.js';
 import { i18n, t, setLanguage, getCurrentLanguage } from './i18n.js';
 import { QuestManager } from './questManager.js';
-import { createTrophyMesh } from './trophy.js';
+import { createChampionsTrophyMesh, createBossTrophyMesh } from './trophy.js';
 
 class GameApp {
   constructor() {
@@ -40,9 +40,12 @@ class GameApp {
     textureManager.setTheme(this.currentTheme);
     this.sceneManager.scene.add(this.board.group);
     this.aiBot = new AIBot(this);
+    this.soundManager = soundManager;
+    window.soundManager = soundManager;
     this.bossManager = new BossManager(this);
     this.isBossRaid = false;
     this.trophyMascot = null;
+    this.bossTrophyMascot = null;
     this.questManager = new QuestManager(this);
     this.questManager.recordMode(this.mode);
     window.gameApp = this;
@@ -2357,6 +2360,9 @@ class GameApp {
     if (this.trophyMascot) {
       this.trophyMascot.rotation.y += 0.015;
     }
+    if (this.bossTrophyMascot) {
+      this.bossTrophyMascot.rotation.y -= 0.012;
+    }
 
     this.particleSystem.update(delta);
     this.sceneManager.render(this.clock.getElapsedTime());
@@ -2364,15 +2370,29 @@ class GameApp {
 
   updateTrophyMascot() {
     if (!this.questManager) return;
-    const isUnlocked = this.questManager.isAllCompleted();
-    if (isUnlocked && !this.trophyMascot) {
-      this.trophyMascot = createTrophyMesh(true);
+
+    // 1. UEFA Champions League C1 2048 Mascot (Right corner)
+    const isC1Unlocked = this.questManager.isAllCompleted();
+    if (isC1Unlocked && !this.trophyMascot) {
+      this.trophyMascot = createChampionsTrophyMesh(true);
       this.trophyMascot.scale.set(0.18, 0.18, 0.18);
-      this.trophyMascot.position.set(-2.8, 0.25, -2.8);
+      this.trophyMascot.position.set(2.8, 0.25, -2.8);
       this.sceneManager.scene.add(this.trophyMascot);
-    } else if (!isUnlocked && this.trophyMascot) {
+    } else if (!isC1Unlocked && this.trophyMascot) {
       this.sceneManager.scene.remove(this.trophyMascot);
       this.trophyMascot = null;
+    }
+
+    // 2. Sekiro Dark Singularity Slayer Mascot (Left corner)
+    const isBossUnlocked = this.questManager.isBossDefeated();
+    if (isBossUnlocked && !this.bossTrophyMascot) {
+      this.bossTrophyMascot = createBossTrophyMesh(true);
+      this.bossTrophyMascot.scale.set(0.18, 0.18, 0.18);
+      this.bossTrophyMascot.position.set(-2.8, 0.25, -2.8);
+      this.sceneManager.scene.add(this.bossTrophyMascot);
+    } else if (!isBossUnlocked && this.bossTrophyMascot) {
+      this.sceneManager.scene.remove(this.bossTrophyMascot);
+      this.bossTrophyMascot = null;
     }
   }
 }

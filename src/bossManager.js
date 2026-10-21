@@ -634,8 +634,13 @@ export class BossManager {
     if (this.victoryDamageEl) this.victoryDamageEl.textContent = '4,048 HP';
     if (this.victoryScoreEl) this.victoryScoreEl.textContent = this.gameApp.gameLogic.score.toLocaleString();
 
-    soundManager.playTrophyUnlockFanfare();
-    this.spawnVictoryConfetti();
+    // ⚔️ Sekiro / Isshin Ashina Dark Souls Heroic Execution Fanfare & Crimson Embers
+    soundManager.playBossExecutionFanfare();
+    this.spawnBossEmbers();
+
+    if (this.gameApp.updateTrophyMascot) {
+      this.gameApp.updateTrophyMascot();
+    }
 
     this.victoryModal.style.display = 'flex';
     this.victoryModal.classList.add('active');
@@ -646,6 +651,17 @@ export class BossManager {
         this.victoryModal.style.display = 'none';
       }, 250);
     };
+
+    const viewTrophyBtn = document.getElementById('boss-victory-btn-view-trophy');
+    if (viewTrophyBtn) {
+      viewTrophyBtn.onclick = (e) => {
+        e.stopPropagation();
+        closeVictory();
+        if (this.gameApp.questManager) {
+          this.gameApp.questManager.openModal('boss');
+        }
+      };
+    }
 
     if (this.victoryContinueBtn) {
       this.victoryContinueBtn.onclick = (e) => {
@@ -664,18 +680,21 @@ export class BossManager {
     }
   }
 
-  spawnVictoryConfetti() {
+  spawnBossEmbers() {
     if (!this.victoryConfettiContainer) return;
     this.victoryConfettiContainer.innerHTML = '';
-    const colors = ['#f59e0b', '#ef4444', '#00f0ff', '#10b981', '#ec4899', '#8b5cf6'];
-    for (let i = 0; i < 48; i++) {
-      const piece = document.createElement('div');
-      piece.className = 'confetti-piece';
-      piece.style.left = `${Math.random() * 100}%`;
-      piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-      piece.style.animationDelay = `${Math.random() * 0.8}s`;
-      piece.style.animationDuration = `${1.8 + Math.random() * 1.4}s`;
-      this.victoryConfettiContainer.appendChild(piece);
+    const colors = ['#ff3b30', '#ef4444', '#dc2626', '#f97316', '#b91c1c', '#27272a'];
+    for (let i = 0; i < 64; i++) {
+      const ember = document.createElement('div');
+      ember.className = 'sekiro-ember-piece';
+      ember.style.left = `${Math.random() * 100}%`;
+      ember.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      const size = 4 + Math.random() * 7;
+      ember.style.width = `${size}px`;
+      ember.style.height = `${size}px`;
+      ember.style.animationDelay = `${Math.random() * 0.6}s`;
+      ember.style.animationDuration = `${1.4 + Math.random() * 1.8}s`;
+      this.victoryConfettiContainer.appendChild(ember);
     }
   }
 

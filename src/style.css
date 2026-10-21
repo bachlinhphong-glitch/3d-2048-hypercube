@@ -638,6 +638,57 @@ body.theme-telemetry .glass-select {
   color: #94a3b8;
 }
 
+/* Trophy Tabs Switcher Nav */
+.trophy-tabs-nav {
+  display: flex;
+  background: rgba(10, 14, 24, 0.9);
+  padding: 8px 24px;
+  gap: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.trophy-tab-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 16px;
+  background: rgba(30, 41, 59, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: #94a3b8;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.22s ease;
+}
+
+.trophy-tab-btn .tab-svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+
+.trophy-tab-btn:hover {
+  background: rgba(51, 65, 85, 0.6);
+  color: #e2e8f0;
+}
+
+.trophy-tab-btn.active[data-tab="c1"] {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.22), rgba(0, 240, 255, 0.18));
+  border-color: #ffd700;
+  color: #fff085;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+}
+
+.trophy-tab-btn.active[data-tab="boss"] {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.25), rgba(139, 92, 246, 0.2));
+  border-color: #ef4444;
+  color: #fca5a5;
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.35);
+}
+
 .trophy-modal-body {
   display: grid;
   grid-template-columns: 360px 1fr;
@@ -682,6 +733,19 @@ body.theme-telemetry .glass-select {
   color: #fff085;
   box-shadow: 0 0 16px rgba(255, 215, 0, 0.4);
   animation: quest-glow 1.8s infinite alternate;
+}
+
+.trophy-status-pill.unlocked.boss {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.3), rgba(185, 28, 28, 0.4));
+  border: 1px solid #ef4444;
+  color: #fecaca;
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.5);
+  animation: boss-pill-glow 1.8s infinite alternate;
+}
+
+@keyframes boss-pill-glow {
+  0% { box-shadow: 0 0 8px rgba(239, 68, 68, 0.4); }
+  100% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.8), 0 0 30px rgba(185, 28, 28, 0.5); }
 }
 
 .trophy-3d-viewport {
@@ -906,6 +970,171 @@ body.theme-telemetry .glass-select {
 @keyframes confetti-fall {
   0% { transform: translateY(0) rotate(0deg); opacity: 1; }
   100% { transform: translateY(780px) rotate(720deg); opacity: 0; }
+}
+
+/* Boss Slayer Trophy Showcase Pane */
+.trophy-boss-pane {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.boss-trophy-info-card {
+  background: radial-gradient(circle at top left, rgba(69, 10, 10, 0.4) 0%, rgba(15, 7, 12, 0.9) 100%);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.7), 0 10px 25px rgba(239, 68, 68, 0.12);
+}
+
+.boss-trophy-tag {
+  align-self: flex-start;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: rgba(220, 38, 38, 0.25);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  color: #fca5a5;
+  text-transform: uppercase;
+}
+
+.boss-trophy-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  background: linear-gradient(135deg, #ffffff 40%, #fca5a5 70%, #ef4444 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.boss-trophy-desc {
+  margin: 0;
+  font-size: 12.5px;
+  color: #cbd5e1;
+  line-height: 1.5;
+}
+
+.boss-trophy-stats-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.boss-t-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+}
+
+.boss-t-stat .label {
+  color: #94a3b8;
+}
+
+.boss-t-stat .val {
+  font-weight: 700;
+  color: #e2e8f0;
+}
+
+.boss-t-stat .val.gold {
+  color: #f59e0b;
+}
+
+.boss-t-stat .val.unlocked {
+  color: #ef4444;
+  font-weight: 800;
+  text-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
+}
+
+.boss-t-stat .val.locked {
+  color: #71717a;
+}
+
+.boss-trophy-actions {
+  margin-top: 4px;
+}
+
+/* Sekiro Ember & Ash Floating Particles */
+.boss-embers-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 100;
+}
+
+.sekiro-ember-piece {
+  position: absolute;
+  bottom: -20px;
+  border-radius: 50%;
+  opacity: 0.85;
+  filter: blur(0.5px);
+  box-shadow: 0 0 8px currentColor;
+  animation: sekiro-ember-rise linear forwards;
+}
+
+@keyframes sekiro-ember-rise {
+  0% {
+    transform: translateY(0) translateX(0) scale(1);
+    opacity: 0.95;
+  }
+  50% {
+    transform: translateY(-350px) translateX(25px) scale(1.2);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-750px) translateX(-20px) scale(0.3);
+    opacity: 0;
+  }
+}
+
+/* Sekiro Immortal Severance Banner */
+.sekiro-severance-banner {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 5;
+}
+
+.sekiro-kanji {
+  font-size: 42px;
+  font-weight: 900;
+  letter-spacing: 10px;
+  color: #ef4444;
+  text-shadow: 0 0 20px #ef4444, 0 0 40px #b91c1c, 0 0 60px #000;
+  font-family: "Yu Mincho", "Hiragino Mincho ProN", "Songti SC", serif, sans-serif;
+  animation: sekiroPulse 2.2s infinite alternate ease-in-out;
+}
+
+.sekiro-sub {
+  margin-top: 4px;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  color: #fca5a5;
+  text-transform: uppercase;
+  text-shadow: 0 0 10px rgba(239, 68, 68, 0.7);
+}
+
+@keyframes sekiroPulse {
+  0% { transform: scale(0.98); text-shadow: 0 0 15px #ef4444, 0 0 30px #991b1b; }
+  100% { transform: scale(1.04); text-shadow: 0 0 30px #ff4d4d, 0 0 50px #ef4444, 0 0 70px #000; }
 }
 
 /* Responsive for Mobile / Tablet */

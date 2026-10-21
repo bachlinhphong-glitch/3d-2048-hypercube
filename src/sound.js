@@ -632,49 +632,196 @@ class SoundManager {
     });
   }
 
-  // Grand Royal Fanfare for Unlocking the Exclusive 3D 2048 Trophy
-  playTrophyUnlockFanfare() {
+  // =========================================================================
+  // 1. UEFA Champions League C1 Style Fanfare (7/7 Quests Master Glory)
+  // =========================================================================
+  playChampionsLeagueFanfare() {
     this.triggerHaptic('win');
     if (this.muted) return;
     this.ensureContext();
     if (!this.ctx) return;
 
     const t = this.ctx.currentTime;
-    // Rapid ascending golden trumpet fanfare: C4, E4, G4, C5, E5, G5, C6
-    const introNotes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50];
-    introNotes.forEach((freq, idx) => {
+
+    // Ascending Royal Trumpet Anthem Motif: Bb3 -> F4 -> Bb4 -> D5 -> F5 -> Bb5
+    const anthemNotes = [
+      { f: 233.08, time: 0.00, dur: 0.22 },
+      { f: 349.23, time: 0.20, dur: 0.22 },
+      { f: 466.16, time: 0.40, dur: 0.35 },
+      { f: 587.33, time: 0.72, dur: 0.24 },
+      { f: 698.46, time: 0.94, dur: 0.24 },
+      { f: 932.33, time: 1.18, dur: 1.80 }
+    ];
+
+    anthemNotes.forEach((note) => {
+      const noteT = t + note.time;
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
       osc.type = 'triangle';
-      const noteTime = t + idx * 0.08;
-      osc.frequency.setValueAtTime(freq, noteTime);
+      osc.frequency.setValueAtTime(note.f, noteT);
 
-      gain.gain.setValueAtTime(0.18, noteTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, noteTime + 0.35);
+      gain.gain.setValueAtTime(0.24, noteT);
+      gain.gain.exponentialRampToValueAtTime(0.001, noteT + note.dur);
 
       osc.connect(gain);
       gain.connect(this.ctx.destination);
-      osc.start(noteTime);
-      osc.stop(noteTime + 0.36);
+      osc.start(noteT);
+      osc.stop(noteT + note.dur + 0.05);
     });
 
-    // Sustained Majestic C Major Golden Chords at the climax
-    const climaxTime = t + introNotes.length * 0.08 + 0.05;
-    const chordNotes = [523.25, 659.25, 783.99, 1046.50, 1318.51];
-    chordNotes.forEach((freq) => {
+    // Shimmering Orchestral Choir & Trumpet Harmonics at Climax (Bb Major)
+    const climaxT = t + 1.18;
+    const majorChord = [466.16, 587.33, 698.46, 932.33, 1174.66];
+    majorChord.forEach((freq) => {
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
       osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(freq, climaxTime);
+      osc.frequency.setValueAtTime(freq, climaxT);
 
-      gain.gain.setValueAtTime(0.12, climaxTime);
-      gain.gain.exponentialRampToValueAtTime(0.0001, climaxTime + 2.2);
+      const filter = this.ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(1200, climaxT);
+      filter.frequency.exponentialRampToValueAtTime(3800, climaxT + 0.4);
+      filter.frequency.exponentialRampToValueAtTime(800, climaxT + 2.5);
 
-      osc.connect(gain);
+      gain.gain.setValueAtTime(0.14, climaxT);
+      gain.gain.exponentialRampToValueAtTime(0.0001, climaxT + 2.8);
+
+      osc.connect(filter);
+      filter.connect(gain);
       gain.connect(this.ctx.destination);
-      osc.start(climaxTime);
-      osc.stop(climaxTime + 2.25);
+      osc.start(climaxT);
+      osc.stop(climaxT + 2.85);
     });
+
+    // Celebratory Stadium Fireworks Bursts
+    [0.1, 0.6, 1.25].forEach((fwOffset) => {
+      const fwT = t + fwOffset;
+      const fwNoise = this.ctx.createBufferSource();
+      const fwBuf = this.ctx.createBuffer(1, Math.floor(this.ctx.sampleRate * 0.4), this.ctx.sampleRate);
+      const fwData = fwBuf.getChannelData(0);
+      for (let i = 0; i < fwData.length; i++) fwData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (this.ctx.sampleRate * 0.1));
+      fwNoise.buffer = fwBuf;
+
+      const fwFilter = this.ctx.createBiquadFilter();
+      fwFilter.type = 'highpass';
+      fwFilter.frequency.setValueAtTime(3500, fwT);
+
+      const fwGain = this.ctx.createGain();
+      fwGain.gain.setValueAtTime(0.15, fwT);
+      fwGain.gain.exponentialRampToValueAtTime(0.001, fwT + 0.4);
+
+      fwNoise.connect(fwFilter);
+      fwFilter.connect(fwGain);
+      fwGain.connect(this.ctx.destination);
+      fwNoise.start(fwT);
+    });
+  }
+
+  // =========================================================================
+  // 2. Sekiro / Isshin Ashina / Dark Souls Epic Boss Execution Fanfare
+  // =========================================================================
+  playBossExecutionFanfare() {
+    this.triggerHaptic('win');
+    if (this.muted) return;
+    this.ensureContext();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+
+    // 1. Razor-sharp Katana Slash & Metal Clash ("SCHWING - KLING!")
+    const slashNoise = this.ctx.createBufferSource();
+    const slashBuf = this.ctx.createBuffer(1, Math.floor(this.ctx.sampleRate * 0.35), this.ctx.sampleRate);
+    const data = slashBuf.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (this.ctx.sampleRate * 0.08));
+    slashNoise.buffer = slashBuf;
+    const slashFilter = this.ctx.createBiquadFilter();
+    slashFilter.type = 'bandpass';
+    slashFilter.frequency.setValueAtTime(3200, t);
+    slashFilter.frequency.exponentialRampToValueAtTime(1200, t + 0.3);
+    slashFilter.Q.setValueAtTime(3.5, t);
+    const slashGain = this.ctx.createGain();
+    slashGain.gain.setValueAtTime(0.28, t);
+    slashGain.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+    slashNoise.connect(slashFilter);
+    slashFilter.connect(slashGain);
+    slashGain.connect(this.ctx.destination);
+    slashNoise.start(t);
+
+    // High metal ring ("KLING")
+    const klingOsc = this.ctx.createOscillator();
+    const klingGain = this.ctx.createGain();
+    klingOsc.type = 'sine';
+    klingOsc.frequency.setValueAtTime(3850, t + 0.04);
+    klingOsc.frequency.exponentialRampToValueAtTime(2900, t + 0.4);
+    klingGain.gain.setValueAtTime(0.22, t + 0.04);
+    klingGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.85);
+    klingOsc.connect(klingGain);
+    klingGain.connect(this.ctx.destination);
+    klingOsc.start(t + 0.04);
+    klingOsc.stop(t + 0.9);
+
+    // 2. Heavy Taiko War Drum Impacts (Booming Sub-bass punch)
+    [0.12, 0.45, 0.95].forEach((drumOffset, dIdx) => {
+      const drumT = t + drumOffset;
+      const drumOsc = this.ctx.createOscillator();
+      const drumGain = this.ctx.createGain();
+      drumOsc.type = 'sine';
+      drumOsc.frequency.setValueAtTime(115, drumT);
+      drumOsc.frequency.exponentialRampToValueAtTime(34, drumT + 0.45);
+      drumGain.gain.setValueAtTime(dIdx === 2 ? 0.35 : 0.24, drumT);
+      drumGain.gain.exponentialRampToValueAtTime(0.001, drumT + 0.7);
+      drumOsc.connect(drumGain);
+      drumGain.connect(this.ctx.destination);
+      drumOsc.start(drumT);
+      drumOsc.stop(drumT + 0.75);
+    });
+
+    // 3. Ancient Buddhist Temple Death Bell / Deep Inharmonic Gong (Isshin / Sekiro style)
+    const gongTime = t + 0.55;
+    const gongPartials = [98, 142, 218, 310];
+    gongPartials.forEach((freq, idx) => {
+      const gOsc = this.ctx.createOscillator();
+      const gGain = this.ctx.createGain();
+      gOsc.type = idx % 2 === 0 ? 'sine' : 'triangle';
+      gOsc.frequency.setValueAtTime(freq, gongTime);
+      gGain.gain.setValueAtTime(0.14 / (idx + 1), gongTime);
+      gGain.gain.exponentialRampToValueAtTime(0.0001, gongTime + 3.2);
+      gOsc.connect(gGain);
+      gGain.connect(this.ctx.destination);
+      gOsc.start(gongTime);
+      gOsc.stop(gongTime + 3.25);
+    });
+
+    // 4. Dark Heroic Minor Brass Climax (D Minor Epic Chords)
+    const brassTime = t + 1.15;
+    const darkBrassNotes = [73.42, 146.83, 174.61, 220.00, 293.66, 440.00];
+    darkBrassNotes.forEach((freq) => {
+      const bOsc = this.ctx.createOscillator();
+      const bGain = this.ctx.createGain();
+      bOsc.type = 'sawtooth';
+      bOsc.frequency.setValueAtTime(freq, brassTime);
+
+      const bFilter = this.ctx.createBiquadFilter();
+      bFilter.type = 'lowpass';
+      bFilter.frequency.setValueAtTime(450, brassTime);
+      bFilter.frequency.exponentialRampToValueAtTime(1600, brassTime + 0.6);
+      bFilter.frequency.exponentialRampToValueAtTime(300, brassTime + 2.8);
+
+      bGain.gain.setValueAtTime(0.09, brassTime);
+      bGain.gain.exponentialRampToValueAtTime(0.0001, brassTime + 3.0);
+
+      bOsc.connect(bFilter);
+      bFilter.connect(bGain);
+      bGain.connect(this.ctx.destination);
+      bOsc.start(brassTime);
+      bOsc.stop(brassTime + 3.1);
+    });
+  }
+
+  // Grand Royal Fanfare for Unlocking the Exclusive 3D 2048 Trophy
+  playTrophyUnlockFanfare() {
+    this.playChampionsLeagueFanfare();
   }
 }
 

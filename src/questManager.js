@@ -12,7 +12,7 @@ export const QUEST_DEFS = [
   },
   {
     id: 'q_all_modes',
-    icon: `<svg class="quest-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>`,
+    icon: `<svg class="quest-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>`,
     titleKey: 'quest_2_title',
     descKey: 'quest_2_desc',
     target: 3,
@@ -65,7 +65,7 @@ export class QuestManager {
     this.game = gameApp;
     this.storageKey = '3d2048_quests_v1';
     this.trophyViewer = null;
-    this.trophyClaimedCelebrated = false;
+    this.currentTab = 'c1'; // 'c1' | 'boss'
 
     // Internal state
     this.state = this.loadState();
@@ -109,10 +109,18 @@ export class QuestManager {
     } catch {}
   }
 
+  isBossDefeated() {
+    try {
+      return localStorage.getItem('3d2048_boss_defeated') === 'true';
+    } catch {
+      return false;
+    }
+  }
+
   initUI() {
     if (this.btnToggle) {
       this.btnToggle.addEventListener('click', () => {
-        this.openModal();
+        this.openModal('c1');
       });
     }
 
@@ -132,18 +140,128 @@ export class QuestManager {
       });
     }
 
+    // Tabs switching
+    const tabC1Btn = document.getElementById('trophy-tab-c1');
+    const tabBossBtn = document.getElementById('trophy-tab-boss');
+    if (tabC1Btn) {
+      tabC1Btn.addEventListener('click', () => this.switchTab('c1'));
+    }
+    if (tabBossBtn) {
+      tabBossBtn.addEventListener('click', () => this.switchTab('boss'));
+    }
+
+    // Celebrate button
     const celebrateBtn = document.getElementById('trophy-celebrate-btn');
     if (celebrateBtn) {
       celebrateBtn.addEventListener('click', () => {
-        this.triggerConfetti();
-        if (this.game.soundManager) {
-          if (this.isAllCompleted() && this.game.soundManager.playTrophyUnlockFanfare) {
-            this.game.soundManager.playTrophyUnlockFanfare();
-          } else if (this.game.soundManager.playSpellRecharge) {
-            this.game.soundManager.playSpellRecharge();
-          }
-        }
+        this.celebrateCurrentTab();
       });
+    }
+
+    // Boss play button in trophy modal
+    const playBossBtn = document.getElementById('boss-trophy-play-btn');
+    if (playBossBtn) {
+      playBossBtn.addEventListener('click', () => {
+        this.closeModal();
+        this.game.toggleBossRaid(true);
+      });
+    }
+  }
+
+  switchTab(tab = 'c1') {
+    this.currentTab = tab;
+
+    const tabC1Btn = document.getElementById('trophy-tab-c1');
+    const tabBossBtn = document.getElementById('trophy-tab-boss');
+    const c1Pane = document.getElementById('trophy-c1-pane');
+    const bossPane = document.getElementById('trophy-boss-pane');
+    const celebrateLabel = document.getElementById('trophy-celebrate-label');
+
+    if (tab === 'boss') {
+      if (tabC1Btn) tabC1Btn.classList.remove('active');
+      if (tabBossBtn) tabBossBtn.classList.add('active');
+      if (c1Pane) c1Pane.style.display = 'none';
+      if (bossPane) bossPane.style.display = 'block';
+      if (celebrateLabel) celebrateLabel.textContent = 'Trảm Kiếm & Tàn Tro Sekiro';
+
+      // Update boss status details
+      const bossStatusEl = document.getElementById('boss-t-status');
+      if (bossStatusEl) {
+        if (this.isBossDefeated()) {
+          bossStatusEl.className = 'val unlocked';
+          bossStatusEl.innerHTML = '⚔️ ĐÃ TIÊU DIỆT HOÀN TẤT';
+        } else {
+          bossStatusEl.className = 'val locked';
+          bossStatusEl.innerHTML = '🔒 Chưa tiêu diệt';
+        }
+      }
+    } else {
+      if (tabC1Btn) tabC1Btn.classList.add('active');
+      if (tabBossBtn) tabBossBtn.classList.remove('active');
+      if (c1Pane) c1Pane.style.display = 'flex';
+      if (bossPane) bossPane.style.display = 'none';
+      if (celebrateLabel) celebrateLabel.textContent = 'Tung Pháo Hoa C1 Hoàng Gia';
+    }
+
+    this.updateStatusPill();
+
+    // Update 3D Viewer Mesh & Lighting
+    if (this.trophyViewer) {
+      this.trophyViewer.setTrophyType(this.currentTab, {
+        c1: this.isAllCompleted(),
+        boss: this.isBossDefeated()
+      });
+    }
+  }
+
+  updateStatusPill() {
+    const statusEl = document.getElementById('trophy-status-pill');
+    if (!statusEl) return;
+
+    if (this.currentTab === 'boss') {
+      const isDefeated = this.isBossDefeated();
+      if (isDefeated) {
+        statusEl.className = 'trophy-status-pill unlocked boss';
+        statusEl.innerHTML = '⚔️ ĐÃ MỞ KHÓA — CÚP TRẢM TRÙM 不死斬り';
+      } else {
+        statusEl.className = 'trophy-status-pill locked';
+        statusEl.innerHTML = '🔒 KHÓA — TIÊU DIỆT TRÙM ĐỂ MỞ';
+      }
+    } else {
+      const completedCount = this.getCompletedCount();
+      const totalCount = QUEST_DEFS.length;
+      if (this.isAllCompleted()) {
+        statusEl.className = 'trophy-status-pill unlocked';
+        statusEl.innerHTML = '🏆 ĐÃ MỞ KHÓA — CÚP C1 BẬC THẦY 2048';
+      } else {
+        statusEl.className = 'trophy-status-pill locked';
+        statusEl.innerHTML = `🔒 KHÓA — CÒN ${totalCount - completedCount} NHIỆM VỤ`;
+      }
+    }
+  }
+
+  celebrateCurrentTab() {
+    if (this.currentTab === 'boss') {
+      // Sekiro Isshin Ashina Execution Celebration
+      if (this.game.soundManager && this.game.soundManager.playBossExecutionFanfare) {
+        this.game.soundManager.playBossExecutionFanfare();
+      }
+      this.triggerSekiroEmbers();
+      if (this.game.particleSystem && this.trophyViewer && this.trophyViewer.camera) {
+        this.game.particleSystem.screenShake(this.trophyViewer.camera, 0.28);
+      }
+      if (this.game.showSpellToast) {
+        this.game.showSpellToast('⚔️ 不死斬り • ĐOẠT MỆNH HOÀN TẤT!');
+      }
+    } else {
+      // UEFA Champions League Grand Fanfare
+      if (this.game.soundManager && this.game.soundManager.playChampionsLeagueFanfare) {
+        this.game.soundManager.playChampionsLeagueFanfare();
+      }
+      this.triggerConfetti();
+      if (this.game.showSpellToast) {
+        this.game.showSpellToast('🏆 KHẢI HOÀN CA CHAMPIONS LEAGUE 2048!');
+      }
     }
   }
 
@@ -165,7 +283,6 @@ export class QuestManager {
   }
 
   recordMoveMergesAndTiles(mergesCount, maxTile) {
-    // 1. Combo merges in 1 move
     if (mergesCount >= 3) {
       const qCombo = this.state.q_combo_3;
       if (mergesCount > qCombo.current) qCombo.current = mergesCount;
@@ -174,7 +291,6 @@ export class QuestManager {
       }
     }
 
-    // 2. Tile 128
     if (maxTile >= 128) {
       const q128 = this.state.q_reach_128;
       if (maxTile > q128.current) q128.current = maxTile;
@@ -183,7 +299,6 @@ export class QuestManager {
       }
     }
 
-    // 3. Tile 2048
     if (maxTile >= 2048) {
       const q2048 = this.state.q_reach_2048;
       if (maxTile > q2048.current) q2048.current = maxTile;
@@ -290,18 +405,17 @@ export class QuestManager {
   }
 
   celebrateGrandTrophyUnlock() {
-    if (this.game.soundManager && this.game.soundManager.playTrophyUnlockFanfare) {
-      this.game.soundManager.playTrophyUnlockFanfare();
+    if (this.game.soundManager && this.game.soundManager.playChampionsLeagueFanfare) {
+      this.game.soundManager.playChampionsLeagueFanfare();
     }
 
     this.triggerConfetti();
 
     if (this.game.showSpellToast) {
-      this.game.showSpellToast('BẠN ĐÃ MỞ KHÓA CÚP 2048 ĐỘC QUYỀN!');
+      this.game.showSpellToast('🏆 BẠN ĐÃ MỞ KHÓA CÚP C1 BẬC THẦY 2048!');
     }
 
-    // Open modal to show trophy
-    this.openModal();
+    this.openModal('c1');
   }
 
   renderQuestList() {
@@ -324,19 +438,7 @@ export class QuestManager {
       summaryText.textContent = `${completedCount} / ${totalCount} (${Math.round((completedCount / totalCount) * 100)}%)`;
     }
 
-    // Trophy status text
-    const statusEl = document.getElementById('trophy-status-pill');
-    if (statusEl) {
-      if (this.isAllCompleted()) {
-        statusEl.className = 'trophy-status-pill unlocked';
-        statusEl.innerHTML = '<svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> ĐÃ MỞ KHÓA — CÚP VÀNG RÒNG 2048';
-      } else {
-        statusEl.className = 'trophy-status-pill locked';
-        statusEl.innerHTML = `<svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> KHÓA — CÒN ${totalCount - completedCount} NHIỆM VỤ`;
-      }
-    }
-
-    QUEST_DEFS.forEach((def, index) => {
+    QUEST_DEFS.forEach((def) => {
       const q = this.state[def.id] || { completed: false, current: 0 };
       const isDone = q.completed;
       const progressVal = Math.min(q.current || 0, def.target);
@@ -362,7 +464,7 @@ export class QuestManager {
     });
   }
 
-  openModal() {
+  openModal(tab = 'c1') {
     if (!this.modal) return;
 
     this.modal.style.display = 'flex';
@@ -378,11 +480,12 @@ export class QuestManager {
       if (!this.trophyViewer) {
         this.trophyViewer = new TrophyModalViewer(viewport);
       }
-      this.trophyViewer.setUnlocked(this.isAllCompleted());
       setTimeout(() => {
         if (this.trophyViewer) this.trophyViewer.resize();
       }, 50);
     }
+
+    this.switchTab(tab);
   }
 
   closeModal() {
@@ -398,8 +501,8 @@ export class QuestManager {
     if (!container) return;
 
     container.innerHTML = '';
-    const colors = ['#ffd700', '#ffea70', '#00f0ff', '#ff007f', '#00ff88', '#ffffff'];
-    const count = 60;
+    const colors = ['#ffd700', '#ffea70', '#ffffff', '#00f0ff', '#e2e8f0', '#38bdf8'];
+    const count = 70;
 
     for (let i = 0; i < count; i++) {
       const piece = document.createElement('div');
@@ -414,6 +517,32 @@ export class QuestManager {
 
     setTimeout(() => {
       container.innerHTML = '';
-    }, 3000);
+    }, 3200);
+  }
+
+  triggerSekiroEmbers() {
+    const container = document.getElementById('trophy-confetti-container');
+    if (!container) return;
+
+    container.innerHTML = '';
+    const emberColors = ['#ff3b30', '#ef4444', '#dc2626', '#f97316', '#7f1d1d', '#27272a'];
+    const count = 80;
+
+    for (let i = 0; i < count; i++) {
+      const ember = document.createElement('div');
+      ember.className = 'sekiro-ember-piece';
+      ember.style.left = `${Math.random() * 100}%`;
+      ember.style.backgroundColor = emberColors[Math.floor(Math.random() * emberColors.length)];
+      const size = 4 + Math.random() * 8;
+      ember.style.width = `${size}px`;
+      ember.style.height = `${size}px`;
+      ember.style.animationDuration = `${1.4 + Math.random() * 1.8}s`;
+      ember.style.animationDelay = `${Math.random() * 0.4}s`;
+      container.appendChild(ember);
+    }
+
+    setTimeout(() => {
+      container.innerHTML = '';
+    }, 3500);
   }
 }
