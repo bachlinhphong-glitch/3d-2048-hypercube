@@ -1714,7 +1714,20 @@ body.theme-telemetry .glass-select {
   }
 
   .bottom-bar {
-    margin-bottom: 74px; /* Space above spell buttons */
+    margin-bottom: calc(max(14px, env(safe-area-inset-bottom, 14px)) + 74px); /* Clean breathing space above spell buttons */
+  }
+
+  /* D-Pad on mobile viewports: hidden by default to prevent overlapping summoner spells */
+  .dir-pad {
+    display: none !important;
+  }
+
+  .dir-pad.force-show {
+    display: flex !important;
+    right: 8px;
+    bottom: 120px;
+    transform: scale(0.85);
+    transform-origin: bottom right;
   }
 
   .hint-dot {
@@ -2135,6 +2148,10 @@ body.theme-custom .game-title {
   pointer-events: auto;
 }
 
+.dir-pad.hide-dpad {
+  display: none !important;
+}
+
 .dpad-middle-row,
 .dpad-depth-row {
   display: flex;
@@ -2221,11 +2238,12 @@ body.theme-custom .game-title {
   height: 16px;
 }
 
-/* --- Responsive: hide D-pad on very small screens or show smaller --- */
+/* --- Responsive: hide D-pad on small screens or adjust if forced --- */
 @media (max-width: 380px) {
-  .dir-pad {
-    right: 6px;
-    bottom: 80px;
+  .dir-pad.force-show {
+    right: 4px;
+    bottom: 110px;
+    transform: scale(0.78);
   }
   .dpad-btn {
     min-width: 38px;
@@ -2248,5 +2266,55 @@ body.theme-custom .game-title {
   .slice-btn {
     padding: 4px 8px;
     font-size: 10px;
+  }
+}
+
+/* ==========================================================================
+   Mobile Controls & Layout Overrides (<= 768px)
+   Placed at the end of stylesheet to ensure full cascade precedence.
+   ========================================================================== */
+@media (max-width: 768px) {
+  /* Hide floating D-pad on mobile viewports so it never overlaps spell buttons */
+  .dir-pad {
+    display: none !important;
+  }
+
+  .dir-pad.force-show {
+    display: flex !important;
+    right: 8px;
+    bottom: 120px;
+    transform: scale(0.85);
+    transform-origin: bottom right;
+  }
+
+  /* Bottom Summoner Spell Bar - Thumb friendly & safely anchored */
+  .spell-bar {
+    bottom: max(14px, env(safe-area-inset-bottom, 14px)) !important;
+    gap: 10px;
+  }
+
+  .spell-btn {
+    width: 62px !important;
+    height: 66px !important;
+    border-radius: 14px;
+    gap: 2px;
+  }
+
+  .spell-svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .spell-name {
+    font-size: 9px;
+  }
+
+  .spell-kbd {
+    display: none !important;
+  }
+
+  /* Clean breathing space above spell buttons for hint capsule */
+  .bottom-bar {
+    margin-bottom: calc(max(14px, env(safe-area-inset-bottom, 14px)) + 74px) !important;
   }
 }

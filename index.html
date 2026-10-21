@@ -27,17 +27,17 @@
 
   <link rel="icon" type="image/svg+xml" href="./favicon.svg">
   <link rel="manifest" href="./manifest.json">
-  <link rel="stylesheet" href="./src/style.css?v=5.6.2">
+  <link rel="stylesheet" href="./src/style.css?v=5.6.3">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=5.6.2').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=5.6.3').then(reg => {
           reg.update();
         }).catch(() => {});
       });
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!sessionStorage.getItem('sw_reloaded_562')) {
-          sessionStorage.setItem('sw_reloaded_562', '1');
+        if (!sessionStorage.getItem('sw_reloaded_563')) {
+          sessionStorage.setItem('sw_reloaded_563', '1');
           window.location.reload();
         }
       });
@@ -482,7 +482,17 @@
           </div>
         </div>
 
-        <!-- 8. Chia sẻ -->
+        <!-- 8. Phím ảo D-Pad (Virtual Controls) -->
+        <div class="settings-row">
+          <label class="settings-label" data-i18n="setting_dpad">🎮 Phím ảo D-Pad</label>
+          <select id="select-dpad" class="settings-select">
+            <option value="auto" selected data-i18n="dpad_auto">🎯 Tự động (Chỉ PC)</option>
+            <option value="hidden" data-i18n="dpad_hidden">🚫 Luôn ẩn</option>
+            <option value="visible" data-i18n="dpad_visible">🕹️ Luôn hiện</option>
+          </select>
+        </div>
+
+        <!-- 9. Chia sẻ -->
         <div class="settings-row">
           <label class="settings-label" data-i18n="setting_share">📤 Chia sẻ</label>
           <button id="btn-share-score" class="glass-btn share-action-btn">
@@ -494,6 +504,6 @@
   </div>
 
   <!-- Main Game Script -->
-  <script type="module" src="./src/main.js?v=5.6.2"></script>
+  <script type="module" src="./src/main.js?v=5.6.3"></script>
 </body>
 </html>

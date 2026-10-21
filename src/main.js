@@ -365,6 +365,36 @@ class GameApp {
       });
     }
 
+    // Virtual D-Pad Selector (Mobile & Desktop UX)
+    const dpadSelect = document.getElementById('select-dpad');
+    const dirPad = document.getElementById('dir-pad');
+    const savedDpadMode = localStorage.getItem('3d2048_dpad_mode') || 'auto';
+
+    const applyDpadMode = (mode) => {
+      if (!dirPad) return;
+      dirPad.classList.remove('hide-dpad', 'force-show');
+      if (mode === 'hidden') {
+        dirPad.classList.add('hide-dpad');
+      } else if (mode === 'visible') {
+        dirPad.classList.add('force-show');
+      }
+    };
+
+    if (dpadSelect) {
+      dpadSelect.value = savedDpadMode;
+      applyDpadMode(savedDpadMode);
+      dpadSelect.addEventListener('change', (e) => {
+        const mode = e.target.value;
+        localStorage.setItem('3d2048_dpad_mode', mode);
+        applyDpadMode(mode);
+        const label = e.target.options[e.target.selectedIndex].text;
+        this.showSpellToast(`ĐIỀU HƯỚNG: ${label}`);
+        this.registerInteraction();
+      });
+    } else {
+      applyDpadMode(savedDpadMode);
+    }
+
     // Auto-detect & Display Hardware GPU
     this.gpuBadgeEl = document.getElementById('gpu-badge');
     this.gpuInfo = this.sceneManager.getGPUInfo();
