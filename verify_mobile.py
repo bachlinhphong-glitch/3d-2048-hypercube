@@ -189,6 +189,16 @@ def main():
             "enabled": True,
             "maxTouchPoints": 5
         })
+        # Dismiss initial welcome modal so gameplay HUD hit-testing is evaluated cleanly
+        ws.call("Runtime.evaluate", {
+            "expression": """
+            (() => {
+                const wm = document.getElementById('welcome-modal');
+                if (wm) { wm.style.display = 'none'; wm.classList.remove('active'); }
+                localStorage.setItem('3d2048_welcome_seen', 'true');
+            })()
+            """
+        })
         time.sleep(1.0)
 
         # 2. Check layout metrics & element occlusion

@@ -27,17 +27,17 @@
 
   <link rel="icon" type="image/svg+xml" href="./favicon.svg">
   <link rel="manifest" href="./manifest.json">
-  <link rel="stylesheet" href="./src/style.css?v=5.8.0">
+  <link rel="stylesheet" href="./src/style.css?v=5.9.0">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=5.8.0').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=5.9.0').then(reg => {
           reg.update();
         }).catch(() => {});
       });
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!sessionStorage.getItem('sw_reloaded_580')) {
-          sessionStorage.setItem('sw_reloaded_580', '1');
+        if (!sessionStorage.getItem('sw_reloaded_590')) {
+          sessionStorage.setItem('sw_reloaded_590', '1');
           window.location.reload();
         }
       });
@@ -144,6 +144,13 @@
             <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
           </svg>
           <span class="btn-text" data-i18n="btn_new_game">Chơi mới</span>
+        </button>
+        <button id="btn-help-toggle" class="glass-btn icon-only-btn" data-i18n-title="help_tooltip" title="Giới thiệu & Hướng dẫn">
+          <svg class="header-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
         </button>
         <button id="btn-settings-toggle" class="glass-btn icon-only-btn" data-i18n-title="settings_tooltip" title="Cài đặt">
           <svg class="header-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -518,6 +525,126 @@
         </div>
       </div>
       <div id="trophy-confetti-container" class="trophy-confetti-container"></div>
+    </div>
+  </div>
+
+  <!-- Welcome & Introduction Onboarding Modal -->
+  <div id="welcome-modal" class="welcome-modal-overlay" style="display: none;">
+    <div class="welcome-modal-card">
+      <div class="welcome-modal-header">
+        <div class="welcome-title-wrap">
+          <div class="welcome-badge-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+          </div>
+          <div>
+            <h2 class="welcome-modal-title" data-i18n="welcome_title">Chào mừng đến với 3D 2048 & Hypercube!</h2>
+            <p class="welcome-modal-subtitle" data-i18n="welcome_subtitle">Trải nghiệm không gian giải đố số học 3 chiều mượt mà & đỉnh cao</p>
+          </div>
+        </div>
+        <button id="welcome-modal-close" class="settings-close-btn" aria-label="Đóng" title="Đóng">✕</button>
+      </div>
+
+      <div class="welcome-modal-body">
+        <!-- 4 Key Highlights Grid -->
+        <div class="welcome-features-grid">
+          <div class="welcome-feature-card">
+            <div class="welcome-feature-icon cube">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                <line x1="12" y1="22.08" x2="12" y2="12"></line>
+              </svg>
+            </div>
+            <div class="welcome-feature-info">
+              <h4 data-i18n="welcome_feat1_title">Không Gian 3 Chiều & Hypercube</h4>
+              <p data-i18n="welcome_feat1_desc">Tự do trượt khối trong không gian 3D. Hỗ trợ bàn cờ 4x4 truyền thống & lồng không gian 3x3x3 6 hướng.</p>
+            </div>
+          </div>
+
+          <div class="welcome-feature-card">
+            <div class="welcome-feature-icon magic">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+              </svg>
+            </div>
+            <div class="welcome-feature-info">
+              <h4 data-i18n="welcome_feat2_title">3 Phép Bổ Trợ Trợ Thủ</h4>
+              <p data-i18n="welcome_feat2_desc">Gợi ý tối ưu (💡), Hoàn tác (⏪), và Đổi vị trí (⚡). Gộp kỷ lục mới để hồi chiêu!</p>
+            </div>
+          </div>
+
+          <div class="welcome-feature-card">
+            <div class="welcome-feature-icon trophy">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 9H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2"></path>
+                <path d="M18 9h2a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-2"></path>
+                <path d="M4 3h16v6a8 8 0 0 1-16 0V3z"></path>
+                <path d="M12 17v4"></path>
+                <path d="M8 21h8"></path>
+              </svg>
+            </div>
+            <div class="welcome-feature-info">
+              <h4 data-i18n="welcome_feat3_title">Nhiệm Vụ & Cúp 3D Độc Quyền</h4>
+              <p data-i18n="welcome_feat3_desc">Hoàn thành 7 nhiệm vụ thử thách để mở khóa Cúp Vàng 3D xoay thực tế vinh danh bậc thầy.</p>
+            </div>
+          </div>
+
+          <div class="welcome-feature-card">
+            <div class="welcome-feature-icon save">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                <polyline points="7 3 7 8 15 8"></polyline>
+              </svg>
+            </div>
+            <div class="welcome-feature-info">
+              <h4 data-i18n="welcome_feat4_title">Tự Động Lưu & Phân Tích Trận</h4>
+              <p data-i18n="welcome_feat4_desc">Mọi nước đi được lưu tự động (F5 không mất). Thống kê chi tiết APM, thời gian & số bước sau mỗi trận.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- How to play / Controls section -->
+        <div class="welcome-controls-guide">
+          <h4 class="welcome-guide-title" data-i18n="welcome_controls_title">Hướng Dẫn Thao Tác Nhanh</h4>
+          <div class="welcome-controls-row">
+            <div class="welcome-control-box">
+              <span class="control-device" data-i18n="welcome_device_pc">💻 Máy tính (PC / Laptop)</span>
+              <ul class="control-tips">
+                <li><kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> hoặc phím mũi tên để trượt khối</li>
+                <li><kbd>Q</kbd> / <kbd>E</kbd> đổi tầng lên/xuống (chế độ 3x3x3)</li>
+                <li><kbd>Chuột trái kéo</kbd> để xoay góc nhìn 3D</li>
+                <li><kbd>H</kbd> Gợi ý • <kbd>Z</kbd> Hoàn tác • <kbd>X</kbd> Đổi vị trí</li>
+              </ul>
+            </div>
+            <div class="welcome-control-box">
+              <span class="control-device" data-i18n="welcome_device_mobile">📱 Điện thoại & Tablet</span>
+              <ul class="control-tips">
+                <li><span class="gesture-pill">Vuốt 1 ngón</span> để trượt dồn khối số</li>
+                <li><span class="gesture-pill">Chạm 2 ngón</span> xoay góc nhìn 3D</li>
+                <li><span class="gesture-pill">Thanh phép dưới</span> dùng Gợi ý, Đi lại, Đổi vị trí</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer action -->
+      <div class="welcome-modal-footer">
+        <label class="welcome-dont-show">
+          <input type="checkbox" id="welcome-dont-show-checkbox">
+          <span data-i18n="welcome_dont_show">Không tự động hiện lại khi mở web</span>
+        </label>
+        <button id="welcome-modal-start-btn" class="welcome-start-btn">
+          <span data-i18n="welcome_btn_start">Bắt Đầu Trải Nghiệm</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </button>
+      </div>
     </div>
   </div>
 

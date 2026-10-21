@@ -199,6 +199,77 @@ class GameApp {
       }
     });
 
+    // Welcome & Intro Onboarding Modal
+    const welcomeModal = document.getElementById('welcome-modal');
+    const helpToggleBtn = document.getElementById('btn-help-toggle');
+    const welcomeCloseBtn = document.getElementById('welcome-modal-close');
+    const welcomeStartBtn = document.getElementById('welcome-modal-start-btn');
+    const dontShowCheckbox = document.getElementById('welcome-dont-show-checkbox');
+
+    const openWelcome = () => {
+      if (!welcomeModal) return;
+      welcomeModal.style.display = 'flex';
+      requestAnimationFrame(() => {
+        welcomeModal.classList.add('active');
+      });
+      soundManager.playClick();
+    };
+
+    const closeWelcome = () => {
+      if (!welcomeModal) return;
+      if (dontShowCheckbox && dontShowCheckbox.checked) {
+        try {
+          localStorage.setItem('3d2048_welcome_seen', 'true');
+        } catch {}
+      }
+      welcomeModal.classList.remove('active');
+      setTimeout(() => {
+        welcomeModal.style.display = 'none';
+      }, 250);
+      soundManager.playClick();
+    };
+
+    if (helpToggleBtn) {
+      helpToggleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openWelcome();
+      });
+    }
+
+    if (welcomeCloseBtn) {
+      welcomeCloseBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeWelcome();
+      });
+    }
+
+    if (welcomeStartBtn) {
+      welcomeStartBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeWelcome();
+      });
+    }
+
+    if (welcomeModal) {
+      welcomeModal.addEventListener('click', (e) => {
+        if (e.target === welcomeModal) closeWelcome();
+      });
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && welcomeModal && welcomeModal.classList.contains('active')) {
+        closeWelcome();
+      }
+    });
+
+    // Auto show on first open
+    const hasSeenWelcome = localStorage.getItem('3d2048_welcome_seen');
+    if (!hasSeenWelcome) {
+      setTimeout(() => {
+        openWelcome();
+      }, 400);
+    }
+
     // Language Selector
     const langSelect = document.getElementById('select-lang');
     if (langSelect) {

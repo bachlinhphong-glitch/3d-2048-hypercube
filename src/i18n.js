@@ -128,6 +128,24 @@ export const DICTIONARY = {
     stat_merges: 'Lượt gộp',
     toast_restore_saved: 'Đã khôi phục ván chơi trước!',
 
+    // Welcome & Intro Modal
+    help_tooltip: 'Giới thiệu & Hướng dẫn',
+    welcome_title: 'Chào mừng đến với 3D 2048 & Hypercube!',
+    welcome_subtitle: 'Trải nghiệm không gian giải đố số học 3 chiều mượt mà & đỉnh cao',
+    welcome_feat1_title: 'Không Gian 3 Chiều & Hypercube',
+    welcome_feat1_desc: 'Tự do trượt khối trong không gian 3D. Hỗ trợ bàn cờ 4x4 truyền thống & lồng không gian 3x3x3 6 hướng.',
+    welcome_feat2_title: '3 Phép Bổ Trợ Trợ Thủ',
+    welcome_feat2_desc: 'Gợi ý tối ưu (💡), Hoàn tác (⏪), và Đổi vị trí (⚡). Gộp kỷ lục mới để hồi chiêu!',
+    welcome_feat3_title: 'Nhiệm Vụ & Cúp 3D Độc Quyền',
+    welcome_feat3_desc: 'Hoàn thành 7 nhiệm vụ thử thách để mở khóa Cúp Vàng 3D vinh danh bậc thầy.',
+    welcome_feat4_title: 'Tự Động Lưu & Phân Tích Trận',
+    welcome_feat4_desc: 'Mọi nước đi được lưu tự động (F5 không mất). Thống kê chi tiết APM, thời gian & số bước sau mỗi trận.',
+    welcome_controls_title: 'Hướng Dẫn Thao Tác Nhanh',
+    welcome_device_pc: '💻 Máy tính (PC / Laptop)',
+    welcome_device_mobile: '📱 Điện thoại & Tablet',
+    welcome_dont_show: 'Không tự động hiện lại khi mở web',
+    welcome_btn_start: 'Bắt Đầu Trải Nghiệm',
+
     // Boss Mode
     boss_title: 'BOSS MODE ACTIVATED',
     stage_clear_title: 'STAGE CLEAR!',
@@ -283,6 +301,24 @@ export const DICTIONARY = {
     stat_max_tile: 'Highest Tile',
     stat_merges: 'Merges',
     toast_restore_saved: 'Restored previous game session!',
+
+    // Welcome & Intro Modal
+    help_tooltip: 'Intro & Tutorial',
+    welcome_title: 'Welcome to 3D 2048 & Hypercube!',
+    welcome_subtitle: 'Experience next-generation 3D spatial number puzzling',
+    welcome_feat1_title: '3D Spatial & Hypercube',
+    welcome_feat1_desc: 'Slide tiles in real 3D space. Supports classic 4x4 and 6-direction 3x3x3 hypercube.',
+    welcome_feat2_title: '3 Powerful Summoner Spells',
+    welcome_feat2_desc: 'Smart Hint (💡), Undo (⏪), and Swap (⚡). Merge new milestones to recharge!',
+    welcome_feat3_title: 'Missions & Exclusive 3D Trophy',
+    welcome_feat3_desc: 'Complete 7 quests to unlock the golden 3D trophy celebrating your mastery.',
+    welcome_feat4_title: 'Autosave & Match Analytics',
+    welcome_feat4_desc: 'Every move is autosaved on reload. Detailed post-game stats for APM, time & moves.',
+    welcome_controls_title: 'Quick Controls Guide',
+    welcome_device_pc: '💻 Desktop & Laptop',
+    welcome_device_mobile: '📱 Mobile & Tablet',
+    welcome_dont_show: "Don't show automatically on startup",
+    welcome_btn_start: 'Start Playing Now',
 
     // Boss Mode
     boss_title: 'BOSS MODE ACTIVATED',
@@ -440,6 +476,24 @@ export const DICTIONARY = {
     stat_merges: '合体回数',
     toast_restore_saved: '前回のゲームを復元しました！',
 
+    // Welcome & Intro Modal
+    help_tooltip: '紹介とガイド',
+    welcome_title: '3D 2048 & ハイパーキューブへようこそ！',
+    welcome_subtitle: '次世代の3D立体空間パズル体験をお楽しみください',
+    welcome_feat1_title: '3D立体空間＆ハイパーキューブ',
+    welcome_feat1_desc: 'リアルな3D空間でタイルをスライド。4x4クラシックと6方向3x3x3に対応。',
+    welcome_feat2_title: '3つの強力なサマナースペル',
+    welcome_feat2_desc: 'スマートヒント (💡)、一手戻す (⏪)、位置交換 (⚡)。新記録でチャージ！',
+    welcome_feat3_title: 'ミッション＆限定3Dトロフィー',
+    welcome_feat3_desc: '7つのクエストをクリアしてマスター限定の3Dゴールドトロフィーを獲得。',
+    welcome_feat4_title: '自動保存＆マッチ詳細分析',
+    welcome_feat4_desc: 'リロード時も自動保存。APM、プレイ時間、手数などの詳細データを記録。',
+    welcome_controls_title: '操作ガイド',
+    welcome_device_pc: '💻 パソコン (PC / Laptop)',
+    welcome_device_mobile: '📱 スマートフォン＆タブレット',
+    welcome_dont_show: '次回から自動で表示しない',
+    welcome_btn_start: '今すぐプレイ開始',
+
     // Boss Mode
     boss_title: 'ボスモード起動',
     stage_clear_title: 'ステージクリア！',
@@ -595,6 +649,24 @@ export const DICTIONARY = {
     stat_max_tile: '최고 타일',
     stat_merges: '병합 횟수',
     toast_restore_saved: '이전 게임을 복원했습니다!',
+
+    // Welcome & Intro Modal
+    help_tooltip: '소개 및 가이드',
+    welcome_title: '3D 2048 & 하이퍼큐브에 오신 것을 환영합니다!',
+    welcome_subtitle: '차세대 3D 공간 숫자 퍼즐을 경험해보세요',
+    welcome_feat1_title: '3D 공간 & 하이퍼큐브',
+    welcome_feat1_desc: '실제 3D 공간에서 타일을 슬라이드하세요. 클래식 4x4 및 6방향 3x3x3 지원.',
+    welcome_feat2_title: '3가지 강력한 소환사 주문',
+    welcome_feat2_desc: '스마트 힌트 (💡), 실행 취소 (⏪), 위치 교환 (⚡). 신기록 달성 시 충전!',
+    welcome_feat3_title: '미션 & 독점 3D 트로피',
+    welcome_feat3_desc: '7가지 퀘스트를 완료하여 마스터를 위한 독점 3D 골드 트로피를 획득하세요.',
+    welcome_feat4_title: '자동 저장 & 경기 분석',
+    welcome_feat4_desc: '새로고침 시 자동 저장. APM, 시간, 이동 횟수 등 상세 경기 분석 제공.',
+    welcome_controls_title: '조작 가이드',
+    welcome_device_pc: '💻 데스크톱 & 노트북',
+    welcome_device_mobile: '📱 모바일 & 태블릿',
+    welcome_dont_show: '시작 시 자동으로 표시하지 않기',
+    welcome_btn_start: '지금 시작하기',
 
     // Boss Mode
     boss_title: '보스 모드 활성화',
