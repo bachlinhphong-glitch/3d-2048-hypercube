@@ -243,6 +243,30 @@ class GameApp {
       });
     }
 
+    // Welcome Modal Language Switcher (VN / EN)
+    const updateWelcomeLangActive = (currentLang) => {
+      document.querySelectorAll('.welcome-lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-lang') === currentLang);
+      });
+    };
+    updateWelcomeLangActive(getCurrentLanguage());
+
+    document.querySelectorAll('.welcome-lang-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const lang = btn.getAttribute('data-lang');
+        setLanguage(lang);
+        updateWelcomeLangActive(lang);
+        const langSelect = document.getElementById('select-lang');
+        if (langSelect) langSelect.value = lang;
+        soundManager.playClick();
+      });
+    });
+
+    window.addEventListener('languageChanged', (e) => {
+      updateWelcomeLangActive(e.detail.lang);
+    });
+
     if (welcomeStartBtn) {
       welcomeStartBtn.addEventListener('click', (e) => {
         e.stopPropagation();

@@ -27,17 +27,17 @@
 
   <link rel="icon" type="image/svg+xml" href="./favicon.svg">
   <link rel="manifest" href="./manifest.json">
-  <link rel="stylesheet" href="./src/style.css?v=5.9.0">
+  <link rel="stylesheet" href="./src/style.css?v=6.0.0">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=5.9.0').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=6.0.0').then(reg => {
           reg.update();
         }).catch(() => {});
       });
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!sessionStorage.getItem('sw_reloaded_590')) {
-          sessionStorage.setItem('sw_reloaded_590', '1');
+        if (!sessionStorage.getItem('sw_reloaded_600')) {
+          sessionStorage.setItem('sw_reloaded_600', '1');
           window.location.reload();
         }
       });
@@ -543,7 +543,13 @@
             <p class="welcome-modal-subtitle" data-i18n="welcome_subtitle">Khám phá thế giới giải đố số học không gian 3 chiều mượt mà & đỉnh cao</p>
           </div>
         </div>
-        <button id="welcome-modal-close" class="settings-close-btn" aria-label="Đóng" title="Đóng">✕</button>
+        <div class="welcome-header-actions">
+          <div class="welcome-lang-picker">
+            <button type="button" class="welcome-lang-btn" data-lang="vi">🇻🇳 Tiếng Việt</button>
+            <button type="button" class="welcome-lang-btn" data-lang="en">🇬🇧 English</button>
+          </div>
+          <button id="welcome-modal-close" class="settings-close-btn" aria-label="Đóng" title="Đóng">✕</button>
+        </div>
       </div>
 
       <div class="welcome-modal-body">
