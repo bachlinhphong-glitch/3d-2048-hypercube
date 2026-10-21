@@ -406,6 +406,54 @@
     <div class="modal-card">
       <h2 id="modal-title" class="modal-title" data-i18n="modal_victory_title">CHIẾN THẮNG!</h2>
       <p id="modal-message" class="modal-message" data-i18n="modal_victory_msg">Chúc mừng bạn đã đạt khối 2048!</p>
+
+      <!-- Match Analytics Dashboard -->
+      <div id="modal-stats-container" class="modal-stats-container">
+        <div class="match-stat-item">
+          <svg class="match-stat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          <div class="match-stat-content">
+            <span class="match-stat-label" data-i18n="stat_time">Thời gian</span>
+            <span id="modal-stat-time" class="match-stat-val">00:00</span>
+          </div>
+        </div>
+
+        <div class="match-stat-item">
+          <svg class="match-stat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="13 17 18 12 13 7"></polyline>
+            <polyline points="6 17 11 12 6 7"></polyline>
+          </svg>
+          <div class="match-stat-content">
+            <span class="match-stat-label" data-i18n="stat_moves">Số bước</span>
+            <span id="modal-stat-moves" class="match-stat-val">0</span>
+          </div>
+        </div>
+
+        <div class="match-stat-item">
+          <svg class="match-stat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+          <div class="match-stat-content">
+            <span class="match-stat-label" data-i18n="stat_apm">Tốc độ (APM)</span>
+            <span id="modal-stat-apm" class="match-stat-val">0</span>
+          </div>
+        </div>
+
+        <div class="match-stat-item">
+          <svg class="match-stat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+            <line x1="12" y1="22.08" x2="12" y2="12"></line>
+          </svg>
+          <div class="match-stat-content">
+            <span class="match-stat-label" data-i18n="stat_max_tile">Khối lớn nhất</span>
+            <span id="modal-stat-max-tile" class="match-stat-val">2</span>
+          </div>
+        </div>
+      </div>
+
       <div class="modal-actions">
         <button id="modal-btn-secondary" class="modal-btn secondary" data-i18n="modal_btn_new_game">
           <svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>

@@ -80,6 +80,14 @@ class GameApp {
     // Combo counter for merge audio
     this.comboCount = 0;
 
+    // Match Analytics & Tracking
+    this.moveCount = 0;
+    this.matchStartTime = Date.now();
+    this.elapsedSeconds = 0;
+    this.maxTileValue = 2;
+    this.mergeCount = 0;
+    this.mergeTierCounts = {};
+
     // Hardware Adaptive Performance State
     this.targetFps = localStorage.getItem('3d2048_target_fps') || '120';
     this.lastRenderTimestamp = performance.now();
@@ -1004,6 +1012,11 @@ class GameApp {
       }
       const state = this.gameLogic.serializeState();
       state.rushTime = this.rushTime;
+      state.moveCount = this.moveCount;
+      state.elapsedSeconds = Math.round((Date.now() - this.matchStartTime) / 1000);
+      state.maxTileValue = this.maxTileValue;
+      state.mergeCount = this.mergeCount;
+      state.mergeTierCounts = this.mergeTierCounts;
       localStorage.setItem(`3d2048_saved_${this.mode}`, JSON.stringify(state));
     } catch {}
   }
@@ -1031,6 +1044,12 @@ class GameApp {
 
       this.gameLogic.deserializeState(data);
       this.rushTime = data.rushTime || 30.0;
+      this.moveCount = data.moveCount || 0;
+      this.elapsedSeconds = data.elapsedSeconds || 0;
+      this.matchStartTime = Date.now() - (this.elapsedSeconds * 1000);
+      this.maxTileValue = data.maxTileValue || 2;
+      this.mergeCount = data.mergeCount || 0;
+      this.mergeTierCounts = data.mergeTierCounts || {};
 
       for (let l = 0; l < data.grid.length; l++) {
         for (let r = 0; r < data.grid[l].length; r++) {
@@ -1041,6 +1060,7 @@ class GameApp {
               this.tiles3D[l][r][c] = tile3D;
               this.gameLogic.setTile(l, r, c, { value: cell.value, id: tile3D.id, isBomb: cell.isBomb, bombCountdown: cell.bombCountdown });
               tile3D.spawnAnimation();
+              this.maxTileValue = Math.max(this.maxTileValue, cell.value);
             }
           }
         }
@@ -1048,7 +1068,7 @@ class GameApp {
 
       this.updateScoreUI();
       this.updateSpellUI();
-      this.showSpellToast('💾 Đã khôi phục ván chơi trước!');
+      this.showSpellToast(t('toast_restore_saved'));
 
       if (!this.gameLogic.hasValidMoves()) {
         setTimeout(() => {
@@ -1092,7 +1112,7 @@ class GameApp {
           shareData.files = [snapshotFile];
         }
         await navigator.share(shareData);
-        this.showSpellToast('🎉 Đã chia sẻ thành công!');
+        this.showSpellToast('Đã chia sẻ thành công!');
         return;
       } catch (err) {
         if (err.name === 'AbortError') return;
@@ -1102,7 +1122,7 @@ class GameApp {
 
     try {
       await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
-      this.showSpellToast('📋 Đã sao chép link & điểm số vào bộ nhớ đệm!');
+      this.showSpellToast('Đã sao chép link & điểm số vào bộ nhớ đệm!');
     } catch {
       this.showSpellToast(`Điểm của bạn: ${score.toLocaleString()} điểm!`);
     }
@@ -1120,6 +1140,14 @@ class GameApp {
     }
 
     this.clearSavedGameState();
+
+    // Reset match analytics
+    this.moveCount = 0;
+    this.matchStartTime = Date.now();
+    this.elapsedSeconds = 0;
+    this.maxTileValue = 2;
+    this.mergeCount = 0;
+    this.mergeTierCounts = {};
 
     // Clean all 3D tiles from grid and scene
     this.cleanAllSceneTiles();
@@ -1200,6 +1228,7 @@ class GameApp {
     }
 
     this.isAnimating = true;
+    this.moveCount++;
     this.comboCount = 0; // Reset combo per move
     this.recentMoves.push(performance.now());
     this.sceneManager.requestShadowUpdate(25);
@@ -1291,6 +1320,9 @@ class GameApp {
     mergesToProcess.forEach(m => {
       const surviving = this.tiles3D[m.targetL][m.targetR][m.targetC];
       maxMergedVal = Math.max(maxMergedVal, m.newValue);
+      this.mergeCount++;
+      this.maxTileValue = Math.max(this.maxTileValue, m.newValue);
+      this.mergeTierCounts[m.newValue] = (this.mergeTierCounts[m.newValue] || 0) + 1;
 
       if (surviving && surviving !== m.sourceTile) {
         m.sourceTile.dispose(true);
@@ -1463,6 +1495,21 @@ class GameApp {
   showModal({ title, message, primaryText, secondaryText, onPrimary, onSecondary }) {
     this.modalTitle.textContent = title;
     this.modalMessage.textContent = message;
+
+    // Update Match Analytics UI in Modal
+    const totalSecs = Math.max(1, Math.round((Date.now() - this.matchStartTime) / 1000));
+    const mins = Math.floor(totalSecs / 60).toString().padStart(2, '0');
+    const secs = (totalSecs % 60).toString().padStart(2, '0');
+    const apm = ((this.moveCount / totalSecs) * 60).toFixed(1);
+
+    const timeEl = document.getElementById('modal-stat-time');
+    if (timeEl) timeEl.textContent = `${mins}:${secs}`;
+    const movesEl = document.getElementById('modal-stat-moves');
+    if (movesEl) movesEl.textContent = `${this.moveCount}`;
+    const apmEl = document.getElementById('modal-stat-apm');
+    if (apmEl) apmEl.textContent = `${apm}`;
+    const maxTileEl = document.getElementById('modal-stat-max-tile');
+    if (maxTileEl) maxTileEl.textContent = `${this.maxTileValue}`;
 
     const spanPri = this.modalBtnPrimary.querySelector('span');
     if (spanPri) {
@@ -1803,6 +1850,9 @@ class GameApp {
 
   updateTelemetryAndStats() {
     const now = performance.now();
+    if (!this.gameLogic.gameOver) {
+      this.elapsedSeconds = Math.max(0, Math.round((Date.now() - this.matchStartTime) / 1000));
+    }
     const elapsed = now - this.lastFpsTimestamp;
     const fps = elapsed > 0 ? Math.round((this.frameCount * 1000) / elapsed) : 60;
     this.frameCount = 0;

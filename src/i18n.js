@@ -120,6 +120,14 @@ export const DICTIONARY = {
     modal_btn_continue: 'Tiếp tục',
     modal_btn_share: 'Chia sẻ điểm',
 
+    // Match Analytics
+    stat_time: 'Thời gian',
+    stat_moves: 'Số bước',
+    stat_apm: 'Tốc độ (APM)',
+    stat_max_tile: 'Khối lớn nhất',
+    stat_merges: 'Lượt gộp',
+    toast_restore_saved: 'Đã khôi phục ván chơi trước!',
+
     // Boss Mode
     boss_title: 'BOSS MODE ACTIVATED',
     stage_clear_title: 'STAGE CLEAR!',
@@ -267,6 +275,14 @@ export const DICTIONARY = {
     modal_btn_new_game: 'Play Again',
     modal_btn_continue: 'Continue',
     modal_btn_share: 'Share Score',
+
+    // Match Analytics
+    stat_time: 'Time',
+    stat_moves: 'Moves',
+    stat_apm: 'Speed (APM)',
+    stat_max_tile: 'Highest Tile',
+    stat_merges: 'Merges',
+    toast_restore_saved: 'Restored previous game session!',
 
     // Boss Mode
     boss_title: 'BOSS MODE ACTIVATED',
@@ -416,6 +432,14 @@ export const DICTIONARY = {
     modal_btn_continue: '続ける',
     modal_btn_share: 'スコア共有',
 
+    // Match Analytics
+    stat_time: '時間',
+    stat_moves: '手',
+    stat_apm: '速度 (APM)',
+    stat_max_tile: '最大タイル',
+    stat_merges: '合体回数',
+    toast_restore_saved: '前回のゲームを復元しました！',
+
     // Boss Mode
     boss_title: 'ボスモード起動',
     stage_clear_title: 'ステージクリア！',
@@ -563,6 +587,14 @@ export const DICTIONARY = {
     modal_btn_new_game: '다시 하기',
     modal_btn_continue: '계속하기',
     modal_btn_share: '점수 공유',
+
+    // Match Analytics
+    stat_time: '시간',
+    stat_moves: '이동 수',
+    stat_apm: '속도 (APM)',
+    stat_max_tile: '최고 타일',
+    stat_merges: '병합 횟수',
+    toast_restore_saved: '이전 게임을 복원했습니다!',
 
     // Boss Mode
     boss_title: '보스 모드 활성화',
