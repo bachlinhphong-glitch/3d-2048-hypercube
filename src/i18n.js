@@ -212,7 +212,7 @@ export const DICTIONARY = {
     toast_ai_stop: 'AI AUTO-PLAY: ĐÃ TẠM DỪNG',
 
     // Quests & 3D Trophy
-    btn_quests: 'Cúp & Nhiệm vụ',
+    btn_quests: 'Cúp',
     quests_tooltip: 'Xem nhiệm vụ và Cúp 2048 3D độc quyền',
     trophy_modal_title: 'NHIỆM VỤ & CÚP 2048 ĐỘC QUYỀN',
     trophy_modal_subtitle: 'Hoàn thành 7 nhiệm vụ để mở khóa Cúp Vàng 3D vinh danh bậc thầy',
@@ -438,7 +438,7 @@ export const DICTIONARY = {
     toast_ai_stop: 'AI AUTO-PLAY: PAUSED',
 
     // Quests & 3D Trophy
-    btn_quests: 'Trophy & Quests',
+    btn_quests: 'Quests',
     quests_tooltip: 'View quests & exclusive 3D 2048 Trophy',
     trophy_modal_title: 'QUESTS & EXCLUSIVE 3D TROPHY',
     trophy_modal_subtitle: 'Complete all 7 quests to unlock the golden 3D Master Trophy',
@@ -664,7 +664,7 @@ export const DICTIONARY = {
     toast_ai_stop: 'AI自動プレイ: 一時停止',
 
     // Quests & 3D Trophy
-    btn_quests: 'トロフィー＆クエスト',
+    btn_quests: 'クエスト',
     quests_tooltip: 'クエストと限定3Dトロフィーを表示',
     trophy_modal_title: 'クエスト＆限定3Dトロフィー',
     trophy_modal_subtitle: '7つのクエストをすべて完了して限定3Dトロフィーをアンロック',
@@ -890,7 +890,7 @@ export const DICTIONARY = {
     toast_ai_stop: 'AI 자동 재생: 일시 중지',
 
     // Quests & 3D Trophy
-    btn_quests: '트로피 & 퀘스트',
+    btn_quests: '퀘스트',
     quests_tooltip: '퀘스트 및 독점 3D 트로피 보기',
     trophy_modal_title: '퀘스트 & 독점 3D 트로피',
     trophy_modal_subtitle: '7개 퀘스트를 모두 완료하여 3D 마스터 골드 트로피 잠금 해제',
