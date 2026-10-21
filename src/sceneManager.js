@@ -41,17 +41,27 @@ export class SceneManager {
   }
 
   initRenderer() {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const isMobile = isIOS || /Android/i.test(navigator.userAgent) || 
+                     (navigator.maxTouchPoints && navigator.maxTouchPoints > 1);
+
     this.renderer = new THREE.WebGLRenderer({
-      antialias: true,
+      antialias: !isIOS, // On iOS Retina (3x density), hardware MSAA overloads WebKit causing 20-30 FPS drops
       powerPreference: 'high-performance',
       stencil: false,
       depth: true,
       alpha: true,
       preserveDrawingBuffer: false,
-      failIfMajorPerformanceCaveat: false
+      failIfMajorPerformanceCaveat: false,
+      precision: isMobile ? 'mediump' : 'highp'
     });
     this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
-    this.renderer.setPixelRatio(1.0);
+    
+    // Clamp DPR cleanly on iOS & mobile to eliminate thermal throttling and guarantee 60-120 FPS
+    const maxDPR = isIOS ? 1.5 : (isMobile ? 1.5 : 1.0);
+    const dpr = Math.min(window.devicePixelRatio || 1, maxDPR);
+    this.renderer.setPixelRatio(dpr);
 
     // Completely disable dynamic shadow maps for ultra-smooth 60+ FPS
     this.renderer.shadowMap.enabled = false;
@@ -743,11 +753,13 @@ export class SceneManager {
     this.camera.updateProjectionMatrix();
 
     // Mobile hardware pixel ratio clamping:
-    // Mobile screens often have 3x or 3.5x DPR. Clamping to max 1.75 on mobile preserves razor-sharp
-    // visuals while preventing GPU thermal throttling and battery drain.
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+    // iOS and high-PPI mobile screens often report 3x or 3.5x DPR. Clamping to max 1.5 on mobile/iOS
+    // preserves razor-sharp visuals while keeping WebKit GPU fill-rate ultra light for 60/120 FPS.
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const isMobile = isIOS || /Android/i.test(navigator.userAgent) ||
                      (navigator.maxTouchPoints && navigator.maxTouchPoints > 1);
-    const maxDPR = isMobile ? 1.75 : 1.0;
+    const maxDPR = isIOS ? 1.5 : (isMobile ? 1.5 : 1.0);
     const dpr = Math.min(window.devicePixelRatio || 1, maxDPR);
     this.renderer.setPixelRatio(dpr);
 

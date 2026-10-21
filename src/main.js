@@ -2269,12 +2269,19 @@ class GameApp {
     requestAnimationFrame((t) => this.animate(t));
 
     // 1. Hardware Target FPS Limiter (Tối ưu phần cứng & tần số quét 60 / 120 / 165 / 300)
-    if (this.targetFps !== 'max') {
+    const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const isMobileDevice = isIOSDevice || /Android/i.test(navigator.userAgent) || 
+                           (navigator.maxTouchPoints && navigator.maxTouchPoints > 1);
+
+    // On iOS and mobile WebKit, rAF is natively hardware VSync locked (60Hz / 120Hz ProMotion).
+    // Artificially skipping frames with micro-thresholds causes WebKit to drop alternate frames down to 20-30 FPS!
+    if (!isMobileDevice && this.targetFps !== 'max') {
       const targetFpsNum = parseInt(this.targetFps, 10) || 120;
       const targetInterval = 1000 / targetFpsNum;
       const elapsed = timestamp - this.lastRenderTimestamp;
       if (elapsed < targetInterval - 0.75) {
-        return; // Bỏ qua render frame để giảm nhiệt độ máy, êm quạt và tiết kiệm pin
+        return; // Bỏ qua render frame để giảm nhiệt độ máy trên desktop
       }
       this.lastRenderTimestamp = timestamp - (elapsed % targetInterval);
     } else {
@@ -2283,23 +2290,9 @@ class GameApp {
 
     const delta = Math.min(this.clock.getDelta(), 0.05);
 
-    // 2. Smart Idle Power-Saver (Giảm tải khi người chơi đang suy nghĩ)
-    const idleTime = timestamp - this.lastUserInteraction;
-    const isBusy = this.isAnimating || 
-                   this.particleSystem.activeCount > 0 || 
-                   this.isRushMode || 
-                   this.isBossRaid ||
-                   this.currentTheme === 'neon' || 
-                   this.currentShape === 'crystal_octahedron' || 
-                   this.currentShape === 'auto_evolution';
-
-    if (!isBusy && idleTime > 3500) {
-      const idleInterval = 1000 / 30; // 30 FPS khi đứng yên để máy không bị quá nhiệt
-      const idleElapsed = timestamp - this.lastIdleTimestamp;
-      if (idleElapsed < idleInterval - 1.0) {
-        return;
-      }
-      this.lastIdleTimestamp = timestamp;
+    // 2. Tab Background Power-Saver (Chỉ tạm dừng rAF khi người dùng chuyển tab/ẩn app)
+    if (document.hidden) {
+      return;
     }
 
     // 3. Update Rush Mode internal countdown (pure math - zero DOM writes in rAF)

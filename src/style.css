@@ -2784,59 +2784,159 @@ body.theme-gentle_light .boss-v-val {
 
 /* Smartphone Portrait & Small Screens (<= 768px) */
 @media (max-width: 768px) {
+  /* 1. Hide the floating desktop theme demo bar on mobile to declutter 3D view */
+  #demo-theme-switcher,
+  .demo-theme-switcher {
+    display: none !important;
+  }
+
+  /* 2. Structured 2-Row Header Layout for Mobile */
   .header-bar {
-    padding: 5px 8px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 10px;
+    gap: 6px 8px;
+    width: calc(100% - 16px);
+    max-width: 480px;
+    margin: 4px auto 0;
+    border-radius: 14px;
+    box-sizing: border-box;
+  }
+
+  /* ROW 1: Brand (Left), Score/Best (Center), Main Actions (Right) */
+  .header-brand-cluster {
+    order: 1;
+    display: flex;
+    align-items: center;
     gap: 6px;
-    width: 99vw;
-    border-radius: 12px;
+    flex-shrink: 0;
   }
 
   .game-title {
-    font-size: 18px;
+    font-size: 20px;
+    font-weight: 900;
   }
 
-  .header-modes-cluster .btn-text {
-    display: none;
-  }
-
-  .header-modes-cluster .glass-btn {
-    padding: 5px 8px;
-  }
-
-  .glass-select {
-    padding: 4px 6px;
-    font-size: 10px;
-    max-width: 110px;
-  }
-
-  .shape-quick-wrapper .shape-prefix-icon {
-    left: 6px;
-    width: 12px;
-    height: 12px;
-  }
-
-  .shape-quick-select {
-    max-width: 120px;
-    font-size: 10px;
-    padding: 4px 6px 4px 22px;
+  .header-stats-cluster {
+    order: 2;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
   }
 
   .stat-pill {
-    min-width: 52px;
-    padding: 2px 6px;
+    min-width: 48px;
+    padding: 2px 7px;
+    border-radius: 9px;
   }
 
   .stat-label {
     font-size: 8px;
+    letter-spacing: 0.3px;
   }
 
   .stat-value {
     font-size: 13px;
+    font-weight: 800;
   }
 
-  .glass-btn {
+  .header-actions-cluster {
+    order: 3;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .header-actions-cluster .glass-btn {
     padding: 5px 8px;
+    font-size: 11px;
+    height: 32px;
+    min-height: 32px;
+  }
+
+  .header-actions-cluster .icon-only-btn {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
+    padding: 5px;
+  }
+
+  .header-actions-cluster .header-icon-svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* ROW 2: Shapes & Game Modes Bar (Spans full width across mobile header) */
+  .header-modes-cluster {
+    order: 4;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 5px;
+    padding-top: 5px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    margin-top: 2px;
+  }
+
+  body.theme-gentle_light .header-modes-cluster,
+  body.theme-zen_clay .header-modes-cluster {
+    border-top-color: rgba(187, 173, 160, 0.28);
+  }
+
+  .shape-quick-wrapper {
+    flex: 1.25;
+    min-width: 90px;
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .shape-quick-wrapper .shape-prefix-icon {
+    left: 6px;
+    width: 13px;
+    height: 13px;
+  }
+
+  .shape-quick-select {
+    width: 100%;
+    max-width: 100%;
+    height: 30px;
     font-size: 10.5px;
+    padding: 3px 6px 3px 22px;
+  }
+
+  .header-modes-cluster .glass-btn {
+    flex: 1;
+    height: 30px;
+    min-height: 30px;
+    padding: 3px 6px;
+    font-size: 10px;
+    justify-content: center;
+    gap: 3px;
+  }
+
+  .header-modes-cluster .header-btn-svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+
+  .header-modes-cluster .btn-text {
+    display: inline-block;
+    font-size: 10px;
+    white-space: nowrap;
+  }
+
+  .header-modes-cluster .quest-badge {
+    font-size: 8.5px;
+    padding: 1px 4px;
+    margin-left: 2px;
   }
 
   /* Side panels on mobile */
@@ -2943,35 +3043,64 @@ body.theme-gentle_light .boss-v-val {
 /* Ultra-compact screens (<= 420px) */
 @media (max-width: 420px) {
   .header-bar {
-    padding: 4px 6px;
-    gap: 4px;
-  }
-
-  .fps-badge {
-    display: none;
+    padding: 5px 7px;
+    gap: 4px 6px;
   }
 
   .game-title {
-    font-size: 16px;
-  }
-
-  .header-actions-cluster .btn-text {
-    display: none;
-  }
-
-  .shape-quick-select {
-    max-width: 95px;
-    font-size: 9px;
-    padding: 3px 5px 3px 20px;
+    font-size: 17px;
   }
 
   .stat-pill {
-    min-width: 44px;
-    padding: 2px 4px;
+    min-width: 42px;
+    padding: 2px 5px;
   }
 
   .stat-value {
     font-size: 12px;
+  }
+
+  .header-actions-cluster #btn-new-game .btn-text {
+    display: none; /* Hide text on new game button to keep row 1 neat and balanced */
+  }
+
+  .header-actions-cluster #btn-new-game {
+    width: 32px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .header-modes-cluster {
+    gap: 4px;
+    padding-top: 4px;
+  }
+
+  .shape-quick-select {
+    font-size: 9.5px;
+    padding: 2px 4px 2px 20px;
+  }
+
+  .header-modes-cluster .glass-btn {
+    padding: 2px 4px;
+    font-size: 9px;
+  }
+
+  .header-modes-cluster .btn-text {
+    font-size: 9px;
+  }
+}
+
+@media (max-width: 375px) {
+  .header-modes-cluster .btn-text {
+    display: none; /* Clean icon-only mode buttons on iPhone SE */
+  }
+  .header-modes-cluster .glass-btn {
+    flex: 0 0 auto;
+    width: 32px;
+    padding: 0;
+  }
+  .shape-quick-wrapper {
+    flex: 1;
   }
 }
 
@@ -3280,21 +3409,35 @@ body.theme-zen_clay .stat-value {
 
 body.theme-gentle_light .spell-bar .spell-btn,
 body.theme-zen_clay .spell-bar .spell-btn {
-  background: rgba(255, 255, 255, 0.94);
-  border: 1px solid rgba(187, 173, 160, 0.35);
-  color: #776e65;
-  box-shadow: 0 6px 20px rgba(187, 173, 160, 0.22);
+  background: rgba(255, 255, 255, 0.96);
+  border: 1.5px solid rgba(187, 173, 160, 0.45);
+  box-shadow: 0 6px 20px rgba(187, 173, 160, 0.25);
+}
+
+body.theme-gentle_light .spell-bar .spell-name,
+body.theme-zen_clay .spell-bar .spell-name {
+  color: #292524 !important;
+  font-weight: 800;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
 body.theme-gentle_light .spell-bar .spell-svg,
 body.theme-zen_clay .spell-bar .spell-svg {
-  color: #f65e3b;
+  color: #ea580c !important;
+}
+
+body.theme-gentle_light .spell-bar .spell-kbd,
+body.theme-zen_clay .spell-bar .spell-kbd {
+  color: #78716c;
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(187, 173, 160, 0.45);
 }
 
 body.theme-gentle_light .spell-bar .spell-badge,
 body.theme-zen_clay .spell-bar .spell-badge {
-  background: #f65e3b;
+  background: #ea580c;
   color: #ffffff;
+  font-weight: 800;
 }
 
 body.theme-gentle_light .bottom-bar .hint-compact-pill,
@@ -3404,10 +3547,17 @@ body.theme-modern_slate .shape-quick-select {
 
 body.theme-gentle_dark .spell-bar .spell-btn,
 body.theme-modern_slate .spell-bar .spell-btn {
-  background: rgba(36, 33, 29, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(36, 33, 29, 0.94);
+  border: 1.5px solid rgba(255, 255, 255, 0.14);
   color: #e8ded4;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+}
+
+body.theme-gentle_dark .spell-bar .spell-name,
+body.theme-modern_slate .spell-bar .spell-name {
+  color: #f5f5f4 !important;
+  font-weight: 800;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
 }
 
 body.theme-gentle_dark .spell-bar .spell-svg,
@@ -3608,21 +3758,6 @@ body.theme-modern_slate .spell-toast {
   border: 1.5px solid rgba(255, 255, 255, 0.12);
   color: #e8ded4;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-}
-
-@media (max-width: 480px) {
-  .demo-theme-switcher {
-    top: 52px;
-    padding: 3px 8px;
-    gap: 4px;
-  }
-  .demo-switcher-label {
-    display: none;
-  }
-  .demo-switch-btn {
-    padding: 4px 8px;
-    font-size: 10px;
-  }
 }
 
 /* The background-image is set dynamically via JS for custom theme */
