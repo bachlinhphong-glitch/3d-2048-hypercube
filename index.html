@@ -33,17 +33,17 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./src/style.css?v=6.5.0">
+  <link rel="stylesheet" href="./src/style.css?v=6.5.1">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=6.5.0').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=6.5.1').then(reg => {
           reg.update();
         }).catch(() => {});
       });
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!sessionStorage.getItem('sw_reloaded_650')) {
-          sessionStorage.setItem('sw_reloaded_650', '1');
+        if (!sessionStorage.getItem('sw_reloaded_651')) {
+          sessionStorage.setItem('sw_reloaded_651', '1');
           window.location.reload();
         }
       });
@@ -236,17 +236,19 @@
     <!-- Golden Cinematic Screen Flash -->
     <div id="cinematic-flash" class="cinematic-flash"></div>
 
-    <!-- Side Panel: Time Rush Overdrive Mode -->
+    <!-- HUD Panel: Time Rush Overdrive Mode (Streamlined Pill Capsule) -->
     <div id="rush-panel" class="rush-panel">
-      <div class="rush-title">
-        <span>Time Rush</span>
-        <span>Bomb Active</span>
+      <div class="rush-header-row">
+        <div class="rush-title-cluster">
+          <span class="rush-badge-mode" data-i18n="rush_mode_title">⚡ Đua Giờ</span>
+          <span class="rush-badge-bomb" data-i18n="rush_bomb_active">💣 Bom Hẹn Giờ</span>
+        </div>
+        <div class="rush-timer" id="rush-timer-val">30.0s</div>
       </div>
-      <div class="rush-timer" id="rush-timer-val">30.0s</div>
       <div class="rush-progress-track">
         <div id="rush-progress-bar" class="rush-progress-bar"></div>
       </div>
-      <div id="rush-floating-fx"></div>
+      <div id="rush-floating-fx" class="rush-floating-fx"></div>
     </div>
 
     <!-- 3D Layer Movement Controls replaced by D-Pad below -->
@@ -1059,6 +1061,6 @@
   </div>
 
   <!-- Main Game Script -->
-  <script type="module" src="./src/main.js?v=6.5.0"></script>
+  <script type="module" src="./src/main.js?v=6.5.1"></script>
 </body>
 </html>

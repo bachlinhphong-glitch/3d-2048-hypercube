@@ -583,12 +583,6 @@ class GameApp {
     window.addEventListener('touchstart', unlockAudio, { once: true, passive: true });
     window.addEventListener('pointerdown', unlockAudio, { once: true, passive: true });
 
-    // Rush Mode Toggle
-    if (this.rushToggleBtn) {
-      this.rushToggleBtn.addEventListener('click', () => {
-        this.toggleRushMode();
-      });
-    }
 
     // Summoner Spells Elements (Gợi ý, Đi lại, Đổi vị trí)
     this.btnSpellHint = document.getElementById('btn-spell-hint');
@@ -805,7 +799,7 @@ class GameApp {
 
     if (this.rushToggleBtn) {
       const textEl = this.rushToggleBtn.querySelector('.btn-text');
-      if (textEl) textEl.textContent = `${t('btn_rush')}${this.isRushMode ? ': ON' : ''}`;
+      if (textEl) textEl.textContent = t('btn_rush') || 'Đua giờ';
       this.rushToggleBtn.classList.toggle('active', this.isRushMode);
     }
 
@@ -1059,7 +1053,7 @@ class GameApp {
     }
     if (this.rushToggleBtn) {
       const textEl = this.rushToggleBtn.querySelector('.btn-text');
-      if (textEl) textEl.textContent = `${t('btn_rush')}${this.isRushMode ? ': ON' : ''}`;
+      if (textEl) textEl.textContent = t('btn_rush') || 'Đua giờ';
     }
   }
 
