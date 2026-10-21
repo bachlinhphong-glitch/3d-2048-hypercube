@@ -229,7 +229,7 @@ export class BossManager {
     if (this.hudEl) this.hudEl.style.display = 'flex';
     this.updateHUD();
 
-    this.triggerBanner('⚔️ CORE — PHASE 1', '500 HP | 60s');
+    this.triggerBanner('CORE — PHASE 1', '500 HP | 60s');
     soundManager.playPhaseTransition();
     soundManager.triggerHaptic('slide');
   }
@@ -482,7 +482,7 @@ export class BossManager {
       this.hp = 1500;
       this.updateHUD();
 
-      this.triggerBanner('⚡ CORE — PHASE 2', '1,500 HP | +45s (Đã dọn gọn các khối [2], [4])');
+      this.triggerBanner('CORE — PHASE 2', '1,500 HP | +45s (Đã dọn gọn các khối [2], [4])');
     } else if (this.phase === 2) {
       // Phase 2 -> Phase 3
       this.emitExpandingRingWave(0xfbbf24);
@@ -653,10 +653,10 @@ export class BossManager {
 
   showStageClearModal(clearTimeStr) {
     this.gameApp.showModal({
-      title: '✨ STAGE CLEAR — CORE DESTROYED',
-      message: `Tuyệt phẩm! Bạn đã hòa hợp khối [2048] và tiêu diệt hoàn toàn Dark Singularity Core!\n\n⏱️ Thời gian hoàn thành: ${clearTimeStr}\nĐiểm số đạt được: ${this.gameApp.gameLogic.score.toLocaleString()} điểm`,
-      primaryText: '🎮 Chơi lại ngay',
-      secondaryText: '📤 Chia sẻ kết quả',
+      title: 'STAGE CLEAR — CORE DESTROYED',
+      message: `Tuyệt phẩm! Bạn đã hòa hợp khối [2048] và tiêu diệt hoàn toàn Dark Singularity Core!\n\nThời gian hoàn thành: ${clearTimeStr}\nĐiểm số đạt được: ${this.gameApp.gameLogic.score.toLocaleString()} điểm`,
+      primaryText: 'Chơi lại ngay',
+      secondaryText: 'Chia sẻ kết quả',
       onPrimary: () => {
         this.gameApp.hideModal();
         this.gameApp.isAnimating = false;
@@ -673,10 +673,10 @@ export class BossManager {
     soundManager.playGameOver();
 
     this.gameApp.showModal({
-      title: '💀 THẤT BẠI (GAME OVER)',
+      title: 'THẤT BẠI (GAME OVER)',
       message: `Hết giờ trong chế độ Boss Mode!\nNăng lượng hắc ám đã tiêu hao: ${(this.maxHp - this.hp).toLocaleString()} / ${this.maxHp.toLocaleString()} HP`,
-      primaryText: '🎮 Chơi lại ngay',
-      secondaryText: '🎮 Ván mới',
+      primaryText: 'Chơi lại ngay',
+      secondaryText: 'Ván mới',
       onPrimary: () => {
         this.gameApp.hideModal();
         this.gameApp.isAnimating = false;
@@ -726,8 +726,8 @@ export class BossManager {
     this.gameApp.spawnSpecificTile(0, 0, 0, 1024);
     this.gameApp.spawnSpecificTile(0, 0, 1, 1024);
 
-    this.triggerBanner('💥 CORE — PHASE 3', 'Trượt sang Trái (A / ←) để gộp 2 khối [1024] -> [2048]!');
-    this.gameApp.showSpellToast('⚡ Sẵn sàng: Trượt sang Trái để hủy diệt Dark Singularity Core!');
+    this.triggerBanner('CORE — PHASE 3', 'Trượt sang Trái (A / ←) để gộp 2 khối [1024] -> [2048]!');
+    this.gameApp.showSpellToast('Sẵn sàng: Trượt sang Trái để hủy diệt Dark Singularity Core!');
   }
 
   clearVFX() {

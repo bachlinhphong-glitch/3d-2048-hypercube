@@ -322,12 +322,76 @@ body.theme-telemetry .glass-select {
   border-color: rgba(255, 255, 255, 0.3);
 }
 
+/* Unified Minimalist Vector Iconography (Cohesive SF/Lucide Style) */
+.ui-svg-icon,
+.header-btn-svg,
+.demo-btn-svg,
+.hint-svg,
+.settings-header-svg,
+.trophy-header-svg {
+  display: inline-block;
+  vertical-align: middle;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+.header-btn-svg {
+  width: 15px;
+  height: 15px;
+}
+
+.demo-btn-svg {
+  width: 13px;
+  height: 13px;
+}
+
+.hint-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.hint-svg {
+  width: 13px;
+  height: 13px;
+}
+
+.settings-header-svg,
+.trophy-header-svg {
+  width: 22px;
+  height: 22px;
+  color: currentColor;
+}
+
+.shape-quick-wrapper {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+}
+
+.shape-quick-wrapper .shape-prefix-icon {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  pointer-events: none;
+  color: currentColor;
+  opacity: 0.85;
+}
+
 .shape-quick-select {
   background: rgba(13, 17, 23, 0.88);
   border: 1px solid rgba(0, 240, 255, 0.38);
   color: #00f0ff;
   font-weight: 700;
-  padding: 5px 10px;
+  padding: 5px 10px 5px 28px;
   border-radius: var(--radius-sm);
   cursor: pointer;
   outline: none;
@@ -734,6 +798,21 @@ body.theme-telemetry .glass-select {
   background: rgba(255, 255, 255, 0.05);
   border-radius: 10px;
   flex-shrink: 0;
+  color: #f0f6fc;
+}
+
+.quest-svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  display: block;
+}
+
+.quest-done-badge {
+  display: inline-flex;
+  align-items: center;
+  color: #2ecc71;
+  font-weight: 700;
 }
 
 .quest-item-details {
@@ -1630,10 +1709,16 @@ body.theme-telemetry .glass-select {
     max-width: 110px;
   }
 
+  .shape-quick-wrapper .shape-prefix-icon {
+    left: 6px;
+    width: 12px;
+    height: 12px;
+  }
+
   .shape-quick-select {
-    max-width: 125px;
+    max-width: 120px;
     font-size: 10px;
-    padding: 4px 6px;
+    padding: 4px 6px 4px 22px;
   }
 
   .stat-pill {
@@ -1777,7 +1862,7 @@ body.theme-telemetry .glass-select {
   .shape-quick-select {
     max-width: 95px;
     font-size: 9px;
-    padding: 3px 5px;
+    padding: 3px 5px 3px 20px;
   }
 
   .stat-pill {

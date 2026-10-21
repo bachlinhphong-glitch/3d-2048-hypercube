@@ -4,7 +4,7 @@ import { TrophyModalViewer } from './trophy.js';
 export const QUEST_DEFS = [
   {
     id: 'q_reach_128',
-    icon: '🧊',
+    icon: `<svg class="quest-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>`,
     titleKey: 'quest_1_title',
     descKey: 'quest_1_desc',
     target: 128,
@@ -12,7 +12,7 @@ export const QUEST_DEFS = [
   },
   {
     id: 'q_all_modes',
-    icon: '🌌',
+    icon: `<svg class="quest-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>`,
     titleKey: 'quest_2_title',
     descKey: 'quest_2_desc',
     target: 3,
@@ -20,7 +20,7 @@ export const QUEST_DEFS = [
   },
   {
     id: 'q_rush_score',
-    icon: '⚡',
+    icon: `<svg class="quest-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
     titleKey: 'quest_3_title',
     descKey: 'quest_3_desc',
     target: 1000,
@@ -28,7 +28,7 @@ export const QUEST_DEFS = [
   },
   {
     id: 'q_boss_hit',
-    icon: '⚔️',
+    icon: `<svg class="quest-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><path d="M16 16l4 4"/><path d="M19 21l2-2"/><path d="M9.5 6.5L18 15"/></svg>`,
     titleKey: 'quest_4_title',
     descKey: 'quest_4_desc',
     target: 300,
@@ -36,7 +36,7 @@ export const QUEST_DEFS = [
   },
   {
     id: 'q_spells_master',
-    icon: '🔮',
+    icon: `<svg class="quest-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4V2"/><path d="M15 16v-2"/><path d="M8 9h2"/><path d="M20 9h2"/><path d="M17.8 11.8L19 13"/><path d="M15 9h0"/><path d="M17.8 6.2L19 5"/><path d="M3 21l9-9"/><path d="M12.2 6.2L11 5"/></svg>`,
     titleKey: 'quest_5_title',
     descKey: 'quest_5_desc',
     target: 3,
@@ -44,7 +44,7 @@ export const QUEST_DEFS = [
   },
   {
     id: 'q_combo_3',
-    icon: '💥',
+    icon: `<svg class="quest-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>`,
     titleKey: 'quest_6_title',
     descKey: 'quest_6_desc',
     target: 3,
@@ -52,7 +52,7 @@ export const QUEST_DEFS = [
   },
   {
     id: 'q_reach_2048',
-    icon: '👑',
+    icon: `<svg class="quest-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14v2H5z"/></svg>`,
     titleKey: 'quest_7_title',
     descKey: 'quest_7_desc',
     target: 2048,
@@ -282,7 +282,7 @@ export class QuestManager {
       this.badgeEl.textContent = `${completed}/${total}`;
       if (completed >= total) {
         this.badgeEl.classList.add('all-done');
-        this.badgeEl.textContent = '🏆 2048';
+        this.badgeEl.textContent = '2048';
       } else {
         this.badgeEl.classList.remove('all-done');
       }
@@ -297,7 +297,7 @@ export class QuestManager {
     this.triggerConfetti();
 
     if (this.game.showSpellToast) {
-      this.game.showSpellToast('🏆 BẠN ĐÃ MỞ KHÓA CÚP 2048 ĐỘC QUYỀN!');
+      this.game.showSpellToast('BẠN ĐÃ MỞ KHÓA CÚP 2048 ĐỘC QUYỀN!');
     }
 
     // Open modal to show trophy
@@ -329,10 +329,10 @@ export class QuestManager {
     if (statusEl) {
       if (this.isAllCompleted()) {
         statusEl.className = 'trophy-status-pill unlocked';
-        statusEl.innerHTML = '✨ ĐÃ MỞ KHÓA — CÚP VÀNG RÒNG 2048';
+        statusEl.innerHTML = '<svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> ĐÃ MỞ KHÓA — CÚP VÀNG RÒNG 2048';
       } else {
         statusEl.className = 'trophy-status-pill locked';
-        statusEl.innerHTML = `🔒 KHÓA — CÒN ${totalCount - completedCount} NHIỆM VỤ`;
+        statusEl.innerHTML = `<svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> KHÓA — CÒN ${totalCount - completedCount} NHIỆM VỤ`;
       }
     }
 
@@ -350,7 +350,7 @@ export class QuestManager {
         <div class="quest-item-details">
           <div class="quest-item-header">
             <span class="quest-item-title">${t(def.titleKey)}</span>
-            <span class="quest-item-status">${isDone ? '✅ Hoàn thành' : `${progressVal}/${def.target} ${def.unit}`}</span>
+            <span class="quest-item-status">${isDone ? '<span class="quest-done-badge"><svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px;"><polyline points="20 6 9 17 4 12"/></svg>Hoàn thành</span>' : `${progressVal}/${def.target} ${def.unit}`}</span>
           </div>
           <div class="quest-item-desc">${t(def.descKey)}</div>
           <div class="quest-item-progress-track">

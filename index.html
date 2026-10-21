@@ -87,35 +87,66 @@
 
       <!-- Cluster 3 (Center-Right): Shapes & Quick Modes -->
       <div class="header-modes-cluster">
-        <select id="header-select-shape" class="glass-select shape-quick-select" title="Chọn hình khối 3D" data-i18n-title="shape_tooltip">
-          <option value="auto_evolution" data-i18n="shape_auto" selected>🧬 Tiến Hóa Tự Động</option>
-          <option value="rounded_cube" data-i18n="shape_cube">🧊 Khối Bo Góc</option>
-          <option value="crystal_octahedron" data-i18n="shape_octahedron">💎 Bát Diện Kim Cương</option>
-          <option value="core_sphere" data-i18n="shape_sphere">🔮 Cầu Năng Lượng</option>
-          <option value="hex_prism" data-i18n="shape_hex">⬢ Lăng Trụ Lục Giác</option>
-          <option value="cyber_pyramid" data-i18n="shape_pyramid">🔺 Kim Tự Tháp</option>
-          <option value="star_dodecahedron" data-i18n="shape_dodecahedron">🌟 Thập Nhị Diện</option>
-          <option value="plasma_torus" data-i18n="shape_torus">🍩 Vòng Xoáy Năng Lượng</option>
-        </select>
+        <div class="shape-quick-wrapper">
+          <svg class="header-btn-svg shape-prefix-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+            <line x1="12" y1="22.08" x2="12" y2="12"></line>
+          </svg>
+          <select id="header-select-shape" class="glass-select shape-quick-select" title="Chọn hình khối 3D" data-i18n-title="shape_tooltip">
+            <option value="auto_evolution" data-i18n="shape_auto" selected>Tiến Hóa Tự Động</option>
+            <option value="rounded_cube" data-i18n="shape_cube">Khối Bo Góc</option>
+            <option value="crystal_octahedron" data-i18n="shape_octahedron">Bát Diện Kim Cương</option>
+            <option value="core_sphere" data-i18n="shape_sphere">Cầu Năng Lượng</option>
+            <option value="hex_prism" data-i18n="shape_hex">Lăng Trụ Lục Giác</option>
+            <option value="cyber_pyramid" data-i18n="shape_pyramid">Kim Tự Tháp</option>
+            <option value="star_dodecahedron" data-i18n="shape_dodecahedron">Thập Nhị Diện</option>
+            <option value="plasma_torus" data-i18n="shape_torus">Vòng Xoáy Năng Lượng</option>
+          </select>
+        </div>
         <button id="btn-toggle-rush" class="glass-btn rush-btn" data-i18n-title="rush_tooltip" title="Chế độ đếm ngược Time Rush">
-          <span class="btn-icon">⚡</span><span class="btn-text" data-i18n="btn_rush">Rush</span>
+          <svg class="header-btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+          <span class="btn-text" data-i18n="btn_rush">Rush</span>
         </button>
         <button id="btn-toggle-boss" class="glass-btn boss-btn" data-i18n-title="boss_tooltip" title="Bật/Tắt Boss Mode">
-          <span class="btn-icon">⚔️</span><span class="btn-text" data-i18n="btn_boss">Boss</span>
+          <svg class="header-btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14.5 17.5L3 6V3h3l11.5 11.5"></path>
+            <path d="M13 19l6-6"></path>
+            <path d="M16 16l4 4"></path>
+            <path d="M19 21l2-2"></path>
+            <path d="M9.5 17.5L21 6V3h-3L6.5 14.5"></path>
+            <path d="M11 19l-6-6"></path>
+            <path d="M8 16l-4 4"></path>
+            <path d="M5 21l-2-2"></path>
+          </svg>
+          <span class="btn-text" data-i18n="btn_boss">Boss</span>
         </button>
       </div>
 
       <!-- Cluster 4 (Right): Primary Actions (Quests + New Game + Settings) -->
       <div class="header-actions-cluster">
         <button id="btn-quests-toggle" class="glass-btn quest-btn" data-i18n-title="quests_tooltip" title="Nhiệm vụ & Cúp 3D">
-          <span class="btn-icon">🏆</span><span class="btn-text" data-i18n="btn_quests">Cúp</span>
+          <svg class="header-btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 9H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2"></path>
+            <path d="M18 9h2a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-2"></path>
+            <path d="M4 3h16v6a8 8 0 0 1-16 0V3z"></path>
+            <path d="M12 17v4"></path>
+            <path d="M8 21h8"></path>
+          </svg>
+          <span class="btn-text" data-i18n="btn_quests">Cúp</span>
           <span id="quest-badge" class="quest-badge">0/7</span>
         </button>
         <button id="btn-new-game" class="glass-btn primary" data-i18n-title="new_game_tooltip" title="Bắt đầu ván mới">
-          <span class="btn-icon">🎮</span><span class="btn-text" data-i18n="btn_new_game">Chơi mới</span>
+          <svg class="header-btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="1 4 1 10 7 10"></polyline>
+            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+          </svg>
+          <span class="btn-text" data-i18n="btn_new_game">Chơi mới</span>
         </button>
         <button id="btn-settings-toggle" class="glass-btn icon-only-btn" data-i18n-title="settings_tooltip" title="Cài đặt">
-          <svg class="header-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg class="header-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="3"></circle>
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
           </svg>
@@ -125,14 +156,43 @@
 
     <!-- Minimalist Visual Demo Switcher Pill -->
     <div id="demo-theme-switcher" class="demo-theme-switcher">
-      <span class="demo-switcher-label">🍃 HIỀN HÒA:</span>
-      <button class="demo-switch-btn active" data-theme="system" title="Tự động đồng bộ theo trình duyệt / hệ máy">🌓 Tự động</button>
-      <button class="demo-switch-btn" data-theme="gentle_light">🌱 Sáng</button>
-      <button class="demo-switch-btn" data-theme="gentle_dark">🌙 Tối</button>
-      <button class="demo-switch-btn demo-btn-close" id="btn-close-demo" title="Ẩn thanh thử nghiệm">✕</button>
+      <span class="demo-switcher-label">GIAO DIỆN:</span>
+      <button class="demo-switch-btn active" data-theme="system" title="Tự động đồng bộ theo trình duyệt / hệ máy">
+        <svg class="demo-btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9"></circle>
+          <path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor"></path>
+        </svg>
+        <span>Tự động</span>
+      </button>
+      <button class="demo-switch-btn" data-theme="gentle_light" title="Chế độ Sáng Hiền Hòa">
+        <svg class="demo-btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="4"></circle>
+          <line x1="12" y1="2" x2="12" y2="4"></line>
+          <line x1="12" y1="20" x2="12" y2="22"></line>
+          <line x1="4.93" y1="4.93" x2="6.34" y2="6.34"></line>
+          <line x1="17.66" y1="17.66" x2="19.07" y2="19.07"></line>
+          <line x1="2" y1="12" x2="4" y2="12"></line>
+          <line x1="20" y1="12" x2="22" y2="12"></line>
+          <line x1="4.93" y1="19.07" x2="6.34" y2="17.66"></line>
+          <line x1="17.66" y1="6.34" x2="19.07" y2="4.93"></line>
+        </svg>
+        <span>Sáng</span>
+      </button>
+      <button class="demo-switch-btn" data-theme="gentle_dark" title="Chế độ Tối Hiền Hòa">
+        <svg class="demo-btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+        <span>Tối</span>
+      </button>
+      <button class="demo-switch-btn demo-btn-close" id="btn-close-demo" title="Ẩn thanh thử nghiệm">
+        <svg class="demo-btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
     </div>
 
-    <!-- ⚡ Clean & Modern 3-Phase Energy Core HUD -->
+    <!-- Clean & Modern 3-Phase Energy Core HUD -->
     <div id="boss-hud" class="boss-hud" style="display: none;">
       <div class="boss-hud-inner">
         <span id="boss-phase-badge" class="boss-phase-badge p1">PHASE 1 / 3</span>
@@ -151,7 +211,7 @@
     <div id="boss-cutin-banner" class="boss-cutin-banner">
       <div class="cutin-content">
         <div class="cutin-text-block">
-          <h2 id="boss-cutin-title" class="cutin-title">⚡ BOSS MODE ACTIVATED</h2>
+          <h2 id="boss-cutin-title" class="cutin-title">BOSS MODE ACTIVATED</h2>
           <p id="boss-cutin-subtitle" class="cutin-subtitle">PHASE 1 / 3 — 500 HP</p>
         </div>
       </div>
@@ -166,8 +226,8 @@
     <!-- Side Panel: Time Rush Overdrive Mode -->
     <div id="rush-panel" class="rush-panel">
       <div class="rush-title">
-        <span>⚡ Time Rush</span>
-        <span>💣 Bom</span>
+        <span>Time Rush</span>
+        <span>Bomb Active</span>
       </div>
       <div class="rush-timer" id="rush-timer-val">30.0s</div>
       <div class="rush-progress-track">
@@ -184,7 +244,7 @@
       <button class="slice-btn" data-slice="0" data-i18n="slice_0">Tầng 0</button>
       <button class="slice-btn" data-slice="1" data-i18n="slice_1">Tầng 1</button>
       <button class="slice-btn" data-slice="2" data-i18n="slice_2">Tầng 2</button>
-      <button class="slice-btn" data-slice="exploded" data-i18n="slice_exploded">💥 Tách tầng</button>
+      <button class="slice-btn" data-slice="exploded" data-i18n="slice_exploded">Tách tầng</button>
     </div>
 
     <!-- Telemetry Map & Performance Graph Panel -->
@@ -323,9 +383,20 @@
         <span><kbd>Z</kbd> <span data-i18n="spell_undo">Đi lại</span></span>
       </div>
       <div class="hint-compact-pill mobile-only">
-        <span data-i18n="hint_mobile_swipe">👆 Vuốt để trượt khối</span>
+        <span class="hint-item">
+          <svg class="hint-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+          </svg>
+          <span data-i18n="hint_mobile_swipe">Vuốt để trượt khối</span>
+        </span>
         <span class="hint-sep">•</span>
-        <span data-i18n="hint_mobile_rotate">✌️ 2 ngón xoay bàn cờ</span>
+        <span class="hint-item">
+          <svg class="hint-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M12 6v6l4 2"></path>
+          </svg>
+          <span data-i18n="hint_mobile_rotate">2 ngón xoay bàn cờ</span>
+        </span>
       </div>
     </footer>
   </div>
@@ -336,19 +407,34 @@
       <h2 id="modal-title" class="modal-title" data-i18n="modal_victory_title">CHIẾN THẮNG!</h2>
       <p id="modal-message" class="modal-message" data-i18n="modal_victory_msg">Chúc mừng bạn đã đạt khối 2048!</p>
       <div class="modal-actions">
-        <button id="modal-btn-secondary" class="modal-btn secondary" data-i18n="modal_btn_new_game">🎮 Ván mới</button>
-        <button id="modal-btn-share" class="modal-btn" style="background: linear-gradient(135deg, #00f0ff, #7928ca); color: #fff;" data-i18n="modal_btn_share">📤 Chia sẻ điểm</button>
-        <button id="modal-btn-primary" class="modal-btn primary" data-i18n="modal_btn_continue">🎮 Chơi lại ngay</button>
+        <button id="modal-btn-secondary" class="modal-btn secondary" data-i18n="modal_btn_new_game">
+          <svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+          <span>Ván mới</span>
+        </button>
+        <button id="modal-btn-share" class="modal-btn" style="background: linear-gradient(135deg, #00f0ff, #7928ca); color: #fff;" data-i18n="modal_btn_share">
+          <svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+          <span>Chia sẻ điểm</span>
+        </button>
+        <button id="modal-btn-primary" class="modal-btn primary" data-i18n="modal_btn_continue">
+          <svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+          <span>Chơi lại ngay</span>
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- 🏆 Missions & Exclusive 3D 2048 Trophy Modal -->
+  <!-- Missions & Exclusive 3D 2048 Trophy Modal -->
   <div id="trophy-modal" class="trophy-modal-overlay" style="display: none;">
     <div class="trophy-modal-card">
       <div class="trophy-modal-header">
         <div class="trophy-title-wrap">
-          <span class="trophy-header-icon">🏆</span>
+          <svg class="trophy-header-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 9H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2"></path>
+            <path d="M18 9h2a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-2"></path>
+            <path d="M4 3h16v6a8 8 0 0 1-16 0V3z"></path>
+            <path d="M12 17v4"></path>
+            <path d="M8 21h8"></path>
+          </svg>
           <div>
             <h2 class="trophy-modal-title" data-i18n="trophy_modal_title">NHIỆM VỤ & CÚP 2048 ĐỘC QUYỀN</h2>
             <p class="trophy-modal-subtitle" data-i18n="trophy_modal_subtitle">Hoàn thành 7 nhiệm vụ để mở khóa Cúp Vàng 3D vinh danh bậc thầy</p>
@@ -360,12 +446,13 @@
       <div class="trophy-modal-body">
         <!-- Left: 3D Trophy Showcase Stage -->
         <div class="trophy-3d-stage">
-          <div id="trophy-status-pill" class="trophy-status-pill locked">🔒 KHÓA — CÒN 7 NHIỆM VỤ</div>
+          <div id="trophy-status-pill" class="trophy-status-pill locked">KHÓA — CÒN 7 NHIỆM VỤ</div>
           <div id="trophy-3d-viewport" class="trophy-3d-viewport"></div>
-          <div class="trophy-interaction-hint" data-i18n="trophy_drag_hint">🔄 Giữ chuột hoặc vuốt để xoay cúp 360°</div>
+          <div class="trophy-interaction-hint" data-i18n="trophy_drag_hint">Giữ chuột hoặc vuốt để xoay cúp 360°</div>
           <div class="trophy-stage-actions">
             <button id="trophy-celebrate-btn" class="glass-btn trophy-btn" data-i18n="trophy_celebrate_btn">
-              🎉 Tung Pháo Hoa Ăn Mừng
+              <svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.2L21.6 12l-7.2 2.4L12 21.6l-2.4-7.2L2.4 12l7.2-2.4z"/></svg>
+              <span>Tung Pháo Hoa Ăn Mừng</span>
             </button>
           </div>
         </div>
@@ -386,12 +473,15 @@
     </div>
   </div>
 
-  <!-- ⚙️ Compact Settings Modal (Top-Level Fixed Viewport Modal) -->
+  <!-- Compact Settings Modal (Top-Level Fixed Viewport Modal) -->
   <div id="settings-modal" class="settings-modal-overlay" style="display: none;">
     <div class="settings-modal-card">
       <div class="settings-header">
         <div class="settings-title-wrap">
-          <span class="settings-icon">⚙️</span>
+          <svg class="settings-header-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
           <h3 class="settings-title" data-i18n="settings_title">Cài Đặt</h3>
         </div>
         <button id="btn-close-settings" class="settings-close-btn" title="Đóng">✕</button>
@@ -400,73 +490,74 @@
       <div class="settings-body">
         <!-- 1. Chế độ Không gian (Mode) -->
         <div class="settings-row">
-          <label class="settings-label" data-i18n="setting_mode">🌌 Chế độ chơi</label>
+          <label class="settings-label" data-i18n="setting_mode">Chế độ chơi</label>
           <select id="select-mode" class="settings-select">
-            <option value="4x4" data-i18n="mode_4x4">📦 4x4 Classic</option>
-            <option value="3x3x3" data-i18n="mode_3x3x3">🌌 3x3x3 Hypercube</option>
+            <option value="4x4" data-i18n="mode_4x4">4x4 Classic</option>
+            <option value="3x3x3" data-i18n="mode_3x3x3">3x3x3 Hypercube</option>
           </select>
         </div>
 
         <!-- 2. AI Tự Động Chơi -->
         <div class="settings-row">
-          <label class="settings-label" data-i18n="setting_ai">🤖 AI Tự chơi</label>
+          <label class="settings-label" data-i18n="setting_ai">AI Tự chơi</label>
           <button id="btn-ai-toggle" class="glass-btn ai-btn">
-            <span class="btn-icon">🤖</span><span class="btn-text" data-i18n="btn_ai">AI Tự Chơi</span>
+            <svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4M8 15h.01M16 15h.01"/></svg>
+            <span class="btn-text" data-i18n="btn_ai">AI Tự Chơi</span>
           </button>
         </div>
 
         <!-- 3. Ngôn ngữ -->
         <div class="settings-row">
-          <label class="settings-label" data-i18n="setting_lang">🌐 Ngôn ngữ</label>
+          <label class="settings-label" data-i18n="setting_lang">Ngôn ngữ</label>
           <select id="select-lang" class="settings-select">
-            <option value="vi">🇻🇳 Tiếng Việt</option>
-            <option value="en">🇬🇧 English</option>
-            <option value="ja">🇯🇵 日本語</option>
-            <option value="ko">🇰🇷 한국어</option>
+            <option value="vi">Tiếng Việt</option>
+            <option value="en">English</option>
+            <option value="ja">日本語</option>
+            <option value="ko">한국어</option>
           </select>
         </div>
 
         <!-- 4. Hình dạng khối 3D (8 tùy chọn) -->
         <div class="settings-row">
-          <label class="settings-label" data-i18n="setting_shape">🧊 Hình khối 3D</label>
+          <label class="settings-label" data-i18n="setting_shape">Hình khối 3D</label>
           <select id="select-shape" class="settings-select">
-            <option value="auto_evolution" data-i18n="shape_auto" selected>🧬 Tiến Hóa Tự Động</option>
-            <option value="rounded_cube" data-i18n="shape_cube">🧊 Khối Bo Góc</option>
-            <option value="crystal_octahedron" data-i18n="shape_octahedron">💎 Bát Diện Kim Cương</option>
-            <option value="core_sphere" data-i18n="shape_sphere">🔮 Cầu Năng Lượng</option>
-            <option value="hex_prism" data-i18n="shape_hex">⬢ Lăng Trụ Lục Giác</option>
-            <option value="cyber_pyramid" data-i18n="shape_pyramid">🔺 Kim Tự Tháp</option>
-            <option value="star_dodecahedron" data-i18n="shape_dodecahedron">🌟 Thập Nhị Diện</option>
-            <option value="plasma_torus" data-i18n="shape_torus">🍩 Vòng Xoáy Năng Lượng</option>
+            <option value="auto_evolution" data-i18n="shape_auto" selected>Tiến Hóa Tự Động</option>
+            <option value="rounded_cube" data-i18n="shape_cube">Khối Bo Góc</option>
+            <option value="crystal_octahedron" data-i18n="shape_octahedron">Bát Diện Kim Cương</option>
+            <option value="core_sphere" data-i18n="shape_sphere">Cầu Năng Lượng</option>
+            <option value="hex_prism" data-i18n="shape_hex">Lăng Trụ Lục Giác</option>
+            <option value="cyber_pyramid" data-i18n="shape_pyramid">Kim Tự Tháp</option>
+            <option value="star_dodecahedron" data-i18n="shape_dodecahedron">Thập Nhị Diện</option>
+            <option value="plasma_torus" data-i18n="shape_torus">Vòng Xoáy Năng Lượng</option>
           </select>
         </div>
 
         <!-- 5. Giao diện & Ảnh nền -->
         <div class="settings-row">
-          <label class="settings-label" data-i18n="setting_theme">🎨 Giao diện nền</label>
+          <label class="settings-label" data-i18n="setting_theme">Giao diện nền</label>
           <div class="settings-theme-group">
             <select id="select-theme" class="settings-select">
-              <optgroup label="🍃 Giao Diện Tối Giản & Hiền Hòa" data-i18n-label="theme_group_minimal">
-                <option value="system" data-i18n="theme_system">🌓 Tự động theo trình duyệt (Sáng / Tối)</option>
-                <option value="gentle_light" data-i18n="theme_gentle_light">🌱 Sáng Hiền Hòa (Warm Linen & Sand)</option>
-                <option value="gentle_dark" data-i18n="theme_gentle_dark">🌙 Tối Hiền Hòa (Warm Espresso Velvet)</option>
+              <optgroup label="Giao Diện Tối Giản & Hiền Hòa" data-i18n-label="theme_group_minimal">
+                <option value="system" data-i18n="theme_system">Tự động theo trình duyệt (Sáng / Tối)</option>
+                <option value="gentle_light" data-i18n="theme_gentle_light">Sáng Hiền Hòa (Warm Linen & Sand)</option>
+                <option value="gentle_dark" data-i18n="theme_gentle_dark">Tối Hiền Hòa (Warm Espresso Velvet)</option>
               </optgroup>
-              <optgroup label="🌌 Không gian Procedural 3D" data-i18n-label="theme_group_procedural">
-                <option value="galaxy" selected data-i18n="theme_galaxy">🌌 Vũ Trụ Tinh Vân</option>
-                <option value="sunset" data-i18n="theme_sunset">🌅 Hoàng Hôn Synthwave</option>
-                <option value="aurora" data-i18n="theme_aurora">❄️ Cực Quang Bắc Cực</option>
-                <option value="neon" data-i18n="theme_neon">⚡ Hyper Neon</option>
-                <option value="studio" data-i18n="theme_studio">🏛️ Studio Tối Giản</option>
-                <option value="classic" data-i18n="theme_classic">🌙 Dark Obsidian</option>
-                <option value="telemetry" data-i18n="theme_telemetry">📊 Hiệu Năng HUD</option>
+              <optgroup label="Không gian Procedural 3D" data-i18n-label="theme_group_procedural">
+                <option value="galaxy" selected data-i18n="theme_galaxy">Vũ Trụ Tinh Vân</option>
+                <option value="sunset" data-i18n="theme_sunset">Hoàng Hôn Synthwave</option>
+                <option value="aurora" data-i18n="theme_aurora">Cực Quang Bắc Cực</option>
+                <option value="neon" data-i18n="theme_neon">Hyper Neon</option>
+                <option value="studio" data-i18n="theme_studio">Studio Tối Giản</option>
+                <option value="classic" data-i18n="theme_classic">Dark Obsidian</option>
+                <option value="telemetry" data-i18n="theme_telemetry">Hiệu Năng HUD</option>
               </optgroup>
-              <optgroup label="🌟 Hình nền Độc Lạ / Meme" data-i18n-label="theme_group_meme">
-                <option value="cat_moon" data-i18n="theme_cat_moon">🐱 Mèo & Mặt Trăng</option>
-                <option value="elmo_fire" data-i18n="theme_elmo_fire">🔥 Elmo Rực Lửa</option>
-                <option value="patrick_space" data-i18n="theme_patrick_space">⭐ Patrick Ngắm Trái Đất</option>
+              <optgroup label="Hình nền Độc Lạ / Meme" data-i18n-label="theme_group_meme">
+                <option value="cat_moon" data-i18n="theme_cat_moon">Mèo & Mặt Trăng</option>
+                <option value="elmo_fire" data-i18n="theme_elmo_fire">Elmo Rực Lửa</option>
+                <option value="patrick_space" data-i18n="theme_patrick_space">Patrick Ngắm Trái Đất</option>
               </optgroup>
-              <optgroup label="🖼️ Ảnh Tùy Chỉnh" data-i18n-label="theme_group_custom">
-                <option value="custom" data-i18n="theme_custom">🖼️ Ảnh của bạn (Upload)</option>
+              <optgroup label="Ảnh Tùy Chỉnh" data-i18n-label="theme_group_custom">
+                <option value="custom" data-i18n="theme_custom">Ảnh của bạn (Upload)</option>
               </optgroup>
             </select>
             <input type="file" id="bg-upload-input" accept="image/*" style="display:none">
@@ -475,42 +566,45 @@
 
         <!-- 6. Tần số quét (FPS) -->
         <div class="settings-row">
-          <label class="settings-label" data-i18n="setting_fps">🚀 Tần số quét (FPS)</label>
+          <label class="settings-label" data-i18n="setting_fps">Tần số quét (FPS)</label>
           <select id="select-fps" class="settings-select">
-            <option value="max" data-i18n="fps_max">🚀 Tối đa (165Hz/300Hz)</option>
-            <option value="120" selected data-i18n="fps_120">⚡ Cân bằng (120 FPS)</option>
-            <option value="60" data-i18n="fps_60">🔋 Tiết kiệm pin (60 FPS)</option>
+            <option value="max" data-i18n="fps_max">Tối đa (165Hz/300Hz)</option>
+            <option value="120" selected data-i18n="fps_120">Cân bằng (120 FPS)</option>
+            <option value="60" data-i18n="fps_60">Tiết kiệm pin (60 FPS)</option>
           </select>
         </div>
 
         <!-- 7. Âm thanh & Nhạc -->
         <div class="settings-row">
-          <label class="settings-label" data-i18n="setting_audio">🔊 Âm thanh & Nhạc</label>
+          <label class="settings-label" data-i18n="setting_audio">Âm thanh & Nhạc</label>
           <div class="settings-toggle-cluster">
             <button id="btn-sound-toggle" class="glass-btn audio-btn" title="Bật/Tắt âm thanh hiệu ứng (SFX)">
-              <span id="label-sfx" data-i18n="btn_sfx">🔊 SFX</span>
+              <svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+              <span id="label-sfx" data-i18n="btn_sfx">SFX</span>
             </button>
             <button id="btn-bgm-toggle" class="glass-btn audio-btn" title="Bật/Tắt Nhạc nền Lofi Ambient">
-              <span id="label-bgm" data-i18n="btn_bgm">🎵 Nhạc nền</span>
+              <svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+              <span id="label-bgm" data-i18n="btn_bgm">Nhạc nền</span>
             </button>
           </div>
         </div>
 
         <!-- 8. Phím ảo D-Pad (Virtual Controls) -->
         <div class="settings-row">
-          <label class="settings-label" data-i18n="setting_dpad">🎮 Phím ảo D-Pad</label>
+          <label class="settings-label" data-i18n="setting_dpad">Phím ảo D-Pad</label>
           <select id="select-dpad" class="settings-select">
-            <option value="auto" selected data-i18n="dpad_auto">🎯 Tự động (Chỉ PC)</option>
-            <option value="hidden" data-i18n="dpad_hidden">🚫 Luôn ẩn</option>
-            <option value="visible" data-i18n="dpad_visible">🕹️ Luôn hiện</option>
+            <option value="auto" selected data-i18n="dpad_auto">Tự động (Chỉ PC)</option>
+            <option value="hidden" data-i18n="dpad_hidden">Luôn ẩn</option>
+            <option value="visible" data-i18n="dpad_visible">Luôn hiện</option>
           </select>
         </div>
 
         <!-- 9. Chia sẻ -->
         <div class="settings-row">
-          <label class="settings-label" data-i18n="setting_share">📤 Chia sẻ</label>
+          <label class="settings-label" data-i18n="setting_share">Chia sẻ</label>
           <button id="btn-share-score" class="glass-btn share-action-btn">
-            <span data-i18n="btn_share">📤 Chia sẻ điểm số</span>
+            <svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+            <span data-i18n="btn_share">Chia sẻ điểm số</span>
           </button>
         </div>
       </div>

@@ -276,13 +276,15 @@ class GameApp {
       aiBtn.addEventListener('click', () => {
         const isRunning = this.aiBot.toggle();
         aiBtn.classList.toggle('active', isRunning);
-        aiBtn.innerHTML = `<span class="btn-icon">${isRunning ? '⏸️' : '🤖'}</span><span class="btn-text">${isRunning ? t('btn_ai_active') : t('btn_ai')}</span>`;
+        const textEl = aiBtn.querySelector('.btn-text');
+        if (textEl) textEl.textContent = isRunning ? t('btn_ai_active') : t('btn_ai');
         this.showSpellToast(isRunning ? t('toast_ai_start') : t('toast_ai_stop'));
         this.registerInteraction();
       });
       this.aiBot.onStatusChange = (running) => {
         aiBtn.classList.toggle('active', running);
-        aiBtn.innerHTML = `<span class="btn-icon">${running ? '⏸️' : '🤖'}</span><span class="btn-text">${running ? t('btn_ai_active') : t('btn_ai')}</span>`;
+        const textEl = aiBtn.querySelector('.btn-text');
+        if (textEl) textEl.textContent = running ? t('btn_ai_active') : t('btn_ai');
       };
     }
 
@@ -641,7 +643,8 @@ class GameApp {
     this.gameLogic.setRushMode(this.isRushMode);
 
     if (this.rushToggleBtn) {
-      this.rushToggleBtn.innerHTML = `<span class="btn-icon">⚡</span><span class="btn-text">${t('btn_rush')}${this.isRushMode ? ': ON' : ''}</span>`;
+      const textEl = this.rushToggleBtn.querySelector('.btn-text');
+      if (textEl) textEl.textContent = `${t('btn_rush')}${this.isRushMode ? ': ON' : ''}`;
       this.rushToggleBtn.classList.toggle('active', this.isRushMode);
     }
 
@@ -658,7 +661,8 @@ class GameApp {
     const bossBtn = document.getElementById('btn-toggle-boss');
     if (bossBtn) {
       bossBtn.classList.toggle('active', this.isBossRaid);
-      bossBtn.innerHTML = `<span class="btn-icon">⚔️</span><span class="btn-text">${this.isBossRaid ? t('btn_boss_active') : t('btn_boss')}</span>`;
+      const textEl = bossBtn.querySelector('.btn-text');
+      if (textEl) textEl.textContent = this.isBossRaid ? t('btn_boss_active') : t('btn_boss');
     }
     if (this.isBossRaid) {
       this.bossManager.startRaid();
@@ -671,12 +675,14 @@ class GameApp {
   updateDynamicLanguageTexts() {
     const bossBtn = document.getElementById('btn-toggle-boss');
     if (bossBtn) {
-      bossBtn.innerHTML = `<span class="btn-icon">⚔️</span><span class="btn-text">${this.isBossRaid ? t('btn_boss_active') : t('btn_boss')}</span>`;
+      const textEl = bossBtn.querySelector('.btn-text');
+      if (textEl) textEl.textContent = this.isBossRaid ? t('btn_boss_active') : t('btn_boss');
     }
     const aiBtn = document.getElementById('btn-ai-toggle');
     if (aiBtn) {
       const isRunning = this.aiBot && this.aiBot.isRunning;
-      aiBtn.innerHTML = `<span class="btn-icon">${isRunning ? '⏸️' : '🤖'}</span><span class="btn-text">${isRunning ? t('btn_ai_active') : t('btn_ai')}</span>`;
+      const textEl = aiBtn.querySelector('.btn-text');
+      if (textEl) textEl.textContent = isRunning ? t('btn_ai_active') : t('btn_ai');
     }
     const muteBtn = document.getElementById('btn-sound-toggle');
     if (muteBtn) {
@@ -689,7 +695,8 @@ class GameApp {
       if (bgmLabel) bgmLabel.textContent = soundManager.bgmPlaying ? t('btn_bgm_on') : t('btn_bgm_off');
     }
     if (this.rushToggleBtn) {
-      this.rushToggleBtn.innerHTML = `<span class="btn-icon">⚡</span><span class="btn-text">${t('btn_rush')}${this.isRushMode ? ': ON' : ''}</span>`;
+      const textEl = this.rushToggleBtn.querySelector('.btn-text');
+      if (textEl) textEl.textContent = `${t('btn_rush')}${this.isRushMode ? ': ON' : ''}`;
     }
   }
 
@@ -769,13 +776,13 @@ class GameApp {
     if (pref === 'system') {
       const isDark = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
       targetTheme = isDark ? 'gentle_dark' : 'gentle_light';
-      this.showSpellToast(`🌓 THEO MÁY: ${isDark ? '🌙 Tối Hiền Hòa' : '🌱 Sáng Hiền Hòa'}`);
+      this.showSpellToast(`THEO MÁY: ${isDark ? 'Tối Hiền Hòa' : 'Sáng Hiền Hòa'}`);
     } else if (pref === 'gentle_light' || pref === 'zen_clay') {
       targetTheme = 'gentle_light';
-      this.showSpellToast('🌱 GIAO DIỆN: Sáng Hiền Hòa');
+      this.showSpellToast('GIAO DIỆN: Sáng Hiền Hòa');
     } else if (pref === 'gentle_dark' || pref === 'modern_slate') {
       targetTheme = 'gentle_dark';
-      this.showSpellToast('🌙 GIAO DIỆN: Tối Hiền Hòa');
+      this.showSpellToast('GIAO DIỆN: Tối Hiền Hòa');
     } else {
       const themeSelect = document.getElementById('select-theme');
       const label = themeSelect && themeSelect.selectedOptions && themeSelect.selectedOptions[0] ? themeSelect.selectedOptions[0].text : pref;
@@ -1433,10 +1440,10 @@ class GameApp {
 
     const msg = customMessage || `${t('modal_gameover_msg')}\n${t('score')}: ${this.gameLogic.score.toLocaleString()}`;
     this.showModal({
-      title: '💀 THẤT BẠI (GAME OVER)',
+      title: t('modal_gameover_title') || 'THẤT BẠI (GAME OVER)',
       message: msg,
-      primaryText: '🎮 Chơi lại ngay',
-      secondaryText: '🎮 Ván mới',
+      primaryText: t('modal_btn_continue') || 'Chơi lại ngay',
+      secondaryText: t('modal_btn_new_game') || 'Ván mới',
       onPrimary: () => {
         this.hideModal();
         this.isAnimating = false;
@@ -1457,7 +1464,13 @@ class GameApp {
     this.modalTitle.textContent = title;
     this.modalMessage.textContent = message;
 
-    this.modalBtnPrimary.textContent = primaryText || '🎮 Chơi lại ngay';
+    const spanPri = this.modalBtnPrimary.querySelector('span');
+    if (spanPri) {
+      spanPri.textContent = primaryText || t('modal_btn_continue');
+    } else {
+      this.modalBtnPrimary.textContent = primaryText || t('modal_btn_continue');
+    }
+
     this.modalBtnPrimary.onclick = (e) => {
       if (e) e.stopPropagation();
       this.hideModal();
@@ -1466,8 +1479,13 @@ class GameApp {
     };
 
     if (secondaryText) {
-      this.modalBtnSecondary.textContent = secondaryText;
-      this.modalBtnSecondary.style.display = 'inline-block';
+      const spanSec = this.modalBtnSecondary.querySelector('span');
+      if (spanSec) {
+        spanSec.textContent = secondaryText;
+      } else {
+        this.modalBtnSecondary.textContent = secondaryText;
+      }
+      this.modalBtnSecondary.style.display = 'inline-flex';
       this.modalBtnSecondary.onclick = (e) => {
         if (e) e.stopPropagation();
         this.hideModal();
@@ -1939,10 +1957,10 @@ class GameApp {
         this.isAnimating = false; // UNFREEZE
         soundManager.playGameOver();
         this.showModal({
-          title: '💀 THẤT BẠI (GAME OVER)',
+          title: t('modal_gameover_title') || 'THẤT BẠI (GAME OVER)',
           message: `Hết giờ trong chế độ Time Rush!\nĐiểm số đạt được: ${this.gameLogic.score.toLocaleString()}`,
-          primaryText: '🎮 Chơi lại ngay',
-          secondaryText: '🎮 Ván mới',
+          primaryText: t('modal_btn_continue') || 'Chơi lại ngay',
+          secondaryText: t('modal_btn_new_game') || 'Ván mới',
           onPrimary: () => {
             this.hideModal();
             this.isAnimating = false;
