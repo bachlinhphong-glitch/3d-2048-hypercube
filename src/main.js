@@ -19,9 +19,19 @@ class GameApp {
     this.container = document.getElementById('canvas-container');
     this.mode = localStorage.getItem('3d2048_last_mode') || '4x4';
     this.currentShape = localStorage.getItem('3d2048_shape') || 'auto_evolution';
-    const savedTheme = localStorage.getItem('3d2048_theme');
-    const isThemeManual = localStorage.getItem('3d2048_theme_manual') === 'true';
-    this.currentTheme = (savedTheme && (savedTheme !== 'cat_moon' || isThemeManual)) ? savedTheme : 'galaxy';
+    
+    // Theme preference: 'system' by default (auto sync with browser/OS), or user choice
+    this.themePreference = localStorage.getItem('3d2048_theme_pref') || 'system';
+    const isDark = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    if (this.themePreference === 'system') {
+      this.currentTheme = isDark ? 'gentle_dark' : 'gentle_light';
+    } else if (this.themePreference === 'zen_clay') {
+      this.currentTheme = 'gentle_light';
+    } else if (this.themePreference === 'modern_slate') {
+      this.currentTheme = 'gentle_dark';
+    } else {
+      this.currentTheme = this.themePreference;
+    }
 
     this.sceneManager = new SceneManager(this.container);
     this.particleSystem = new ParticleSystem(this.sceneManager.scene);
@@ -314,18 +324,13 @@ class GameApp {
     const themeSelect = document.getElementById('select-theme');
     const bgUploadInput = document.getElementById('bg-upload-input');
     if (themeSelect) {
-      themeSelect.value = this.currentTheme;
+      themeSelect.value = this.themePreference;
       themeSelect.addEventListener('change', (e) => {
         if (e.target.value === 'custom') {
           if (bgUploadInput) bgUploadInput.click();
           return;
         }
-        this.switchTheme(e.target.value);
-        localStorage.setItem('3d2048_theme', e.target.value);
-        localStorage.setItem('3d2048_theme_manual', 'true');
-        const label = e.target.options[e.target.selectedIndex].text;
-        this.showSpellToast(`HÌNH NỀN: ${label}`);
-        this.registerInteraction();
+        this.setThemePreference(e.target.value);
       });
     }
     if (bgUploadInput) {
@@ -545,10 +550,7 @@ class GameApp {
     }
     textureManager.setTheme(newTheme);
 
-    // Update demo switcher buttons active state
-    document.querySelectorAll('.demo-switch-btn[data-theme]').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.theme === newTheme);
-    });
+    this.updateDemoSwitcherUI();
 
     // Custom background: read from localStorage and set as CSS background-image
     if (newTheme === 'custom') {
@@ -735,17 +737,13 @@ class GameApp {
   }
 
   setupDemoSwitcher() {
+    this.setupSystemThemeListener();
+
     document.querySelectorAll('.demo-switch-btn[data-theme]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         const theme = btn.dataset.theme;
-        this.switchTheme(theme);
-        localStorage.setItem('3d2048_theme', theme);
-        localStorage.setItem('3d2048_theme_manual', 'true');
-        const themeSelect = document.getElementById('select-theme');
-        if (themeSelect) themeSelect.value = theme;
-        this.showSpellToast(`DEMO TỐI GIẢN: ${theme === 'zen_clay' ? '🌱 Zen Bắc Âu Sáng' : '🖤 Modern Slate Tối'}`);
-        this.registerInteraction();
+        this.setThemePreference(theme);
       });
     });
 
@@ -755,6 +753,73 @@ class GameApp {
         const bar = document.getElementById('demo-theme-switcher');
         if (bar) bar.style.display = 'none';
       });
+    }
+
+    this.updateDemoSwitcherUI();
+  }
+
+  setThemePreference(pref) {
+    this.themePreference = pref;
+    try {
+      localStorage.setItem('3d2048_theme_pref', pref);
+      localStorage.setItem('3d2048_theme', pref);
+    } catch {}
+
+    let targetTheme = pref;
+    if (pref === 'system') {
+      const isDark = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      targetTheme = isDark ? 'gentle_dark' : 'gentle_light';
+      this.showSpellToast(`🌓 THEO MÁY: ${isDark ? '🌙 Tối Hiền Hòa' : '🌱 Sáng Hiền Hòa'}`);
+    } else if (pref === 'gentle_light' || pref === 'zen_clay') {
+      targetTheme = 'gentle_light';
+      this.showSpellToast('🌱 GIAO DIỆN: Sáng Hiền Hòa');
+    } else if (pref === 'gentle_dark' || pref === 'modern_slate') {
+      targetTheme = 'gentle_dark';
+      this.showSpellToast('🌙 GIAO DIỆN: Tối Hiền Hòa');
+    } else {
+      const themeSelect = document.getElementById('select-theme');
+      const label = themeSelect && themeSelect.selectedOptions && themeSelect.selectedOptions[0] ? themeSelect.selectedOptions[0].text : pref;
+      this.showSpellToast(`HÌNH NỀN: ${label}`);
+    }
+
+    this.switchTheme(targetTheme);
+    this.updateDemoSwitcherUI();
+
+    const themeSelect = document.getElementById('select-theme');
+    if (themeSelect) themeSelect.value = pref;
+    this.registerInteraction();
+  }
+
+  updateDemoSwitcherUI() {
+    const buttons = document.querySelectorAll('.demo-switch-btn[data-theme]');
+    if (!buttons || buttons.length === 0) return;
+    buttons.forEach(btn => {
+      const t = btn.dataset.theme;
+      if (t === 'system') {
+        btn.classList.toggle('active', this.themePreference === 'system');
+      } else {
+        const isActive = (this.themePreference === t) ||
+                         (this.themePreference === 'system' && this.currentTheme === t);
+        btn.classList.toggle('active', isActive);
+      }
+    });
+  }
+
+  setupSystemThemeListener() {
+    if (!window.matchMedia) return;
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleSchemeChange = (e) => {
+      if (this.themePreference === 'system') {
+        const newTheme = e.matches ? 'gentle_dark' : 'gentle_light';
+        console.log(`🌓 Trình duyệt đổi giao diện sang: ${e.matches ? 'TỐI' : 'SÁNG'} -> Áp dụng ${newTheme}`);
+        this.switchTheme(newTheme);
+        this.updateDemoSwitcherUI();
+      }
+    };
+    try {
+      mediaQuery.addEventListener('change', handleSchemeChange);
+    } catch {
+      mediaQuery.addListener(handleSchemeChange);
     }
   }
 

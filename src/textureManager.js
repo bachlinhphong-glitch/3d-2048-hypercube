@@ -18,39 +18,43 @@ const TILE_STYLES = {
   16384: { bg: '#e11d48', text: '#ffffff', emissive: '#fb7185', intensity: 1.45, rim: '#ffe4e6' }   // Supernova Magenta
 };
 
-// 2. [HƯỚNG A] Zen Ceramic & Studio Palette (Bắc Âu / Warm Clay & Porcelain Pastel)
-const TILE_STYLES_ZEN = {
-  2:     { bg: '#eee4da', text: '#433c38', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Sand Porcelain
-  4:     { bg: '#ede0c8', text: '#433c38', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Warm Oatmeal
-  8:     { bg: '#f2b179', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Coral Terracotta
-  16:    { bg: '#f59563', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Rich Clay
-  32:    { bg: '#f67c5f', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Sunset Tangerine
-  64:    { bg: '#f65e3b', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Burnt Sienna
-  128:   { bg: '#edcf72', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Mellow Saffron
-  256:   { bg: '#edcc61', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Warm Ochre
-  512:   { bg: '#edc850', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Amber Honey
-  1024:  { bg: '#edc53f', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Nordic Brass
-  2048:  { bg: '#e5b722', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Master 24K Ceramic
-  4096:  { bg: '#60a5fa', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Sky Glaze
-  8192:  { bg: '#34d399', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }  // Sage Porcelain
+// 2. [HƯỚNG SÁNG] Gentle Light (Hiền Hòa Sáng / Classic 2048 Warm Linen & Sand)
+const TILE_STYLES_GENTLE_LIGHT = {
+  2:     { bg: '#eee4da', text: '#776e65', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Warm Silk Biscuit
+  4:     { bg: '#ede0c8', text: '#776e65', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Oatmeal Porcelain
+  8:     { bg: '#f2b179', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Soft Apricot
+  16:    { bg: '#f59563', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Warm Terracotta
+  32:    { bg: '#f67c5f', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Coral Melon
+  64:    { bg: '#f65e3b', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Warm Persimmon
+  128:   { bg: '#e5b438', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Rich Honey Amber
+  256:   { bg: '#e0a624', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Golden Amber
+  512:   { bg: '#db9814', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Saffron Gold
+  1024:  { bg: '#d48b06', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Imperial Gold
+  2048:  { bg: '#cb7d00', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // 24K Burnished Gold
+  4096:  { bg: '#3c8a7c', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Nordic Eucalyptus
+  8192:  { bg: '#4a69bd', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // French Ultramarine
+  16384: { bg: '#6c5ce7', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }  // Royal Amethyst Iris
 };
+const TILE_STYLES_ZEN = TILE_STYLES_GENTLE_LIGHT; // Backwards compatibility alias
 
-// 3. [HƯỚNG B] Modern Slate & Charcoal Palette (Apple / Linear Dark Mode)
-const TILE_STYLES_SLATE = {
-  2:     { bg: '#1c2230', text: '#94a3b8', emissive: '#000000', intensity: 0, rim: '#334155' }, // Deep Slate
-  4:     { bg: '#232b3d', text: '#f1f5f9', emissive: '#000000', intensity: 0, rim: '#475569' }, // Matte Steel
-  8:     { bg: '#1e3a5f', text: '#f8fafc', emissive: '#000000', intensity: 0, rim: '#38bdf8' }, // Ocean Abyss
-  16:    { bg: '#134e4a', text: '#f8fafc', emissive: '#000000', intensity: 0, rim: '#2dd4bf' }, // Deep Emerald
-  32:    { bg: '#78350f', text: '#f8fafc', emissive: '#000000', intensity: 0, rim: '#f59e0b' }, // Dark Amber
-  64:    { bg: '#7c2d12', text: '#f8fafc', emissive: '#000000', intensity: 0, rim: '#f97316' }, // Dark Bronze
-  128:   { bg: '#7f1d1d', text: '#f8fafc', emissive: '#000000', intensity: 0, rim: '#ef4444' }, // Deep Crimson
-  256:   { bg: '#701a75', text: '#f8fafc', emissive: '#000000', intensity: 0, rim: '#d946ef' }, // Plum Obsidian
-  512:   { bg: '#4c1d95', text: '#f8fafc', emissive: '#000000', intensity: 0, rim: '#8b5cf6' }, // Royal Amethyst
-  1024:  { bg: '#1e3a8a', text: '#f8fafc', emissive: '#000000', intensity: 0, rim: '#3b82f6' }, // Midnight Sapphire
-  2048:  { bg: '#a16207', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#fbbf24' }, // Titanium Gold
-  4096:  { bg: '#0f766e', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#14b8a6' },
-  8192:  { bg: '#15803d', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#22c55e' }
+// 3. [HƯỚNG TỐI] Gentle Dark (Hiền Hòa Tối / Warm Espresso & Roasted Velvet)
+const TILE_STYLES_GENTLE_DARK = {
+  2:     { bg: '#312c27', text: '#dfd7ce', emissive: '#000000', intensity: 0, rim: '#48413a' }, // Deep Warm Biscuit
+  4:     { bg: '#3d362f', text: '#ebd8bf', emissive: '#000000', intensity: 0, rim: '#544a41' }, // Warm Toasted Oat
+  8:     { bg: '#784424', text: '#fef3e2', emissive: '#000000', intensity: 0, rim: '#8e512c' }, // Spiced Amber
+  16:    { bg: '#8e4321', text: '#fef3e2', emissive: '#000000', intensity: 0, rim: '#a44e27' }, // Roasted Terracotta
+  32:    { bg: '#973824', text: '#fef3e2', emissive: '#000000', intensity: 0, rim: '#ae4029' }, // Warm Paprika
+  64:    { bg: '#a32f1a', text: '#fef3e2', emissive: '#000000', intensity: 0, rim: '#bc361e' }, // Velvet Garnet
+  128:   { bg: '#887023', text: '#fef3e2', emissive: '#000000', intensity: 0, rim: '#9e822a' }, // Antique Gold
+  256:   { bg: '#947a1c', text: '#fef3e2', emissive: '#000000', intensity: 0, rim: '#aa8c20' }, // Honey Velvet
+  512:   { bg: '#a08415', text: '#fef3e2', emissive: '#000000', intensity: 0, rim: '#b79718' }, // Saffron Gold
+  1024:  { bg: '#ad8e0e', text: '#fef3e2', emissive: '#000000', intensity: 0, rim: '#c4a110' }, // Imperial Gold
+  2048:  { bg: '#bc9a09', text: '#fef3e2', emissive: '#000000', intensity: 0, rim: '#d6b00b' }, // Master 24K Velvet
+  4096:  { bg: '#205c52', text: '#fef3e2', emissive: '#000000', intensity: 0, rim: '#2a7569' }, // Deep Velvet Jade
+  8192:  { bg: '#2c467a', text: '#fef3e2', emissive: '#000000', intensity: 0, rim: '#375796' }, // Midnight Sapphire
+  16384: { bg: '#4b3b7c', text: '#fef3e2', emissive: '#000000', intensity: 0, rim: '#5b4796' }  // Deep Orchid
 };
+const TILE_STYLES_SLATE = TILE_STYLES_GENTLE_DARK; // Backwards compatibility alias
 
 export class TextureManager {
   constructor() {
@@ -95,11 +99,11 @@ export class TextureManager {
   }
 
   getStyle(value) {
-    if (this.currentTheme === 'zen_clay') {
-      return TILE_STYLES_ZEN[value] || { bg: '#e2dad0', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' };
+    if (this.currentTheme === 'gentle_light' || this.currentTheme === 'zen_clay') {
+      return TILE_STYLES_GENTLE_LIGHT[value] || { bg: '#e2dad0', text: '#776e65', emissive: '#000000', intensity: 0, rim: '#ffffff' };
     }
-    if (this.currentTheme === 'modern_slate') {
-      return TILE_STYLES_SLATE[value] || { bg: '#0f172a', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#38bdf8' };
+    if (this.currentTheme === 'gentle_dark' || this.currentTheme === 'modern_slate') {
+      return TILE_STYLES_GENTLE_DARK[value] || { bg: '#1c1917', text: '#fef3e2', emissive: '#000000', intensity: 0, rim: '#38322c' };
     }
     if (TILE_STYLES[value]) {
       return TILE_STYLES[value];
@@ -115,9 +119,9 @@ export class TextureManager {
 
   // Create high-res 512x512 CanvasTexture for cubes
   createCanvasTexture(value, isBomb = false, bombCountdown = 0) {
-    const isZen = this.currentTheme === 'zen_clay';
-    const isSlate = this.currentTheme === 'modern_slate';
-    const isMinimalist = isZen || isSlate;
+    const isLight = this.currentTheme === 'gentle_light' || this.currentTheme === 'zen_clay';
+    const isDark = this.currentTheme === 'gentle_dark' || this.currentTheme === 'modern_slate';
+    const isMinimalist = isLight || isDark;
 
     const cacheKey = `${this.currentTheme}_${value}_${isBomb}_${bombCountdown}_${this.isHyperNeon}`;
     if (this.textureCache.has(cacheKey)) {
@@ -133,29 +137,29 @@ export class TextureManager {
     const style = this.getStyle(value);
 
     if (isMinimalist) {
-      // ===== PURE MINIMALIST TEXTURE (NO GRID, NO NEON, CLEAN SATIN FINISH) =====
+      // ===== PURE MINIMALIST TEXTURE (HIỀN HÒA, NO NEON, TACTILE SATIN FINISH) =====
       const grad = ctx.createLinearGradient(0, 0, size, size);
       if (isBomb) {
-        grad.addColorStop(0, '#ef4444');
+        grad.addColorStop(0, '#e05347');
         grad.addColorStop(1, '#991b1b');
-      } else if (isZen) {
+      } else if (isLight) {
+        grad.addColorStop(0, this.adjustBrightness(style.bg, 4));
+        grad.addColorStop(0.5, style.bg);
+        grad.addColorStop(1, this.adjustBrightness(style.bg, -5));
+      } else {
         grad.addColorStop(0, this.adjustBrightness(style.bg, 6));
         grad.addColorStop(0.5, style.bg);
-        grad.addColorStop(1, this.adjustBrightness(style.bg, -6));
-      } else {
-        grad.addColorStop(0, this.adjustBrightness(style.bg, 10));
-        grad.addColorStop(0.5, style.bg);
-        grad.addColorStop(1, this.adjustBrightness(style.bg, -10));
+        grad.addColorStop(1, this.adjustBrightness(style.bg, -8));
       }
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, size, size);
 
-      // Subtle chamfer bevel highlight around edges (tactile tile feeling)
-      ctx.strokeStyle = isZen ? 'rgba(255, 255, 255, 0.45)' : 'rgba(255, 255, 255, 0.12)';
+      // Subtle chamfer bevel highlight around edges (organic tactile feeling)
+      ctx.strokeStyle = isLight ? 'rgba(255, 255, 255, 0.65)' : 'rgba(255, 255, 255, 0.10)';
       ctx.lineWidth = 6;
-      ctx.strokeRect(12, 12, size - 24, size - 24);
+      ctx.strokeRect(10, 10, size - 20, size - 20);
 
-      // Clean typography
+      // Clean, comforting typography with optimal optical sizing
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       const str = String(value);
@@ -164,12 +168,37 @@ export class TextureManager {
       else if (str.length === 4) fontSize = 120;
       else if (str.length >= 5) fontSize = 90;
 
-      ctx.font = `800 ${fontSize}px -apple-system, BlinkMacSystemFont, "SF Pro Display", "Plus Jakarta Sans", "Inter", sans-serif`;
+      ctx.font = `800 ${fontSize}px "Clear Sans", -apple-system, BlinkMacSystemFont, "SF Pro Display", "Plus Jakarta Sans", "Inter", sans-serif`;
 
-      // Soft natural ambient shadow for legibility
-      ctx.shadowColor = isZen ? 'rgba(0, 0, 0, 0.1)' : 'rgba(0, 0, 0, 0.6)';
-      ctx.shadowBlur = isZen ? 6 : 10;
-      ctx.shadowOffsetY = isZen ? 3 : 5;
+      // Soft natural ambient shadow for supreme legibility without harsh glare
+      if (isLight) {
+        if (value <= 4) {
+          ctx.shadowColor = 'rgba(255, 255, 255, 0.45)';
+          ctx.shadowBlur = 0;
+          ctx.shadowOffsetY = 1;
+        } else if (value >= 128) {
+          // Subtle warm contour behind text to ensure crisp 10/10 legibility
+          ctx.save();
+          ctx.strokeStyle = 'rgba(90, 50, 0, 0.3)';
+          ctx.lineWidth = str.length >= 4 ? 6 : 8;
+          ctx.lineJoin = 'round';
+          ctx.strokeText(str, size / 2, size / 2 + (isBomb ? -26 : 6));
+          ctx.restore();
+
+          ctx.shadowColor = 'rgba(75, 45, 5, 0.45)';
+          ctx.shadowBlur = 5;
+          ctx.shadowOffsetY = 2;
+        } else {
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.22)';
+          ctx.shadowBlur = 4;
+          ctx.shadowOffsetY = 2;
+        }
+      } else {
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.65)';
+        ctx.shadowBlur = 8;
+        ctx.shadowOffsetY = 3;
+      }
+
       ctx.fillStyle = isBomb ? '#ffffff' : style.text;
       ctx.fillText(str, size / 2, size / 2 + (isBomb ? -26 : 6));
 
@@ -401,9 +430,9 @@ export class TextureManager {
       return this.materialCache.get(matKey);
     }
 
-    const isZen = this.currentTheme === 'zen_clay';
-    const isSlate = this.currentTheme === 'modern_slate';
-    const isMinimalist = isZen || isSlate;
+    const isLight = this.currentTheme === 'gentle_light' || this.currentTheme === 'zen_clay';
+    const isDark = this.currentTheme === 'gentle_dark' || this.currentTheme === 'modern_slate';
+    const isMinimalist = isLight || isDark;
 
     const style = this.getStyle(value);
     const texture = this.createCanvasTexture(value, isBomb, bombCountdown);
@@ -412,8 +441,8 @@ export class TextureManager {
     const multiplier = this.isHyperNeon ? 1.5 : 1.0;
     const emissiveIntensity = isMinimalist ? 0 : ((isBomb ? 0.7 : style.intensity) * multiplier);
 
-    const roughness = isZen ? 0.65 : (isSlate ? 0.45 : 0.18);
-    const metalness = isZen ? 0.04 : (isSlate ? 0.15 : 0.22);
+    const roughness = isLight ? 0.55 : (isDark ? 0.48 : 0.18);
+    const metalness = isLight ? 0.02 : (isDark ? 0.08 : 0.22);
 
     // High-performance tactile standard material
     const faceMatWithText = new THREE.MeshStandardMaterial({

@@ -83,8 +83,8 @@ export class Board {
   }
 
   createClassic4x4Board() {
-    const isZen = this.theme === 'zen_clay';
-    const isSlate = this.theme === 'modern_slate';
+    const isLight = this.theme === 'gentle_light' || this.theme === 'zen_clay';
+    const isDark = this.theme === 'gentle_dark' || this.theme === 'modern_slate';
 
     const baseWidth = 8.0;
     const baseDepth = 8.0;
@@ -101,26 +101,26 @@ export class Board {
     let slotRoughness = 0.75;
     let slotBorderColor = 0x242d3d;
 
-    if (isZen) {
-      baseColor = 0xe7e0d4;      // Warm Scandinavian light oak / ceramic tray
-      baseRoughness = 0.75;
+    if (isLight) {
+      baseColor = 0xbbada0;      // Iconic 2048 warm taupe clay tray
+      baseRoughness = 0.65;
       baseMetalness = 0.02;
-      rimColor = 0xd8cebe;       // Subtle beveled wood/ceramic border
-      rimRoughness = 0.65;
+      rimColor = 0xa8998b;       // Soft warm taupe beveled border
+      rimRoughness = 0.6;
       rimMetalness = 0.02;
-      slotColor = 0xf5f0e6;      // Soft cream recessed slot
-      slotRoughness = 0.85;
-      slotBorderColor = 0xded5c6; // Fine separation groove
-    } else if (isSlate) {
-      baseColor = 0x12141c;      // Deep matte slate anodized tray
-      baseRoughness = 0.5;
-      baseMetalness = 0.2;
-      rimColor = 0x1f2330;       // Modern dark beveled frame
-      rimRoughness = 0.4;
-      rimMetalness = 0.3;
-      slotColor = 0x090a0f;      // Pure recessed obsidian slot
-      slotRoughness = 0.7;
-      slotBorderColor = 0x1a1d28; // Hair-thin edge line
+      slotColor = 0xcdc1b4;      // Warm sand recessed slot (perfect contrast with #eee4da & #ede0c8)
+      slotRoughness = 0.8;
+      slotBorderColor = 0xbaa99c; // Subtle separation groove
+    } else if (isDark) {
+      baseColor = 0x272421;      // Warm dark espresso / roasted walnut tray
+      baseRoughness = 0.6;
+      baseMetalness = 0.06;
+      rimColor = 0x332f2b;       // Warm coffee beveled frame
+      rimRoughness = 0.5;
+      rimMetalness = 0.08;
+      slotColor = 0x1b1917;      // Deep warm peat / espresso recessed slot
+      slotRoughness = 0.75;
+      slotBorderColor = 0x24201d; // Subtle warm seam line
     }
 
     const baseMat = new THREE.MeshStandardMaterial({
@@ -165,14 +165,14 @@ export class Board {
     const slotMat = new THREE.MeshStandardMaterial({
       color: slotColor,
       roughness: slotRoughness,
-      metalness: isZen ? 0.0 : 0.2
+      metalness: isLight ? 0.0 : (isDark ? 0.04 : 0.2)
     });
 
     const slotBorderGeo = new THREE.BoxGeometry(1.68, 0.02, 1.68);
     const slotBorderMat = new THREE.MeshStandardMaterial({
       color: slotBorderColor,
       roughness: 0.5,
-      metalness: isZen ? 0.02 : 0.35
+      metalness: isLight ? 0.02 : (isDark ? 0.06 : 0.35)
     });
 
     const totalCells = 16;

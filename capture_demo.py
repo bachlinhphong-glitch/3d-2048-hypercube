@@ -217,33 +217,75 @@ def main():
         print("  -> Setup RAW:", json.dumps(setup_res))
         time.sleep(0.8)
 
-        # DEMO 1: Zen Clay & Studio (Bắc Âu Sáng)
-        print("\n[Step 2] Capturing HƯỚNG A: Zen Ceramic & Studio Light (Bắc Âu Sáng)...")
+        # DEMO 1: Sáng Hiền Hòa (Gentle Light / Classic Linen & Sand)
+        print("\n[Step 2] Capturing HƯỚNG 1: Sáng Hiền Hòa (Gentle Light)...")
         ws.call("Runtime.evaluate", {
-            "expression": "window.gameApp.switchTheme('zen_clay')"
+            "expression": "window.gameApp.switchTheme('gentle_light')"
         })
         time.sleep(1.0)
         ss1 = ws.call("Page.captureScreenshot", {"format": "png"})
         if ss1 and 'data' in ss1:
             img1 = base64.b64decode(ss1['data'])
-            p1 = r"d:\2048\screenshot_demo_zen.png"
+            p1 = r"d:\2048\screenshot_demo_light.png"
             with open(p1, "wb") as f:
                 f.write(img1)
-            print(f"  ✓ Saved HƯỚNG A screenshot to: {p1} ({len(img1)} bytes)")
+            print(f"  ✓ Saved Sáng Hiền Hòa screenshot to: {p1} ({len(img1)} bytes)")
+            # Also write to artifact dir
+            art1 = r"C:\Users\BachBach\.gemini\antigravity\brain\244f491a-56bb-43a3-b239-7cc7b632c6df\screenshot_demo_light.png"
+            try:
+                with open(art1, "wb") as f:
+                    f.write(img1)
+            except Exception as e:
+                print("Art1 err:", e)
 
-        # DEMO 2: Modern Slate & Charcoal (Apple / Linear Dark Mode)
-        print("\n[Step 3] Capturing HƯỚNG B: Modern Slate & Charcoal Dark (Apple / Linear Tối)...")
+        # DEMO 2: Tối Hiền Hòa (Gentle Dark / Warm Espresso Velvet)
+        print("\n[Step 3] Capturing HƯỚNG 2: Tối Hiền Hòa (Gentle Dark)...")
         ws.call("Runtime.evaluate", {
-            "expression": "window.gameApp.switchTheme('modern_slate')"
+            "expression": "window.gameApp.switchTheme('gentle_dark')"
         })
         time.sleep(1.0)
         ss2 = ws.call("Page.captureScreenshot", {"format": "png"})
         if ss2 and 'data' in ss2:
             img2 = base64.b64decode(ss2['data'])
-            p2 = r"d:\2048\screenshot_demo_slate.png"
+            p2 = r"d:\2048\screenshot_demo_dark.png"
             with open(p2, "wb") as f:
                 f.write(img2)
-            print(f"  ✓ Saved HƯỚNG B screenshot to: {p2} ({len(img2)} bytes)")
+            print(f"  ✓ Saved Tối Hiền Hòa screenshot to: {p2} ({len(img2)} bytes)")
+            # Also write to artifact dir
+            art2 = r"C:\Users\BachBach\.gemini\antigravity\brain\244f491a-56bb-43a3-b239-7cc7b632c6df\screenshot_demo_dark.png"
+            try:
+                with open(art2, "wb") as f:
+                    f.write(img2)
+            except Exception as e:
+                print("Art2 err:", e)
+
+        # DEMO 3: Verify Auto System Detection (prefers-color-scheme: light then dark)
+        print("\n[Step 4] Testing Auto System Detection (prefers-color-scheme)...")
+        ws.call("Runtime.evaluate", {
+            "expression": "window.gameApp.setThemePreference('system')"
+        })
+        time.sleep(0.5)
+        # Emulate light
+        ws.call("Emulation.setEmulatedMedia", {
+            "features": [{"name": "prefers-color-scheme", "value": "light"}]
+        })
+        time.sleep(0.5)
+        res_light = ws.call("Runtime.evaluate", {
+            "expression": "window.gameApp.currentTheme",
+            "returnByValue": True
+        })
+        print(f"  -> When OS is light: currentTheme = {res_light.get('result', {}).get('value')}")
+
+        # Emulate dark
+        ws.call("Emulation.setEmulatedMedia", {
+            "features": [{"name": "prefers-color-scheme", "value": "dark"}]
+        })
+        time.sleep(0.5)
+        res_dark = ws.call("Runtime.evaluate", {
+            "expression": "window.gameApp.currentTheme",
+            "returnByValue": True
+        })
+        print(f"  -> When OS is dark: currentTheme = {res_dark.get('result', {}).get('value')}")
 
         ws.close()
         print("\n" + "=" * 60)

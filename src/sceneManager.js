@@ -328,20 +328,20 @@ export class SceneManager {
       aGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
       ctx.fillStyle = aGrad;
       ctx.fillRect(0, 0, 512, 390);
-    } else if (themeName === 'zen_clay') {
-      // Warm Scandinavian Minimalist Studio (Soft Cream to Sand Vignette)
+    } else if (themeName === 'gentle_light' || themeName === 'zen_clay') {
+      // Warm Scandinavian Minimalist Studio (Soft Cream / Oatmeal to Sand Vignette)
       const grad = ctx.createRadialGradient(256, 220, 30, 256, 220, 360);
-      grad.addColorStop(0, '#fbf9f4');
-      grad.addColorStop(0.55, '#f1ede3');
-      grad.addColorStop(1, '#e2dad0');
+      grad.addColorStop(0, '#faf8ef');
+      grad.addColorStop(0.55, '#f4f0e6');
+      grad.addColorStop(1, '#e8e2d5');
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, 512, 512);
-    } else if (themeName === 'modern_slate') {
-      // Modern Apple / Linear Dark Matte Charcoal Studio
+    } else if (themeName === 'gentle_dark' || themeName === 'modern_slate') {
+      // Warm Espresso & Roasted Charcoal Studio (Zero Cold Blue, Zero Eye Fatigue)
       const grad = ctx.createRadialGradient(256, 200, 30, 256, 200, 360);
-      grad.addColorStop(0, '#1c1f2b');
-      grad.addColorStop(0.55, '#12141c');
-      grad.addColorStop(1, '#090a0e');
+      grad.addColorStop(0, '#1c1a17');
+      grad.addColorStop(0.55, '#141311');
+      grad.addColorStop(1, '#0c0b0a');
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, 512, 512);
     } else if (themeName === 'studio') {
@@ -413,8 +413,10 @@ export class SceneManager {
     }
 
     const fogColors = {
-      zen_clay: 0xe8e1d6,
-      modern_slate: 0x0a0b10,
+      gentle_light: 0xe8e2d5,
+      gentle_dark: 0x0c0b0a,
+      zen_clay: 0xe8e2d5,
+      modern_slate: 0x0c0b0a,
       custom: 0x070914,
       cat_moon: 0x060814,
       elmo_fire: 0x1f0604,
@@ -546,29 +548,29 @@ export class SceneManager {
       this.sunLight.intensity = 1.2;
       this.rimLight.color.set(0x00f0ff);
       this.renderer.toneMappingExposure = 1.25;
-    } else if (themeName === 'zen_clay') {
+    } else if (themeName === 'gentle_light' || themeName === 'zen_clay') {
       this.starfield.visible = false;
       this.neonGrid.visible = false;
       this.cyberDust.visible = false;
-      this.ambientLight.color.set(0xfff9f2);
-      this.ambientLight.intensity = 1.35;
+      this.ambientLight.color.set(0xfff8ed);
+      this.ambientLight.intensity = 1.05;
       this.sunLight.color.set(0xffffff);
-      this.sunLight.intensity = 1.45;
-      this.rimLight.color.set(0xf5eedf);
-      this.rimLight.intensity = 0.5;
+      this.sunLight.intensity = 1.15;
+      this.rimLight.color.set(0xf3e8dc);
+      this.rimLight.intensity = 0.35;
       this.pointLight1.intensity = 0;
       this.pointLight2.intensity = 0;
-      this.renderer.toneMappingExposure = 1.05;
-    } else if (themeName === 'modern_slate') {
+      this.renderer.toneMappingExposure = 1.0;
+    } else if (themeName === 'gentle_dark' || themeName === 'modern_slate') {
       this.starfield.visible = false;
       this.neonGrid.visible = false;
       this.cyberDust.visible = false;
-      this.ambientLight.color.set(0xe2e8f0);
-      this.ambientLight.intensity = 0.85;
-      this.sunLight.color.set(0xffffff);
-      this.sunLight.intensity = 1.55;
-      this.rimLight.color.set(0x475569);
-      this.rimLight.intensity = 0.7;
+      this.ambientLight.color.set(0xf3ece3);
+      this.ambientLight.intensity = 0.95;
+      this.sunLight.color.set(0xfff4e6);
+      this.sunLight.intensity = 1.4;
+      this.rimLight.color.set(0x423c35);
+      this.rimLight.intensity = 0.6;
       this.pointLight1.intensity = 0;
       this.pointLight2.intensity = 0;
       this.renderer.toneMappingExposure = 1.15;
