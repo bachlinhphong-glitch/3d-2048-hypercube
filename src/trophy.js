@@ -69,18 +69,13 @@ export function createTrophyMesh(isUnlocked = true) {
   cubeCanvas.height = 256;
   const cCtx = cubeCanvas.getContext('2d');
   const cGrad = cCtx.createLinearGradient(0, 0, 256, 256);
-  if (isUnlocked) {
-    cGrad.addColorStop(0, '#ffe066');
-    cGrad.addColorStop(0.5, '#f59e0b');
-    cGrad.addColorStop(1, '#d97706');
-  } else {
-    cGrad.addColorStop(0, '#475569');
-    cGrad.addColorStop(1, '#1e293b');
-  }
+  cGrad.addColorStop(0, '#ffe066');
+  cGrad.addColorStop(0.5, '#f59e0b');
+  cGrad.addColorStop(1, '#d97706');
   cCtx.fillStyle = cGrad;
   cCtx.fillRect(0, 0, 256, 256);
 
-  cCtx.strokeStyle = isUnlocked ? '#ffffff' : '#64748b';
+  cCtx.strokeStyle = '#ffffff';
   cCtx.lineWidth = 10;
   cCtx.strokeRect(8, 8, 240, 240);
 
@@ -88,37 +83,37 @@ export function createTrophyMesh(isUnlocked = true) {
   cCtx.textAlign = 'center';
   cCtx.textBaseline = 'middle';
   cCtx.font = '900 86px "Segoe UI", Arial, sans-serif';
-  cCtx.shadowColor = isUnlocked ? '#ffd700' : '#000';
-  cCtx.shadowBlur = isUnlocked ? 20 : 6;
+  cCtx.shadowColor = '#ffd700';
+  cCtx.shadowBlur = 18;
   cCtx.fillText('2048', 128, 128);
   const cubeTex = new THREE.CanvasTexture(cubeCanvas);
 
-  // 2. Materials
-  const goldColor = isUnlocked ? 0xffd700 : 0x64748b;
-  const goldShine = isUnlocked ? 0xfff085 : 0x94a3b8;
-  const goldRough = isUnlocked ? 0.2 : 0.6;
-  const goldMetal = isUnlocked ? 0.95 : 0.3;
+  // 2. Materials - Always 24K Radiant Imperial Gold
+  const goldColor = 0xffd700;
+  const goldShine = 0xffea70;
+  const goldRough = 0.16;
+  const goldMetal = 0.94;
 
   const goldMat = new THREE.MeshStandardMaterial({
     color: goldColor,
     roughness: goldRough,
     metalness: goldMetal,
-    emissive: isUnlocked ? 0x332000 : 0x000000,
-    emissiveIntensity: isUnlocked ? 0.35 : 0
+    emissive: 0x2e1e02,
+    emissiveIntensity: isUnlocked ? 0.4 : 0.25
   });
 
   const goldTrimMat = new THREE.MeshStandardMaterial({
     color: goldShine,
-    roughness: goldRough * 0.7,
+    roughness: 0.1,
     metalness: 0.98,
-    emissive: isUnlocked ? 0x442a00 : 0x000000,
-    emissiveIntensity: isUnlocked ? 0.4 : 0
+    emissive: 0x3d2703,
+    emissiveIntensity: isUnlocked ? 0.45 : 0.3
   });
 
   const pedestalMat = new THREE.MeshStandardMaterial({
-    color: isUnlocked ? 0x0f141f : 0x0b0f17,
-    roughness: 0.3,
-    metalness: 0.6
+    color: 0x0f141f,
+    roughness: 0.25,
+    metalness: 0.65
   });
 
   const plaqueMat = new THREE.MeshBasicMaterial({
@@ -127,21 +122,21 @@ export function createTrophyMesh(isUnlocked = true) {
   });
 
   const gemMat = new THREE.MeshStandardMaterial({
-    color: isUnlocked ? 0x00f0ff : 0x38bdf8,
+    color: 0x00f0ff,
     roughness: 0.1,
-    metalness: 0.3,
-    emissive: isUnlocked ? 0x00aaff : 0x002244,
-    emissiveIntensity: isUnlocked ? 0.8 : 0.2,
+    metalness: 0.25,
+    emissive: 0x00aaff,
+    emissiveIntensity: isUnlocked ? 0.8 : 0.4,
     transparent: true,
-    opacity: isUnlocked ? 0.95 : 0.5
+    opacity: 0.95
   });
 
   const crownCubeMat = new THREE.MeshStandardMaterial({
     map: cubeTex,
     roughness: 0.15,
-    metalness: isUnlocked ? 0.85 : 0.2,
-    emissive: isUnlocked ? 0xff8800 : 0x000000,
-    emissiveIntensity: isUnlocked ? 0.4 : 0
+    metalness: 0.88,
+    emissive: 0xffaa00,
+    emissiveIntensity: isUnlocked ? 0.5 : 0.25
   });
 
   // 3. Geometry Construction
@@ -212,9 +207,9 @@ export function createTrophyMesh(isUnlocked = true) {
 
   // Chalice inner depth cavity
   const innerMat = new THREE.MeshStandardMaterial({
-    color: isUnlocked ? 0xffaa00 : 0x1e293b,
-    roughness: 0.3,
-    metalness: 0.9,
+    color: 0xcc8800,
+    roughness: 0.25,
+    metalness: 0.92,
     side: THREE.BackSide
   });
   const chaliceInner = new THREE.Mesh(new THREE.CylinderGeometry(1.36, 1.05, 1.2, 36), innerMat);
@@ -227,18 +222,26 @@ export function createTrophyMesh(isUnlocked = true) {
   bowlRim.position.y = 4.52;
   trophyGroup.add(bowlRim);
 
-  // --- Dual Curved Handles ---
-  const handleGeo = new THREE.TorusGeometry(0.7, 0.08, 16, 32, Math.PI * 1.35);
+  // --- Dual Curved Handles (100% Mathematically Symmetric & Seamlessly Anchored) ---
+  const handlePointsRight = [
+    new THREE.Vector3(1.15, 3.3, 0),    // Lower attachment (anchored deep into chalice body)
+    new THREE.Vector3(1.85, 3.42, 0),   // Curves outwards
+    new THREE.Vector3(2.15, 3.9, 0),    // Outer apex
+    new THREE.Vector3(1.95, 4.35, 0),   // Upper curve
+    new THREE.Vector3(1.42, 4.5, 0)     // Upper attachment (anchored under lip rim)
+  ];
 
-  const handleLeft = new THREE.Mesh(handleGeo, goldTrimMat);
-  handleLeft.position.set(-1.42, 3.8, 0);
-  handleLeft.rotation.z = Math.PI * 0.32;
-  trophyGroup.add(handleLeft);
-
-  const handleRight = new THREE.Mesh(handleGeo, goldTrimMat);
-  handleRight.position.set(1.42, 3.8, 0);
-  handleRight.rotation.z = -Math.PI * 0.32 + Math.PI;
+  const rightCurve = new THREE.CatmullRomCurve3(handlePointsRight);
+  const handleRightGeo = new THREE.TubeGeometry(rightCurve, 32, 0.08, 16, false);
+  const handleRight = new THREE.Mesh(handleRightGeo, goldTrimMat);
   trophyGroup.add(handleRight);
+
+  // Left handle: exact negative X mirroring for 100% bilateral symmetry
+  const handlePointsLeft = handlePointsRight.map(p => new THREE.Vector3(-p.x, p.y, p.z));
+  const leftCurve = new THREE.CatmullRomCurve3(handlePointsLeft);
+  const handleLeftGeo = new THREE.TubeGeometry(leftCurve, 32, 0.08, 16, false);
+  const handleLeft = new THREE.Mesh(handleLeftGeo, goldTrimMat);
+  trophyGroup.add(handleLeft);
 
   // --- Floating "2048" Crown Jewel ---
   const crownCube = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.75, 0.75), crownCubeMat);
@@ -249,9 +252,7 @@ export function createTrophyMesh(isUnlocked = true) {
   // --- Orbiting Planetary Rings ---
   const ring1 = new THREE.Mesh(
     new THREE.TorusGeometry(2.0, 0.025, 12, 64),
-    isUnlocked
-      ? new THREE.MeshBasicMaterial({ color: 0xffd700, transparent: true, opacity: 0.75 })
-      : new THREE.MeshBasicMaterial({ color: 0x475569, transparent: true, opacity: 0.3 })
+    new THREE.MeshBasicMaterial({ color: 0xffd700, transparent: true, opacity: isUnlocked ? 0.85 : 0.65 })
   );
   ring1.rotation.x = Math.PI * 0.35;
   ring1.position.y = 3.9;
@@ -260,9 +261,7 @@ export function createTrophyMesh(isUnlocked = true) {
 
   const ring2 = new THREE.Mesh(
     new THREE.TorusGeometry(2.15, 0.022, 12, 64),
-    isUnlocked
-      ? new THREE.MeshBasicMaterial({ color: 0x00f0ff, transparent: true, opacity: 0.65 })
-      : new THREE.MeshBasicMaterial({ color: 0x334155, transparent: true, opacity: 0.25 })
+    new THREE.MeshBasicMaterial({ color: 0x00f0ff, transparent: true, opacity: isUnlocked ? 0.75 : 0.55 })
   );
   ring2.rotation.x = -Math.PI * 0.35;
   ring2.rotation.z = Math.PI * 0.25;
@@ -285,10 +284,10 @@ export function createTrophyMesh(isUnlocked = true) {
   starGeo.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
 
   const starMat = new THREE.PointsMaterial({
-    color: isUnlocked ? 0xffe066 : 0x94a3b8,
+    color: 0xffe066,
     size: 0.09,
     transparent: true,
-    opacity: isUnlocked ? 0.9 : 0.4
+    opacity: isUnlocked ? 0.95 : 0.7
   });
   const stars = new THREE.Points(starGeo, starMat);
   stars.name = 'trophy_stars';
