@@ -448,6 +448,26 @@ export class Game2048Logic {
     return spell.ready && spell.used < this.maxSpellUses;
   }
 
+  getRemainingSpellCount() {
+    if (!this.spells) return 0;
+    const hintLeft = Math.max(0, this.maxSpellUses - (this.spells.hint ? this.spells.hint.used : 0));
+    const undoLeft = Math.max(0, this.maxSpellUses - (this.spells.undo ? this.spells.undo.used : 0));
+    const swapLeft = Math.max(0, this.maxSpellUses - (this.spells.swap ? this.spells.swap.used : 0));
+    return hintLeft + undoLeft + swapLeft;
+  }
+
+  consumeAllSpellsForBonus() {
+    if (!this.spells) return 0;
+    const count = this.getRemainingSpellCount();
+    ['hint', 'undo', 'swap'].forEach(k => {
+      if (this.spells[k]) {
+        this.spells[k].used = this.maxSpellUses;
+        this.spells[k].ready = false;
+      }
+    });
+    return count;
+  }
+
   getSpellStatus(type) {
     const spell = this.spells[type];
     if (!spell) return 'depleted';

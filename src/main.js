@@ -360,7 +360,13 @@ class GameApp {
     const bossBtn = document.getElementById('btn-toggle-boss');
     if (bossBtn) {
       bossBtn.addEventListener('click', () => {
-        this.toggleBossRaid();
+        this.handleBossToggleClick();
+      });
+    }
+
+    if (this.rushToggleBtn) {
+      this.rushToggleBtn.addEventListener('click', () => {
+        this.handleRushToggleClick();
       });
     }
 
@@ -368,10 +374,12 @@ class GameApp {
     window.addEventListener('keydown', (e) => {
       if (e.altKey && (e.code === 'KeyB' || e.key === 'b' || e.key === 'B')) {
         e.preventDefault();
-        if (!this.isBossRaid) this.toggleBossRaid();
+        if (!this.isBossRaid) this.activateBossModeWithCleanReset();
         this.bossManager.setupTestPhase3();
       }
     });
+
+    this.setupModeConfirmModal();
 
     // AI Auto-Play Button
     const aiBtn = document.getElementById('btn-ai-toggle');
@@ -741,8 +749,9 @@ class GameApp {
     this.setSliceMode(next);
   }
 
-  toggleRushMode() {
-    this.isRushMode = !this.isRushMode;
+  toggleRushMode(forceState = null) {
+    const targetState = forceState !== null ? forceState : !this.isRushMode;
+    this.isRushMode = targetState;
     this.gameLogic.setRushMode(this.isRushMode);
 
     if (this.rushToggleBtn) {
@@ -756,11 +765,11 @@ class GameApp {
     }
 
     this.rushTime = 30.0;
-    this.startNewGame();
   }
 
-  toggleBossRaid() {
-    this.isBossRaid = !this.isBossRaid;
+  toggleBossRaid(forceState = null) {
+    const targetState = forceState !== null ? forceState : !this.isBossRaid;
+    this.isBossRaid = targetState;
     const bossBtn = document.getElementById('btn-toggle-boss');
     if (bossBtn) {
       bossBtn.classList.toggle('active', this.isBossRaid);
@@ -773,6 +782,208 @@ class GameApp {
       this.bossManager.stopRaid();
     }
     this.registerInteraction();
+  }
+
+  handleBossToggleClick() {
+    if (this.isBossRaid) {
+      this.toggleBossRaid(false);
+      this.showSpellToast('Đã thoát chế độ Đấu Trùm.');
+      return;
+    }
+
+    const skipConfirm = localStorage.getItem('3d2048_boss_confirm_skip') === 'true';
+    if (skipConfirm) {
+      this.activateBossModeWithCleanReset();
+      return;
+    }
+
+    this.openModeConfirmModal('boss');
+  }
+
+  handleRushToggleClick() {
+    if (this.isRushMode) {
+      this.toggleRushMode(false);
+      this.showSpellToast('Đã thoát chế độ Đua Giờ.');
+      return;
+    }
+
+    const skipConfirm = localStorage.getItem('3d2048_rush_confirm_skip') === 'true';
+    if (skipConfirm) {
+      this.activateRushModeWithCleanReset();
+      return;
+    }
+
+    this.openModeConfirmModal('rush');
+  }
+
+  activateBossModeWithCleanReset() {
+    if (this.isRushMode) {
+      this.toggleRushMode(false);
+    }
+    this.clearSavedGameState();
+    this.startNewGame(false);
+    if (!this.isBossRaid) {
+      this.toggleBossRaid(true);
+    }
+    this.showSpellToast('⚔️ Chế độ Đấu Trùm đã kích hoạt!');
+  }
+
+  activateRushModeWithCleanReset() {
+    if (this.isBossRaid) {
+      this.toggleBossRaid(false);
+    }
+    this.clearSavedGameState();
+    this.startNewGame(false);
+    if (!this.isRushMode) {
+      this.toggleRushMode(true);
+    }
+    this.showSpellToast('⚡ Chế độ Đua Giờ đã kích hoạt!');
+  }
+
+  setupModeConfirmModal() {
+    const modal = document.getElementById('mode-confirm-modal');
+    if (!modal) return;
+
+    const closeBtn = document.getElementById('mode-confirm-close');
+    const cancelBtn = document.getElementById('btn-mode-confirm-cancel');
+    const startBtn = document.getElementById('btn-mode-confirm-start');
+    const dontShowCheckbox = document.getElementById('mode-confirm-dont-show');
+
+    const closeModal = () => {
+      modal.classList.remove('active');
+      setTimeout(() => {
+        modal.style.display = 'none';
+      }, 220);
+    };
+
+    if (closeBtn) closeBtn.onclick = closeModal;
+    if (cancelBtn) cancelBtn.onclick = closeModal;
+    modal.onclick = (e) => {
+      if (e.target === modal) closeModal();
+    };
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('active')) {
+        closeModal();
+      }
+    });
+
+    if (startBtn) {
+      startBtn.onclick = () => {
+        const mode = modal.dataset.pendingMode;
+        if (dontShowCheckbox && dontShowCheckbox.checked) {
+          try {
+            localStorage.setItem(`3d2048_${mode}_confirm_skip`, 'true');
+          } catch {}
+        }
+        try {
+          localStorage.setItem(`3d2048_${mode}_tutorial_seen`, 'true');
+        } catch {}
+
+        closeModal();
+
+        if (mode === 'boss') {
+          this.activateBossModeWithCleanReset();
+        } else if (mode === 'rush') {
+          this.activateRushModeWithCleanReset();
+        }
+      };
+    }
+  }
+
+  openModeConfirmModal(mode) {
+    const modal = document.getElementById('mode-confirm-modal');
+    if (!modal) return;
+
+    modal.dataset.pendingMode = mode;
+    const titleEl = document.getElementById('mode-confirm-title');
+    const subtitleEl = document.getElementById('mode-confirm-subtitle');
+    const iconBox = document.getElementById('mode-confirm-icon-box');
+    const badgeEl = document.getElementById('mode-tutorial-badge');
+    const badgeTextEl = document.getElementById('mode-tutorial-badge-text');
+    const contentEl = document.getElementById('mode-tutorial-content');
+    const dontShowCheckbox = document.getElementById('mode-confirm-dont-show');
+
+    if (dontShowCheckbox) dontShowCheckbox.checked = false;
+
+    const isFirstTime = !localStorage.getItem(`3d2048_${mode}_tutorial_seen`);
+
+    if (mode === 'boss') {
+      if (titleEl) titleEl.textContent = t('mode_confirm_boss_title');
+      if (subtitleEl) subtitleEl.textContent = t('mode_confirm_boss_subtitle');
+      if (iconBox) {
+        iconBox.classList.remove('rush');
+        iconBox.innerHTML = `
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14.5 17.5L3 6V3h3l11.5 11.5"></path>
+            <path d="M13 19l6-6"></path>
+            <path d="M16 16l4 4"></path>
+            <path d="M19 21l2-2"></path>
+            <path d="M9.5 17.5L21 6V3h-3L6.5 14.5"></path>
+            <path d="M11 19l-6-6"></path>
+            <path d="M8 16l-4 4"></path>
+            <path d="M5 21l-2-2"></path>
+          </svg>`;
+      }
+      if (badgeEl) badgeEl.classList.toggle('first-time', isFirstTime);
+      if (badgeTextEl) {
+        badgeTextEl.textContent = isFirstTime ? t('mode_tutorial_badge_first') : t('mode_tutorial_badge');
+      }
+      if (contentEl) {
+        contentEl.innerHTML = `
+          <div class="mode-rule-item">
+            <span class="mode-rule-bullet">🎯</span>
+            <div><strong>${t('rule_boss_goal_title')}</strong> ${t('rule_boss_goal_desc')}</div>
+          </div>
+          <div class="mode-rule-item">
+            <span class="mode-rule-bullet">💥</span>
+            <div><strong>${t('rule_boss_dmg_title')}</strong> ${t('rule_boss_dmg_desc')}</div>
+          </div>
+          <div class="mode-rule-item">
+            <span class="mode-rule-bullet">⏱️</span>
+            <div><strong>${t('rule_boss_time_title')}</strong> ${t('rule_boss_time_desc')}</div>
+          </div>
+          <div class="mode-rule-item highlight">
+            <span class="mode-rule-bullet">🛡️</span>
+            <div><strong>${t('rule_boss_bonus_title')}</strong> ${t('rule_boss_bonus_desc')}</div>
+          </div>
+        `;
+      }
+    } else if (mode === 'rush') {
+      if (titleEl) titleEl.textContent = t('mode_confirm_rush_title');
+      if (subtitleEl) subtitleEl.textContent = t('mode_confirm_rush_subtitle');
+      if (iconBox) {
+        iconBox.classList.add('rush');
+        iconBox.innerHTML = `
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>`;
+      }
+      if (badgeEl) badgeEl.classList.toggle('first-time', isFirstTime);
+      if (badgeTextEl) {
+        badgeTextEl.textContent = isFirstTime ? t('mode_tutorial_badge_first') : t('mode_tutorial_badge');
+      }
+      if (contentEl) {
+        contentEl.innerHTML = `
+          <div class="mode-rule-item">
+            <span class="mode-rule-bullet">🎯</span>
+            <div><strong>${t('rule_rush_goal_title')}</strong> ${t('rule_rush_goal_desc')}</div>
+          </div>
+          <div class="mode-rule-item">
+            <span class="mode-rule-bullet">⏳</span>
+            <div><strong>${t('rule_rush_time_title')}</strong> ${t('rule_rush_time_desc')}</div>
+          </div>
+          <div class="mode-rule-item highlight">
+            <span class="mode-rule-bullet">🛡️</span>
+            <div><strong>${t('rule_rush_bonus_title')}</strong> ${t('rule_rush_bonus_desc')}</div>
+          </div>
+        `;
+      }
+    }
+
+    soundManager.playClick();
+    modal.style.display = 'flex';
+    modal.classList.add('active');
   }
 
   updateDynamicLanguageTexts() {
@@ -2095,28 +2306,40 @@ class GameApp {
     if (this.isRushMode && !this.gameLogic.gameOver && !this.isAnimating) {
       this.rushTime -= delta;
       if (this.rushTime <= 0) {
-        this.rushTime = 0;
-        this.gameLogic.gameOver = true;
-        if (this.aiBot) this.aiBot.stop();
-        this.clearSavedGameState();
-        this.isAnimating = false; // UNFREEZE
-        soundManager.playGameOver();
-        this.showModal({
-          title: t('modal_gameover_title') || 'THẤT BẠI (GAME OVER)',
-          message: `Hết giờ trong chế độ Time Rush!\nĐiểm số đạt được: ${this.gameLogic.score.toLocaleString()}`,
-          primaryText: t('modal_btn_continue') || 'Chơi lại ngay',
-          secondaryText: t('modal_btn_new_game') || 'Ván mới',
-          onPrimary: () => {
-            this.hideModal();
-            this.isAnimating = false;
-            this.startNewGame(false);
-          },
-          onSecondary: () => {
-            this.hideModal();
-            this.isAnimating = false;
-            this.startNewGame(false);
-          }
-        });
+        // ⚡ Emergency Spell-to-Time Bonus (Cơ chế cứu nguy bằng phép bổ trợ)
+        const remainingSpells = this.gameLogic.getRemainingSpellCount();
+        if (remainingSpells > 0) {
+          const bonusSeconds = remainingSpells * 15;
+          this.rushTime += bonusSeconds;
+          this.gameLogic.consumeAllSpellsForBonus();
+          this.updateSpellUI();
+
+          soundManager.playSpellRecharge();
+          this.showSpellToast(`⚡ CỨU NGUY: Quy đổi ${remainingSpells} phép bổ trợ thành +${bonusSeconds}s sinh tồn!`, true);
+        } else {
+          this.rushTime = 0;
+          this.gameLogic.gameOver = true;
+          if (this.aiBot) this.aiBot.stop();
+          this.clearSavedGameState();
+          this.isAnimating = false; // UNFREEZE
+          soundManager.playGameOver();
+          this.showModal({
+            title: t('modal_gameover_title') || 'THẤT BẠI (GAME OVER)',
+            message: `Hết giờ trong chế độ Time Rush!\nĐiểm số đạt được: ${this.gameLogic.score.toLocaleString()}`,
+            primaryText: t('modal_btn_continue') || 'Chơi lại ngay',
+            secondaryText: t('modal_btn_new_game') || 'Ván mới',
+            onPrimary: () => {
+              this.hideModal();
+              this.isAnimating = false;
+              this.startNewGame(false);
+            },
+            onSecondary: () => {
+              this.hideModal();
+              this.isAnimating = false;
+              this.startNewGame(false);
+            }
+          });
+        }
       }
     }
 

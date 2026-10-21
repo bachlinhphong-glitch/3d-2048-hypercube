@@ -1391,6 +1391,565 @@ body.theme-gentle_light .welcome-dont-show {
   color: #64748b;
 }
 
+/* ================= ⚔️ MODE CONFIRMATION & TUTORIAL MODAL (Boss & Rush) ================= */
+.mode-confirm-modal-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: rgba(4, 7, 14, 0.88) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
+  z-index: 2700 !important;
+  display: none;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 16px;
+  opacity: 0;
+  transition: opacity 0.24s ease-out;
+  pointer-events: none;
+}
+
+.mode-confirm-modal-overlay.active {
+  display: flex !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+.mode-confirm-card {
+  width: 540px;
+  max-width: 95vw;
+  max-height: 90vh;
+  background: rgba(13, 17, 23, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 240, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: modalScaleIn 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mode-confirm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(22, 27, 34, 0.6);
+  gap: 12px;
+}
+
+.mode-confirm-icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(168, 85, 247, 0.2));
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f87171;
+  flex-shrink: 0;
+}
+
+.mode-confirm-icon-box.rush {
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(245, 158, 11, 0.2));
+  border-color: rgba(0, 240, 255, 0.4);
+  color: #00f0ff;
+}
+
+.mode-confirm-icon-box svg {
+  width: 22px;
+  height: 22px;
+}
+
+.mode-confirm-title-wrap {
+  flex: 1;
+}
+
+.mode-confirm-title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+}
+
+.mode-confirm-subtitle {
+  margin: 3px 0 0;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.mode-confirm-body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.mode-warning-banner {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  color: #fca5a5;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.mode-warning-icon svg {
+  width: 20px;
+  height: 20px;
+  color: #ef4444;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.mode-warning-text strong {
+  color: #ffffff;
+}
+
+.mode-tutorial-box {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mode-tutorial-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 240, 255, 0.12);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  color: #00f0ff;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 20px;
+  width: fit-content;
+  letter-spacing: 0.5px;
+}
+
+.mode-tutorial-badge.first-time {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.45);
+  color: #fbbf24;
+}
+
+.mode-tutorial-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mode-rule-item {
+  display: flex;
+  gap: 10px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #cbd5e1;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.mode-rule-item.highlight {
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #e0f2fe;
+}
+
+.mode-rule-bullet {
+  font-size: 16px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.mode-confirm-footer {
+  padding: 16px 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(22, 27, 34, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.mode-dont-ask {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #94a3b8;
+  cursor: pointer;
+  user-select: none;
+}
+
+.mode-dont-ask input[type="checkbox"] {
+  accent-color: #00f0ff;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.mode-confirm-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.mode-start-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #00f0ff, #7928ca);
+  border: 1px solid rgba(0, 240, 255, 0.4);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 9px 18px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 16px rgba(0, 240, 255, 0.25);
+}
+
+.mode-start-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0, 240, 255, 0.4);
+}
+
+.mode-start-btn svg {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+}
+
+/* ================= 🏆 BOSS VICTORY & GRAND ACHIEVEMENT MODAL ================= */
+.boss-victory-modal-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: rgba(3, 4, 8, 0.92) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  z-index: 2900 !important;
+  display: none;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 16px;
+  opacity: 0;
+  transition: opacity 0.32s ease-out;
+  pointer-events: none;
+}
+
+.boss-victory-modal-overlay.active {
+  display: flex !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+.boss-victory-card {
+  position: relative;
+  width: 560px;
+  max-width: 95vw;
+  background: linear-gradient(180deg, rgba(20, 16, 36, 0.96) 0%, rgba(10, 10, 18, 0.98) 100%);
+  border: 2px solid rgba(251, 191, 36, 0.45);
+  border-radius: 24px;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.8), 0 0 50px rgba(251, 191, 36, 0.2);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: modalScaleIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: center;
+}
+
+.boss-victory-banner-top {
+  position: relative;
+  padding: 32px 24px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: radial-gradient(circle at 50% 30%, rgba(251, 191, 36, 0.2) 0%, transparent 70%);
+}
+
+.boss-trophy-glow {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 140px;
+  height: 140px;
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.45) 0%, transparent 70%);
+  pointer-events: none;
+  filter: blur(12px);
+  animation: trophyPulse 2.5s infinite ease-in-out;
+}
+
+@keyframes trophyPulse {
+  0%, 100% { opacity: 0.5; transform: translateX(-50%) scale(1); }
+  50% { opacity: 0.9; transform: translateX(-50%) scale(1.2); }
+}
+
+.boss-victory-badge-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  border: 3px solid #fef08a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 30px rgba(251, 191, 36, 0.6);
+  z-index: 2;
+  margin-bottom: 12px;
+}
+
+.boss-victory-badge-icon svg {
+  width: 36px;
+  height: 36px;
+  color: #ffffff;
+}
+
+.boss-victory-title {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 900;
+  background: linear-gradient(135deg, #ffffff 30%, #fef08a 70%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 1px;
+}
+
+.boss-victory-subtitle {
+  margin: 8px 0 0;
+  font-size: 13.5px;
+  color: #e2e8f0;
+  max-width: 460px;
+  line-height: 1.5;
+}
+
+.boss-achievement-container {
+  padding: 0 24px;
+}
+
+.boss-achievement-badge {
+  background: rgba(251, 191, 36, 0.08);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  border-radius: 16px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-align: left;
+  box-shadow: inset 0 0 16px rgba(251, 191, 36, 0.05);
+}
+
+.boss-achievement-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.3), rgba(239, 68, 68, 0.3));
+  border: 1px solid rgba(251, 191, 36, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fef08a;
+  flex-shrink: 0;
+}
+
+.boss-achievement-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.boss-achievement-tier {
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #fbbf24;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.boss-achievement-name {
+  font-size: 14px;
+  font-weight: 800;
+  color: #ffffff;
+  margin-top: 2px;
+}
+
+.boss-achievement-desc {
+  font-size: 11.5px;
+  color: #94a3b8;
+  margin-top: 3px;
+  line-height: 1.35;
+}
+
+.boss-victory-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  padding: 16px 24px;
+}
+
+.boss-v-stat {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  text-align: left;
+}
+
+.boss-v-label {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.boss-v-val {
+  font-size: 16px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.boss-v-val.gold {
+  color: #fbbf24;
+}
+
+.boss-victory-actions {
+  padding: 16px 24px 24px;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.boss-v-start-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  border: 1px solid rgba(251, 191, 36, 0.6);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 800;
+  padding: 12px 24px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 20px rgba(245, 158, 11, 0.4);
+}
+
+.boss-v-start-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(245, 158, 11, 0.6);
+}
+
+.boss-v-start-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Gentle Light Overrides for Modals */
+body.theme-gentle_light .mode-confirm-card {
+  background: rgba(255, 255, 255, 0.98);
+  border-color: rgba(0, 0, 0, 0.12);
+  color: #1e293b;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+body.theme-gentle_light .mode-confirm-header {
+  background: #f8fafc;
+  border-bottom-color: #e2e8f0;
+}
+
+body.theme-gentle_light .mode-confirm-title {
+  color: #0f172a;
+}
+
+body.theme-gentle_light .mode-warning-banner {
+  background: #fff1f2;
+  border-color: #fecdd3;
+  color: #9f1239;
+}
+
+body.theme-gentle_light .mode-warning-text strong {
+  color: #881337;
+}
+
+body.theme-gentle_light .mode-tutorial-box {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+body.theme-gentle_light .mode-rule-item {
+  background: #ffffff;
+  color: #334155;
+  border: 1px solid #f1f5f9;
+}
+
+body.theme-gentle_light .mode-rule-item.highlight {
+  background: #f0f9ff;
+  border-color: #bae6fd;
+  color: #0369a1;
+}
+
+body.theme-gentle_light .mode-confirm-footer {
+  background: #f8fafc;
+  border-top-color: #e2e8f0;
+}
+
+body.theme-gentle_light .boss-victory-card {
+  background: rgba(255, 255, 255, 0.98);
+  border-color: rgba(217, 119, 6, 0.4);
+  color: #1e293b;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.15);
+}
+
+body.theme-gentle_light .boss-victory-title {
+  background: linear-gradient(135deg, #1e293b 30%, #b45309 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+body.theme-gentle_light .boss-victory-subtitle {
+  color: #475569;
+}
+
+body.theme-gentle_light .boss-achievement-badge {
+  background: #fffbeb;
+  border-color: #fde68a;
+}
+
+body.theme-gentle_light .boss-achievement-name {
+  color: #78350f;
+}
+
+body.theme-gentle_light .boss-v-stat {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+body.theme-gentle_light .boss-v-val {
+  color: #0f172a;
+}
+
 /* ================= ⚙️ SETTINGS MODAL ================= */
 .settings-modal-overlay {
   position: fixed !important;

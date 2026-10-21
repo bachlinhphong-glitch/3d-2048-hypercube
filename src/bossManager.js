@@ -62,6 +62,14 @@ export class BossManager {
     this.cutinSubtitleEl = document.getElementById('boss-cutin-subtitle');
     this.damageContainer = document.getElementById('boss-damage-container');
     this.flashEl = document.getElementById('cinematic-flash');
+
+    this.victoryModal = document.getElementById('boss-victory-modal');
+    this.victoryTimeEl = document.getElementById('boss-v-time');
+    this.victoryDamageEl = document.getElementById('boss-v-damage');
+    this.victoryScoreEl = document.getElementById('boss-v-score');
+    this.victoryContinueBtn = document.getElementById('boss-victory-btn-continue');
+    this.victoryShareBtn = document.getElementById('boss-victory-btn-share');
+    this.victoryConfettiContainer = document.getElementById('boss-victory-confetti');
   }
 
   initCoreMeshes() {
@@ -317,6 +325,22 @@ export class BossManager {
     this.updateHUD();
 
     if (this.timer <= 0 && !this.isDefeated) {
+      // ⚡ Emergency Spell-to-Time Bonus (Cơ chế cứu nguy bằng phép bổ trợ)
+      const remainingSpells = this.gameApp.gameLogic.getRemainingSpellCount();
+      if (remainingSpells > 0 && this.hp > 0) {
+        const bonusSeconds = remainingSpells * 15;
+        this.timer += bonusSeconds;
+        this.gameApp.gameLogic.consumeAllSpellsForBonus();
+        this.gameApp.updateSpellUI();
+
+        soundManager.playSpellRecharge();
+        this.emitExpandingRingWave(0x38bdf8);
+        this.triggerBanner('⚡ PHÉP THUẬT CỨU NGUY!', `+${bonusSeconds}s THỜI GIAN (Quy đổi ${remainingSpells} phép)`);
+        this.gameApp.showSpellToast(`⚡ CỨU NGUY: Quy đổi ${remainingSpells} phép bổ trợ thành +${bonusSeconds}s chiến đấu!`, true);
+        this.updateHUD();
+        return;
+      }
+
       this.onTimeout();
       return;
     }
@@ -591,8 +615,68 @@ export class BossManager {
       this.clearDelayedCall.kill();
     }
     this.clearDelayedCall = gsap.delayedCall(1.8, () => {
-      this.showStageClearModal(timeStr);
+      this.showBossVictoryModal(timeStr);
     });
+  }
+
+  showBossVictoryModal(clearTimeStr) {
+    if (!this.victoryModal) {
+      this.showStageClearModal(clearTimeStr);
+      return;
+    }
+
+    // Persist achievement in localStorage
+    try {
+      localStorage.setItem('3d2048_boss_defeated', 'true');
+    } catch {}
+
+    if (this.victoryTimeEl) this.victoryTimeEl.textContent = clearTimeStr;
+    if (this.victoryDamageEl) this.victoryDamageEl.textContent = '4,048 HP';
+    if (this.victoryScoreEl) this.victoryScoreEl.textContent = this.gameApp.gameLogic.score.toLocaleString();
+
+    soundManager.playTrophyUnlockFanfare();
+    this.spawnVictoryConfetti();
+
+    this.victoryModal.style.display = 'flex';
+    this.victoryModal.classList.add('active');
+
+    const closeVictory = () => {
+      this.victoryModal.classList.remove('active');
+      setTimeout(() => {
+        this.victoryModal.style.display = 'none';
+      }, 250);
+    };
+
+    if (this.victoryContinueBtn) {
+      this.victoryContinueBtn.onclick = (e) => {
+        e.stopPropagation();
+        closeVictory();
+        this.gameApp.toggleBossRaid(false);
+        this.gameApp.startNewGame(false);
+      };
+    }
+
+    if (this.victoryShareBtn) {
+      this.victoryShareBtn.onclick = (e) => {
+        e.stopPropagation();
+        this.gameApp.shareScore();
+      };
+    }
+  }
+
+  spawnVictoryConfetti() {
+    if (!this.victoryConfettiContainer) return;
+    this.victoryConfettiContainer.innerHTML = '';
+    const colors = ['#f59e0b', '#ef4444', '#00f0ff', '#10b981', '#ec4899', '#8b5cf6'];
+    for (let i = 0; i < 48; i++) {
+      const piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.style.left = `${Math.random() * 100}%`;
+      piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      piece.style.animationDelay = `${Math.random() * 0.8}s`;
+      piece.style.animationDuration = `${1.8 + Math.random() * 1.4}s`;
+      this.victoryConfettiContainer.appendChild(piece);
+    }
   }
 
   spawnCrystalFireworks() {

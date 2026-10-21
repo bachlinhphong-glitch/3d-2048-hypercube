@@ -153,6 +153,51 @@ export const DICTIONARY = {
     welcome_dont_show: 'Không tự động hiện lại khi mở trang',
     welcome_btn_start: 'Bắt Đầu Chơi Ngay',
 
+    // Mode Confirmation & Tutorial
+    mode_confirm_boss_title: 'THỬ THÁCH ĐẤU TRÙM (BOSS RAID)',
+    mode_confirm_boss_subtitle: 'Chiến đấu tiêu diệt Dark Singularity Core qua 3 giai đoạn',
+    mode_confirm_rush_title: 'THỬ THÁCH ĐUA GIỜ (TIME RUSH)',
+    mode_confirm_rush_subtitle: 'Chạy đua với đồng hồ đếm ngược sinh tồn',
+    mode_warning_title: 'CẢNH BÁO TIẾN TRÌNH:',
+    mode_warning_desc: 'Bắt đầu chế độ này sẽ làm mới toàn bộ bàn cờ và xóa ván chơi dở hiện tại để bắt đầu tính điểm thử thách mới!',
+    mode_tutorial_badge_first: '🔥 LẦN ĐẦU TIÊN: ĐỌC KỸ LUẬT CHƠI!',
+    mode_tutorial_badge: '💡 LUẬT CHƠI & CƠ CHẾ ĐẶC BIỆT',
+    mode_dont_ask: 'Không hỏi lại khi chuyển sang chế độ này',
+    mode_btn_cancel: 'Hủy / Quay lại',
+    mode_btn_start: 'Xác nhận & Bắt đầu',
+
+    // Boss Rules Details
+    rule_boss_goal_title: 'Mục tiêu tối thượng:',
+    rule_boss_goal_desc: 'Hạ gục Trùm Hư Không qua 3 giai đoạn (Phase 1: 500 HP ➔ Phase 2: 1,500 HP ➔ Phase 3: 2,048 HP).',
+    rule_boss_dmg_title: 'Sát thương số học:',
+    rule_boss_dmg_desc: 'Mỗi lần gộp khối sẽ tích tụ năng lượng bắn laser trừ máu Boss (khối càng lớn sát thương càng cao, khối 2048 kết liễu ngay lập tức!).',
+    rule_boss_time_title: 'Thời gian nghẹt thở:',
+    rule_boss_time_desc: 'Mỗi giai đoạn có thời gian giới hạn. Khi qua màn sẽ được dọn khối rác [2],[4] và cộng thêm thời gian.',
+    rule_boss_bonus_title: 'Phép thuật cứu nguy đặc biệt:',
+    rule_boss_bonus_desc: 'Nếu đồng hồ điểm về 0s mà Boss vẫn còn máu, mỗi phép bổ trợ (Gợi ý, Đi lại, Đổi vị trí) còn lại sẽ tự động quy đổi thành +15 giây thưởng để tiếp tục trận đấu!',
+
+    // Rush Rules Details
+    rule_rush_goal_title: 'Mục tiêu sinh tồn:',
+    rule_rush_goal_desc: 'Chạy đua với đồng hồ 30 giây để đạt điểm số kỷ lục cao nhất.',
+    rule_rush_time_title: 'Cộng dồn thời gian:',
+    rule_rush_time_desc: 'Mỗi lần gộp khối thành công sẽ cộng thêm vài giây quý giá vào đồng hồ.',
+    rule_rush_bonus_title: 'Phép thuật cứu nguy đặc biệt:',
+    rule_rush_bonus_desc: 'Khi đồng hồ điểm về 0s, mỗi phép bổ trợ còn lại sẽ tự động quy đổi thành +15 giây sinh tồn giúp bạn duy trì combo!',
+
+    // Boss Victory & Achievements
+    boss_victory_heading: 'CHIẾN CÔNG HIỂN HÁCH!',
+    boss_victory_congrats: 'Nhiệt liệt hoan nghênh và chúc mừng Dũng Sĩ! Bạn đã xuất sắc vượt qua mọi thử thách, tiêu diệt hoàn toàn Trùm Hư Không Singularity qua 3 giai đoạn nghẹt thở!',
+    boss_achieve_tier: 'THÀNH TỰU HUYỀN THOẠI ĐÃ MỞ KHÓA',
+    boss_achieve_name: 'KẺ HỦY DIỆT HƯ KHÔNG (SINGULARITY SLAYER)',
+    boss_achieve_desc: 'Tiêu diệt thành công Dark Singularity Core ở Phase 3 bằng đòn kết liễu khối [2048]!',
+    boss_stat_time: 'Thời gian diệt trùm',
+    boss_stat_damage: 'Tổng sát thương',
+    boss_stat_score: 'Điểm số trận đấu',
+    boss_stat_finisher: 'Đòn kết liễu',
+    boss_stat_finisher_val: 'Khối 2048 Siêu Cấp',
+    boss_btn_share: 'Chia sẻ chiến tích',
+    boss_btn_continue: 'Nhận vinh danh & Tiếp tục',
+
     // Boss Mode
     boss_title: 'BOSS MODE ACTIVATED',
     stage_clear_title: 'STAGE CLEAR!',
@@ -333,6 +378,51 @@ export const DICTIONARY = {
     welcome_mobile_tip3: 'Bottom skill bar: Tap to use Hint, Undo, Swap',
     welcome_dont_show: "Don't show automatically on startup",
     welcome_btn_start: 'Start Playing Now',
+
+    // Mode Confirmation & Tutorial
+    mode_confirm_boss_title: 'BOSS RAID CHALLENGE',
+    mode_confirm_boss_subtitle: 'Defeat the Dark Singularity Core across 3 intense phases',
+    mode_confirm_rush_title: 'TIME RUSH CHALLENGE',
+    mode_confirm_rush_subtitle: 'Race against the survival countdown clock',
+    mode_warning_title: 'PROGRESS WARNING:',
+    mode_warning_desc: 'Starting this mode will reset the board and erase your unfinished game to begin fresh challenge scoring!',
+    mode_tutorial_badge_first: '🔥 FIRST TIME: READ RULES CAREFULLY!',
+    mode_tutorial_badge: '💡 RULES & SPECIAL MECHANICS',
+    mode_dont_ask: "Don't ask again when entering this mode",
+    mode_btn_cancel: 'Cancel / Return',
+    mode_btn_start: 'Confirm & Start',
+
+    // Boss Rules Details
+    rule_boss_goal_title: 'Ultimate Objective:',
+    rule_boss_goal_desc: 'Defeat the Void Boss across 3 phases (Phase 1: 500 HP ➔ Phase 2: 1,500 HP ➔ Phase 3: 2,048 HP).',
+    rule_boss_dmg_title: 'Mathematical Damage:',
+    rule_boss_dmg_desc: 'Every merge fires energy lasers at the Boss (larger tiles deal massive damage; tile 2048 executes an instant kill!).',
+    rule_boss_time_title: 'Breathless Timer:',
+    rule_boss_time_desc: 'Each phase has a countdown timer. Clearing a phase cleanses low tiles [2],[4] and adds bonus time.',
+    rule_boss_bonus_title: 'Emergency Spell Bonus:',
+    rule_boss_bonus_desc: 'If the timer hits 0s while Boss has HP, each remaining spell (Hint, Undo, Swap) automatically converts into +15s bonus battle time!',
+
+    // Rush Rules Details
+    rule_rush_goal_title: 'Survival Goal:',
+    rule_rush_goal_desc: 'Race against a 30s timer to achieve the highest possible score.',
+    rule_rush_time_title: 'Stacking Bonus Time:',
+    rule_rush_time_desc: 'Every successful merge adds precious seconds to your clock.',
+    rule_rush_bonus_title: 'Emergency Spell Bonus:',
+    rule_rush_bonus_desc: 'When time hits 0s, each remaining spell automatically converts into +15s survival time to keep your combo alive!',
+
+    // Boss Victory & Achievements
+    boss_victory_heading: 'GLORIOUS VICTORY!',
+    boss_victory_congrats: 'Warmest congratulations, Champion! You have courageously conquered all odds and annihilated the Dark Singularity Core across 3 thrilling phases!',
+    boss_achieve_tier: 'LEGENDARY ACHIEVEMENT UNLOCKED',
+    boss_achieve_name: 'SINGULARITY SLAYER',
+    boss_achieve_desc: 'Annihilated Dark Singularity Core in Phase 3 with a devastating [2048] tile finisher!',
+    boss_stat_time: 'Clear Time',
+    boss_stat_damage: 'Total Damage',
+    boss_stat_score: 'Match Score',
+    boss_stat_finisher: 'Finishing Blow',
+    boss_stat_finisher_val: 'Legendary 2048 Tile',
+    boss_btn_share: 'Share Victory',
+    boss_btn_continue: 'Claim Glory & Continue',
 
     // Boss Mode
     boss_title: 'BOSS MODE ACTIVATED',
@@ -515,6 +605,51 @@ export const DICTIONARY = {
     welcome_dont_show: '次回から自動で表示しない',
     welcome_btn_start: '今すぐプレイ開始',
 
+    // Mode Confirmation & Tutorial
+    mode_confirm_boss_title: 'ボスレイドチャレンジ',
+    mode_confirm_boss_subtitle: '3段階のダークシンギュラリティコアを撃破せよ',
+    mode_confirm_rush_title: 'タイムラッシュチャレンジ',
+    mode_confirm_rush_subtitle: '生存をかけたカウントダウンレース',
+    mode_warning_title: '進行状況の警告:',
+    mode_warning_desc: 'このモードを開始すると盤面がリセットされ、進行中のゲームが消去されて新しいスコア計測が始まります！',
+    mode_tutorial_badge_first: '🔥 初回プレイ: ルールをよくお読みください！',
+    mode_tutorial_badge: '💡 ルールと特殊メカニクス',
+    mode_dont_ask: '次回からこのモード開始時に確認しない',
+    mode_btn_cancel: 'キャンセル / 戻る',
+    mode_btn_start: '確認して開始',
+
+    // Boss Rules Details
+    rule_boss_goal_title: '最終目標:',
+    rule_boss_goal_desc: '3段階でボスを撃破 (第1形態: 500 HP ➔ 第2形態: 1,500 HP ➔ 第3形態: 2,048 HP)。',
+    rule_boss_dmg_title: '合体ダメージ:',
+    rule_boss_dmg_desc: 'タイルを合体させるたびにレーザーを発射 (大きなタイルほど大ダメージ、2048は一撃必殺！)。',
+    rule_boss_time_title: '緊迫のタイマー:',
+    rule_boss_time_desc: '各フェーズには制限時間があります。突破すると低位タイルが浄化されボーナス時間が追加されます。',
+    rule_boss_bonus_title: '緊急呪文救済システム:',
+    rule_boss_bonus_desc: 'タイマーが0秒になってもボスが残っている場合、残っている呪文1つにつき+15秒の戦闘時間が付与されます！',
+
+    // Rush Rules Details
+    rule_rush_goal_title: '生存目標:',
+    rule_rush_goal_desc: '30秒の制限時間内にできるだけ高いスコアを目指します。',
+    rule_rush_time_title: 'ボーナスタイム累積:',
+    rule_rush_time_desc: 'タイル合体に成功するたびに貴重な秒数がタイマーに加算されます。',
+    rule_rush_bonus_title: '緊急呪文救済システム:',
+    rule_rush_bonus_desc: 'タイマーが0秒になっても呪文が残っていれば、1つにつき+15秒の生存時間が付与されます！',
+
+    // Boss Victory & Achievements
+    boss_victory_heading: '輝かしき大勝利！',
+    boss_victory_congrats: '勇者よ、熱烈に祝福します！過酷な試練を乗り越え、3段階のダークシンギュラリティコアを完全に消滅させました！',
+    boss_achieve_tier: '伝説の実績が解除されました',
+    boss_achieve_name: '虚空の破壊者 (SINGULARITY SLAYER)',
+    boss_achieve_desc: '2048タイルの究極合体で第3形態のシンギュラリティコアを完全破壊！',
+    boss_stat_time: '討伐時間',
+    boss_stat_damage: '総ダメージ',
+    boss_stat_score: '最終スコア',
+    boss_stat_finisher: '決定打',
+    boss_stat_finisher_val: '伝説の2048ブロック',
+    boss_btn_share: '戦績をシェア',
+    boss_btn_continue: '栄誉を受け取り続ける',
+
     // Boss Mode
     boss_title: 'ボスモード起動',
     stage_clear_title: 'ステージクリア！',
@@ -695,6 +830,51 @@ export const DICTIONARY = {
     welcome_mobile_tip3: '하단 스킬 버튼: 힌트, 되돌리기, 위치 교환',
     welcome_dont_show: '시작 시 자동으로 표시하지 않기',
     welcome_btn_start: '지금 시작하기',
+
+    // Mode Confirmation & Tutorial
+    mode_confirm_boss_title: '보스 레이드 챌린지',
+    mode_confirm_boss_subtitle: '3단계의 다크 싱귤래리티 코어를 격파하세요',
+    mode_confirm_rush_title: '타임 러시 챌린지',
+    mode_confirm_rush_subtitle: '생존을 위한 카운트다운 레이스',
+    mode_warning_title: '진행 상황 경고:',
+    mode_warning_desc: '이 모드를 시작하면 보드가 새로 고쳐지며 진행 중인 게임이 삭제되고 새로운 챌린지 기록이 시작됩니다!',
+    mode_tutorial_badge_first: '🔥 최초 플레이: 규칙을 꼭 읽어보세요!',
+    mode_tutorial_badge: '💡 규칙 및 특수 메커니즘',
+    mode_dont_ask: '이 모드로 전환할 때 다시 묻지 않기',
+    mode_btn_cancel: '취소 / 돌아가기',
+    mode_btn_start: '확인 및 시작',
+
+    // Boss Rules Details
+    rule_boss_goal_title: '최종 목표:',
+    rule_boss_goal_desc: '3단계에 걸쳐 보스를 격파 (1페이즈: 500 HP ➔ 2페이즈: 1,500 HP ➔ 3페이즈: 2,048 HP).',
+    rule_boss_dmg_title: '수학적 대미지:',
+    rule_boss_dmg_desc: '타일을 병합할 때마다 보스에게 레이저 공격 (큰 타일일수록 큰 피해, 2048은 즉사 결정타!).',
+    rule_boss_time_title: '긴박한 타이머:',
+    rule_boss_time_desc: '각 페이즈마다 제한 시간이 있으며, 클리어 시 낮은 타일이 정화되고 추가 시간이 지급됩니다.',
+    rule_boss_bonus_title: '긴급 주문 보너스 시스템:',
+    rule_boss_bonus_desc: '타이머가 0초가 되었을 때 보스 체력이 남아있다면, 남은 주문 1개당 +15초의 추가 전투 시간이 지급됩니다!',
+
+    // Rush Rules Details
+    rule_rush_goal_title: '생존 목표:',
+    rule_rush_goal_desc: '30초의 제한 시간 내에 가능한 한 높은 점수를 달성하세요.',
+    rule_rush_time_title: '보너스 시간 누적:',
+    rule_rush_time_desc: '타일 병합에 성공할 때마다 귀중한 초가 시계에 추가됩니다.',
+    rule_rush_bonus_title: '긴급 주문 보너스 시스템:',
+    rule_rush_bonus_desc: '타이머가 0초가 되었을 때 남은 주문이 있다면, 1개당 +15초의 생존 시간이 지급되어 콤보를 이어갈 수 있습니다!',
+
+    // Boss Victory & Achievements
+    boss_victory_heading: '눈부신 대승리!',
+    boss_victory_congrats: '용사여, 진심으로 축하합니다! 모든 시련을 딛고 3단계 싱귤래리티 코어를 완전히 소멸시켰습니다!',
+    boss_achieve_tier: '전설적인 업적 잠금 해제',
+    boss_achieve_name: '공허의 파괴자 (SINGULARITY SLAYER)',
+    boss_achieve_desc: '2048 타일 융합으로 3페이즈 싱귤래리티 코어를 완벽히 격파했습니다!',
+    boss_stat_time: '격파 시간',
+    boss_stat_damage: '총 대미지',
+    boss_stat_score: '경기 점수',
+    boss_stat_finisher: '결정타',
+    boss_stat_finisher_val: '전설의 2048 블록',
+    boss_btn_share: '전적 공유하기',
+    boss_btn_continue: '영예 수락 및 계속하기',
 
     // Boss Mode
     boss_title: '보스 모드 활성화',

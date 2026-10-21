@@ -33,17 +33,17 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./src/style.css?v=6.1.0">
+  <link rel="stylesheet" href="./src/style.css?v=6.2.0">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=6.1.0').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=6.2.0').then(reg => {
           reg.update();
         }).catch(() => {});
       });
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!sessionStorage.getItem('sw_reloaded_610')) {
-          sessionStorage.setItem('sw_reloaded_610', '1');
+        if (!sessionStorage.getItem('sw_reloaded_620')) {
+          sessionStorage.setItem('sw_reloaded_620', '1');
           window.location.reload();
         }
       });
@@ -660,6 +660,139 @@
     </div>
   </div>
 
+  <!-- Mode Confirmation & Tutorial Modal (Boss & Rush) -->
+  <div id="mode-confirm-modal" class="mode-confirm-modal-overlay" style="display: none;">
+    <div class="mode-confirm-card">
+      <div class="mode-confirm-header">
+        <div class="mode-confirm-icon-box" id="mode-confirm-icon-box">
+          <svg class="mode-confirm-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14.5 17.5L3 6V3h3l11.5 11.5"></path>
+            <path d="M13 19l6-6"></path>
+            <path d="M16 16l4 4"></path>
+            <path d="M19 21l2-2"></path>
+            <path d="M9.5 17.5L21 6V3h-3L6.5 14.5"></path>
+            <path d="M11 19l-6-6"></path>
+            <path d="M8 16l-4 4"></path>
+            <path d="M5 21l-2-2"></path>
+          </svg>
+        </div>
+        <div class="mode-confirm-title-wrap">
+          <h3 id="mode-confirm-title" class="mode-confirm-title" data-i18n="mode_confirm_boss_title">THỬ THÁCH ĐẤU TRÙM (BOSS RAID)</h3>
+          <p id="mode-confirm-subtitle" class="mode-confirm-subtitle" data-i18n="mode_confirm_boss_subtitle">Chiến đấu tiêu diệt Dark Singularity Core qua 3 giai đoạn</p>
+        </div>
+        <button id="mode-confirm-close" class="settings-close-btn" aria-label="Đóng" title="Đóng">✕</button>
+      </div>
+
+      <div class="mode-confirm-body">
+        <!-- Critical Progress Warning Banner -->
+        <div class="mode-warning-banner">
+          <div class="mode-warning-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </div>
+          <div class="mode-warning-text">
+            <strong data-i18n="mode_warning_title">CẢNH BÁO TIẾN TRÌNH:</strong> <span data-i18n="mode_warning_desc">Bắt đầu chế độ này sẽ làm mới toàn bộ bàn cờ và xóa ván chơi dở hiện tại để bắt đầu tính điểm thử thách mới!</span>
+          </div>
+        </div>
+
+        <!-- Rules & Special Emergency Mechanics Box -->
+        <div class="mode-tutorial-box">
+          <div class="mode-tutorial-badge" id="mode-tutorial-badge">
+            <span id="mode-tutorial-badge-text" data-i18n="mode_tutorial_badge">💡 LUẬT CHƠI & CƠ CHẾ ĐẶC BIỆT</span>
+          </div>
+          <div id="mode-tutorial-content" class="mode-tutorial-content">
+            <!-- Dynamic items generated based on mode (boss or rush) -->
+          </div>
+        </div>
+      </div>
+
+      <div class="mode-confirm-footer">
+        <label class="mode-dont-ask">
+          <input type="checkbox" id="mode-confirm-dont-show">
+          <span data-i18n="mode_dont_ask">Không hỏi lại khi chuyển sang chế độ này</span>
+        </label>
+        <div class="mode-confirm-actions">
+          <button id="btn-mode-confirm-cancel" class="modal-btn secondary">
+            <span data-i18n="mode_btn_cancel">Hủy / Quay lại</span>
+          </button>
+          <button id="btn-mode-confirm-start" class="mode-start-btn">
+            <span id="mode-confirm-start-text" data-i18n="mode_btn_start">Xác nhận & Bắt đầu</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grand Boss Victory & Achievement Modal -->
+  <div id="boss-victory-modal" class="boss-victory-modal-overlay" style="display: none;">
+    <div class="boss-victory-card">
+      <div class="boss-victory-banner-top">
+        <div class="boss-trophy-glow"></div>
+        <div class="boss-victory-badge-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="7"></circle>
+            <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+          </svg>
+        </div>
+        <h2 id="boss-victory-heading" class="boss-victory-title" data-i18n="boss_victory_heading">CHIẾN CÔNG HIỂN HÁCH!</h2>
+        <p id="boss-victory-subtitle" class="boss-victory-subtitle" data-i18n="boss_victory_congrats">Nhiệt liệt hoan nghênh và chúc mừng Dũng Sĩ! Bạn đã xuất sắc vượt qua mọi thử thách, tiêu diệt hoàn toàn Trùm Hư Không Singularity qua 3 giai đoạn nghẹt thở!</p>
+      </div>
+
+      <div class="boss-achievement-container">
+        <div class="boss-achievement-badge">
+          <div class="boss-achievement-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+          </div>
+          <div class="boss-achievement-details">
+            <div class="boss-achievement-tier" data-i18n="boss_achieve_tier">THÀNH TỰU HUYỀN THOẠI ĐÃ MỞ KHÓA</div>
+            <div class="boss-achievement-name" data-i18n="boss_achieve_name">KẺ HỦY DIỆT HƯ KHÔNG (SINGULARITY SLAYER)</div>
+            <div class="boss-achievement-desc" data-i18n="boss_achieve_desc">Tiêu diệt thành công Dark Singularity Core ở Phase 3 bằng đòn kết liễu khối [2048]!</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="boss-victory-stats-grid">
+        <div class="boss-v-stat">
+          <span class="boss-v-label" data-i18n="boss_stat_time">Thời gian diệt trùm</span>
+          <span id="boss-v-time" class="boss-v-val">01:45</span>
+        </div>
+        <div class="boss-v-stat">
+          <span class="boss-v-label" data-i18n="boss_stat_damage">Tổng sát thương</span>
+          <span id="boss-v-damage" class="boss-v-val">4,048 HP</span>
+        </div>
+        <div class="boss-v-stat">
+          <span class="boss-v-label" data-i18n="boss_stat_score">Điểm số trận đấu</span>
+          <span id="boss-v-score" class="boss-v-val">0</span>
+        </div>
+        <div class="boss-v-stat">
+          <span class="boss-v-label" data-i18n="boss_stat_finisher">Đòn kết liễu</span>
+          <span class="boss-v-val gold" data-i18n="boss_stat_finisher_val">Khối 2048 Siêu Cấp</span>
+        </div>
+      </div>
+
+      <div class="boss-victory-actions">
+        <button id="boss-victory-btn-share" class="modal-btn secondary">
+          <svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          <span data-i18n="boss_btn_share">Chia sẻ chiến tích</span>
+        </button>
+        <button id="boss-victory-btn-continue" class="boss-v-start-btn">
+          <span data-i18n="boss_btn_continue">Nhận vinh danh & Tiếp tục</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+      <div id="boss-victory-confetti" class="trophy-confetti-container"></div>
+    </div>
+  </div>
+
   <!-- Compact Settings Modal (Top-Level Fixed Viewport Modal) -->
   <div id="settings-modal" class="settings-modal-overlay" style="display: none;">
     <div class="settings-modal-card">
@@ -799,6 +932,6 @@
   </div>
 
   <!-- Main Game Script -->
-  <script type="module" src="./src/main.js?v=6.1.0"></script>
+  <script type="module" src="./src/main.js?v=6.2.0"></script>
 </body>
 </html>
