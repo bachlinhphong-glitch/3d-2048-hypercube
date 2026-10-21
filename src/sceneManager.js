@@ -29,6 +29,49 @@ export class SceneManager {
     window.addEventListener('resize', () => this.handleResize());
   }
 
+  isMobilePortrait() {
+    const width = this.container.clientWidth || window.innerWidth;
+    const height = this.container.clientHeight || window.innerHeight;
+    return (width / height) < 0.78;
+  }
+
+  getDefaultTarget() {
+    const is3D = this.mode === '3x3x3';
+    if (this.isMobilePortrait()) {
+      // Elevate the board on mobile portrait by targeting slightly in front (+Z),
+      // creating generous ~100px clear margin above the bottom hint text and spell buttons.
+      return is3D 
+        ? new THREE.Vector3(0, 2.7, 0.45)
+        : new THREE.Vector3(0, 1.7, 0.65);
+    }
+    return is3D ? this.defaultTarget3x3 : this.defaultTarget4x4;
+  }
+
+  getDefaultCamPos(preset = 1) {
+    const is3D = this.mode === '3x3x3';
+    const mobile = this.isMobilePortrait();
+
+    if (preset === 2 || preset === 'top') {
+      return is3D 
+        ? new THREE.Vector3(0, mobile ? 15.2 : 14.5, 0.65)
+        : new THREE.Vector3(0, mobile ? 14.8 : 14.2, 0.65);
+    } else if (preset === 3 || preset === 'side') {
+      return is3D
+        ? new THREE.Vector3(0, 4.0, mobile ? 13.5 : 12.5)
+        : new THREE.Vector3(0, 2.5, mobile ? 11.5 : 10.5);
+    } else {
+      // 1. Isometric diagonal view
+      if (mobile) {
+        return is3D
+          ? new THREE.Vector3(0, 12.2, 10.2)
+          : new THREE.Vector3(0, 11.8, 10.4);
+      }
+      return is3D
+        ? new THREE.Vector3(0, 11.5, 9.2)
+        : new THREE.Vector3(0, 11.5, 9.8);
+    }
+  }
+
   initScene() {
     this.scene = new THREE.Scene();
     this.scene.fog = new THREE.FogExp2(0x0a0518, 0.015);
@@ -37,8 +80,8 @@ export class SceneManager {
   initCamera() {
     const aspect = this.container.clientWidth / this.container.clientHeight;
     this.camera = new THREE.PerspectiveCamera(44, aspect, 0.1, 100);
-    this.camera.position.copy(this.defaultCamPos4x4);
-    this.camera.lookAt(this.defaultTarget4x4);
+    this.camera.position.copy(this.getDefaultCamPos(1));
+    this.camera.lookAt(this.getDefaultTarget());
   }
 
   initRenderer() {
@@ -639,15 +682,40 @@ export class SceneManager {
 
   setMode(mode) {
     this.mode = mode;
+    this.updateTouchControls();
     this.resetCamera();
+  }
+
+  updateTouchControls() {
+    if (!this.controls) return;
+    const is3D = this.mode === '3x3x3';
+    if (is3D) {
+      // 3D Hypercube: 2 fingers rotate view around the cube
+      this.controls.touches = {
+        ONE: null,
+        TWO: THREE.TOUCH.DOLLY_ROTATE
+      };
+    } else {
+      // 4x4 mode: 2 fingers pan (di chuyển) the board & pinch zoom
+      this.controls.touches = {
+        ONE: null,
+        TWO: THREE.TOUCH.DOLLY_PAN
+      };
+    }
   }
 
   initControls() {
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.enableDamping = true;
     this.controls.dampingFactor = 0.06;
-    this.controls.enablePan = false; // Strictly prevent accidental touch panning so board is never lost
-    this.controls.target.copy(this.defaultTarget4x4);
+    this.controls.enablePan = true; // Enables bounded 2-finger panning so user can reposition the board
+    this.controls.panSpeed = 0.8;
+    this.controls.screenSpacePanning = true;
+
+    const defTarget = this.getDefaultTarget();
+    this.controls.target.copy(defTarget);
+    this.controls.cursor.copy(defTarget);
+    this.controls.maxTargetRadius = 2.0; // Strictly prevent board from being panned off-screen
 
     this.controls.minPolarAngle = Math.PI / 8;
     this.controls.maxPolarAngle = Math.PI / 2.15;
@@ -657,13 +725,10 @@ export class SceneManager {
     this.controls.mouseButtons = {
       LEFT: null,
       MIDDLE: THREE.MOUSE.DOLLY,
-      RIGHT: THREE.MOUSE.ROTATE
+      RIGHT: THREE.MOUSE.PAN
     };
 
-    this.controls.touches = {
-      ONE: null, // 1-finger touch reserved for game swipe / tap
-      TWO: THREE.TOUCH.DOLLY_ROTATE // 2-finger touch allows pinch zoom and 3D orbit, zero pan drift
-    };
+    this.updateTouchControls();
 
     this.controls.addEventListener('change', () => {
       this.requestShadowUpdate(2);
@@ -679,22 +744,8 @@ export class SceneManager {
     gsap.killTweensOf(this.camera.position);
     gsap.killTweensOf(this.controls.target);
 
-    const is3D = this.mode === '3x3x3';
-    let targetPos, targetLook;
-
-    if (preset === 2 || preset === 'top') {
-      // 2. Top-Down View (Slight Z offset to avoid Gimbal Lock with camera.up)
-      targetPos = is3D ? new THREE.Vector3(0, 14.5, 0.65) : new THREE.Vector3(0, 14.2, 0.65);
-      targetLook = is3D ? this.defaultTarget3x3 : this.defaultTarget4x4;
-    } else if (preset === 3 || preset === 'side') {
-      // 3. Front / Side Layer View (Nhìn ngang soi rõ độ cao giữa các tầng)
-      targetPos = is3D ? new THREE.Vector3(0, 4.0, 12.5) : new THREE.Vector3(0, 2.5, 10.5);
-      targetLook = is3D ? this.defaultTarget3x3 : this.defaultTarget4x4;
-    } else {
-      // 1. Isometric Standard 3D Diagonal View (Bao quát cả 3 trục và Boss)
-      targetPos = is3D ? new THREE.Vector3(0, 11.5, 9.2) : new THREE.Vector3(0, 11.5, 9.8);
-      targetLook = is3D ? this.defaultTarget3x3 : this.defaultTarget4x4;
-    }
+    const targetPos = this.getDefaultCamPos(preset);
+    const targetLook = this.getDefaultTarget();
 
     if (this.controls) this.controls.enabled = false;
 
@@ -711,6 +762,7 @@ export class SceneManager {
       onComplete: () => {
         if (this.controls) {
           this.controls.target.copy(targetLook);
+          this.controls.cursor.copy(targetLook);
           this.controls.enabled = true;
           this.controls.update();
         }
@@ -824,9 +876,12 @@ export class SceneManager {
 
     // Safeguard: Ensure camera target never drifts away from the board into the void
     if (this.controls && this.controls.enabled) {
-      const expectedTarget = this.mode === '3x3x3' ? this.defaultTarget3x3 : this.defaultTarget4x4;
-      if (this.controls.target.distanceTo(expectedTarget) > 3.0) {
-        this.controls.target.lerp(expectedTarget, 0.1);
+      const expectedTarget = this.getDefaultTarget();
+      this.controls.cursor.copy(expectedTarget);
+      const dist = this.controls.target.distanceTo(expectedTarget);
+      if (dist > 2.0) {
+        const offset = this.controls.target.clone().sub(expectedTarget).clampLength(0, 2.0);
+        this.controls.target.copy(expectedTarget).add(offset);
       }
     }
 

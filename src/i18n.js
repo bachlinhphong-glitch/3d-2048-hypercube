@@ -127,7 +127,7 @@ export const DICTIONARY = {
     hint_ghost: 'Dự đoán',
     hint_rotate: 'Xoay 3D',
     hint_mobile_swipe: 'Vuốt để trượt khối',
-    hint_mobile_rotate: '2 ngón xoay bàn cờ',
+    hint_mobile_rotate: '2 ngón di chuyển bàn cờ',
 
     // Modals
     modal_victory_title: 'CHIẾN THẮNG!',
@@ -166,7 +166,7 @@ export const DICTIONARY = {
     welcome_pc_tip3: 'Giữ chuột trái và kéo: Xoay tự do góc nhìn bàn cờ 3D',
     welcome_pc_tip4: 'Phím H: Gợi ý • Phím Z: Đi lại • Phím X: Đổi vị trí',
     welcome_mobile_tip1: 'Vuốt 1 ngón tay: Trượt dồn các khối số',
-    welcome_mobile_tip2: 'Chạm 2 ngón tay và xoay: Thay đổi góc nhìn 3D',
+    welcome_mobile_tip2: 'Chạm 2 ngón tay: Di chuyển vị trí & đổi góc nhìn 3D',
     welcome_mobile_tip3: 'Thanh kỹ năng bên dưới: Chạm dùng Gợi ý, Đi lại, Đổi vị trí',
     welcome_dont_show: 'Không tự động hiện lại khi mở trang',
     welcome_btn_start: 'Bắt Đầu Chơi Ngay',
@@ -371,7 +371,7 @@ export const DICTIONARY = {
     hint_ghost: 'Preview',
     hint_rotate: 'Rotate 3D',
     hint_mobile_swipe: 'Swipe to slide tiles',
-    hint_mobile_rotate: '2 fingers rotate board',
+    hint_mobile_rotate: '2 fingers pan / rotate',
 
     // Modals
     modal_victory_title: 'VICTORY!',
@@ -597,7 +597,7 @@ export const DICTIONARY = {
     hint_ghost: '予測表示',
     hint_rotate: '3D回転',
     hint_mobile_swipe: 'スワイプで移動',
-    hint_mobile_rotate: '2本指で回転',
+    hint_mobile_rotate: '2本指で移動 / 回転',
 
     // Modals
     modal_victory_title: '勝利！',
@@ -823,7 +823,7 @@ export const DICTIONARY = {
     hint_ghost: '예측 보기',
     hint_rotate: '3D 회전',
     hint_mobile_swipe: '밀어서 타일 이동',
-    hint_mobile_rotate: '두 손가락으로 회전',
+    hint_mobile_rotate: '두 손가락으로 이동 / 회전',
 
     // Modals
     modal_victory_title: '승리!',

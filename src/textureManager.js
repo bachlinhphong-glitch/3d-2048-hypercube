@@ -18,41 +18,42 @@ const TILE_STYLES = {
   16384: { bg: '#e11d48', text: '#ffffff', emissive: '#fb7185', intensity: 1.45, rim: '#ffe4e6' }   // Supernova Magenta
 };
 
-// 2. [HƯỚNG SÁNG] Gentle Light (Hiền Hòa Sáng / Classic 2048 Warm Linen & Sand)
+// 2. [HƯỚNG SÁNG] Gentle Light (Hiền Hòa Sáng / Vibrant & Warm Silk Palette)
+// Redesigned with distinct, iconic colors for each tier so no two numbers look alike!
 const TILE_STYLES_GENTLE_LIGHT = {
-  2:     { bg: '#eee4da', text: '#776e65', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Warm Silk Biscuit
-  4:     { bg: '#ede0c8', text: '#776e65', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Oatmeal Porcelain
-  8:     { bg: '#f2b179', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Soft Apricot
-  16:    { bg: '#f59563', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Warm Terracotta
-  32:    { bg: '#f67c5f', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Coral Melon
-  64:    { bg: '#f65e3b', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Warm Persimmon
-  128:   { bg: '#e5b438', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Rich Honey Amber
-  256:   { bg: '#e0a624', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Golden Amber
-  512:   { bg: '#db9814', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Saffron Gold
-  1024:  { bg: '#d48b06', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Imperial Gold
-  2048:  { bg: '#cb7d00', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // 24K Burnished Gold
-  4096:  { bg: '#3c8a7c', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Nordic Eucalyptus
-  8192:  { bg: '#4a69bd', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // French Ultramarine
-  16384: { bg: '#6c5ce7', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }  // Royal Amethyst Iris
+  2:     { bg: '#eee4da', text: '#776e65', emissive: '#eee4da', intensity: 0.05, rim: '#ffffff' }, // Warm Silk Ivory
+  4:     { bg: '#ede0c8', text: '#776e65', emissive: '#ede0c8', intensity: 0.08, rim: '#ffffff' }, // Warm Toasted Linen
+  8:     { bg: '#f97316', text: '#ffffff', emissive: '#ea580c', intensity: 0.18, rim: '#ffedd5' }, // Radiant Tangerine Orange
+  16:    { bg: '#ea580c', text: '#ffffff', emissive: '#c2410c', intensity: 0.22, rim: '#fed7aa' }, // Sunset Flame Amber
+  32:    { bg: '#e11d48', text: '#ffffff', emissive: '#be123c', intensity: 0.25, rim: '#fecdd3' }, // Vivid Ruby Coral
+  64:    { bg: '#dc2626', text: '#ffffff', emissive: '#b91c1c', intensity: 0.28, rim: '#fee2e2' }, // Fiery Crimson Scarlet
+  128:   { bg: '#eab308', text: '#ffffff', emissive: '#ca8a04', intensity: 0.32, rim: '#fef08a' }, // Luminous Sun Gold
+  256:   { bg: '#06b6d4', text: '#ffffff', emissive: '#0891b2', intensity: 0.35, rim: '#cffafe' }, // Electric Cyan Turquoise
+  512:   { bg: '#10b981', text: '#ffffff', emissive: '#059669', intensity: 0.38, rim: '#d1fae5' }, // Vivid Emerald Jade
+  1024:  { bg: '#8b5cf6', text: '#ffffff', emissive: '#7c3aed', intensity: 0.42, rim: '#ede9fe' }, // Royal Amethyst Violet
+  2048:  { bg: '#f59e0b', text: '#ffffff', emissive: '#d97706', intensity: 0.50, rim: '#fef3c7' }, // 24K Burnished Crown Gold
+  4096:  { bg: '#ec4899', text: '#ffffff', emissive: '#db2777', intensity: 0.55, rim: '#fce7f3' }, // Cosmic Pink Rose
+  8192:  { bg: '#3b82f6', text: '#ffffff', emissive: '#2563eb', intensity: 0.60, rim: '#dbeafe' }, // Electric Sapphire Blue
+  16384: { bg: '#6366f1', text: '#ffffff', emissive: '#4f46e5', intensity: 0.65, rim: '#e0e7ff' }  // Astral Indigo Purple
 };
 const TILE_STYLES_ZEN = TILE_STYLES_GENTLE_LIGHT; // Backwards compatibility alias
 
-// 3. [HƯỚNG TỐI] Gentle Dark (Hiền Hòa Tối / Warm Espresso & Roasted Velvet)
+// 3. [HƯỚNG TỐI] Gentle Dark (Hiền Hòa Tối / Velvet Night & Vivid Jewel Progression)
 const TILE_STYLES_GENTLE_DARK = {
-  2:     { bg: '#312c27', text: '#dfd7ce', emissive: '#000000', intensity: 0, rim: '#48413a' }, // Deep Warm Biscuit
-  4:     { bg: '#3d362f', text: '#ebd8bf', emissive: '#000000', intensity: 0, rim: '#544a41' }, // Warm Toasted Oat
-  8:     { bg: '#784424', text: '#fef3e2', emissive: '#000000', intensity: 0, rim: '#8e512c' }, // Spiced Amber
-  16:    { bg: '#8e4321', text: '#fef3e2', emissive: '#000000', intensity: 0, rim: '#a44e27' }, // Roasted Terracotta
-  32:    { bg: '#973824', text: '#fef3e2', emissive: '#000000', intensity: 0, rim: '#ae4029' }, // Warm Paprika
-  64:    { bg: '#a32f1a', text: '#fef3e2', emissive: '#000000', intensity: 0, rim: '#bc361e' }, // Velvet Garnet
-  128:   { bg: '#887023', text: '#fef3e2', emissive: '#000000', intensity: 0, rim: '#9e822a' }, // Antique Gold
-  256:   { bg: '#947a1c', text: '#fef3e2', emissive: '#000000', intensity: 0, rim: '#aa8c20' }, // Honey Velvet
-  512:   { bg: '#a08415', text: '#fef3e2', emissive: '#000000', intensity: 0, rim: '#b79718' }, // Saffron Gold
-  1024:  { bg: '#ad8e0e', text: '#fef3e2', emissive: '#000000', intensity: 0, rim: '#c4a110' }, // Imperial Gold
-  2048:  { bg: '#bc9a09', text: '#fef3e2', emissive: '#000000', intensity: 0, rim: '#d6b00b' }, // Master 24K Velvet
-  4096:  { bg: '#205c52', text: '#fef3e2', emissive: '#000000', intensity: 0, rim: '#2a7569' }, // Deep Velvet Jade
-  8192:  { bg: '#2c467a', text: '#fef3e2', emissive: '#000000', intensity: 0, rim: '#375796' }, // Midnight Sapphire
-  16384: { bg: '#4b3b7c', text: '#fef3e2', emissive: '#000000', intensity: 0, rim: '#5b4796' }  // Deep Orchid
+  2:     { bg: '#334155', text: '#f1f5f9', emissive: '#1e293b', intensity: 0.10, rim: '#475569' }, // Slate Navy Foundation
+  4:     { bg: '#1e293b', text: '#f8fafc', emissive: '#0f172a', intensity: 0.12, rim: '#334155' }, // Deep Midnight Slate
+  8:     { bg: '#c2410c', text: '#fff7ed', emissive: '#ea580c', intensity: 0.22, rim: '#fdba74' }, // Spiced Tangerine
+  16:    { bg: '#b45309', text: '#fef3c7', emissive: '#d97706', intensity: 0.25, rim: '#fcd34d' }, // Roasted Flame Amber
+  32:    { bg: '#be123c', text: '#ffe4e6', emissive: '#e11d48', intensity: 0.28, rim: '#fda4af' }, // Velvet Ruby Coral
+  64:    { bg: '#991b1b', text: '#fef2f2', emissive: '#dc2626', intensity: 0.32, rim: '#fca5a5' }, // Deep Blood Crimson
+  128:   { bg: '#a16207', text: '#fefce8', emissive: '#ca8a04', intensity: 0.35, rim: '#fde047' }, // Antique Sun Gold
+  256:   { bg: '#0e7490', text: '#ecfeff', emissive: '#06b6d4', intensity: 0.38, rim: '#67e8f9' }, // Ocean Cyan
+  512:   { bg: '#047857', text: '#ecfdf5', emissive: '#10b981', intensity: 0.42, rim: '#6ee7b7' }, // Deep Emerald Forest
+  1024:  { bg: '#6d28d9', text: '#f5f3ff', emissive: '#8b5cf6', intensity: 0.45, rim: '#c4b5fd' }, // Royal Amethyst
+  2048:  { bg: '#d97706', text: '#fffbeb', emissive: '#f59e0b', intensity: 0.52, rim: '#fef08a' }, // Imperial Burnished Gold
+  4096:  { bg: '#be185d', text: '#fdf2f8', emissive: '#ec4899', intensity: 0.58, rim: '#f472b6' }, // Velvet Rose
+  8192:  { bg: '#1d4ed8', text: '#eff6ff', emissive: '#3b82f6', intensity: 0.62, rim: '#93c5fd' }, // Cobalt Azure
+  16384: { bg: '#4338ca', text: '#eef2ff', emissive: '#6366f1', intensity: 0.68, rim: '#a5b4fc' }  // Midnight Indigo
 };
 const TILE_STYLES_SLATE = TILE_STYLES_GENTLE_DARK; // Backwards compatibility alias
 
@@ -316,7 +317,8 @@ export class TextureManager {
 
   // Create circular billboard sprite texture for Spheres, Octahedrons & Complex 3D Models
   createSpriteTexture(value, isBomb = false, bombCountdown = 0) {
-    const cacheKey = `sprite_${value}_${isBomb}_${bombCountdown}`;
+    const isLight = this.currentTheme === 'gentle_light' || this.currentTheme === 'zen_clay';
+    const cacheKey = `sprite_${this.currentTheme}_${value}_${isBomb}_${bombCountdown}`;
     if (this.spriteTextureCache.has(cacheKey)) {
       return this.spriteTextureCache.get(cacheKey);
     }
@@ -334,34 +336,45 @@ export class TextureManager {
 
     // Ethereal translucent glass lens backing (smooth falloff so 3D crystal shines through)
     const radGrad = ctx.createRadialGradient(size / 2, size / 2, 20, size / 2, size / 2, 230);
-    radGrad.addColorStop(0, isBomb ? 'rgba(180, 20, 20, 0.85)' : 'rgba(10, 16, 28, 0.72)');
-    radGrad.addColorStop(0.75, isBomb ? 'rgba(120, 10, 10, 0.45)' : 'rgba(10, 16, 28, 0.35)');
-    radGrad.addColorStop(1, 'rgba(10, 16, 28, 0.0)');
+    if (isBomb) {
+      radGrad.addColorStop(0, 'rgba(220, 38, 38, 0.85)');
+      radGrad.addColorStop(0.75, 'rgba(185, 28, 28, 0.45)');
+      radGrad.addColorStop(1, 'rgba(185, 28, 28, 0.0)');
+    } else if (isLight) {
+      radGrad.addColorStop(0, 'rgba(255, 255, 255, 0.88)');
+      radGrad.addColorStop(0.75, 'rgba(255, 255, 255, 0.45)');
+      radGrad.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
+    } else {
+      radGrad.addColorStop(0, 'rgba(15, 23, 42, 0.62)');
+      radGrad.addColorStop(0.75, 'rgba(15, 23, 42, 0.32)');
+      radGrad.addColorStop(1, 'rgba(15, 23, 42, 0.0)');
+    }
     ctx.fillStyle = radGrad;
     ctx.beginPath();
     ctx.arc(size / 2, size / 2, 230, 0, Math.PI * 2);
     ctx.fill();
 
-    // Outer glowing holographic neon ring
+    // Outer glowing holographic ring in the tile's vivid identity color
+    const ringColor = isBomb ? '#ff3838' : (style.emissive && style.emissive !== '#000000' ? style.emissive : style.bg);
     ctx.save();
     ctx.beginPath();
     ctx.arc(size / 2, size / 2, 218, 0, Math.PI * 2);
-    ctx.strokeStyle = isBomb ? '#ff3838' : (style.emissive || style.bg);
+    ctx.strokeStyle = ringColor;
     ctx.lineWidth = 14;
-    ctx.shadowColor = isBomb ? '#ff3838' : (style.emissive || style.bg);
-    ctx.shadowBlur = 24;
+    ctx.shadowColor = ringColor;
+    ctx.shadowBlur = isLight ? 12 : 24;
     ctx.stroke();
 
-    // Inner subtle gold/cyan accent rim
+    // Inner subtle accent rim
     ctx.beginPath();
     ctx.arc(size / 2, size / 2, 198, 0, Math.PI * 2);
-    ctx.strokeStyle = isBomb ? '#fffa65' : 'rgba(255, 255, 255, 0.45)';
+    ctx.strokeStyle = isBomb ? '#fffa65' : (isLight ? 'rgba(0, 0, 0, 0.12)' : 'rgba(255, 255, 255, 0.45)');
     ctx.lineWidth = 3;
     ctx.shadowColor = 'transparent';
     ctx.stroke();
 
     // Cardinal Micro Ticks
-    ctx.fillStyle = isBomb ? '#fffa65' : (style.rim || '#ffffff');
+    ctx.fillStyle = isBomb ? '#fffa65' : (isLight ? ringColor : (style.rim || '#ffffff'));
     const tickAngles = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2];
     tickAngles.forEach(angle => {
       const tx = size / 2 + Math.cos(angle) * 208;
@@ -383,21 +396,33 @@ export class TextureManager {
 
     ctx.font = `900 ${fontSize}px "Outfit", "Montserrat", "Inter", -apple-system, sans-serif`;
     
-    // Deep ambient shadow
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.88)';
-    ctx.shadowBlur = 16;
-    ctx.shadowOffsetY = 6;
+    // Ambient shadow
+    if (isLight) {
+      ctx.shadowColor = (value <= 4) ? 'rgba(255, 255, 255, 0.65)' : 'rgba(0, 0, 0, 0.28)';
+      ctx.shadowBlur = 8;
+      ctx.shadowOffsetY = 3;
+    } else {
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.88)';
+      ctx.shadowBlur = 16;
+      ctx.shadowOffsetY = 6;
+    }
     ctx.fillText(str, size / 2, size / 2 + (isBomb ? -26 : 5));
 
     // Luminous halo
-    ctx.shadowColor = isBomb ? '#ff3838' : (style.emissive || style.bg);
-    ctx.shadowBlur = 12;
+    ctx.shadowColor = ringColor;
+    ctx.shadowBlur = isLight ? 6 : 14;
     ctx.shadowOffsetY = 0;
     ctx.fillText(str, size / 2, size / 2 + (isBomb ? -26 : 5));
 
     // Foreground text
     ctx.shadowColor = 'transparent';
-    ctx.fillStyle = value === 2048 ? '#fef08a' : '#ffffff';
+    if (isBomb) {
+      ctx.fillStyle = '#ffffff';
+    } else if (isLight && value <= 4) {
+      ctx.fillStyle = '#776e65';
+    } else {
+      ctx.fillStyle = '#ffffff';
+    }
     ctx.fillText(str, size / 2, size / 2 + (isBomb ? -26 : 5));
 
     if (isBomb) {
@@ -481,94 +506,115 @@ export class TextureManager {
   }
 
   getOctahedronMaterial(value, isBomb = false) {
-    const key = `octa_${value}_${isBomb}_${this.isHyperNeon}`;
+    const key = `octa_${this.currentTheme}_${value}_${isBomb}_${this.isHyperNeon}`;
     if (this.materialCache.has(key)) return this.materialCache.get(key);
 
+    const isLight = this.currentTheme === 'gentle_light' || this.currentTheme === 'zen_clay';
     const style = this.getStyle(value);
     const color = new THREE.Color(isBomb ? 0xff3838 : style.bg);
-    const emissive = new THREE.Color(isBomb ? 0xff1111 : style.emissive);
+    const emissiveColor = isBomb 
+      ? new THREE.Color(0xff1111) 
+      : (style.emissive && style.emissive !== '#000000' ? new THREE.Color(style.emissive) : new THREE.Color(style.bg));
     
     // High-performance crystal standard material (fast 60+ FPS on all GPUs)
     const mat = new THREE.MeshStandardMaterial({
       color: color,
-      roughness: 0.12,
-      metalness: 0.25,
+      roughness: isLight ? 0.22 : 0.12,
+      metalness: isLight ? 0.08 : 0.25,
       transparent: true,
-      opacity: 0.92,
-      emissive: emissive,
-      emissiveIntensity: isBomb ? 0.75 : (this.isHyperNeon ? 0.9 : 0.45)
+      opacity: isLight ? 0.96 : 0.92,
+      emissive: emissiveColor,
+      emissiveIntensity: isBomb ? 0.75 : (isLight ? 0.25 : (this.isHyperNeon ? 0.9 : 0.45))
     });
     this.materialCache.set(key, mat);
     return mat;
   }
 
   getOctahedronCoreMaterial(value, isBomb = false) {
-    const key = `octa_core_${value}_${isBomb}_${this.isHyperNeon}`;
+    const key = `octa_core_${this.currentTheme}_${value}_${isBomb}_${this.isHyperNeon}`;
     if (this.materialCache.has(key)) return this.materialCache.get(key);
 
+    const isLight = this.currentTheme === 'gentle_light' || this.currentTheme === 'zen_clay';
     const style = this.getStyle(value);
-    const emissive = new THREE.Color(isBomb ? 0xff2222 : style.emissive);
+    const emissive = isBomb 
+      ? new THREE.Color(0xff2222) 
+      : (style.emissive && style.emissive !== '#000000' ? new THREE.Color(style.emissive) : new THREE.Color(style.bg));
     const mat = new THREE.MeshStandardMaterial({
       color: emissive,
       emissive: emissive,
-      emissiveIntensity: 1.2,
+      emissiveIntensity: isLight ? 0.55 : 1.2,
       roughness: 0.1,
-      metalness: 0.8
+      metalness: isLight ? 0.25 : 0.8
     });
     this.materialCache.set(key, mat);
     return mat;
   }
 
-  getOctahedronLineMaterial(isBomb = false) {
-    const key = `octa_lines_${isBomb}_${this.isHyperNeon}`;
+  getOctahedronLineMaterial(valOrBomb = 2, isBomb = false) {
+    const value = typeof valOrBomb === 'number' ? valOrBomb : 2;
+    const bomb = typeof valOrBomb === 'boolean' ? valOrBomb : !!isBomb;
+    const isLight = this.currentTheme === 'gentle_light' || this.currentTheme === 'zen_clay';
+    const key = `octa_lines_${this.currentTheme}_${value}_${bomb}_${this.isHyperNeon}`;
     if (this.materialCache.has(key)) return this.materialCache.get(key);
 
+    const style = this.getStyle(value);
+    const lineColor = bomb 
+      ? 0xffff00 
+      : (isLight ? (style.rim || style.bg) : 0xffffff);
+
     const lineMat = new THREE.LineBasicMaterial({
-      color: isBomb ? 0xffff00 : 0xffffff,
+      color: new THREE.Color(lineColor),
       linewidth: 2,
       transparent: true,
-      opacity: 0.85
+      opacity: isLight ? 0.55 : 0.85
     });
     this.materialCache.set(key, lineMat);
     return lineMat;
   }
 
   getSphereMaterial(value, isBomb = false) {
-    const key = `sphere_${value}_${isBomb}_${this.isHyperNeon}`;
+    const key = `sphere_${this.currentTheme}_${value}_${isBomb}_${this.isHyperNeon}`;
     if (this.materialCache.has(key)) return this.materialCache.get(key);
 
+    const isLight = this.currentTheme === 'gentle_light' || this.currentTheme === 'zen_clay';
     const style = this.getStyle(value);
     const color = new THREE.Color(isBomb ? 0xff3838 : style.bg);
-    const emissive = new THREE.Color(isBomb ? 0xff1111 : style.emissive);
+    const emissive = isBomb 
+      ? new THREE.Color(0xff1111) 
+      : (style.emissive && style.emissive !== '#000000' ? new THREE.Color(style.emissive) : new THREE.Color(style.bg));
     const mat = new THREE.MeshStandardMaterial({
       color: color,
-      roughness: 0.14,
-      metalness: 0.35,
+      roughness: isLight ? 0.28 : 0.14,
+      metalness: isLight ? 0.10 : 0.35,
       emissive: emissive,
-      emissiveIntensity: isBomb ? 0.9 : (this.isHyperNeon ? 0.95 : 0.55)
+      emissiveIntensity: isBomb ? 0.9 : (isLight ? 0.22 : (this.isHyperNeon ? 0.95 : 0.55))
     });
     this.materialCache.set(key, mat);
     return mat;
   }
 
   getTorusMaterial(value, isBomb = false) {
-    const key = `torus_${value}_${isBomb}_${this.isHyperNeon}`;
+    const key = `torus_${this.currentTheme}_${value}_${isBomb}_${this.isHyperNeon}`;
     if (this.materialCache.has(key)) return this.materialCache.get(key);
 
+    const isLight = this.currentTheme === 'gentle_light' || this.currentTheme === 'zen_clay';
     const style = this.getStyle(value);
+    const emissive = isBomb 
+      ? new THREE.Color(0xff1111) 
+      : (style.emissive && style.emissive !== '#000000' ? new THREE.Color(style.emissive) : new THREE.Color(style.bg));
     const torusMat = new THREE.MeshStandardMaterial({
-      color: isBomb ? 0xfffa65 : new THREE.Color(style.rim || '#ffffff'),
-      emissive: isBomb ? 0xff1111 : new THREE.Color(style.emissive),
-      emissiveIntensity: 0.85,
+      color: isBomb ? 0xfffa65 : new THREE.Color(style.rim || style.bg),
+      emissive: emissive,
+      emissiveIntensity: isLight ? 0.35 : 0.85,
       roughness: 0.1,
-      metalness: 0.88
+      metalness: isLight ? 0.35 : 0.88
     });
     this.materialCache.set(key, torusMat);
     return torusMat;
   }
 
   getBillboardMaterial(value, isBomb = false, bombCountdown = 0) {
-    const key = `billboard_${value}_${isBomb}_${bombCountdown}_${this.isHyperNeon}`;
+    const key = `billboard_${this.currentTheme}_${value}_${isBomb}_${bombCountdown}_${this.isHyperNeon}`;
     if (this.materialCache.has(key)) return this.materialCache.get(key);
 
     const spriteTex = this.createSpriteTexture(value, isBomb, bombCountdown);

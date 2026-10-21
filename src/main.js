@@ -49,6 +49,9 @@ class GameApp {
     this.questManager = new QuestManager(this);
     this.questManager.recordMode(this.mode);
     window.gameApp = this;
+    window.THREE = THREE;
+    window.textureManager = textureManager;
+    window.Tile3D = Tile3D;
 
     // 3D tiles grid: tiles3D[layer][row][col]
     this.tiles3D = this.createEmptyTileGrid();
