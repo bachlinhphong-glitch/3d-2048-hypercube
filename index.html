@@ -27,17 +27,17 @@
 
   <link rel="icon" type="image/svg+xml" href="./favicon.svg">
   <link rel="manifest" href="./manifest.json">
-  <link rel="stylesheet" href="./src/style.css?v=5.7.0">
+  <link rel="stylesheet" href="./src/style.css?v=5.8.0">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=5.7.0').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=5.8.0').then(reg => {
           reg.update();
         }).catch(() => {});
       });
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!sessionStorage.getItem('sw_reloaded_570')) {
-          sessionStorage.setItem('sw_reloaded_570', '1');
+        if (!sessionStorage.getItem('sw_reloaded_580')) {
+          sessionStorage.setItem('sw_reloaded_580', '1');
           window.location.reload();
         }
       });
