@@ -23,6 +23,7 @@ export class SceneManager {
     this.initThemeDecorations();
     this.setTheme(this.theme);
     this.initControls();
+    this.setGraphicsQuality(localStorage.getItem('3d2048_graphics_quality') || 'medium');
     this.handleResize();
 
     window.addEventListener('resize', () => this.handleResize());
@@ -645,12 +646,13 @@ export class SceneManager {
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.enableDamping = true;
     this.controls.dampingFactor = 0.06;
+    this.controls.enablePan = false; // Strictly prevent accidental touch panning so board is never lost
     this.controls.target.copy(this.defaultTarget4x4);
 
     this.controls.minPolarAngle = Math.PI / 8;
-    this.controls.maxPolarAngle = Math.PI / 2.1;
-    this.controls.minDistance = 8;
-    this.controls.maxDistance = 28;
+    this.controls.maxPolarAngle = Math.PI / 2.15;
+    this.controls.minDistance = 7;
+    this.controls.maxDistance = 22;
 
     this.controls.mouseButtons = {
       LEFT: null,
@@ -660,7 +662,7 @@ export class SceneManager {
 
     this.controls.touches = {
       ONE: null, // 1-finger touch reserved for game swipe / tap
-      TWO: THREE.TOUCH.DOLLY_ROTATE // 2-finger touch allows zoom and 3D orbit
+      TWO: THREE.TOUCH.DOLLY_ROTATE // 2-finger touch allows pinch zoom and 3D orbit, zero pan drift
     };
 
     this.controls.addEventListener('change', () => {
@@ -680,32 +682,38 @@ export class SceneManager {
     const is3D = this.mode === '3x3x3';
     let targetPos, targetLook;
 
-    if (preset === 1 || preset === 'iso') {
-      // 1. Isometric Standard 3D Diagonal View (Bao quát cả 3 trục và Boss)
-      targetPos = is3D ? new THREE.Vector3(0, 11.5, 9.2) : new THREE.Vector3(0, 11.5, 9.8);
-      targetLook = is3D ? this.defaultTarget3x3 : this.defaultTarget4x4;
-    } else if (preset === 2 || preset === 'top') {
-      // 2. Top-Down View (Nhìn thẳng từ đỉnh xuống như 2D)
-      targetPos = is3D ? new THREE.Vector3(0, 14.0, 0.01) : new THREE.Vector3(0, 14.0, 0.01);
+    if (preset === 2 || preset === 'top') {
+      // 2. Top-Down View (Slight Z offset to avoid Gimbal Lock with camera.up)
+      targetPos = is3D ? new THREE.Vector3(0, 14.5, 0.65) : new THREE.Vector3(0, 14.2, 0.65);
       targetLook = is3D ? this.defaultTarget3x3 : this.defaultTarget4x4;
     } else if (preset === 3 || preset === 'side') {
-      // 3. Front / Side Layer View (Nhìn ngang soi rõ độ cao giữa 3 tầng)
+      // 3. Front / Side Layer View (Nhìn ngang soi rõ độ cao giữa các tầng)
       targetPos = is3D ? new THREE.Vector3(0, 4.0, 12.5) : new THREE.Vector3(0, 2.5, 10.5);
       targetLook = is3D ? this.defaultTarget3x3 : this.defaultTarget4x4;
     } else {
-      targetPos = is3D ? this.defaultCamPos3x3 : this.defaultCamPos4x4;
+      // 1. Isometric Standard 3D Diagonal View (Bao quát cả 3 trục và Boss)
+      targetPos = is3D ? new THREE.Vector3(0, 11.5, 9.2) : new THREE.Vector3(0, 11.5, 9.8);
       targetLook = is3D ? this.defaultTarget3x3 : this.defaultTarget4x4;
     }
+
+    if (this.controls) this.controls.enabled = false;
 
     gsap.to(this.camera.position, {
       x: targetPos.x,
       y: targetPos.y,
       z: targetPos.z,
-      duration: 0.65,
-      ease: 'power2.inOut',
+      duration: 0.55,
+      ease: 'power2.out',
       onUpdate: () => {
-        this.controls.update();
+        this.camera.lookAt(targetLook);
         this.requestShadowUpdate(2);
+      },
+      onComplete: () => {
+        if (this.controls) {
+          this.controls.target.copy(targetLook);
+          this.controls.enabled = true;
+          this.controls.update();
+        }
       }
     });
 
@@ -713,8 +721,8 @@ export class SceneManager {
       x: targetLook.x,
       y: targetLook.y,
       z: targetLook.z,
-      duration: 0.65,
-      ease: 'power2.inOut'
+      duration: 0.55,
+      ease: 'power2.out'
     });
   }
 
@@ -748,12 +756,43 @@ export class SceneManager {
     }
     this.camera.updateProjectionMatrix();
 
-    // Crisp Retina Display: Clamp DPR to 2.25 on high-DPI screens (iPhone 12/13/14/15/16 Retina)
-    // Delivers native-quality razor-sharp graphics without blurriness, while staying well within GPU bandwidth limits
-    const maxDPR = 2.25;
-    const dpr = Math.min(window.devicePixelRatio || 1, maxDPR);
-    this.renderer.setPixelRatio(dpr);
+    // Hardware graphics quality level ('low' = 1.0x, 'medium' = 1.75x, 'high' = 2.25x Retina)
+    const level = this.graphicsQuality || localStorage.getItem('3d2048_graphics_quality') || 'medium';
+    let targetDPR = 1.5;
+    if (level === 'low') targetDPR = 1.0;
+    else if (level === 'high') targetDPR = Math.min(window.devicePixelRatio || 1, 2.25);
+    else targetDPR = Math.min(window.devicePixelRatio || 1, 1.75);
+    this.renderer.setPixelRatio(targetDPR);
 
+    this.renderer.setSize(width, height);
+  }
+
+  setGraphicsQuality(level = 'medium') {
+    this.graphicsQuality = level;
+    try {
+      localStorage.setItem('3d2048_graphics_quality', level);
+    } catch {}
+
+    const maxDPR = window.devicePixelRatio || 1;
+    let targetDPR = 1.5;
+    let toneExposure = 1.15;
+
+    if (level === 'low') {
+      targetDPR = 1.0;
+      toneExposure = 1.05;
+    } else if (level === 'high') {
+      targetDPR = Math.min(maxDPR, 2.25);
+      toneExposure = 1.2;
+    } else {
+      // 'medium' (balanced default)
+      targetDPR = Math.min(maxDPR, 1.75);
+      toneExposure = 1.15;
+    }
+
+    this.renderer.setPixelRatio(targetDPR);
+    this.renderer.toneMappingExposure = toneExposure;
+    const width = this.container.clientWidth;
+    const height = this.container.clientHeight;
     this.renderer.setSize(width, height);
   }
 
@@ -781,6 +820,14 @@ export class SceneManager {
 
     if (this.cyberDust && this.cyberDust.visible) {
       this.cyberDust.rotation.y = time * 0.035;
+    }
+
+    // Safeguard: Ensure camera target never drifts away from the board into the void
+    if (this.controls && this.controls.enabled) {
+      const expectedTarget = this.mode === '3x3x3' ? this.defaultTarget3x3 : this.defaultTarget4x4;
+      if (this.controls.target.distanceTo(expectedTarget) > 3.0) {
+        this.controls.target.lerp(expectedTarget, 0.1);
+      }
     }
 
     this.controls.update();

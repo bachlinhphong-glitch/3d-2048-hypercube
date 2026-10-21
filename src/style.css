@@ -2436,6 +2436,242 @@ body.theme-gentle_light .boss-v-val {
   border-color: rgba(0, 240, 255, 0.4);
 }
 
+/* ================= 🚀 MULTI-APP SOCIAL SHARE MODAL ================= */
+.share-modal-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: rgba(4, 7, 14, 0.88) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
+  z-index: 2900 !important;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.share-modal-overlay.active {
+  display: flex !important;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.share-modal-card {
+  width: 90vw;
+  max-width: 440px;
+  background: rgba(13, 17, 23, 0.94);
+  border: 1px solid rgba(0, 240, 255, 0.35);
+  border-radius: var(--radius-lg);
+  padding: 22px 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.65), 0 0 30px rgba(0, 240, 255, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transform: translateY(12px) scale(0.96);
+  transition: transform 0.25s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+.share-modal-overlay.active .share-modal-card {
+  transform: translateY(0) scale(1);
+}
+
+.share-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.share-modal-title {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 800;
+  color: #00f0ff;
+  letter-spacing: 0.2px;
+}
+
+.share-modal-subtitle {
+  margin: 4px 0 0 0;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.share-close-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.share-close-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.share-score-preview {
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.1), rgba(121, 40, 202, 0.15));
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  border-radius: 12px;
+  padding: 12px 16px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.share-preview-val {
+  font-size: 28px;
+  font-weight: 900;
+  color: #ffd700;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  text-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+}
+
+.share-preview-mode {
+  font-size: 11px;
+  font-weight: 700;
+  color: #38bdf8;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.share-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.share-app-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: #f1f5f9;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.share-app-btn:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(0, 240, 255, 0.4);
+  box-shadow: 0 4px 14px rgba(0, 240, 255, 0.2);
+}
+
+.share-app-svg {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.share-app-name {
+  font-size: 10.5px;
+  font-weight: 600;
+}
+
+.share-facebook .share-app-svg { color: #1877f2; }
+.share-zalo .share-app-svg { color: #0068ff; }
+.share-messenger .share-app-svg { color: #00b2ff; }
+.share-telegram .share-app-svg { color: #229ed9; }
+.share-x .share-app-svg { color: #ffffff; }
+.share-whatsapp .share-app-svg { color: #25d366; }
+.share-reddit .share-app-svg { color: #ff4500; }
+.share-native .share-app-svg { color: #38bdf8; }
+.share-copy .share-app-svg { color: #ffd700; }
+
+/* Gentle Light / Zen Clay Theme for Share Modal */
+body.theme-gentle_light .share-modal-card,
+body.theme-zen_clay .share-modal-card {
+  background: rgba(255, 255, 255, 0.98);
+  border-color: rgba(187, 173, 160, 0.45);
+  color: #776e65;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 0 25px rgba(246, 94, 59, 0.12);
+}
+
+body.theme-gentle_light .share-modal-title,
+body.theme-zen_clay .share-modal-title {
+  color: #776e65;
+}
+
+body.theme-gentle_light .share-score-preview,
+body.theme-zen_clay .share-score-preview {
+  background: rgba(250, 248, 239, 0.95);
+  border-color: rgba(187, 173, 160, 0.35);
+}
+
+body.theme-gentle_light .share-preview-val,
+body.theme-zen_clay .share-preview-val {
+  color: #f65e3b;
+  text-shadow: none;
+}
+
+body.theme-gentle_light .share-preview-mode,
+body.theme-zen_clay .share-preview-mode {
+  color: #8f857b;
+}
+
+body.theme-gentle_light .share-app-btn,
+body.theme-zen_clay .share-app-btn {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(187, 173, 160, 0.3);
+  color: #574e46;
+}
+
+body.theme-gentle_light .share-app-btn:hover,
+body.theme-zen_clay .share-app-btn:hover {
+  background: rgba(0, 0, 0, 0.07);
+  border-color: #f65e3b;
+  box-shadow: 0 4px 14px rgba(246, 94, 59, 0.18);
+}
+
+body.theme-gentle_light .share-x .share-app-svg,
+body.theme-zen_clay .share-x .share-app-svg {
+  color: #1c1917;
+}
+
+/* Device Touch Adapted D-Pad Layout */
+.dir-pad.device-touch-adapted {
+  display: flex !important;
+  position: fixed !important;
+  right: 12px !important;
+  bottom: 104px !important;
+  z-index: 35 !important;
+  transform: scale(0.82) !important;
+  transform-origin: bottom right !important;
+  pointer-events: auto !important;
+  opacity: 0.92;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.dir-pad.device-touch-adapted:hover,
+.dir-pad.device-touch-adapted:focus-within {
+  opacity: 1;
+}
+
+@media (max-width: 380px) {
+  .dir-pad.device-touch-adapted {
+    right: 6px !important;
+    bottom: 96px !important;
+    transform: scale(0.74) !important;
+  }
+}
+
 /* ================= ⚡ BOSS MODE (ENERGY CORE) ================= */
 .glass-btn.boss-btn.active {
   background: linear-gradient(135deg, #00f0ff 0%, #7928ca 100%);
@@ -4333,7 +4569,7 @@ body.theme-modern_slate .spell-toast {
     right: 8px !important;
   }
 
-  /* Hide floating D-pad on mobile viewports so it never overlaps spell buttons */
+  /* Floating D-pad on mobile viewports: hidden when 'hide-dpad', adapted when 'device-touch-adapted' */
   .dir-pad {
     display: none !important;
   }
@@ -4344,6 +4580,18 @@ body.theme-modern_slate .spell-toast {
     bottom: 120px;
     transform: scale(0.85);
     transform-origin: bottom right;
+  }
+
+  .dir-pad.device-touch-adapted,
+  .dir-pad.force-show.device-touch-adapted {
+    display: flex !important;
+    position: fixed !important;
+    right: 10px !important;
+    bottom: calc(max(14px, env(safe-area-inset-bottom, 14px)) + 74px) !important;
+    z-index: 35 !important;
+    transform: scale(0.82) !important;
+    transform-origin: bottom right !important;
+    pointer-events: auto !important;
   }
 
   /* Bottom Summoner Spell Bar - Thumb friendly & safely anchored */

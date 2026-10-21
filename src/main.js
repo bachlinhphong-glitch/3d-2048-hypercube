@@ -91,8 +91,14 @@ class GameApp {
     this.mergeCount = 0;
     this.mergeTierCounts = {};
 
-    // Hardware Adaptive Performance State
-    this.targetFps = localStorage.getItem('3d2048_target_fps') || '120';
+    // Hardware Adaptive Performance State & Graphics Quality (high, medium, low)
+    this.graphicsQuality = localStorage.getItem('3d2048_graphics_quality') || 
+      (localStorage.getItem('3d2048_target_fps') === '30' ? 'low' : 
+       localStorage.getItem('3d2048_target_fps') === '60' ? 'medium' : 'high');
+    this.targetFps = this.graphicsQuality === 'low' ? '30' : this.graphicsQuality === 'medium' ? '60' : '120';
+    if (this.sceneManager && this.sceneManager.setGraphicsQuality) {
+      this.sceneManager.setGraphicsQuality(this.graphicsQuality);
+    }
     this.lastRenderTimestamp = performance.now();
     this.lastUserInteraction = performance.now();
     this.lastIdleTimestamp = performance.now();
@@ -323,16 +329,25 @@ class GameApp {
 
     const bgmBtn = document.getElementById('btn-bgm-toggle');
     if (bgmBtn) {
-      const savedBgm = localStorage.getItem('3d2048_bgm') === 'true';
+      const bgmStorage = localStorage.getItem('3d2048_bgm');
+      // Default to true for first-time visitors before they even log in/interact
+      const isBgmActive = bgmStorage === null || bgmStorage === 'true';
       const bgmLabel = document.getElementById('label-bgm');
-      if (savedBgm) {
+      if (isBgmActive) {
         if (bgmLabel) bgmLabel.textContent = t('btn_bgm_on');
         bgmBtn.classList.add('active');
         const startOnUserAction = () => {
           soundManager.startBGM();
           window.removeEventListener('pointerdown', startOnUserAction);
+          window.removeEventListener('touchstart', startOnUserAction);
+          window.removeEventListener('keydown', startOnUserAction);
         };
-        window.addEventListener('pointerdown', startOnUserAction, { once: true });
+        window.addEventListener('pointerdown', startOnUserAction, { once: true, passive: true });
+        window.addEventListener('touchstart', startOnUserAction, { once: true, passive: true });
+        window.addEventListener('keydown', startOnUserAction, { once: true });
+      } else {
+        if (bgmLabel) bgmLabel.textContent = t('btn_bgm_off');
+        bgmBtn.classList.remove('active');
       }
 
       bgmBtn.addEventListener('click', () => {
@@ -474,31 +489,54 @@ class GameApp {
       });
     }
 
-    // Hardware FPS Profile Selector
+    // 3-Tier Graphics Quality & FPS Profile Selector
+    this.graphicsSelect = document.getElementById('select-graphics');
     this.fpsSelect = document.getElementById('select-fps');
-    if (this.fpsSelect) {
-      this.fpsSelect.value = this.targetFps;
-      this.fpsSelect.addEventListener('change', (e) => {
-        this.targetFps = e.target.value;
-        localStorage.setItem('3d2048_target_fps', this.targetFps);
-        const label = e.target.options[e.target.selectedIndex].text;
-        this.showSpellToast(`CẤU HÌNH PHẦN CỨNG: ${label}`);
-        this.registerInteraction();
+
+    if (this.graphicsSelect) {
+      this.graphicsSelect.value = this.graphicsQuality;
+      this.graphicsSelect.addEventListener('change', (e) => {
+        this.setGraphicsQuality(e.target.value);
       });
     }
 
-    // Virtual D-Pad Selector (Mobile & Desktop UX)
+    if (this.fpsSelect) {
+      this.fpsSelect.value = this.targetFps;
+      this.fpsSelect.addEventListener('change', (e) => {
+        const fpsVal = e.target.value;
+        const qualityVal = fpsVal === '30' ? 'low' : fpsVal === '60' ? 'medium' : 'high';
+        this.setGraphicsQuality(qualityVal);
+      });
+    }
+
+    // Virtual D-Pad Selector (Mobile & Desktop UX with Device Auto-Adaptation)
     const dpadSelect = document.getElementById('select-dpad');
     const dirPad = document.getElementById('dir-pad');
     const savedDpadMode = localStorage.getItem('3d2048_dpad_mode') || 'auto';
 
+    const isTouchDevice = () => {
+      return ('ontouchstart' in window) || 
+             (navigator.maxTouchPoints > 0) || 
+             (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) ||
+             (window.innerWidth <= 768) ||
+             (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+    };
+
     const applyDpadMode = (mode) => {
       if (!dirPad) return;
-      dirPad.classList.remove('hide-dpad', 'force-show');
+      dirPad.classList.remove('hide-dpad', 'force-show', 'device-touch-adapted');
       if (mode === 'hidden') {
         dirPad.classList.add('hide-dpad');
       } else if (mode === 'visible') {
         dirPad.classList.add('force-show');
+        if (isTouchDevice()) {
+          dirPad.classList.add('device-touch-adapted');
+        }
+      } else {
+        // 'auto' mode: automatically adapt to device
+        if (isTouchDevice()) {
+          dirPad.classList.add('force-show', 'device-touch-adapted');
+        }
       }
     };
 
@@ -510,12 +548,20 @@ class GameApp {
         localStorage.setItem('3d2048_dpad_mode', mode);
         applyDpadMode(mode);
         const label = e.target.options[e.target.selectedIndex].text;
-        this.showSpellToast(`ĐIỀU HƯỚNG: ${label}`);
+        this.showSpellToast(`🎮 ${t('setting_dpad') || 'Điều hướng'}: ${label}`);
         this.registerInteraction();
       });
     } else {
       applyDpadMode(savedDpadMode);
     }
+
+    window.addEventListener('resize', () => {
+      const currentMode = localStorage.getItem('3d2048_dpad_mode') || 'auto';
+      applyDpadMode(currentMode);
+    });
+
+    // Multi-App Social Sharing Modal Setup
+    this.setupShareModal();
 
     // Auto-detect & Display Hardware GPU
     this.gpuBadgeEl = document.getElementById('gpu-badge');
@@ -1391,12 +1437,101 @@ class GameApp {
     }
   }
 
-  async shareScore() {
+  setGraphicsQuality(quality) {
+    this.graphicsQuality = quality;
+    this.targetFps = quality === 'low' ? '30' : quality === 'medium' ? '60' : '120';
+    try {
+      localStorage.setItem('3d2048_graphics_quality', quality);
+      localStorage.setItem('3d2048_target_fps', this.targetFps);
+    } catch {}
+
+    if (this.graphicsSelect && this.graphicsSelect.value !== quality) {
+      this.graphicsSelect.value = quality;
+    }
+    if (this.fpsSelect && this.fpsSelect.value !== this.targetFps) {
+      this.fpsSelect.value = this.targetFps;
+    }
+
+    if (this.sceneManager && this.sceneManager.setGraphicsQuality) {
+      this.sceneManager.setGraphicsQuality(quality);
+    }
+
+    const labelKey = quality === 'high' ? 'graphics_high' : quality === 'medium' ? 'graphics_medium' : 'graphics_low';
+    const labelText = t(labelKey) || quality.toUpperCase();
+    this.showSpellToast(`🎮 ${t('setting_graphics') || 'Đồ họa & FPS'}: ${labelText}`);
     this.registerInteraction();
-    const score = this.gameLogic.score;
+  }
+
+  setupShareModal() {
+    const modal = document.getElementById('share-modal');
+    if (!modal) return;
+
+    const closeBtn = document.getElementById('btn-close-share');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.closeShareModal();
+      });
+    }
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) this.closeShareModal();
+    });
+
+    modal.querySelectorAll('.share-app-btn[data-app]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const app = btn.dataset.app;
+        this.executeShare(app);
+      });
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.style.display !== 'none') {
+        this.closeShareModal();
+      }
+    });
+  }
+
+  openShareModal() {
+    this.registerInteraction();
+    const modal = document.getElementById('share-modal');
+    if (!modal) return;
+
+    const score = this.gameLogic ? this.gameLogic.score : 0;
     const modeName = this.mode === '3x3x3' ? '3x3x3 Hypercube' : '4x4 Classic';
-    const shareText = `🎮 Tôi vừa đạt ${score.toLocaleString()} điểm ở chế độ ${modeName} trong tựa game 3D 2048 & Hypercube! Bạn có vượt qua được không?`;
-    const shareUrl = 'https://bachlinhphong-glitch.github.io/3d-2048-hypercube/';
+
+    const scoreEl = document.getElementById('share-preview-score');
+    const modeEl = document.getElementById('share-preview-mode');
+    if (scoreEl) scoreEl.textContent = Number(score).toLocaleString();
+    if (modeEl) modeEl.textContent = `Chế độ: ${modeName}`;
+
+    modal.style.display = 'flex';
+    requestAnimationFrame(() => {
+      modal.classList.add('active');
+    });
+    soundManager.playClick();
+  }
+
+  closeShareModal() {
+    const modal = document.getElementById('share-modal');
+    if (modal) {
+      modal.classList.remove('active');
+      setTimeout(() => {
+        if (!modal.classList.contains('active')) {
+          modal.style.display = 'none';
+        }
+      }, 150);
+      soundManager.playClick();
+    }
+  }
+
+  async executeShare(app) {
+    this.registerInteraction();
+    const score = this.gameLogic ? this.gameLogic.score : 0;
+    const modeName = this.mode === '3x3x3' ? '3x3x3 Hypercube' : '4x4 Classic';
+    const shareText = `🎮 Tôi vừa đạt ${Number(score).toLocaleString()} điểm ở chế độ ${modeName} trong tựa game 3D 2048 & Hypercube! Bạn có vượt qua được không?`;
+    const shareUrl = window.location.href.split('?')[0].split('#')[0] || 'https://bachlinhphong-glitch.github.io/3d-2048-hypercube/';
 
     let snapshotFile = null;
     try {
@@ -1410,31 +1545,90 @@ class GameApp {
       console.warn('Canvas snapshot error:', e);
     }
 
-    if (navigator.share) {
-      try {
-        const shareData = {
-          title: '3D 2048 & Hypercube WebGL',
-          text: shareText,
-          url: shareUrl
-        };
-        if (snapshotFile && navigator.canShare && navigator.canShare({ files: [snapshotFile] })) {
-          shareData.files = [snapshotFile];
+    switch (app) {
+      case 'facebook': {
+        const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareText)}`;
+        window.open(fbUrl, '_blank', 'width=620,height=520,menubar=no,toolbar=no');
+        break;
+      }
+      case 'zalo': {
+        const zaloUrl = `https://sp.zalo.me/plugins/share?url=${encodeURIComponent(shareUrl)}`;
+        window.open(zaloUrl, '_blank', 'width=620,height=520,menubar=no,toolbar=no');
+        break;
+      }
+      case 'messenger': {
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+        if (isMobile) {
+          window.location.href = `fb-messenger://share/?link=${encodeURIComponent(shareUrl)}`;
+        } else {
+          const msgrUrl = `https://www.facebook.com/dialog/send?link=${encodeURIComponent(shareUrl)}&app_id=291494419107518&redirect_uri=${encodeURIComponent(shareUrl)}`;
+          window.open(msgrUrl, '_blank', 'width=620,height=520,menubar=no,toolbar=no');
         }
-        await navigator.share(shareData);
-        this.showSpellToast('Đã chia sẻ thành công!');
-        return;
-      } catch (err) {
-        if (err.name === 'AbortError') return;
-        console.warn('Share error:', err);
+        break;
+      }
+      case 'telegram': {
+        const tgUrl = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`;
+        window.open(tgUrl, '_blank', 'width=620,height=520,menubar=no,toolbar=no');
+        break;
+      }
+      case 'whatsapp': {
+        const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`;
+        window.open(waUrl, '_blank', 'width=620,height=520,menubar=no,toolbar=no');
+        break;
+      }
+      case 'x': {
+        const xUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
+        window.open(xUrl, '_blank', 'width=620,height=520,menubar=no,toolbar=no');
+        break;
+      }
+      case 'reddit': {
+        const redditUrl = `https://reddit.com/submit?url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(shareText)}`;
+        window.open(redditUrl, '_blank', 'width=700,height=600,menubar=no,toolbar=no');
+        break;
+      }
+      case 'system': {
+        if (navigator.share) {
+          try {
+            const shareData = {
+              title: '3D 2048 & Hypercube WebGL',
+              text: shareText,
+              url: shareUrl
+            };
+            if (snapshotFile && navigator.canShare && navigator.canShare({ files: [snapshotFile] })) {
+              shareData.files = [snapshotFile];
+            }
+            await navigator.share(shareData);
+            this.showSpellToast(t('share_success') || 'Đã chia sẻ thành công!');
+            this.closeShareModal();
+            return;
+          } catch (err) {
+            if (err.name === 'AbortError') return;
+            console.warn('System share error:', err);
+          }
+        }
+        await this.copyShareLink(shareText, shareUrl);
+        break;
+      }
+      case 'copy':
+      default: {
+        await this.copyShareLink(shareText, shareUrl);
+        break;
       }
     }
+  }
 
+  async copyShareLink(shareText, shareUrl) {
     try {
       await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
-      this.showSpellToast('Đã sao chép link & điểm số vào bộ nhớ đệm!');
+      this.showSpellToast(t('toast_link_copied') || '📋 Đã sao chép liên kết vào bộ nhớ tạm!');
     } catch {
-      this.showSpellToast(`Điểm của bạn: ${score.toLocaleString()} điểm!`);
+      this.showSpellToast(`🎮 ${shareUrl}`);
     }
+    this.closeShareModal();
+  }
+
+  async shareScore() {
+    this.openShareModal();
   }
 
   startNewGame(checkSaved = false) {
@@ -2279,7 +2473,14 @@ class GameApp {
 
     // On iOS and mobile WebKit, rAF is natively hardware VSync locked (60Hz / 120Hz ProMotion).
     // Artificially skipping frames with micro-thresholds causes WebKit to drop alternate frames down to 20-30 FPS!
-    if (!isMobileDevice && this.targetFps !== 'max') {
+    if (this.targetFps === '30') {
+      const targetInterval = 1000 / 30;
+      const elapsed = timestamp - this.lastRenderTimestamp;
+      if (elapsed < targetInterval - 1.5) {
+        return; // Battery saver mode (30 FPS)
+      }
+      this.lastRenderTimestamp = timestamp - (elapsed % targetInterval);
+    } else if (!isMobileDevice && this.targetFps !== 'max') {
       const targetFpsNum = parseInt(this.targetFps, 10) || 120;
       const targetInterval = 1000 / targetFpsNum;
       const elapsed = timestamp - this.lastRenderTimestamp;
