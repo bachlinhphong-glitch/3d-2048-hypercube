@@ -45,11 +45,18 @@ export function getGridPosition(layer, row, col) {
 }
 
 export class Board {
-  constructor(mode = '4x4') {
+  constructor(mode = '4x4', theme = 'galaxy') {
     this.group = new THREE.Group();
     this.mode = mode;
+    this.theme = theme;
     setBoardMode(mode);
     this.createBoard();
+  }
+
+  setTheme(themeName) {
+    if (this.theme === themeName) return;
+    this.theme = themeName;
+    this.setMode(this.mode);
   }
 
   setMode(mode) {
@@ -76,26 +83,62 @@ export class Board {
   }
 
   createClassic4x4Board() {
+    const isZen = this.theme === 'zen_clay';
+    const isSlate = this.theme === 'modern_slate';
+
     const baseWidth = 8.0;
     const baseDepth = 8.0;
     const baseHeight = 0.5;
     const baseGeo = new RoundedBoxGeometry(baseWidth, baseHeight, baseDepth, 1, 0.25);
+
+    let baseColor = 0x1a212d;
+    let baseRoughness = 0.45;
+    let baseMetalness = 0.3;
+    let rimColor = 0x263143;
+    let rimRoughness = 0.35;
+    let rimMetalness = 0.45;
+    let slotColor = 0x0f131a;
+    let slotRoughness = 0.75;
+    let slotBorderColor = 0x242d3d;
+
+    if (isZen) {
+      baseColor = 0xe7e0d4;      // Warm Scandinavian light oak / ceramic tray
+      baseRoughness = 0.75;
+      baseMetalness = 0.02;
+      rimColor = 0xd8cebe;       // Subtle beveled wood/ceramic border
+      rimRoughness = 0.65;
+      rimMetalness = 0.02;
+      slotColor = 0xf5f0e6;      // Soft cream recessed slot
+      slotRoughness = 0.85;
+      slotBorderColor = 0xded5c6; // Fine separation groove
+    } else if (isSlate) {
+      baseColor = 0x12141c;      // Deep matte slate anodized tray
+      baseRoughness = 0.5;
+      baseMetalness = 0.2;
+      rimColor = 0x1f2330;       // Modern dark beveled frame
+      rimRoughness = 0.4;
+      rimMetalness = 0.3;
+      slotColor = 0x090a0f;      // Pure recessed obsidian slot
+      slotRoughness = 0.7;
+      slotBorderColor = 0x1a1d28; // Hair-thin edge line
+    }
+
     const baseMat = new THREE.MeshStandardMaterial({
-      color: 0x1a212d,
-      roughness: 0.45,
-      metalness: 0.3
+      color: baseColor,
+      roughness: baseRoughness,
+      metalness: baseMetalness
     });
     const baseMesh = new THREE.Mesh(baseGeo, baseMat);
     baseMesh.position.y = -baseHeight / 2;
     this.group.add(baseMesh);
 
-    // Beveled frame rims (Viền mỏng nhẹ tinh tế cao 0.25 đơn vị, gờ nổi nhẹ quanh đế)
+    // Beveled frame rims
     const rimThickness = 0.22;
     const rimHeight = 0.25;
     const rimMat = new THREE.MeshStandardMaterial({
-      color: 0x263143,
-      roughness: 0.35,
-      metalness: 0.45
+      color: rimColor,
+      roughness: rimRoughness,
+      metalness: rimMetalness
     });
 
     const rimLength = baseWidth - 0.1;
@@ -117,19 +160,19 @@ export class Board {
     westRim.position.set(-(baseWidth / 2 - rimThickness / 2), rimHeight / 2, 0);
     this.group.add(westRim);
 
-    // 16 Recessed Cell Slots with InstancedMesh for extreme 60+ FPS performance
+    // 16 Recessed Cell Slots with InstancedMesh
     const slotGeo = new RoundedBoxGeometry(1.65, 0.08, 1.65, 1, 0.12);
     const slotMat = new THREE.MeshStandardMaterial({
-      color: 0x0f131a,
-      roughness: 0.75,
-      metalness: 0.2
+      color: slotColor,
+      roughness: slotRoughness,
+      metalness: isZen ? 0.0 : 0.2
     });
 
     const slotBorderGeo = new THREE.BoxGeometry(1.68, 0.02, 1.68);
     const slotBorderMat = new THREE.MeshStandardMaterial({
-      color: 0x242d3d,
+      color: slotBorderColor,
       roughness: 0.5,
-      metalness: 0.35
+      metalness: isZen ? 0.02 : 0.35
     });
 
     const totalCells = 16;

@@ -2039,6 +2039,264 @@ body.theme-custom .game-title {
   filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.5));
 }
 
+/* ==========================================================================
+   MINIMALIST THEMES (HƯỚNG A: ZEN CLAY & HƯỚNG B: MODERN SLATE)
+   ========================================================================== */
+
+/* --- HƯỚNG A: Zen Ceramic & Studio Light (Bắc Âu / Clay & Porcelain) --- */
+body.theme-zen_clay {
+  --bg-main: #f5f2eb;
+  --text-main: #2b2725;
+  --text-muted: #78716c;
+  --glass-bg: rgba(255, 255, 255, 0.88);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --accent-gold: #d97706;
+  --accent-blue: #ea580c;
+  background-color: #f5f2eb;
+  color: #2b2725;
+}
+
+body.theme-zen_clay .game-title {
+  color: #ea580c;
+  background: none;
+  -webkit-text-fill-color: #ea580c;
+  filter: none;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+body.theme-zen_clay .header-bar,
+body.theme-zen_clay .stat-pill,
+body.theme-zen_clay .glass-btn,
+body.theme-zen_clay .glass-select,
+body.theme-zen_clay .shape-quick-select {
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: #2b2725;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+body.theme-zen_clay .stat-label {
+  color: #78716c;
+}
+
+body.theme-zen_clay .stat-value {
+  color: #1c1917;
+}
+
+body.theme-zen_clay .spell-bar .spell-btn {
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: #2b2725;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+}
+
+body.theme-zen_clay .spell-bar .spell-svg {
+  color: #ea580c;
+}
+
+body.theme-zen_clay .spell-bar .spell-badge {
+  background: #ea580c;
+  color: #ffffff;
+}
+
+body.theme-zen_clay .bottom-bar .hint-compact-pill {
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: #44403c;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+body.theme-zen_clay .cam-btn {
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: #44403c;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+body.theme-zen_clay .dpad-btn {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: #2b2725;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+}
+
+/* --- HƯỚNG B: Modern Slate & Charcoal Dark (Apple / Linear Dark Mode) --- */
+body.theme-modern_slate {
+  --bg-main: #0b0d13;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --glass-bg: rgba(18, 21, 30, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --accent-gold: #facc15;
+  --accent-blue: #38bdf8;
+  background-color: #0b0d13;
+  color: #f8fafc;
+}
+
+body.theme-modern_slate .game-title {
+  color: #ffffff;
+  background: none;
+  -webkit-text-fill-color: #ffffff;
+  filter: none;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+body.theme-modern_slate .header-bar,
+body.theme-modern_slate .stat-pill,
+body.theme-modern_slate .glass-btn,
+body.theme-modern_slate .glass-select,
+body.theme-modern_slate .shape-quick-select {
+  background: rgba(18, 21, 30, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+}
+
+body.theme-modern_slate .spell-bar .spell-btn {
+  background: rgba(18, 21, 30, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f8fafc;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+body.theme-modern_slate .spell-bar .spell-svg {
+  color: #38bdf8;
+}
+
+body.theme-modern_slate .spell-bar .spell-badge {
+  background: #0284c7;
+  color: #ffffff;
+}
+
+body.theme-modern_slate .bottom-bar .hint-compact-pill {
+  background: rgba(18, 21, 30, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+}
+
+body.theme-modern_slate .cam-btn {
+  background: rgba(18, 21, 30, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+body.theme-modern_slate .dpad-btn {
+  background: rgba(18, 21, 30, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f8fafc;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+
+/* --- Floating Minimalist Demo Switcher Bar --- */
+.demo-theme-switcher {
+  position: absolute;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+  z-index: 40;
+  pointer-events: auto;
+  user-select: none;
+  animation: fadeInDown 0.35s ease;
+}
+
+body.theme-zen_clay .demo-theme-switcher {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.demo-switcher-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #94a3b8;
+}
+
+body.theme-zen_clay .demo-switcher-label {
+  color: #78716c;
+}
+
+.demo-switch-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #f1f5f9;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+body.theme-zen_clay .demo-switch-btn {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.08);
+  color: #2b2725;
+}
+
+.demo-switch-btn:hover {
+  transform: scale(1.04);
+}
+
+.demo-switch-btn.active {
+  background: #ea580c;
+  color: #ffffff;
+  border-color: transparent;
+  box-shadow: 0 2px 10px rgba(234, 88, 12, 0.35);
+}
+
+.demo-switch-btn.demo-btn-close {
+  padding: 4px 8px;
+  background: transparent;
+  border: none;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.demo-switch-btn.demo-btn-close:hover {
+  color: #ffffff;
+  transform: scale(1.15);
+}
+
+body.theme-zen_clay .demo-switch-btn.demo-btn-close {
+  color: #a8a29e;
+}
+body.theme-zen_clay .demo-switch-btn.demo-btn-close:hover {
+  color: #292524;
+}
+
+@media (max-width: 480px) {
+  .demo-theme-switcher {
+    top: 54px;
+    padding: 4px 10px;
+    gap: 6px;
+  }
+  .demo-switcher-label {
+    display: none;
+  }
+  .demo-switch-btn {
+    padding: 4px 10px;
+    font-size: 10px;
+  }
+}
+
 /* The background-image is set dynamically via JS for custom theme */
 
 /* --- Camera Snap Bar (top-right fixed) --- */

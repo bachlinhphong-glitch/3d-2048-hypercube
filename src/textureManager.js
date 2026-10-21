@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 
+// 1. Cyberpunk / Legacy Theme Palette
 const TILE_STYLES = {
   2:     { bg: '#2563eb', text: '#ffffff', emissive: '#3b82f6', intensity: 0.38, rim: '#93c5fd' },  // Vibrant Royal Azure
   4:     { bg: '#0891b2', text: '#ffffff', emissive: '#06b6d4', intensity: 0.42, rim: '#67e8f9' },  // Electric Cyan Teal
@@ -17,26 +18,68 @@ const TILE_STYLES = {
   16384: { bg: '#e11d48', text: '#ffffff', emissive: '#fb7185', intensity: 1.45, rim: '#ffe4e6' }   // Supernova Magenta
 };
 
+// 2. [HƯỚNG A] Zen Ceramic & Studio Palette (Bắc Âu / Warm Clay & Porcelain Pastel)
+const TILE_STYLES_ZEN = {
+  2:     { bg: '#eee4da', text: '#433c38', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Sand Porcelain
+  4:     { bg: '#ede0c8', text: '#433c38', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Warm Oatmeal
+  8:     { bg: '#f2b179', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Coral Terracotta
+  16:    { bg: '#f59563', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Rich Clay
+  32:    { bg: '#f67c5f', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Sunset Tangerine
+  64:    { bg: '#f65e3b', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Burnt Sienna
+  128:   { bg: '#edcf72', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Mellow Saffron
+  256:   { bg: '#edcc61', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Warm Ochre
+  512:   { bg: '#edc850', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Amber Honey
+  1024:  { bg: '#edc53f', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Nordic Brass
+  2048:  { bg: '#e5b722', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Master 24K Ceramic
+  4096:  { bg: '#60a5fa', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }, // Sky Glaze
+  8192:  { bg: '#34d399', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' }  // Sage Porcelain
+};
+
+// 3. [HƯỚNG B] Modern Slate & Charcoal Palette (Apple / Linear Dark Mode)
+const TILE_STYLES_SLATE = {
+  2:     { bg: '#1c2230', text: '#94a3b8', emissive: '#000000', intensity: 0, rim: '#334155' }, // Deep Slate
+  4:     { bg: '#232b3d', text: '#f1f5f9', emissive: '#000000', intensity: 0, rim: '#475569' }, // Matte Steel
+  8:     { bg: '#1e3a5f', text: '#f8fafc', emissive: '#000000', intensity: 0, rim: '#38bdf8' }, // Ocean Abyss
+  16:    { bg: '#134e4a', text: '#f8fafc', emissive: '#000000', intensity: 0, rim: '#2dd4bf' }, // Deep Emerald
+  32:    { bg: '#78350f', text: '#f8fafc', emissive: '#000000', intensity: 0, rim: '#f59e0b' }, // Dark Amber
+  64:    { bg: '#7c2d12', text: '#f8fafc', emissive: '#000000', intensity: 0, rim: '#f97316' }, // Dark Bronze
+  128:   { bg: '#7f1d1d', text: '#f8fafc', emissive: '#000000', intensity: 0, rim: '#ef4444' }, // Deep Crimson
+  256:   { bg: '#701a75', text: '#f8fafc', emissive: '#000000', intensity: 0, rim: '#d946ef' }, // Plum Obsidian
+  512:   { bg: '#4c1d95', text: '#f8fafc', emissive: '#000000', intensity: 0, rim: '#8b5cf6' }, // Royal Amethyst
+  1024:  { bg: '#1e3a8a', text: '#f8fafc', emissive: '#000000', intensity: 0, rim: '#3b82f6' }, // Midnight Sapphire
+  2048:  { bg: '#a16207', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#fbbf24' }, // Titanium Gold
+  4096:  { bg: '#0f766e', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#14b8a6' },
+  8192:  { bg: '#15803d', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#22c55e' }
+};
+
 export class TextureManager {
   constructor() {
     this.textureCache = new Map();
     this.materialCache = new Map();
     this.spriteTextureCache = new Map();
     this.isHyperNeon = false;
+    this.currentTheme = 'galaxy';
+  }
+
+  setTheme(theme) {
+    if (this.currentTheme === theme) return;
+    this.currentTheme = theme;
+    this.disposeAll();
   }
 
   setHyperNeon(enabled) {
     if (this.isHyperNeon === enabled) return;
     this.isHyperNeon = enabled;
-    this.materialCache.forEach(mat => {
-      if (mat && mat.dispose) mat.dispose();
-    });
-    this.materialCache.clear();
+    this.disposeAll();
   }
 
   disposeAll() {
     this.materialCache.forEach(mat => {
-      if (mat && mat.dispose) mat.dispose();
+      if (Array.isArray(mat)) {
+        mat.forEach(m => m && m.dispose && m.dispose());
+      } else if (mat && mat.dispose) {
+        mat.dispose();
+      }
     });
     this.materialCache.clear();
 
@@ -52,6 +95,12 @@ export class TextureManager {
   }
 
   getStyle(value) {
+    if (this.currentTheme === 'zen_clay') {
+      return TILE_STYLES_ZEN[value] || { bg: '#e2dad0', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#ffffff' };
+    }
+    if (this.currentTheme === 'modern_slate') {
+      return TILE_STYLES_SLATE[value] || { bg: '#0f172a', text: '#ffffff', emissive: '#000000', intensity: 0, rim: '#38bdf8' };
+    }
     if (TILE_STYLES[value]) {
       return TILE_STYLES[value];
     }
@@ -64,9 +113,13 @@ export class TextureManager {
     };
   }
 
-  // Create high-res 512x512 CanvasTexture for cubes with luxury glass/metal finish
+  // Create high-res 512x512 CanvasTexture for cubes
   createCanvasTexture(value, isBomb = false, bombCountdown = 0) {
-    const cacheKey = `${value}_${isBomb}_${bombCountdown}_${this.isHyperNeon}`;
+    const isZen = this.currentTheme === 'zen_clay';
+    const isSlate = this.currentTheme === 'modern_slate';
+    const isMinimalist = isZen || isSlate;
+
+    const cacheKey = `${this.currentTheme}_${value}_${isBomb}_${bombCountdown}_${this.isHyperNeon}`;
     if (this.textureCache.has(cacheKey)) {
       return this.textureCache.get(cacheKey);
     }
@@ -79,131 +132,145 @@ export class TextureManager {
 
     const style = this.getStyle(value);
 
-    // 1. Rich multi-stop gradient background with high visual depth
-    const grad = ctx.createLinearGradient(0, 0, size, size);
-    if (isBomb) {
-      grad.addColorStop(0, '#ff4757');
-      grad.addColorStop(0.5, '#b31217');
-      grad.addColorStop(1, '#3b0609');
-    } else if (this.isHyperNeon) {
-      grad.addColorStop(0, this.adjustBrightness(style.bg, 40));
-      grad.addColorStop(0.48, style.bg);
-      grad.addColorStop(1, this.adjustBrightness(style.bg, -35));
-    } else {
-      grad.addColorStop(0, this.adjustBrightness(style.bg, 32));
-      grad.addColorStop(0.45, style.bg);
-      grad.addColorStop(1, this.adjustBrightness(style.bg, -30));
-    }
+    if (isMinimalist) {
+      // ===== PURE MINIMALIST TEXTURE (NO GRID, NO NEON, CLEAN SATIN FINISH) =====
+      const grad = ctx.createLinearGradient(0, 0, size, size);
+      if (isBomb) {
+        grad.addColorStop(0, '#ef4444');
+        grad.addColorStop(1, '#991b1b');
+      } else if (isZen) {
+        grad.addColorStop(0, this.adjustBrightness(style.bg, 6));
+        grad.addColorStop(0.5, style.bg);
+        grad.addColorStop(1, this.adjustBrightness(style.bg, -6));
+      } else {
+        grad.addColorStop(0, this.adjustBrightness(style.bg, 10));
+        grad.addColorStop(0.5, style.bg);
+        grad.addColorStop(1, this.adjustBrightness(style.bg, -10));
+      }
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, size, size);
 
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, size, size);
+      // Subtle chamfer bevel highlight around edges (tactile tile feeling)
+      ctx.strokeStyle = isZen ? 'rgba(255, 255, 255, 0.45)' : 'rgba(255, 255, 255, 0.12)';
+      ctx.lineWidth = 6;
+      ctx.strokeRect(12, 12, size - 24, size - 24);
 
-    // 2. Luminous inner vignette behind the number (adds convex depth)
-    const centerRadial = ctx.createRadialGradient(size / 2, size / 2 - 15, 20, size / 2, size / 2, size * 0.48);
-    centerRadial.addColorStop(0, 'rgba(255, 255, 255, 0.24)');
-    centerRadial.addColorStop(0.65, 'rgba(255, 255, 255, 0.05)');
-    centerRadial.addColorStop(1, 'rgba(0, 0, 0, 0.28)');
-    ctx.fillStyle = centerRadial;
-    ctx.fillRect(0, 0, size, size);
+      // Clean typography
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const str = String(value);
+      let fontSize = 210;
+      if (str.length === 3) fontSize = 160;
+      else if (str.length === 4) fontSize = 120;
+      else if (str.length >= 5) fontSize = 90;
 
-    // 3. Subtle micro geometric grid sheen (luxury tactile detail)
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
-    ctx.lineWidth = 1;
-    for (let i = 48; i < size; i += 48) {
-      ctx.beginPath();
-      ctx.moveTo(i, 24);
-      ctx.lineTo(i, size - 24);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(24, i);
-      ctx.lineTo(size - 24, i);
-      ctx.stroke();
-    }
+      ctx.font = `800 ${fontSize}px -apple-system, BlinkMacSystemFont, "SF Pro Display", "Plus Jakarta Sans", "Inter", sans-serif`;
 
-    // 4. Glossy curved specular highlight (curved liquid glass sheen)
-    ctx.save();
-    ctx.beginPath();
-    ctx.ellipse(size / 2, 70, size * 0.42, 65, 0, 0, Math.PI * 2);
-    const sheenGrad = ctx.createLinearGradient(0, 0, 0, 140);
-    sheenGrad.addColorStop(0, 'rgba(255, 255, 255, 0.46)');
-    sheenGrad.addColorStop(0.7, 'rgba(255, 255, 255, 0.12)');
-    sheenGrad.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
-    ctx.fillStyle = sheenGrad;
-    ctx.fill();
-    ctx.restore();
-
-    // 5. Dual Inset Precision Bevel (Outer smooth rim + Inner hairline)
-    ctx.strokeStyle = isBomb ? 'rgba(255, 250, 100, 0.55)' : 'rgba(255, 255, 255, 0.35)';
-    ctx.lineWidth = 7;
-    ctx.beginPath();
-    ctx.roundRect(22, 22, size - 44, size - 44, 52);
-    ctx.stroke();
-
-    ctx.strokeStyle = isBomb ? 'rgba(255, 200, 50, 0.25)' : 'rgba(255, 255, 255, 0.14)';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.roundRect(32, 32, size - 64, size - 64, 44);
-    ctx.stroke();
-
-    // 6. Corner micro-dots (jewel precision accents)
-    ctx.fillStyle = isBomb ? '#fffa65' : (style.rim || '#ffffff');
-    const dotDist = 38;
-    [
-      [dotDist, dotDist],
-      [size - dotDist, dotDist],
-      [dotDist, size - dotDist],
-      [size - dotDist, size - dotDist]
-    ].forEach(([cx, cy]) => {
-      ctx.beginPath();
-      ctx.arc(cx, cy, 3.5, 0, Math.PI * 2);
-      ctx.fill();
-    });
-
-    // 7. Large crisp typography with multi-tier glow & embossed shadow
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-
-    const str = String(value);
-    let fontSize = 210;
-    if (str.length === 3) fontSize = 165;
-    else if (str.length === 4) fontSize = 125;
-    else if (str.length >= 5) fontSize = 95;
-
-    ctx.font = `900 ${fontSize}px "Outfit", "Montserrat", "Inter", -apple-system, sans-serif`;
-
-    // Ambient drop shadow
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.85)';
-    ctx.shadowBlur = 18;
-    ctx.shadowOffsetY = 10;
-    ctx.fillText(str, size / 2, size / 2 + (isBomb ? -26 : 6));
-
-    // Luminous emissive color bloom
-    ctx.shadowColor = isBomb ? '#ff3838' : (style.emissive || style.bg);
-    ctx.shadowBlur = 14;
-    ctx.shadowOffsetY = 0;
-    ctx.fillText(str, size / 2, size / 2 + (isBomb ? -26 : 6));
-
-    // Crisp foreground text overlay
-    ctx.shadowColor = 'transparent';
-    if (value === 2048) {
-      const goldGrad = ctx.createLinearGradient(0, size * 0.35, 0, size * 0.65);
-      goldGrad.addColorStop(0, '#ffffff');
-      goldGrad.addColorStop(0.4, '#fffbeb');
-      goldGrad.addColorStop(0.7, '#fef08a');
-      goldGrad.addColorStop(1, '#facc15');
-      ctx.fillStyle = goldGrad;
-    } else {
+      // Soft natural ambient shadow for legibility
+      ctx.shadowColor = isZen ? 'rgba(0, 0, 0, 0.1)' : 'rgba(0, 0, 0, 0.6)';
+      ctx.shadowBlur = isZen ? 6 : 10;
+      ctx.shadowOffsetY = isZen ? 3 : 5;
       ctx.fillStyle = isBomb ? '#ffffff' : style.text;
-    }
-    ctx.fillText(str, size / 2, size / 2 + (isBomb ? -26 : 6));
+      ctx.fillText(str, size / 2, size / 2 + (isBomb ? -26 : 6));
 
-    // If bomb, draw bomb countdown indicator
-    if (isBomb) {
-      ctx.fillStyle = '#fffa65';
-      ctx.font = '900 78px "Montserrat", sans-serif';
-      ctx.shadowColor = '#000000';
-      ctx.shadowBlur = 10;
-      ctx.fillText(`💣 ${bombCountdown}s`, size / 2, size / 2 + 130);
+      if (isBomb) {
+        ctx.fillStyle = '#fef08a';
+        ctx.font = '800 72px sans-serif';
+        ctx.fillText(`💣 ${bombCountdown}s`, size / 2, size / 2 + 130);
+      }
+    } else {
+      // ===== CYBERPUNK / LEGACY TEXTURE WITH GRID & NEON GLOW =====
+      const grad = ctx.createLinearGradient(0, 0, size, size);
+      if (isBomb) {
+        grad.addColorStop(0, '#ff4757');
+        grad.addColorStop(0.5, '#b31217');
+        grad.addColorStop(1, '#3b0609');
+      } else if (this.isHyperNeon) {
+        grad.addColorStop(0, this.adjustBrightness(style.bg, 40));
+        grad.addColorStop(0.48, style.bg);
+        grad.addColorStop(1, this.adjustBrightness(style.bg, -35));
+      } else {
+        grad.addColorStop(0, this.adjustBrightness(style.bg, 32));
+        grad.addColorStop(0.45, style.bg);
+        grad.addColorStop(1, this.adjustBrightness(style.bg, -30));
+      }
+
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, size, size);
+
+      // Luminous inner vignette
+      const centerRadial = ctx.createRadialGradient(size / 2, size / 2 - 15, 20, size / 2, size / 2, size * 0.48);
+      centerRadial.addColorStop(0, 'rgba(255, 255, 255, 0.24)');
+      centerRadial.addColorStop(0.65, 'rgba(255, 255, 255, 0.05)');
+      centerRadial.addColorStop(1, 'rgba(0, 0, 0, 0.28)');
+      ctx.fillStyle = centerRadial;
+      ctx.fillRect(0, 0, size, size);
+
+      // Micro geometric grid sheen
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+      ctx.lineWidth = 1;
+      for (let i = 48; i < size; i += 48) {
+        ctx.beginPath();
+        ctx.moveTo(i, 24);
+        ctx.lineTo(i, size - 24);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(24, i);
+        ctx.lineTo(size - 24, i);
+        ctx.stroke();
+      }
+
+      // Specular highlight
+      ctx.save();
+      ctx.beginPath();
+      ctx.ellipse(size / 2, 70, size * 0.42, 65, 0, 0, Math.PI * 2);
+      const sheenGrad = ctx.createLinearGradient(0, 0, 0, 140);
+      sheenGrad.addColorStop(0, 'rgba(255, 255, 255, 0.46)');
+      sheenGrad.addColorStop(0.7, 'rgba(255, 255, 255, 0.12)');
+      sheenGrad.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
+      ctx.fillStyle = sheenGrad;
+      ctx.fill();
+      ctx.restore();
+
+      // Chamfer border
+      ctx.save();
+      ctx.strokeStyle = isBomb ? 'rgba(255, 71, 87, 0.9)' : (style.rim || '#ffffff');
+      ctx.lineWidth = 8;
+      ctx.shadowColor = isBomb ? '#ff3838' : (style.emissive || style.bg);
+      ctx.shadowBlur = 12;
+      ctx.strokeRect(18, 18, size - 36, size - 36);
+      ctx.restore();
+
+      // Number text
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const str = String(value);
+      let fontSize = 210;
+      if (str.length === 3) fontSize = 160;
+      else if (str.length === 4) fontSize = 120;
+      else if (str.length >= 5) fontSize = 90;
+
+      ctx.font = `900 ${fontSize}px "Outfit", "Montserrat", "Inter", -apple-system, sans-serif`;
+
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.95)';
+      ctx.shadowBlur = 18;
+      ctx.shadowOffsetY = 8;
+      ctx.fillText(str, size / 2, size / 2 + (isBomb ? -26 : 6));
+
+      ctx.shadowColor = isBomb ? '#ff3838' : (style.emissive || style.bg);
+      ctx.shadowBlur = 14;
+      ctx.shadowOffsetY = 0;
+      ctx.fillText(str, size / 2, size / 2 + (isBomb ? -26 : 6));
+
+      ctx.shadowColor = 'transparent';
+      ctx.fillStyle = isBomb ? '#ffffff' : style.text;
+      ctx.fillText(str, size / 2, size / 2 + (isBomb ? -26 : 6));
+
+      if (isBomb) {
+        ctx.fillStyle = '#fffa65';
+        ctx.font = '900 78px "Montserrat", sans-serif';
+        ctx.fillText(`💣 ${bombCountdown}s`, size / 2, size / 2 + 130);
+      }
     }
 
     const texture = new THREE.CanvasTexture(canvas);
@@ -329,31 +396,38 @@ export class TextureManager {
   }
 
   getTileMaterials(value, isBomb = false, bombCountdown = 0) {
-    const matKey = `mat_${value}_${isBomb}_${bombCountdown}_${this.isHyperNeon}`;
+    const matKey = `mat_${this.currentTheme}_${value}_${isBomb}_${bombCountdown}_${this.isHyperNeon}`;
     if (this.materialCache.has(matKey)) {
       return this.materialCache.get(matKey);
     }
 
+    const isZen = this.currentTheme === 'zen_clay';
+    const isSlate = this.currentTheme === 'modern_slate';
+    const isMinimalist = isZen || isSlate;
+
     const style = this.getStyle(value);
     const texture = this.createCanvasTexture(value, isBomb, bombCountdown);
 
-    const emissiveColor = new THREE.Color(isBomb ? 0xff2222 : style.emissive);
+    const emissiveColor = new THREE.Color(isBomb ? 0xff2222 : (isMinimalist ? 0x000000 : style.emissive));
     const multiplier = this.isHyperNeon ? 1.5 : 1.0;
-    const emissiveIntensity = (isBomb ? 0.7 : style.intensity) * multiplier;
+    const emissiveIntensity = isMinimalist ? 0 : ((isBomb ? 0.7 : style.intensity) * multiplier);
 
-    // High-performance glossy standard material (ultra-fast 60+ FPS on all GPUs)
+    const roughness = isZen ? 0.65 : (isSlate ? 0.45 : 0.18);
+    const metalness = isZen ? 0.04 : (isSlate ? 0.15 : 0.22);
+
+    // High-performance tactile standard material
     const faceMatWithText = new THREE.MeshStandardMaterial({
       map: texture,
-      roughness: 0.18,
-      metalness: 0.22,
+      roughness: roughness,
+      metalness: metalness,
       emissive: emissiveColor,
       emissiveIntensity: emissiveIntensity
     });
 
     const solidSideMat = new THREE.MeshStandardMaterial({
       color: new THREE.Color(isBomb ? 0xcc1111 : style.bg),
-      roughness: 0.18,
-      metalness: 0.22,
+      roughness: roughness,
+      metalness: metalness,
       emissive: emissiveColor,
       emissiveIntensity: emissiveIntensity * 0.35
     });

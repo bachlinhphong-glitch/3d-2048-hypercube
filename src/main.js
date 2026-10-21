@@ -26,7 +26,8 @@ class GameApp {
     this.sceneManager = new SceneManager(this.container);
     this.particleSystem = new ParticleSystem(this.sceneManager.scene);
     this.gameLogic = new Game2048Logic(this.mode);
-    this.board = new Board(this.mode);
+    this.board = new Board(this.mode, this.currentTheme);
+    textureManager.setTheme(this.currentTheme);
     this.sceneManager.scene.add(this.board.group);
     this.aiBot = new AIBot(this);
     this.bossManager = new BossManager(this);
@@ -539,6 +540,15 @@ class GameApp {
     this.currentTheme = newTheme;
     document.body.className = `theme-${newTheme}`;
     this.sceneManager.setTheme(newTheme);
+    if (this.board && this.board.setTheme) {
+      this.board.setTheme(newTheme);
+    }
+    textureManager.setTheme(newTheme);
+
+    // Update demo switcher buttons active state
+    document.querySelectorAll('.demo-switch-btn[data-theme]').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.theme === newTheme);
+    });
 
     // Custom background: read from localStorage and set as CSS background-image
     if (newTheme === 'custom') {
@@ -721,6 +731,31 @@ class GameApp {
     this.setupDirPad();
     this.setupCameraSnapBar();
     this.setupSliceControls();
+    this.setupDemoSwitcher();
+  }
+
+  setupDemoSwitcher() {
+    document.querySelectorAll('.demo-switch-btn[data-theme]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const theme = btn.dataset.theme;
+        this.switchTheme(theme);
+        localStorage.setItem('3d2048_theme', theme);
+        localStorage.setItem('3d2048_theme_manual', 'true');
+        const themeSelect = document.getElementById('select-theme');
+        if (themeSelect) themeSelect.value = theme;
+        this.showSpellToast(`DEMO TỐI GIẢN: ${theme === 'zen_clay' ? '🌱 Zen Bắc Âu Sáng' : '🖤 Modern Slate Tối'}`);
+        this.registerInteraction();
+      });
+    });
+
+    const closeDemoBtn = document.getElementById('btn-close-demo');
+    if (closeDemoBtn) {
+      closeDemoBtn.addEventListener('click', () => {
+        const bar = document.getElementById('demo-theme-switcher');
+        if (bar) bar.style.display = 'none';
+      });
+    }
   }
 
   setupDirPad() {

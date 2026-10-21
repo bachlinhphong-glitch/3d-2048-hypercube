@@ -27,17 +27,17 @@
 
   <link rel="icon" type="image/svg+xml" href="./favicon.svg">
   <link rel="manifest" href="./manifest.json">
-  <link rel="stylesheet" href="./src/style.css?v=5.6.3">
+  <link rel="stylesheet" href="./src/style.css?v=5.7.0">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=5.6.3').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=5.7.0').then(reg => {
           reg.update();
         }).catch(() => {});
       });
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!sessionStorage.getItem('sw_reloaded_563')) {
-          sessionStorage.setItem('sw_reloaded_563', '1');
+        if (!sessionStorage.getItem('sw_reloaded_570')) {
+          sessionStorage.setItem('sw_reloaded_570', '1');
           window.location.reload();
         }
       });
@@ -122,6 +122,14 @@
         </button>
       </div>
     </header>
+
+    <!-- Minimalist Visual Demo Switcher Pill -->
+    <div id="demo-theme-switcher" class="demo-theme-switcher">
+      <span class="demo-switcher-label">✨ DEMO TỐI GIẢN:</span>
+      <button class="demo-switch-btn active" data-theme="zen_clay">🌱 Zen Sáng (Bắc Âu)</button>
+      <button class="demo-switch-btn" data-theme="modern_slate">🖤 Slate Tối (Apple/Linear)</button>
+      <button class="demo-switch-btn demo-btn-close" id="btn-close-demo" title="Ẩn thanh thử nghiệm">✕</button>
+    </div>
 
     <!-- ⚡ Clean & Modern 3-Phase Energy Core HUD -->
     <div id="boss-hud" class="boss-hud" style="display: none;">
@@ -437,6 +445,10 @@
           <label class="settings-label" data-i18n="setting_theme">🎨 Giao diện nền</label>
           <div class="settings-theme-group">
             <select id="select-theme" class="settings-select">
+              <optgroup label="✨ Phong Cách Tối Giản Mới" data-i18n-label="theme_group_minimal">
+                <option value="zen_clay" data-i18n="theme_zen_clay">🌱 Zen Studio (Bắc Âu Sáng)</option>
+                <option value="modern_slate" data-i18n="theme_modern_slate">🖤 Modern Slate (Apple/Linear Tối)</option>
+              </optgroup>
               <optgroup label="🌌 Không gian Procedural 3D" data-i18n-label="theme_group_procedural">
                 <option value="galaxy" selected data-i18n="theme_galaxy">🌌 Vũ Trụ Tinh Vân</option>
                 <option value="sunset" data-i18n="theme_sunset">🌅 Hoàng Hôn Synthwave</option>
@@ -504,6 +516,6 @@
   </div>
 
   <!-- Main Game Script -->
-  <script type="module" src="./src/main.js?v=5.6.3"></script>
+  <script type="module" src="./src/main.js?v=5.7.0"></script>
 </body>
 </html>

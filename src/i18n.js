@@ -60,6 +60,9 @@ export const DICTIONARY = {
     shape_auto: '🧬 Tiến Hóa Tự Động',
 
     // Themes
+    theme_group_minimal: '✨ Phong Cách Tối Giản Mới',
+    theme_zen_clay: '🌱 Zen Studio (Bắc Âu Sáng)',
+    theme_modern_slate: '🖤 Modern Slate (Apple/Linear Tối)',
     theme_group_meme: '🌟 Hình nền Độc Lạ / Meme',
     theme_cat_moon: '🐱 Mèo & Mặt Trăng',
     theme_elmo_fire: '🔥 Elmo Rực Lửa',
@@ -202,6 +205,9 @@ export const DICTIONARY = {
     shape_auto: '🧬 Auto Evolution',
 
     // Themes
+    theme_group_minimal: '✨ New Minimalist Aesthetic',
+    theme_zen_clay: '🌱 Zen Studio (Nordic Light)',
+    theme_modern_slate: '🖤 Modern Slate (Apple/Linear Dark)',
     theme_group_meme: '🌟 Meme / Special Wallpapers',
     theme_cat_moon: '🐱 Cat & The Moon',
     theme_elmo_fire: '🔥 Elmo in Fire',
@@ -344,6 +350,9 @@ export const DICTIONARY = {
     shape_auto: '🧬 自動進化',
 
     // Themes
+    theme_group_minimal: '✨ 新ミニマリズム様式',
+    theme_zen_clay: '🌱 Zenスタジオ (北欧ライト)',
+    theme_modern_slate: '🖤 モダン・スレート (ダーク)',
     theme_group_meme: '🌟 ミーム・特別背景',
     theme_cat_moon: '🐱 猫と月',
     theme_elmo_fire: '🔥 炎のエルモ',
@@ -486,6 +495,9 @@ export const DICTIONARY = {
     shape_auto: '🧬 자동 진화',
 
     // Themes
+    theme_group_minimal: '✨ 새로운 미니멀리즘 스타일',
+    theme_zen_clay: '🌱 Zen 스튜디오 (노르딕 라이트)',
+    theme_modern_slate: '🖤 모던 슬레이트 (다크)',
     theme_group_meme: '🌟 밈 / 스페셜 배경',
     theme_cat_moon: '🐱 고양이와 달',
     theme_elmo_fire: '🔥 불타는 엘모',
