@@ -307,7 +307,7 @@ export class TextureManager {
     texture.generateMipmaps = true;
     texture.minFilter = THREE.LinearMipmapLinearFilter;
     texture.magFilter = THREE.LinearFilter;
-    texture.anisotropy = 4;
+    texture.anisotropy = 16;
     texture.needsUpdate = true;
 
     this.textureCache.set(cacheKey, texture);
@@ -409,6 +409,10 @@ export class TextureManager {
 
     const texture = new THREE.CanvasTexture(canvas);
     texture.colorSpace = THREE.SRGBColorSpace;
+    texture.generateMipmaps = true;
+    texture.minFilter = THREE.LinearMipmapLinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+    texture.anisotropy = 16;
     texture.needsUpdate = true;
 
     this.spriteTextureCache.set(cacheKey, texture);
