@@ -60,7 +60,7 @@ export function createChampionsTrophyMesh(isUnlocked = true) {
     pCtx.fillStyle = '#94a3b8';
     pCtx.shadowColor = '#000';
     pCtx.shadowBlur = 8;
-    pCtx.fillText('🔒 CÚP C1 BẬC THẦY 2048', 256, 48);
+    pCtx.fillText('🔒 CÚP BẬC THẦY 2048', 256, 48);
 
     pCtx.font = 'bold 18px "Segoe UI", Arial, sans-serif';
     pCtx.fillStyle = '#64748b';
@@ -332,7 +332,7 @@ export function createBossTrophyMesh(isUnlocked = true) {
     pCtx.fillStyle = '#fef2f2';
     pCtx.shadowColor = '#dc2626';
     pCtx.shadowBlur = 18;
-    pCtx.fillText('⚔ 不死斬り • SINGULARITY SLAYER ⚔', 256, 48);
+    pCtx.fillText('⚔ SINGULARITY SLAYER ⚔', 256, 48);
 
     pCtx.font = 'bold 20px "Segoe UI", Arial, sans-serif';
     pCtx.fillStyle = '#f87171';
@@ -344,7 +344,7 @@ export function createBossTrophyMesh(isUnlocked = true) {
     pCtx.fillStyle = '#71717a';
     pCtx.shadowColor = '#000';
     pCtx.shadowBlur = 8;
-    pCtx.fillText('🔒 CÚP TRẢM TRÙM HẮC ÁM', 256, 48);
+    pCtx.fillText('🔒 CÚP TRẢM TƯỚNG HẮC ÁM', 256, 48);
 
     pCtx.font = 'bold 18px "Segoe UI", Arial, sans-serif';
     pCtx.fillStyle = '#52525b';

@@ -634,7 +634,7 @@ export class BossManager {
     if (this.victoryDamageEl) this.victoryDamageEl.textContent = '4,048 HP';
     if (this.victoryScoreEl) this.victoryScoreEl.textContent = this.gameApp.gameLogic.score.toLocaleString();
 
-    // ⚔️ Sekiro / Isshin Ashina Dark Souls Heroic Execution Fanfare & Crimson Embers
+    // ⚔️ Dark Heroic Execution Fanfare & Crimson Embers
     soundManager.playBossExecutionFanfare();
     this.spawnBossEmbers();
 

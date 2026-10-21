@@ -2371,7 +2371,7 @@ class GameApp {
   updateTrophyMascot() {
     if (!this.questManager) return;
 
-    // 1. UEFA Champions League C1 2048 Mascot (Right corner)
+    // 1. 2048 Grand Master Trophy Mascot (Right corner)
     const isC1Unlocked = this.questManager.isAllCompleted();
     if (isC1Unlocked && !this.trophyMascot) {
       this.trophyMascot = createChampionsTrophyMesh(true);
@@ -2383,7 +2383,7 @@ class GameApp {
       this.trophyMascot = null;
     }
 
-    // 2. Sekiro Dark Singularity Slayer Mascot (Left corner)
+    // 2. Dark Singularity Slayer Trophy Mascot (Left corner)
     const isBossUnlocked = this.questManager.isBossDefeated();
     if (isBossUnlocked && !this.bossTrophyMascot) {
       this.bossTrophyMascot = createBossTrophyMesh(true);

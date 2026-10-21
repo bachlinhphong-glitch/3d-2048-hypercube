@@ -1113,12 +1113,13 @@ body.theme-telemetry .glass-select {
 }
 
 .sekiro-kanji {
-  font-size: 42px;
+  font-size: clamp(20px, 4.8vw, 30px);
   font-weight: 900;
-  letter-spacing: 10px;
+  letter-spacing: clamp(2px, 1vw, 4px);
   color: #ef4444;
   text-shadow: 0 0 20px #ef4444, 0 0 40px #b91c1c, 0 0 60px #000;
-  font-family: "Yu Mincho", "Hiragino Mincho ProN", "Songti SC", serif, sans-serif;
+  font-family: "Segoe UI", Arial, sans-serif;
+  text-transform: uppercase;
   animation: sekiroPulse 2.2s infinite alternate ease-in-out;
 }
 

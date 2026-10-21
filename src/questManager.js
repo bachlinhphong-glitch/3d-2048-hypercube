@@ -182,7 +182,7 @@ export class QuestManager {
       if (tabBossBtn) tabBossBtn.classList.add('active');
       if (c1Pane) c1Pane.style.display = 'none';
       if (bossPane) bossPane.style.display = 'block';
-      if (celebrateLabel) celebrateLabel.textContent = 'Trảm Kiếm & Tàn Tro Sekiro';
+      if (celebrateLabel) celebrateLabel.textContent = 'Trảm Kiếm & Tàn Tro Huyết Sắc';
 
       // Update boss status details
       const bossStatusEl = document.getElementById('boss-t-status');
@@ -200,7 +200,7 @@ export class QuestManager {
       if (tabBossBtn) tabBossBtn.classList.remove('active');
       if (c1Pane) c1Pane.style.display = 'flex';
       if (bossPane) bossPane.style.display = 'none';
-      if (celebrateLabel) celebrateLabel.textContent = 'Tung Pháo Hoa C1 Hoàng Gia';
+      if (celebrateLabel) celebrateLabel.textContent = 'Tung Pháo Hoa Khải Hoàn';
     }
 
     this.updateStatusPill();
@@ -222,7 +222,7 @@ export class QuestManager {
       const isDefeated = this.isBossDefeated();
       if (isDefeated) {
         statusEl.className = 'trophy-status-pill unlocked boss';
-        statusEl.innerHTML = '⚔️ ĐÃ MỞ KHÓA — CÚP TRẢM TRÙM 不死斬り';
+        statusEl.innerHTML = '⚔️ ĐÃ MỞ KHÓA — CÚP TRẢM TƯỚNG HẮC ÁM';
       } else {
         statusEl.className = 'trophy-status-pill locked';
         statusEl.innerHTML = '🔒 KHÓA — TIÊU DIỆT TRÙM ĐỂ MỞ';
@@ -232,7 +232,7 @@ export class QuestManager {
       const totalCount = QUEST_DEFS.length;
       if (this.isAllCompleted()) {
         statusEl.className = 'trophy-status-pill unlocked';
-        statusEl.innerHTML = '🏆 ĐÃ MỞ KHÓA — CÚP C1 BẬC THẦY 2048';
+        statusEl.innerHTML = '🏆 ĐÃ MỞ KHÓA — CÚP BẬC THẦY 2048';
       } else {
         statusEl.className = 'trophy-status-pill locked';
         statusEl.innerHTML = `🔒 KHÓA — CÒN ${totalCount - completedCount} NHIỆM VỤ`;
@@ -242,7 +242,6 @@ export class QuestManager {
 
   celebrateCurrentTab() {
     if (this.currentTab === 'boss') {
-      // Sekiro Isshin Ashina Execution Celebration
       if (this.game.soundManager && this.game.soundManager.playBossExecutionFanfare) {
         this.game.soundManager.playBossExecutionFanfare();
       }
@@ -251,16 +250,15 @@ export class QuestManager {
         this.game.particleSystem.screenShake(this.trophyViewer.camera, 0.28);
       }
       if (this.game.showSpellToast) {
-        this.game.showSpellToast('⚔️ 不死斬り • ĐOẠT MỆNH HOÀN TẤT!');
+        this.game.showSpellToast('⚔️ ĐOẠT MỆNH HOÀN TẤT — TRẢM TƯỚNG THÀNH CÔNG!');
       }
     } else {
-      // UEFA Champions League Grand Fanfare
       if (this.game.soundManager && this.game.soundManager.playChampionsLeagueFanfare) {
         this.game.soundManager.playChampionsLeagueFanfare();
       }
       this.triggerConfetti();
       if (this.game.showSpellToast) {
-        this.game.showSpellToast('🏆 KHẢI HOÀN CA CHAMPIONS LEAGUE 2048!');
+        this.game.showSpellToast('🏆 KHÚC KHẢI HOÀN CA ĐẠI THẮNG!');
       }
     }
   }
@@ -412,7 +410,7 @@ export class QuestManager {
     this.triggerConfetti();
 
     if (this.game.showSpellToast) {
-      this.game.showSpellToast('🏆 BẠN ĐÃ MỞ KHÓA CÚP C1 BẬC THẦY 2048!');
+      this.game.showSpellToast('🏆 BẠN ĐÃ MỞ KHÓA CÚP BẬC THẦY 2048!');
     }
 
     this.openModal('c1');
