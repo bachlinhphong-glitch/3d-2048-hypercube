@@ -528,6 +528,42 @@ class SoundManager {
     });
   }
 
+  // 5. Milestone Unlock Fanfare: Uplifting chord arpeggio when unlocking major block tiers (64, 128, 256, 512, 1024, 2048)
+  playMilestoneUnlock(value = 64) {
+    this.triggerHaptic(value >= 256 ? 'win' : 'merge_big');
+    if (this.muted) return;
+    this.ensureContext();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+    const baseFreq = value >= 1024 ? 659.25 : (value >= 256 ? 523.25 : 392.00);
+    const intervals = [1.0, 1.25, 1.5, 1.875, 2.0]; // Radiant Major 7th arpeggio
+    intervals.forEach((ratio, i) => {
+      const osc = this.ctx.createOscillator();
+      const oscHarmonic = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'triangle';
+      oscHarmonic.type = 'sine';
+
+      const f = baseFreq * ratio;
+      osc.frequency.setValueAtTime(f, t + i * 0.07);
+      oscHarmonic.frequency.setValueAtTime(f * 2, t + i * 0.07);
+
+      gain.gain.setValueAtTime(0.14, t + i * 0.07);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.07 + 0.45);
+
+      osc.connect(gain);
+      oscHarmonic.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start(t + i * 0.07);
+      oscHarmonic.start(t + i * 0.07);
+      osc.stop(t + i * 0.07 + 0.48);
+      oscHarmonic.stop(t + i * 0.07 + 0.48);
+    });
+  }
+
   // ⚡ Boss Mode Chill & Satisfying 3D Procedural Audio
   playBossLaser(damage = 64) {
     if (this.muted) return;

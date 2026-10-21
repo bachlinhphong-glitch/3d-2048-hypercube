@@ -233,6 +233,23 @@
     <!-- 3D Floating Damage Numbers Overlay -->
     <div id="boss-damage-container" class="boss-damage-container"></div>
 
+    <!-- 3D Floating Score Numbers Overlay -->
+    <div id="floating-score-container" class="floating-score-container" aria-hidden="true"></div>
+
+    <!-- Dynamic Combo Callout Streak Badge -->
+    <div id="combo-callout" class="combo-callout hidden" aria-hidden="true"></div>
+
+    <!-- Milestone Unlock Celebration Banner (Non-blocking) -->
+    <div id="milestone-banner" class="milestone-banner hidden" aria-hidden="true"></div>
+
+    <!-- First Swipe Interactive Hand Prompt -->
+    <div id="first-swipe-hand" class="first-swipe-hand hidden" aria-hidden="true">
+      <div class="swipe-hand-track">
+        <div class="swipe-hand-icon">👆</div>
+      </div>
+      <div class="swipe-hand-text" data-i18n="swipe_prompt">Vuốt ngón tay để trượt khối!</div>
+    </div>
+
     <!-- Golden Cinematic Screen Flash -->
     <div id="cinematic-flash" class="cinematic-flash"></div>
 
@@ -1010,6 +1027,24 @@
         <div class="share-preview-mode" id="share-preview-mode">4x4 Classic</div>
       </div>
 
+      <!-- 1-Tap Viral Challenge Card for Zalo, Telegram & Chat Groups -->
+      <div class="share-challenge-card">
+        <div class="challenge-card-header">
+          <span class="challenge-icon">⚡</span>
+          <span class="challenge-title" data-i18n="challenge_title">Thách Đấu Bạn Bè (Zalo / Telegram / Nhóm)</span>
+        </div>
+        <div class="challenge-snippet" id="share-challenge-snippet">
+          🎮 Tôi vừa đạt <b id="challenge-score-val">0</b> điểm với khối <b id="challenge-tile-val">2</b>! Bạn dám thử sức vượt qua không?
+        </div>
+        <button class="share-challenge-copy-btn" id="btn-copy-challenge">
+          <svg class="challenge-btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+          <span id="challenge-btn-label" data-i18n="challenge_copy_btn">Sao chép lời thách đấu</span>
+        </button>
+      </div>
+
       <!-- Social Share Grid -->
       <div class="share-grid">
         <button class="share-app-btn share-facebook" data-app="facebook" title="Chia sẻ lên Facebook">
@@ -1061,6 +1096,6 @@
   </div>
 
   <!-- Main Game Script -->
-  <script type="module" src="./src/main.js?v=6.5.2"></script>
+  <script type="module" src="./src/main.js?v=6.6.0"></script>
 </body>
 </html>

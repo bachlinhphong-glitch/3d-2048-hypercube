@@ -1,4 +1,4 @@
-const CACHE_NAME = 'v6.5.2-2048-hypercube';
+const CACHE_NAME = 'v6.6.0-2048-hypercube';
 const CACHE_URLS = [
   './',
   './index.html',

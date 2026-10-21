@@ -25,6 +25,9 @@
 html, body {
   width: 100%;
   height: 100%;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 100dvh;
   overflow: hidden;
   background-color: var(--bg-color);
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -218,6 +221,9 @@ body.theme-telemetry .glass-select {
   left: 0;
   width: 100%;
   height: 100%;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 100dvh;
   z-index: 10;
   pointer-events: none;
   touch-action: none;
@@ -4740,5 +4746,350 @@ body.theme-zen_clay .rush-progress-track {
   /* Clean breathing space above spell buttons for hint capsule */
   .bottom-bar {
     margin-bottom: calc(max(14px, env(safe-area-inset-bottom, 14px)) + 74px) !important;
+  }
+}
+
+/* ==========================================================================
+   IN-APP BROWSER (ZALO, TELEGRAM, WEBVIES) & GAME JUICE ARCHITECTURE (v6.6.0)
+   ========================================================================== */
+
+/* 1. 3D Floating Score Numbers Projected from World Coordinates */
+.floating-score-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 45;
+  overflow: hidden;
+}
+
+.floating-score-item {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #ffffff;
+  pointer-events: none;
+  text-shadow: 0 0 12px rgba(56, 189, 248, 0.9), 0 2px 4px rgba(0, 0, 0, 0.85);
+  letter-spacing: -0.5px;
+  will-change: transform, opacity;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.floating-score-item.tier-cyan {
+  color: #e0f2fe;
+  font-size: 1.5rem;
+  text-shadow: 0 0 16px rgba(0, 240, 255, 0.95), 0 0 30px rgba(0, 240, 255, 0.5), 0 2px 5px rgba(0, 0, 0, 0.9);
+}
+
+.floating-score-item.tier-magenta {
+  color: #fdf4ff;
+  font-size: 1.65rem;
+  text-shadow: 0 0 18px rgba(232, 121, 249, 0.95), 0 0 35px rgba(217, 70, 239, 0.6), 0 2px 5px rgba(0, 0, 0, 0.9);
+}
+
+.floating-score-item.tier-gold {
+  color: #fef08a;
+  font-size: 1.85rem;
+  text-shadow: 0 0 22px rgba(250, 204, 21, 1), 0 0 45px rgba(245, 158, 11, 0.8), 0 2px 6px rgba(0, 0, 0, 0.95);
+}
+
+/* 2. Electrifying Combo Streak Badge */
+.combo-callout {
+  position: absolute;
+  top: 112px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 52;
+  pointer-events: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 6px 18px;
+  border-radius: 999px;
+  font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  transition: opacity 0.25s ease;
+  white-space: nowrap;
+}
+
+.combo-callout.hidden {
+  display: none !important;
+}
+
+.combo-callout.combo-x2 {
+  background: rgba(249, 115, 22, 0.22);
+  border: 1.5px solid rgba(249, 115, 22, 0.7);
+  color: #ffedd5;
+  text-shadow: 0 0 10px rgba(249, 115, 22, 0.8);
+}
+
+.combo-callout.combo-x3 {
+  background: rgba(234, 179, 8, 0.24);
+  border: 1.5px solid rgba(234, 179, 8, 0.8);
+  color: #fef08a;
+  text-shadow: 0 0 14px rgba(234, 179, 8, 0.9);
+}
+
+.combo-callout.combo-x4 {
+  background: rgba(236, 72, 153, 0.25);
+  border: 1.5px solid rgba(236, 72, 153, 0.85);
+  color: #fdf2f8;
+  text-shadow: 0 0 16px rgba(236, 72, 153, 0.95);
+}
+
+.combo-callout.combo-x5 {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(168, 85, 247, 0.3));
+  border: 1.5px solid rgba(250, 204, 21, 0.9);
+  color: #ffffff;
+  text-shadow: 0 0 18px rgba(250, 204, 21, 1), 0 0 30px rgba(168, 85, 247, 0.8);
+}
+
+/* 3. Non-blocking Milestone Unlock Celebration Banner */
+.milestone-banner {
+  position: absolute;
+  top: 68px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.88);
+  border: 1.5px solid rgba(250, 204, 21, 0.75);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 25px rgba(250, 204, 21, 0.35);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  will-change: transform, opacity;
+  max-width: 90vw;
+}
+
+.milestone-banner.hidden {
+  display: none !important;
+}
+
+.milestone-icon {
+  font-size: 1.6rem;
+  line-height: 1;
+  animation: milestonePulse 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes milestonePulse {
+  0% { transform: scale(1); filter: drop-shadow(0 0 4px rgba(250, 204, 21, 0.6)); }
+  100% { transform: scale(1.18); filter: drop-shadow(0 0 12px rgba(250, 204, 21, 1)); }
+}
+
+.milestone-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+}
+
+.milestone-title {
+  font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #facc15;
+  text-transform: uppercase;
+}
+
+.milestone-desc {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #f8fafc;
+  white-space: nowrap;
+}
+
+.milestone-val {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: #facc15;
+  padding-left: 8px;
+  border-left: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* 4. First-Visit Interactive Hand Swipe Guide */
+.first-swipe-hand {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 48;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  user-select: none;
+}
+
+.first-swipe-hand.hidden {
+  display: none !important;
+}
+
+.swipe-hand-track {
+  width: 140px;
+  height: 48px;
+  position: relative;
+  border-bottom: 2px dashed rgba(255, 255, 255, 0.35);
+}
+
+.swipe-hand-icon {
+  position: absolute;
+  top: 0;
+  left: 10px;
+  font-size: 2.2rem;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.6));
+  animation: swipeGlide 1.6s ease-in-out infinite;
+}
+
+@keyframes swipeGlide {
+  0% { transform: translateX(0) scale(1); opacity: 0.4; }
+  25% { opacity: 1; transform: translateX(15px) scale(1.08); }
+  75% { opacity: 1; transform: translateX(95px) scale(1.08); }
+  100% { transform: translateX(110px) scale(0.95); opacity: 0.2; }
+}
+
+.swipe-hand-text {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #ffffff;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  letter-spacing: 0.2px;
+}
+
+/* 5. Viral Social Challenge Card in Share Modal */
+.share-challenge-card {
+  margin: 12px 0 16px 0;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px dashed rgba(245, 158, 11, 0.45);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+
+.challenge-card-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.challenge-icon {
+  font-size: 1.1rem;
+}
+
+.challenge-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #fbbf24;
+  letter-spacing: 0.2px;
+}
+
+.challenge-snippet {
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: #e2e8f0;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 8px 10px;
+  border-radius: 8px;
+  border-left: 3px solid #f59e0b;
+}
+
+.challenge-snippet b {
+  color: #facc15;
+}
+
+.share-challenge-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 14px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.share-challenge-copy-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+
+.share-challenge-copy-btn:active {
+  transform: translateY(1px);
+  filter: brightness(0.95);
+}
+
+.challenge-btn-svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* 6. In-App Webview Specific Adaptations */
+body.in-app-browser {
+  touch-action: none;
+}
+
+body.in-app-browser .spell-bar {
+  bottom: calc(max(16px, env(safe-area-inset-bottom, 16px)) + 4px) !important;
+}
+
+@media (max-width: 768px) {
+  .milestone-banner {
+    top: 96px;
+    padding: 8px 14px;
+    gap: 8px;
+  }
+  .combo-callout {
+    top: 142px;
+    font-size: 0.84rem;
+    padding: 5px 14px;
+  }
+  .milestone-icon {
+    font-size: 1.3rem;
+  }
+  .milestone-title {
+    font-size: 0.72rem;
+  }
+  .milestone-desc {
+    font-size: 0.78rem;
+  }
+  .milestone-val {
+    font-size: 1.15rem;
+    padding-left: 6px;
   }
 }

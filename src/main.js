@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import gsap from 'gsap';
 import { SceneManager } from './sceneManager.js';
 import { Board, getGridPosition, setLayerSpacingMultiplier } from './board.js';
 import { Tile3D } from './tile.js';
@@ -106,10 +107,22 @@ class GameApp {
     this.lastUserInteraction = performance.now();
     this.lastIdleTimestamp = performance.now();
 
+    // In-App Browser & Visual Juice Architecture (v6.6.0)
+    this.celebratedMilestones = new Set();
+    this.firstSwipeGuideShown = false;
+    this.firstSwipeGuideTimer = null;
+    this.floatingScoreContainer = document.getElementById('floating-score-container');
+    this.comboCalloutEl = document.getElementById('combo-callout');
+    this.milestoneBannerEl = document.getElementById('milestone-banner');
+    this.firstSwipeHandEl = document.getElementById('first-swipe-hand');
+
+    this.detectInAppBrowser();
+
     this.initUI();
     this.initTelemetryCanvas();
     this.initInput();
     this.initGhostPreview();
+    this.initFirstSwipeGuide();
     this.startNewGame(true);
 
     // Dedicated timer running fixed 5 times/second (every 200ms) for DOM stats, APM, FPS & Canvas graph
@@ -575,7 +588,10 @@ class GameApp {
     }
 
     // Track user activity to support Smart Idle Throttling
-    const recordActivity = () => this.registerInteraction();
+    const recordActivity = () => {
+      this.registerInteraction();
+      this.dismissFirstSwipeGuide();
+    };
     window.addEventListener('pointerdown', recordActivity, { passive: true });
     window.addEventListener('pointermove', recordActivity, { passive: true });
     window.addEventListener('keydown', recordActivity, { passive: true });
@@ -1483,6 +1499,43 @@ class GameApp {
       });
     });
 
+    // 1-Tap Viral Challenge Copy (Zalo / Telegram / Chat Groups)
+    const copyChallengeBtn = document.getElementById('btn-copy-challenge');
+    if (copyChallengeBtn) {
+      copyChallengeBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        this.registerInteraction();
+        soundManager.playClick();
+        soundManager.triggerHaptic('click');
+
+        const score = this.gameLogic ? this.gameLogic.score : 0;
+        let maxTileVal = this.maxTileValue || 2;
+        if (this.tiles3D) {
+          for (let l = 0; l < this.tiles3D.length; l++) {
+            for (let r = 0; r < this.tiles3D[l].length; r++) {
+              for (let c = 0; c < this.tiles3D[l][r].length; c++) {
+                if (this.tiles3D[l][r][c] && this.tiles3D[l][r][c].value > maxTileVal) {
+                  maxTileVal = this.tiles3D[l][r][c].value;
+                }
+              }
+            }
+          }
+        }
+        const modeName = this.mode === '3x3x3' ? '3x3x3 Hypercube' : '4x4 Classic';
+        const shareUrl = window.location.href.split('?')[0].split('#')[0] || 'https://bachlinhphong-glitch.github.io/3d-2048-hypercube/';
+        
+        const challengeText = `⚡ THÁCH ĐẤU 2048 KHÔNG GIAN 3D ⚡\n🏆 Điểm kỷ lục: ${Number(score).toLocaleString()} điểm (${modeName})\n💎 Khối đỉnh cao: ${maxTileVal}\n🎯 Bạn có vượt qua được kỷ lục này không?\n👉 Bấm vào chơi ngay (không cần cài đặt):\n${shareUrl}`;
+
+        try {
+          await navigator.clipboard.writeText(challengeText);
+          this.showSpellToast(t('challenge_copied') || '⚡ Đã chép lời thách đấu! Dán ngay vào Zalo/Telegram để so tài!');
+        } catch {
+          this.showSpellToast(`🎮 ${shareUrl}`);
+        }
+        this.closeShareModal();
+      });
+    }
+
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && modal.style.display !== 'none') {
         this.closeShareModal();
@@ -1502,6 +1555,24 @@ class GameApp {
     const modeEl = document.getElementById('share-preview-mode');
     if (scoreEl) scoreEl.textContent = Number(score).toLocaleString();
     if (modeEl) modeEl.textContent = `Chế độ: ${modeName}`;
+
+    // Update challenge snippet preview
+    const challengeScoreEl = document.getElementById('challenge-score-val');
+    const challengeTileEl = document.getElementById('challenge-tile-val');
+    let maxTileVal = this.maxTileValue || 2;
+    if (this.tiles3D) {
+      for (let l = 0; l < this.tiles3D.length; l++) {
+        for (let r = 0; r < this.tiles3D[l].length; r++) {
+          for (let c = 0; c < this.tiles3D[l][r].length; c++) {
+            if (this.tiles3D[l][r][c] && this.tiles3D[l][r][c].value > maxTileVal) {
+              maxTileVal = this.tiles3D[l][r][c].value;
+            }
+          }
+        }
+      }
+    }
+    if (challengeScoreEl) challengeScoreEl.textContent = Number(score).toLocaleString();
+    if (challengeTileEl) challengeTileEl.textContent = maxTileVal;
 
     modal.style.display = 'flex';
     requestAnimationFrame(() => {
@@ -1648,6 +1719,7 @@ class GameApp {
     this.maxTileValue = 2;
     this.mergeCount = 0;
     this.mergeTierCounts = {};
+    if (this.celebratedMilestones) this.celebratedMilestones.clear();
 
     // Clean all 3D tiles from grid and scene
     this.cleanAllSceneTiles();
@@ -1663,6 +1735,8 @@ class GameApp {
     // Spawn 2 initial tiles
     this.spawnTile();
     this.spawnTile();
+
+    this.playBoardEntrance();
 
     if (this.isBossRaid && this.bossManager) {
       this.bossManager.startRaid();
@@ -1706,8 +1780,214 @@ class GameApp {
     }
   }
 
+  // --- In-App Browser & Visual Juice Architecture (v6.6.0) ---
+
+  detectInAppBrowser() {
+    const ua = (navigator.userAgent || navigator.vendor || window.opera || '').toLowerCase();
+    const isInApp = /zalo|telegram|fban|fbav|messenger|instagram|line|micromessenger|bytedance|tiktok|webview/i.test(ua);
+    if (isInApp) {
+      document.body.classList.add('in-app-browser');
+    }
+  }
+
+  initFirstSwipeGuide() {
+    if (this.firstSwipeGuideShown) return;
+    this.firstSwipeGuideTimer = setTimeout(() => {
+      if (this.moveCount === 0 && !this.firstSwipeGuideShown) {
+        this.showFirstSwipeGuide();
+      }
+    }, 1400);
+  }
+
+  showFirstSwipeGuide() {
+    if (this.firstSwipeGuideShown || this.moveCount > 0) return;
+    this.firstSwipeGuideShown = true;
+    if (!this.firstSwipeHandEl) return;
+    this.firstSwipeHandEl.classList.remove('hidden');
+    this.firstSwipeHandEl.removeAttribute('aria-hidden');
+    gsap.killTweensOf(this.firstSwipeHandEl);
+    gsap.fromTo(this.firstSwipeHandEl,
+      { opacity: 0, scale: 0.8 },
+      { opacity: 1, scale: 1, duration: 0.45, ease: 'power2.out' }
+    );
+  }
+
+  dismissFirstSwipeGuide() {
+    if (this.firstSwipeGuideTimer) {
+      clearTimeout(this.firstSwipeGuideTimer);
+      this.firstSwipeGuideTimer = null;
+    }
+    if (this.firstSwipeHandEl && !this.firstSwipeHandEl.classList.contains('hidden')) {
+      gsap.killTweensOf(this.firstSwipeHandEl);
+      gsap.to(this.firstSwipeHandEl, {
+        opacity: 0,
+        scale: 0.85,
+        duration: 0.25,
+        ease: 'power2.in',
+        onComplete: () => {
+          this.firstSwipeHandEl.classList.add('hidden');
+          this.firstSwipeHandEl.setAttribute('aria-hidden', 'true');
+        }
+      });
+    }
+  }
+
+  project3DToScreen(worldPos) {
+    if (!this.sceneManager || !this.sceneManager.camera) return null;
+    const p = worldPos.clone().project(this.sceneManager.camera);
+    if (p.z > 1) return null;
+    const x = (p.x * 0.5 + 0.5) * window.innerWidth;
+    const y = (-(p.y * 0.5) + 0.5) * window.innerHeight;
+    return { x, y };
+  }
+
+  spawnFloatingScore(text, screenPos, value = 4) {
+    if (!this.floatingScoreContainer || !screenPos) return;
+    const el = document.createElement('div');
+    el.className = 'floating-score-item';
+    el.textContent = text;
+
+    if (value >= 1024) el.classList.add('tier-gold');
+    else if (value >= 256) el.classList.add('tier-magenta');
+    else if (value >= 64) el.classList.add('tier-cyan');
+
+    const jitterX = (Math.random() - 0.5) * 20;
+    const jitterY = (Math.random() - 0.5) * 10;
+    el.style.left = `${screenPos.x + jitterX}px`;
+    el.style.top = `${screenPos.y + jitterY}px`;
+
+    this.floatingScoreContainer.appendChild(el);
+
+    gsap.fromTo(el,
+      { scale: 0.55, opacity: 1, y: 0 },
+      {
+        scale: value >= 256 ? 1.4 : 1.15,
+        opacity: 0,
+        y: -52,
+        duration: 0.88,
+        ease: 'power2.out',
+        onComplete: () => el.remove()
+      }
+    );
+  }
+
+  showComboCallout(count) {
+    if (!this.comboCalloutEl) return;
+    let text = '';
+    let cls = 'combo-x2';
+    if (count === 2) {
+      text = t('combo_2') || 'Combo x2 🔥';
+    } else if (count === 3) {
+      text = t('combo_3') || 'Siêu Combo x3 ⚡';
+      cls = 'combo-x3';
+    } else if (count === 4) {
+      text = t('combo_4') || 'Bùng Nổ x4 💥';
+      cls = 'combo-x4';
+    } else {
+      const raw = t('combo_5') || 'Thần Thoại x{n} 🌟';
+      text = raw.replace('{n}', count);
+      cls = 'combo-x5';
+    }
+
+    this.comboCalloutEl.className = `combo-callout ${cls}`;
+    this.comboCalloutEl.textContent = text;
+    this.comboCalloutEl.classList.remove('hidden');
+    this.comboCalloutEl.removeAttribute('aria-hidden');
+
+    gsap.killTweensOf(this.comboCalloutEl);
+    gsap.fromTo(this.comboCalloutEl,
+      { scale: 0.4, opacity: 0, y: 18 },
+      { scale: 1, opacity: 1, y: 0, duration: 0.28, ease: 'back.out(2.2)' }
+    );
+    gsap.to(this.comboCalloutEl, {
+      opacity: 0,
+      y: -22,
+      scale: 0.92,
+      duration: 0.35,
+      delay: 1.15,
+      ease: 'power2.in',
+      onComplete: () => {
+        this.comboCalloutEl.classList.add('hidden');
+        this.comboCalloutEl.setAttribute('aria-hidden', 'true');
+      }
+    });
+  }
+
+  showMilestoneCelebration(value) {
+    soundManager.playMilestoneUnlock(value);
+    
+    // Trigger sparkling milestone confetti
+    if (this.particleSystem) {
+      const burstCount = value >= 1024 ? 4 : (value >= 256 ? 3 : 2);
+      for (let b = 0; b < burstCount; b++) {
+        this.particleSystem.burst(0, 1.2 + 0.4 * b, 0, value);
+      }
+    }
+
+    if (!this.milestoneBannerEl) return;
+    const title = t('milestone_title') || 'CỘT MỐC MỚI!';
+    const rawDesc = t('milestone_desc') || 'Mở khóa khối {val} thành công!';
+    const desc = rawDesc.replace('{val}', value);
+
+    this.milestoneBannerEl.innerHTML = `
+      <div class="milestone-icon">🌟</div>
+      <div class="milestone-body">
+        <div class="milestone-title">${title}</div>
+        <div class="milestone-desc">${desc}</div>
+      </div>
+      <div class="milestone-val">${value}</div>
+    `;
+    this.milestoneBannerEl.classList.remove('hidden');
+    this.milestoneBannerEl.removeAttribute('aria-hidden');
+
+    gsap.killTweensOf(this.milestoneBannerEl);
+    gsap.fromTo(this.milestoneBannerEl,
+      { y: -70, opacity: 0, scale: 0.85 },
+      { y: 0, opacity: 1, scale: 1, duration: 0.42, ease: 'back.out(1.8)' }
+    );
+    gsap.to(this.milestoneBannerEl, {
+      y: -65,
+      opacity: 0,
+      scale: 0.9,
+      duration: 0.38,
+      delay: 2.2,
+      ease: 'power2.in',
+      onComplete: () => {
+        this.milestoneBannerEl.classList.add('hidden');
+        this.milestoneBannerEl.setAttribute('aria-hidden', 'true');
+      }
+    });
+  }
+
+  playBoardEntrance() {
+    if (!this.board || !this.board.group) return;
+    gsap.killTweensOf(this.board.group.position);
+    gsap.fromTo(this.board.group.position,
+      { y: 2.5 },
+      { y: 0, duration: 0.72, ease: 'back.out(1.5)' }
+    );
+    if (this.tiles3D) {
+      for (let l = 0; l < this.tiles3D.length; l++) {
+        for (let r = 0; r < this.tiles3D[l].length; r++) {
+          for (let c = 0; c < this.tiles3D[l][r].length; c++) {
+            const tile = this.tiles3D[l][r][c];
+            if (tile && tile.group) {
+              const pos = getGridPosition(l, r, c);
+              gsap.killTweensOf(tile.group.position);
+              gsap.fromTo(tile.group.position,
+                { y: pos.y + 2.5 },
+                { y: pos.y, duration: 0.72, ease: 'back.out(1.5)', delay: 0.04 }
+              );
+            }
+          }
+        }
+      }
+    }
+  }
+
   async handleMove(direction) {
     this.registerInteraction();
+    this.dismissFirstSwipeGuide();
     if (this.ghostPreview) this.ghostPreview.hideGhost();
     if (this.isAnimating) return;
     if (this.isSwapMode) {
@@ -1841,6 +2121,16 @@ class GameApp {
         if (this.isBossRaid && this.bossManager) {
           this.bossManager.onTileMerge(m.newValue, { l: m.targetL, r: m.targetR, c: m.targetC });
         }
+
+        // 3D Floating Score Popup
+        const screenPos = this.project3DToScreen(new THREE.Vector3(pos.x, pos.y + 0.6, pos.z));
+        this.spawnFloatingScore(`+${m.newValue}`, screenPos, m.newValue);
+
+        // Milestone Unlock Celebration
+        if (m.newValue >= 64 && !this.celebratedMilestones.has(m.newValue)) {
+          this.celebratedMilestones.add(m.newValue);
+          this.showMilestoneCelebration(m.newValue);
+        }
       } else if (!surviving) {
         this.tiles3D[m.targetL][m.targetR][m.targetC] = m.sourceTile;
         m.sourceTile.upgradeTo(m.newValue);
@@ -1858,8 +2148,23 @@ class GameApp {
         if (this.isBossRaid && this.bossManager) {
           this.bossManager.onTileMerge(m.newValue, { l: m.targetL, r: m.targetR, c: m.targetC });
         }
+
+        // 3D Floating Score Popup
+        const screenPos = this.project3DToScreen(new THREE.Vector3(pos.x, pos.y + 0.6, pos.z));
+        this.spawnFloatingScore(`+${m.newValue}`, screenPos, m.newValue);
+
+        // Milestone Unlock Celebration
+        if (m.newValue >= 64 && !this.celebratedMilestones.has(m.newValue)) {
+          this.celebratedMilestones.add(m.newValue);
+          this.showMilestoneCelebration(m.newValue);
+        }
       }
     });
+
+    // Show Combo Streak Callout
+    if (this.comboCount >= 2) {
+      this.showComboCallout(this.comboCount);
+    }
 
     // Screen Shake on big merge (or if in Hyper Neon)
     if (maxMergedVal >= 64 || (this.currentTheme === 'neon' && maxMergedVal >= 32)) {
