@@ -33,17 +33,17 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./src/style.css?v=6.6.4">
+  <link rel="stylesheet" href="./src/style.css?v=6.6.5">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=6.6.4').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=6.6.5').then(reg => {
           reg.update();
         }).catch(() => {});
       });
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!sessionStorage.getItem('sw_reloaded_664')) {
-          sessionStorage.setItem('sw_reloaded_664', '1');
+        if (!sessionStorage.getItem('sw_reloaded_665')) {
+          sessionStorage.setItem('sw_reloaded_665', '1');
           window.location.reload();
         }
       });
@@ -620,8 +620,8 @@
         </div>
         <div class="welcome-header-actions">
           <div class="welcome-lang-picker">
-            <button type="button" class="welcome-lang-btn" data-lang="vi">🇻🇳 Tiếng Việt</button>
-            <button type="button" class="welcome-lang-btn" data-lang="en">🇬🇧 English</button>
+            <button type="button" class="welcome-lang-btn" data-lang="vi">Tiếng Việt</button>
+            <button type="button" class="welcome-lang-btn" data-lang="en">English</button>
           </div>
           <button id="welcome-modal-close" class="settings-close-btn" aria-label="Đóng" title="Đóng">✕</button>
         </div>
@@ -652,7 +652,7 @@
             </div>
             <div class="welcome-feature-info">
               <h4 data-i18n="welcome_feat2_title">3 Kỹ Năng Hỗ Trợ Đắc Lực</h4>
-              <p data-i18n="welcome_feat2_desc">Gợi ý nước đi (💡), Đi lại bước trước (⏪), và Đổi vị trí khối (⚡). Tạo kỷ lục số mới để hồi thêm lượt dùng!</p>
+              <p data-i18n="welcome_feat2_desc">Gợi ý nước đi, Đi lại bước trước, và Đổi vị trí khối. Tạo kỷ lục số mới để mở lại lượt dùng!</p>
             </div>
           </div>
 
@@ -692,7 +692,7 @@
           <h4 class="welcome-guide-title" data-i18n="welcome_controls_title">HƯỚNG DẪN THAO TÁC</h4>
           <div class="welcome-controls-row">
             <div class="welcome-control-box">
-              <span class="control-device" data-i18n="welcome_device_pc">💻 Trên máy tính</span>
+              <span class="control-device" data-i18n="welcome_device_pc">Trên máy tính</span>
               <ul class="control-tips">
                 <li data-i18n="welcome_pc_tip1"><kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> hoặc phím mũi tên: Trượt dồn khối số</li>
                 <li data-i18n="welcome_pc_tip2"><kbd>Q</kbd> / <kbd>E</kbd>: Đổi tầng lên hoặc xuống (chế độ 3x3x3)</li>
@@ -701,7 +701,7 @@
               </ul>
             </div>
             <div class="welcome-control-box">
-              <span class="control-device" data-i18n="welcome_device_mobile">📱 Trên điện thoại & máy tính bảng</span>
+              <span class="control-device" data-i18n="welcome_device_mobile">Trên điện thoại & máy tính bảng</span>
               <ul class="control-tips">
                 <li data-i18n="welcome_mobile_tip1"><span class="gesture-pill">Vuốt 1 ngón tay</span>: Trượt dồn các khối số</li>
                 <li data-i18n="welcome_mobile_tip2"><span class="gesture-pill">Chạm 2 ngón xoay</span>: Thay đổi góc nhìn 3D</li>
@@ -714,26 +714,26 @@
         <!-- Indie Dev Manifesto & Open Source Badge -->
         <div class="welcome-manifesto-card">
           <div class="manifesto-header">
-            <span class="manifesto-tag" data-i18n="manifesto_tag">❤️ GÓC TÁC GIẢ & TUYÊN NGÔN INDIE</span>
-            <span class="manifesto-badge-clean" data-i18n="manifesto_badge">✨ 100% Không Quảng Cáo</span>
+            <span class="manifesto-tag" data-i18n="manifesto_tag">Góc Tác Giả & Tuyên Ngôn Indie</span>
+            <span class="manifesto-badge-clean" data-i18n="manifesto_badge">100% Không Quảng Cáo</span>
           </div>
           <p class="manifesto-text" data-i18n="manifesto_quote">
             "Mình tự tay lập trình phiên bản 2048 3D này vì quá mệt mỏi với những app trên Store: cứ trượt được 3 nước là bắt xem video quảng cáo 30s. Web này viết bằng <b>Three.js WebGL &amp; Web Audio API</b> thuần túy: <b>Cam kết sạch 100%, không quảng cáo, mở là chơi ngay, miễn phí vĩnh viễn</b> cho anh em giải trí!"
           </p>
           <div class="manifesto-tech-row">
-            <span class="tech-pill">⚡ Three.js WebGL</span>
-            <span class="tech-pill">🎵 Web Audio API</span>
-            <span class="tech-pill">📦 PWA Offline</span>
-            <span class="tech-pill">🛡️ Zero Tracking</span>
+            <span class="tech-pill">Three.js WebGL</span>
+            <span class="tech-pill">Web Audio API</span>
+            <span class="tech-pill">PWA Offline</span>
+            <span class="tech-pill">Zero Tracking</span>
           </div>
           <div class="manifesto-links-row">
             <a href="https://github.com/bachlinhphong-glitch/3d-2048-hypercube" target="_blank" rel="noopener noreferrer" class="manifesto-btn github-btn">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-              <span data-i18n="manifesto_btn_github">⭐ Xem mã nguồn GitHub</span>
+              <span data-i18n="manifesto_btn_github">Mã nguồn GitHub</span>
             </a>
             <a href="https://github.com/bachlinhphong-glitch/3d-2048-hypercube/issues" target="_blank" rel="noopener noreferrer" class="manifesto-btn feedback-btn">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-              <span data-i18n="manifesto_btn_feedback">💬 Góp ý &amp; Báo lỗi cho Dev</span>
+              <span data-i18n="manifesto_btn_feedback">Góp ý & Báo lỗi</span>
             </a>
           </div>
         </div>
@@ -1134,6 +1134,6 @@
   </div>
 
   <!-- Main Game Script -->
-  <script type="module" src="./src/main.js?v=6.6.4"></script>
+  <script type="module" src="./src/main.js?v=6.6.5"></script>
 </body>
 </html>

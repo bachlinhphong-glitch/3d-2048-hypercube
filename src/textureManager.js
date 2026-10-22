@@ -18,23 +18,23 @@ const TILE_STYLES = {
   16384: { bg: '#e11d48', text: '#ffffff', emissive: '#fb7185', intensity: 1.45, rim: '#ffe4e6' }   // Supernova Magenta
 };
 
-// 2. [HƯỚNG SÁNG] Gentle Light (Hiền Hòa Sáng / Vibrant & Warm Silk Palette)
-// Redesigned with distinct, iconic colors for each tier so no two numbers look alike!
+// 2. [HƯỚNG SÁNG] Gentle Light (Hiền Hòa Sáng / Harmonious Classic Warm Silk Palette)
+// Tông màu dịu mắt, chuyển tiếp tự nhiên, không chói lóa, số hiển thị sắc nét rõ ràng
 const TILE_STYLES_GENTLE_LIGHT = {
-  2:     { bg: '#eee4da', text: '#776e65', emissive: '#eee4da', intensity: 0.05, rim: '#ffffff' }, // Warm Silk Ivory
-  4:     { bg: '#ede0c8', text: '#776e65', emissive: '#ede0c8', intensity: 0.08, rim: '#ffffff' }, // Warm Toasted Linen
-  8:     { bg: '#f97316', text: '#ffffff', emissive: '#ea580c', intensity: 0.18, rim: '#ffedd5' }, // Radiant Tangerine Orange
-  16:    { bg: '#ea580c', text: '#ffffff', emissive: '#c2410c', intensity: 0.22, rim: '#fed7aa' }, // Sunset Flame Amber
-  32:    { bg: '#e11d48', text: '#ffffff', emissive: '#be123c', intensity: 0.25, rim: '#fecdd3' }, // Vivid Ruby Coral
-  64:    { bg: '#dc2626', text: '#ffffff', emissive: '#b91c1c', intensity: 0.28, rim: '#fee2e2' }, // Fiery Crimson Scarlet
-  128:   { bg: '#eab308', text: '#ffffff', emissive: '#ca8a04', intensity: 0.32, rim: '#fef08a' }, // Luminous Sun Gold
-  256:   { bg: '#06b6d4', text: '#ffffff', emissive: '#0891b2', intensity: 0.35, rim: '#cffafe' }, // Electric Cyan Turquoise
-  512:   { bg: '#10b981', text: '#ffffff', emissive: '#059669', intensity: 0.38, rim: '#d1fae5' }, // Vivid Emerald Jade
-  1024:  { bg: '#8b5cf6', text: '#ffffff', emissive: '#7c3aed', intensity: 0.42, rim: '#ede9fe' }, // Royal Amethyst Violet
-  2048:  { bg: '#f59e0b', text: '#ffffff', emissive: '#d97706', intensity: 0.50, rim: '#fef3c7' }, // 24K Burnished Crown Gold
-  4096:  { bg: '#ec4899', text: '#ffffff', emissive: '#db2777', intensity: 0.55, rim: '#fce7f3' }, // Cosmic Pink Rose
-  8192:  { bg: '#3b82f6', text: '#ffffff', emissive: '#2563eb', intensity: 0.60, rim: '#dbeafe' }, // Electric Sapphire Blue
-  16384: { bg: '#6366f1', text: '#ffffff', emissive: '#4f46e5', intensity: 0.65, rim: '#e0e7ff' }  // Astral Indigo Purple
+  2:     { bg: '#eee4da', text: '#776e65', emissive: '#eee4da', intensity: 0, rim: '#ffffff' }, // Warm Silk Ivory
+  4:     { bg: '#ede0c8', text: '#776e65', emissive: '#ede0c8', intensity: 0, rim: '#ffffff' }, // Warm Toasted Linen
+  8:     { bg: '#f2b179', text: '#ffffff', emissive: '#f2b179', intensity: 0, rim: '#fff1e5' }, // Soft Apricot
+  16:    { bg: '#f59563', text: '#ffffff', emissive: '#f59563', intensity: 0, rim: '#ffede5' }, // Warm Coral
+  32:    { bg: '#f67c5f', text: '#ffffff', emissive: '#f67c5f', intensity: 0, rim: '#ffe8e0' }, // Soft Terracotta
+  64:    { bg: '#ea580c', text: '#ffffff', emissive: '#ea580c', intensity: 0, rim: '#ffedd5' }, // Rich Amber Clay
+  128:   { bg: '#edcf72', text: '#ffffff', emissive: '#edcf72', intensity: 0, rim: '#fffde8' }, // Gentle Sunlight
+  256:   { bg: '#edcc61', text: '#ffffff', emissive: '#edcc61', intensity: 0, rim: '#fffde8' }, // Warm Honey Gold
+  512:   { bg: '#edc850', text: '#ffffff', emissive: '#edc850', intensity: 0, rim: '#fffde8' }, // Pure Gold
+  1024:  { bg: '#edc53f', text: '#ffffff', emissive: '#edc53f', intensity: 0, rim: '#fffde8' }, // Burnished Crown Gold
+  2048:  { bg: '#edc22e', text: '#ffffff', emissive: '#edc22e', intensity: 0, rim: '#fffde8' }, // Classic 2048 Crown Gold
+  4096:  { bg: '#a855f7', text: '#ffffff', emissive: '#a855f7', intensity: 0, rim: '#f3e8ff' }, // Soft Amethyst
+  8192:  { bg: '#3b82f6', text: '#ffffff', emissive: '#3b82f6', intensity: 0, rim: '#eff6ff' }, // Soft Cobalt
+  16384: { bg: '#10b981', text: '#ffffff', emissive: '#10b981', intensity: 0, rim: '#ecfdf5' }  // Soft Sage
 };
 const TILE_STYLES_ZEN = TILE_STYLES_GENTLE_LIGHT; // Backwards compatibility alias
 
@@ -334,19 +334,25 @@ export class TextureManager {
     // Clear transparent background
     ctx.clearRect(0, 0, size, size);
 
-    // Ethereal translucent glass lens backing (smooth falloff so 3D crystal shines through)
+    // Lens backing with soft falloff matching tile geometry
     const radGrad = ctx.createRadialGradient(size / 2, size / 2, 20, size / 2, size / 2, 230);
+    const baseColor = new THREE.Color(style.bg);
+    const r = Math.round(baseColor.r * 255);
+    const g = Math.round(baseColor.g * 255);
+    const b = Math.round(baseColor.b * 255);
+
     if (isBomb) {
-      radGrad.addColorStop(0, 'rgba(220, 38, 38, 0.85)');
-      radGrad.addColorStop(0.75, 'rgba(185, 28, 28, 0.45)');
+      radGrad.addColorStop(0, 'rgba(220, 38, 38, 0.95)');
+      radGrad.addColorStop(0.75, 'rgba(185, 28, 28, 0.55)');
       radGrad.addColorStop(1, 'rgba(185, 28, 28, 0.0)');
     } else if (isLight) {
-      radGrad.addColorStop(0, 'rgba(255, 255, 255, 0.88)');
-      radGrad.addColorStop(0.75, 'rgba(255, 255, 255, 0.45)');
-      radGrad.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
+      // In light mode, lens backing matches tile body tone so white text never blends into a white background
+      radGrad.addColorStop(0, `rgba(${r}, ${g}, ${b}, 0.96)`);
+      radGrad.addColorStop(0.75, `rgba(${r}, ${g}, ${b}, 0.82)`);
+      radGrad.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0.0)`);
     } else {
-      radGrad.addColorStop(0, 'rgba(15, 23, 42, 0.62)');
-      radGrad.addColorStop(0.75, 'rgba(15, 23, 42, 0.32)');
+      radGrad.addColorStop(0, 'rgba(15, 23, 42, 0.72)');
+      radGrad.addColorStop(0.75, 'rgba(15, 23, 42, 0.38)');
       radGrad.addColorStop(1, 'rgba(15, 23, 42, 0.0)');
     }
     ctx.fillStyle = radGrad;
@@ -354,22 +360,22 @@ export class TextureManager {
     ctx.arc(size / 2, size / 2, 230, 0, Math.PI * 2);
     ctx.fill();
 
-    // Outer glowing holographic ring in the tile's vivid identity color
-    const ringColor = isBomb ? '#ff3838' : (style.emissive && style.emissive !== '#000000' ? style.emissive : style.bg);
+    // Elegant accent rim
+    const ringColor = isBomb ? '#ff3838' : (isLight ? (value <= 4 ? '#d8cebf' : this.adjustBrightness(style.bg, -15)) : (style.emissive && style.emissive !== '#000000' ? style.emissive : style.bg));
     ctx.save();
     ctx.beginPath();
     ctx.arc(size / 2, size / 2, 218, 0, Math.PI * 2);
     ctx.strokeStyle = ringColor;
-    ctx.lineWidth = 14;
-    ctx.shadowColor = ringColor;
-    ctx.shadowBlur = isLight ? 12 : 24;
+    ctx.lineWidth = isLight ? 6 : 12;
+    ctx.shadowColor = isLight ? 'transparent' : ringColor;
+    ctx.shadowBlur = isLight ? 0 : 20;
     ctx.stroke();
 
     // Inner subtle accent rim
     ctx.beginPath();
     ctx.arc(size / 2, size / 2, 198, 0, Math.PI * 2);
-    ctx.strokeStyle = isBomb ? '#fffa65' : (isLight ? 'rgba(0, 0, 0, 0.12)' : 'rgba(255, 255, 255, 0.45)');
-    ctx.lineWidth = 3;
+    ctx.strokeStyle = isBomb ? '#fffa65' : (isLight ? 'rgba(255, 255, 255, 0.45)' : 'rgba(255, 255, 255, 0.35)');
+    ctx.lineWidth = 2.5;
     ctx.shadowColor = 'transparent';
     ctx.stroke();
 
@@ -380,7 +386,7 @@ export class TextureManager {
       const tx = size / 2 + Math.cos(angle) * 208;
       const ty = size / 2 + Math.sin(angle) * 208;
       ctx.beginPath();
-      ctx.arc(tx, ty, 4, 0, Math.PI * 2);
+      ctx.arc(tx, ty, isLight ? 3 : 4, 0, Math.PI * 2);
       ctx.fill();
     });
 
@@ -396,11 +402,17 @@ export class TextureManager {
 
     ctx.font = `900 ${fontSize}px "Outfit", "Montserrat", "Inter", -apple-system, sans-serif`;
     
-    // Ambient shadow
+    // Ambient drop shadow for high contrast legibility
     if (isLight) {
-      ctx.shadowColor = (value <= 4) ? 'rgba(255, 255, 255, 0.65)' : 'rgba(0, 0, 0, 0.28)';
-      ctx.shadowBlur = 8;
-      ctx.shadowOffsetY = 3;
+      if (value <= 4) {
+        ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
+        ctx.shadowBlur = 4;
+        ctx.shadowOffsetY = 1;
+      } else {
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
+        ctx.shadowBlur = 10;
+        ctx.shadowOffsetY = 4;
+      }
     } else {
       ctx.shadowColor = 'rgba(0, 0, 0, 0.88)';
       ctx.shadowBlur = 16;
@@ -408,20 +420,15 @@ export class TextureManager {
     }
     ctx.fillText(str, size / 2, size / 2 + (isBomb ? -26 : 5));
 
-    // Luminous halo
-    ctx.shadowColor = ringColor;
-    ctx.shadowBlur = isLight ? 6 : 14;
-    ctx.shadowOffsetY = 0;
-    ctx.fillText(str, size / 2, size / 2 + (isBomb ? -26 : 5));
-
     // Foreground text
     ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
     if (isBomb) {
       ctx.fillStyle = '#ffffff';
-    } else if (isLight && value <= 4) {
-      ctx.fillStyle = '#776e65';
+    } else if (isLight) {
+      ctx.fillStyle = (value <= 4) ? '#776e65' : '#ffffff';
     } else {
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = style.text || '#ffffff';
     }
     ctx.fillText(str, size / 2, size / 2 + (isBomb ? -26 : 5));
 
@@ -519,12 +526,12 @@ export class TextureManager {
     // High-performance crystal standard material (fast 60+ FPS on all GPUs)
     const mat = new THREE.MeshStandardMaterial({
       color: color,
-      roughness: isLight ? 0.22 : 0.12,
-      metalness: isLight ? 0.08 : 0.25,
-      transparent: true,
-      opacity: isLight ? 0.96 : 0.92,
+      roughness: isLight ? 0.52 : 0.12,
+      metalness: isLight ? 0.04 : 0.25,
+      transparent: !isLight,
+      opacity: isLight ? 1.0 : 0.92,
       emissive: emissiveColor,
-      emissiveIntensity: isBomb ? 0.75 : (isLight ? 0.25 : (this.isHyperNeon ? 0.9 : 0.45))
+      emissiveIntensity: isBomb ? 0.75 : (isLight ? 0 : (this.isHyperNeon ? 0.9 : 0.45))
     });
     this.materialCache.set(key, mat);
     return mat;
@@ -542,9 +549,9 @@ export class TextureManager {
     const mat = new THREE.MeshStandardMaterial({
       color: emissive,
       emissive: emissive,
-      emissiveIntensity: isLight ? 0.55 : 1.2,
-      roughness: 0.1,
-      metalness: isLight ? 0.25 : 0.8
+      emissiveIntensity: isBomb ? 0.8 : (isLight ? 0 : 1.2),
+      roughness: isLight ? 0.55 : 0.1,
+      metalness: isLight ? 0.05 : 0.8
     });
     this.materialCache.set(key, mat);
     return mat;
@@ -564,9 +571,9 @@ export class TextureManager {
 
     const lineMat = new THREE.LineBasicMaterial({
       color: new THREE.Color(lineColor),
-      linewidth: 2,
+      linewidth: 1.5,
       transparent: true,
-      opacity: isLight ? 0.55 : 0.85
+      opacity: isLight ? 0.25 : 0.85
     });
     this.materialCache.set(key, lineMat);
     return lineMat;
@@ -584,10 +591,10 @@ export class TextureManager {
       : (style.emissive && style.emissive !== '#000000' ? new THREE.Color(style.emissive) : new THREE.Color(style.bg));
     const mat = new THREE.MeshStandardMaterial({
       color: color,
-      roughness: isLight ? 0.28 : 0.14,
-      metalness: isLight ? 0.10 : 0.35,
+      roughness: isLight ? 0.50 : 0.14,
+      metalness: isLight ? 0.05 : 0.35,
       emissive: emissive,
-      emissiveIntensity: isBomb ? 0.9 : (isLight ? 0.22 : (this.isHyperNeon ? 0.95 : 0.55))
+      emissiveIntensity: isBomb ? 0.9 : (isLight ? 0 : (this.isHyperNeon ? 0.95 : 0.55))
     });
     this.materialCache.set(key, mat);
     return mat;
@@ -605,9 +612,9 @@ export class TextureManager {
     const torusMat = new THREE.MeshStandardMaterial({
       color: isBomb ? 0xfffa65 : new THREE.Color(style.rim || style.bg),
       emissive: emissive,
-      emissiveIntensity: isLight ? 0.35 : 0.85,
-      roughness: 0.1,
-      metalness: isLight ? 0.35 : 0.88
+      emissiveIntensity: isBomb ? 0.8 : (isLight ? 0 : 0.85),
+      roughness: isLight ? 0.5 : 0.1,
+      metalness: isLight ? 0.05 : 0.88
     });
     this.materialCache.set(key, torusMat);
     return torusMat;

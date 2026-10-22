@@ -1587,91 +1587,180 @@ body.tile-grabbing *,
 }
 
 /* Gentle Light Theme Adaptations for Welcome Modal */
-body.theme-gentle_light .welcome-modal-overlay {
+body.theme-gentle_light .welcome-modal-overlay,
+body.theme-zen_clay .welcome-modal-overlay {
   background: rgba(225, 230, 236, 0.85) !important;
 }
 
-body.theme-gentle_light .welcome-modal-card {
+body.theme-gentle_light .welcome-modal-card,
+body.theme-zen_clay .welcome-modal-card {
   background: rgba(255, 255, 255, 0.98);
   border-color: rgba(217, 119, 6, 0.35);
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.14), 0 0 20px rgba(245, 158, 11, 0.1);
   color: #1e293b;
 }
 
-body.theme-gentle_light .welcome-modal-header {
+body.theme-gentle_light .welcome-modal-header,
+body.theme-zen_clay .welcome-modal-header {
   background: rgba(248, 250, 252, 0.9);
   border-bottom-color: rgba(226, 232, 240, 0.9);
 }
 
-body.theme-gentle_light .welcome-lang-picker {
+body.theme-gentle_light .welcome-badge-icon,
+body.theme-zen_clay .welcome-badge-icon {
+  background: #fef3c7 !important;
+  color: #d97706 !important;
+  border: 1px solid #fde68a !important;
+  box-shadow: none !important;
+}
+
+body.theme-gentle_light .welcome-lang-picker,
+body.theme-zen_clay .welcome-lang-picker {
   background: #f1f5f9;
   border-color: #cbd5e1;
 }
 
-body.theme-gentle_light .welcome-lang-btn {
+body.theme-gentle_light .welcome-lang-btn,
+body.theme-zen_clay .welcome-lang-btn {
   color: #64748b;
 }
 
-body.theme-gentle_light .welcome-lang-btn.active {
+body.theme-gentle_light .welcome-lang-btn.active,
+body.theme-zen_clay .welcome-lang-btn.active {
   background: #e2e8f0;
   color: #0f172a;
   border: 1px solid #cbd5e1;
   box-shadow: none;
 }
 
-body.theme-gentle_light .welcome-modal-title {
-  background: linear-gradient(135deg, #1e293b 40%, #b45309 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+body.theme-gentle_light .welcome-modal-title,
+body.theme-zen_clay .welcome-modal-title {
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  -webkit-text-fill-color: #1e293b !important;
+  color: #1e293b !important;
 }
 
-body.theme-gentle_light .welcome-modal-subtitle {
+body.theme-gentle_light .welcome-modal-subtitle,
+body.theme-zen_clay .welcome-modal-subtitle {
   color: #64748b;
 }
 
-body.theme-gentle_light .welcome-feature-card {
+body.theme-gentle_light .welcome-feature-card,
+body.theme-zen_clay .welcome-feature-card {
   background: #f8fafc;
   border-color: #e2e8f0;
 }
 
-body.theme-gentle_light .welcome-feature-card:hover {
+body.theme-gentle_light .welcome-feature-card:hover,
+body.theme-zen_clay .welcome-feature-card:hover {
   background: #f1f5f9;
 }
 
-body.theme-gentle_light .welcome-feature-info h4 {
+body.theme-gentle_light .welcome-feature-info h4,
+body.theme-zen_clay .welcome-feature-info h4 {
   color: #0f172a;
 }
 
-body.theme-gentle_light .welcome-feature-info p {
+body.theme-gentle_light .welcome-feature-info p,
+body.theme-zen_clay .welcome-feature-info p {
   color: #64748b;
 }
 
-body.theme-gentle_light .welcome-controls-guide {
+body.theme-gentle_light .welcome-controls-guide,
+body.theme-zen_clay .welcome-controls-guide {
   background: #f8fafc;
   border-color: #e2e8f0;
 }
 
-body.theme-gentle_light .welcome-guide-title {
+body.theme-gentle_light .welcome-guide-title,
+body.theme-zen_clay .welcome-guide-title {
   color: #475569;
 }
 
-body.theme-gentle_light .control-tips {
+body.theme-gentle_light .control-tips,
+body.theme-zen_clay .control-tips {
   color: #334155;
 }
 
-body.theme-gentle_light .control-tips kbd {
+body.theme-gentle_light .control-tips kbd,
+body.theme-zen_clay .control-tips kbd {
   background: #e2e8f0;
   border-color: #cbd5e1;
   color: #0f172a;
 }
 
-body.theme-gentle_light .welcome-modal-footer {
+body.theme-gentle_light .welcome-manifesto-card,
+body.theme-zen_clay .welcome-manifesto-card {
+  background: #fdfaf6 !important;
+  border: 1px solid rgba(214, 204, 192, 0.75) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
+}
+
+body.theme-gentle_light .manifesto-tag,
+body.theme-zen_clay .manifesto-tag {
+  color: #9a3412 !important;
+}
+
+body.theme-gentle_light .manifesto-badge-clean,
+body.theme-zen_clay .manifesto-badge-clean {
+  color: #166534 !important;
+  background: rgba(22, 101, 52, 0.08) !important;
+  border-color: rgba(22, 101, 52, 0.22) !important;
+}
+
+body.theme-gentle_light .manifesto-text,
+body.theme-zen_clay .manifesto-text {
+  color: #292524 !important;
+  font-style: normal !important;
+  font-weight: 500 !important;
+  border-left-color: #c2410c !important;
+}
+
+body.theme-gentle_light .manifesto-text b,
+body.theme-zen_clay .manifesto-text b {
+  color: #0f172a !important;
+  font-weight: 700 !important;
+}
+
+body.theme-gentle_light .tech-pill,
+body.theme-zen_clay .tech-pill {
+  color: #475569 !important;
+  background: rgba(0, 0, 0, 0.04) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+body.theme-gentle_light .manifesto-btn.github-btn,
+body.theme-zen_clay .manifesto-btn.github-btn {
+  background: #24292f !important;
+  color: #ffffff !important;
+  border-color: #24292f !important;
+}
+
+body.theme-gentle_light .manifesto-btn.feedback-btn,
+body.theme-zen_clay .manifesto-btn.feedback-btn {
+  background: #f1f5f9 !important;
+  color: #1e293b !important;
+  border-color: #cbd5e1 !important;
+}
+
+body.theme-gentle_light .welcome-modal-footer,
+body.theme-zen_clay .welcome-modal-footer {
   background: rgba(248, 250, 252, 0.9);
   border-top-color: rgba(226, 232, 240, 0.9);
 }
 
-body.theme-gentle_light .welcome-dont-show {
+body.theme-gentle_light .welcome-dont-show,
+body.theme-zen_clay .welcome-dont-show {
   color: #64748b;
+}
+
+body.theme-gentle_light .welcome-start-btn,
+body.theme-zen_clay .welcome-start-btn {
+  background: linear-gradient(135deg, #d97706, #b45309) !important;
+  color: #ffffff !important;
+  border-color: #b45309 !important;
+  box-shadow: 0 8px 20px rgba(180, 83, 9, 0.28) !important;
 }
 
 /* ================= ⚔️ MODE CONFIRMATION & TUTORIAL MODAL (Boss & Rush) ================= */

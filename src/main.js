@@ -2865,7 +2865,7 @@ class GameApp {
           badge.textContent = '0';
           badge.title = 'Đã hết 2 lượt';
         } else if (status === 'cooldown') {
-          badge.textContent = `🔒${this.gameLogic.nextRechargeMilestone}`;
+          badge.textContent = `${this.gameLogic.nextRechargeMilestone}`;
           badge.title = `Ghép được ô [${this.gameLogic.nextRechargeMilestone}] để mở lại trợ giúp`;
         } else {
           badge.textContent = `${remaining}`;
@@ -2900,7 +2900,7 @@ class GameApp {
       }
     });
 
-    this.showSpellToast(`🎉 MỞ KHÓA: Đạt mốc [${milestone}] đã mở lại lượt trợ giúp!`, true);
+    this.showSpellToast(`Đã mở khóa: Đạt mốc [${milestone}], mở lại lượt trợ giúp!`, true);
     this.updateSpellUI();
   }
 
@@ -2913,7 +2913,7 @@ class GameApp {
       return;
     }
     if (status === 'cooldown') {
-      this.showSpellToast(`🔒 Đang tạm khóa: Cần ghép được ô [${this.gameLogic.nextRechargeMilestone}] để mở lại trợ giúp!`);
+      this.showSpellToast(`Đang tạm khóa: Cần ghép ô [${this.gameLogic.nextRechargeMilestone}] để mở lại trợ giúp.`);
       return;
     }
 
@@ -2949,12 +2949,12 @@ class GameApp {
       layerDown: 'XUỐNG TẦNG DƯỚI (Q / Shift)'
     };
     const dirMapTouch = {
-      up: '👆 Vuốt LÊN TRÊN',
-      down: '👇 Vuốt XUỐNG DƯỚI',
-      left: '👈 Vuốt sang TRÁI',
-      right: '👉 Vuốt sang PHẢI',
-      layerUp: '🔺 Tầng TRÊN (Phím E)',
-      layerDown: '🔻 Tầng DƯỚI (Phím Q)'
+      up: 'Vuốt LÊN TRÊN',
+      down: 'Vuốt XUỐNG DƯỚI',
+      left: 'Vuốt sang TRÁI',
+      right: 'Vuốt sang PHẢI',
+      layerUp: 'Tầng TRÊN (Phím E)',
+      layerDown: 'Tầng DƯỚI (Phím Q)'
     };
 
     const dirText = (isTouchDevice ? dirMapTouch[res.direction] : dirMapDesktop[res.direction]) || res.direction;
@@ -2973,7 +2973,7 @@ class GameApp {
       return;
     }
     if (status === 'cooldown') {
-      this.showSpellToast(`🔒 Đang tạm khóa: Cần ghép được ô [${this.gameLogic.nextRechargeMilestone}] để mở lại trợ giúp!`);
+      this.showSpellToast(`Đang tạm khóa: Cần ghép ô [${this.gameLogic.nextRechargeMilestone}] để mở lại trợ giúp.`);
       return;
     }
 
@@ -3030,7 +3030,7 @@ class GameApp {
       return;
     }
     if (status === 'cooldown') {
-      this.showSpellToast(`🔒 Đang tạm khóa: Cần ghép được ô [${this.gameLogic.nextRechargeMilestone}] để mở lại trợ giúp!`);
+      this.showSpellToast(`Đang tạm khóa: Cần ghép ô [${this.gameLogic.nextRechargeMilestone}] để mở lại trợ giúp.`);
       return;
     }
 
