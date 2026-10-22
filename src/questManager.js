@@ -150,10 +150,15 @@ export class QuestManager {
       tabBossBtn.addEventListener('click', () => this.switchTab('boss'));
     }
 
-    // Celebrate button
+    // Celebrate button (Spammable with bounce animation)
     const celebrateBtn = document.getElementById('trophy-celebrate-btn');
     if (celebrateBtn) {
       celebrateBtn.addEventListener('click', () => {
+        celebrateBtn.classList.remove('spam-punch');
+        void celebrateBtn.offsetWidth;
+        celebrateBtn.classList.add('spam-punch');
+        setTimeout(() => celebrateBtn.classList.remove('spam-punch'), 120);
+
         this.celebrateCurrentTab();
       });
     }
@@ -182,7 +187,7 @@ export class QuestManager {
       if (tabBossBtn) tabBossBtn.classList.add('active');
       if (c1Pane) c1Pane.style.display = 'none';
       if (bossPane) bossPane.style.display = 'block';
-      if (celebrateLabel) celebrateLabel.textContent = 'Trảm Kiếm & Tàn Tro Huyết Sắc';
+      if (celebrateLabel) celebrateLabel.textContent = t('trophy_celebrate_boss_btn') || 'Bắn Pháo Lửa Diệt Trùm';
 
       // Update boss status details
       const bossStatusEl = document.getElementById('boss-t-status');
@@ -200,7 +205,7 @@ export class QuestManager {
       if (tabBossBtn) tabBossBtn.classList.remove('active');
       if (c1Pane) c1Pane.style.display = 'flex';
       if (bossPane) bossPane.style.display = 'none';
-      if (celebrateLabel) celebrateLabel.textContent = 'Tung Pháo Hoa Khải Hoàn';
+      if (celebrateLabel) celebrateLabel.textContent = t('trophy_celebrate_btn') || 'Bắn Pháo Hoa Ăn Mừng';
     }
 
     this.updateStatusPill();
@@ -242,23 +247,40 @@ export class QuestManager {
 
   celebrateCurrentTab() {
     if (this.currentTab === 'boss') {
-      if (this.game.soundManager && this.game.soundManager.playBossExecutionFanfare) {
-        this.game.soundManager.playBossExecutionFanfare();
+      if (this.game.soundManager) {
+        if (this.game.soundManager.playFireworkBurst) {
+          this.game.soundManager.playFireworkBurst();
+        }
+        if (this.game.soundManager.playBossExecutionFanfare && !this._bossFanfarePlaying) {
+          this._bossFanfarePlaying = true;
+          this.game.soundManager.playBossExecutionFanfare();
+          setTimeout(() => { this._bossFanfarePlaying = false; }, 3200);
+        }
       }
       this.triggerSekiroEmbers();
       if (this.game.particleSystem && this.trophyViewer && this.trophyViewer.camera) {
-        this.game.particleSystem.screenShake(this.trophyViewer.camera, 0.28);
+        this.game.particleSystem.screenShake(this.trophyViewer.camera, 0.24);
       }
       if (this.game.showSpellToast) {
-        this.game.showSpellToast('⚔️ ĐOẠT MỆNH HOÀN TẤT — TRẢM TƯỚNG THÀNH CÔNG!');
+        this.game.showSpellToast('⚔️ Mưa lửa trảm tướng diệt trùm thành công!');
       }
     } else {
-      if (this.game.soundManager && this.game.soundManager.playChampionsLeagueFanfare) {
-        this.game.soundManager.playChampionsLeagueFanfare();
+      if (this.game.soundManager) {
+        if (this.game.soundManager.playFireworkBurst) {
+          this.game.soundManager.playFireworkBurst();
+        }
+        if (this.game.soundManager.playChampionsLeagueFanfare && !this._fanfarePlaying) {
+          this._fanfarePlaying = true;
+          this.game.soundManager.playChampionsLeagueFanfare();
+          setTimeout(() => { this._fanfarePlaying = false; }, 3000);
+        }
       }
       this.triggerConfetti();
+      if (this.game.particleSystem && this.trophyViewer && this.trophyViewer.camera) {
+        this.game.particleSystem.screenShake(this.trophyViewer.camera, 0.14);
+      }
       if (this.game.showSpellToast) {
-        this.game.showSpellToast('🏆 KHÚC KHẢI HOÀN CA ĐẠI THẮNG!');
+        this.game.showSpellToast('🎉 Rực rỡ pháo hoa ăn mừng chiến tích!');
       }
     }
   }
@@ -498,49 +520,143 @@ export class QuestManager {
     const container = document.getElementById('trophy-confetti-container');
     if (!container) return;
 
-    container.innerHTML = '';
-    const colors = ['#ffd700', '#ffea70', '#ffffff', '#00f0ff', '#e2e8f0', '#38bdf8'];
-    const count = 70;
+    const colors = [
+      '#ffd700', '#f59e0b', '#fbbf24', // Luxury Gold
+      '#00f0ff', '#38bdf8', '#0ea5e9', // Cyber Cyan
+      '#ff4d6d', '#f43f5e', '#ec4899', // Vivid Rose & Pink
+      '#10b981', '#34d399',             // Emerald
+      '#a855f7', '#c084fc',             // Electric Purple
+      '#ffffff', '#f8fafc'              // Pure White & Silver
+    ];
 
-    for (let i = 0; i < count; i++) {
-      const piece = document.createElement('div');
-      piece.className = 'confetti-piece';
-      piece.style.left = `${Math.random() * 100}%`;
-      piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-      piece.style.animationDuration = `${1.2 + Math.random() * 1.6}s`;
-      piece.style.animationDelay = `${Math.random() * 0.3}s`;
-      piece.style.transform = `rotate(${Math.random() * 360}deg)`;
-      container.appendChild(piece);
-    }
+    const shapes = ['rect', 'star', 'circle', 'ribbon'];
+    const swayactions = ['confetti-sway-1', 'confetti-sway-2', 'confetti-sway-3'];
 
+    const spawnWave = (count, options = {}) => {
+      // Soft cap on total pieces in DOM to guarantee >60 FPS during heavy spam
+      while (container.childElementCount > 650) {
+        container.firstElementChild.remove();
+      }
+
+      const fragment = document.createDocumentFragment();
+      for (let i = 0; i < count; i++) {
+        const piece = document.createElement('div');
+        const shape = options.shape || shapes[Math.floor(Math.random() * shapes.length)];
+        const sway = swayactions[Math.floor(Math.random() * swayactions.length)];
+
+        let cls = 'confetti-piece';
+        if (options.cannon === 'left') {
+          cls += ' cannon-left';
+          const angle = 0.55 + (Math.random() - 0.5) * 0.45; // ~20 to 50 degrees
+          const power = 340 + Math.random() * 320;
+          const tx = Math.cos(angle) * power;
+          const ty = -Math.sin(angle) * power * 1.35;
+          piece.style.setProperty('--tx', `${Math.round(tx)}px`);
+          piece.style.setProperty('--ty', `${Math.round(ty)}px`);
+          piece.style.setProperty('--drift', `${Math.round(40 + Math.random() * 90)}px`);
+          piece.style.setProperty('--rot', `${Math.round(Math.random() * 720 - 360)}deg`);
+        } else if (options.cannon === 'right') {
+          cls += ' cannon-right';
+          const angle = 0.55 + (Math.random() - 0.5) * 0.45;
+          const power = 340 + Math.random() * 320;
+          const tx = -Math.cos(angle) * power;
+          const ty = -Math.sin(angle) * power * 1.35;
+          piece.style.setProperty('--tx', `${Math.round(tx)}px`);
+          piece.style.setProperty('--ty', `${Math.round(ty)}px`);
+          piece.style.setProperty('--drift', `${Math.round(-(40 + Math.random() * 90))}px`);
+          piece.style.setProperty('--rot', `${Math.round(Math.random() * 720 - 360)}deg`);
+        } else {
+          cls += ` ${sway}`;
+          if (shape === 'star') cls += ' confetti-star';
+          else if (shape === 'circle') cls += ' confetti-circle';
+          else if (shape === 'ribbon') cls += ' confetti-ribbon';
+          piece.style.left = `${Math.random() * 100}%`;
+          piece.style.top = `${-20 - Math.random() * 75}px`;
+        }
+
+        piece.className = cls;
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.backgroundColor = color;
+        piece.style.color = color;
+
+        const dur = (options.cannon ? (1.6 + Math.random() * 1.2) : (2.2 + Math.random() * 1.8));
+        piece.style.animationDuration = `${dur}s`;
+        piece.style.animationDelay = `${Math.random() * 0.15}s`;
+
+        if (!options.cannon && shape === 'rect') {
+          const w = 8 + Math.random() * 6;
+          const h = 12 + Math.random() * 8;
+          piece.style.width = `${w}px`;
+          piece.style.height = `${h}px`;
+        }
+
+        // Each piece safely removes itself when done without touching active particles
+        piece.addEventListener('animationend', () => piece.remove(), { once: true });
+        fragment.appendChild(piece);
+      }
+      container.appendChild(fragment);
+    };
+
+    // Continuous Multi-Wave Cascade (Spawn 6 waves per click)
+    // Wave 0: Instant double cannon explosive blast + center shower
+    spawnWave(30, { cannon: 'left' });
+    spawnWave(30, { cannon: 'right' });
+    spawnWave(50);
+
+    // Wave 1 (+180ms): Second shower wave
+    setTimeout(() => spawnWave(45), 180);
+
+    // Wave 2 (+360ms): Secondary cannons + sparkling stars
     setTimeout(() => {
-      container.innerHTML = '';
-    }, 3200);
+      spawnWave(25, { cannon: 'left' });
+      spawnWave(25, { cannon: 'right' });
+      spawnWave(40, { shape: 'star' });
+    }, 360);
+
+    // Wave 3 (+560ms): Glitter circles shower
+    setTimeout(() => spawnWave(45, { shape: 'circle' }), 560);
+
+    // Wave 4 (+780ms): Long cascading streamers
+    setTimeout(() => spawnWave(40, { shape: 'ribbon' }), 780);
+
+    // Wave 5 (+1020ms): Grand finale gold shower
+    setTimeout(() => spawnWave(50), 1020);
   }
 
   triggerSekiroEmbers() {
     const container = document.getElementById('trophy-confetti-container');
     if (!container) return;
 
-    container.innerHTML = '';
-    const emberColors = ['#ff3b30', '#ef4444', '#dc2626', '#f97316', '#7f1d1d', '#27272a'];
-    const count = 80;
+    const emberColors = ['#ff3b30', '#ef4444', '#dc2626', '#f97316', '#fbbf24', '#7f1d1d', '#ffe4e6'];
 
-    for (let i = 0; i < count; i++) {
-      const ember = document.createElement('div');
-      ember.className = 'sekiro-ember-piece';
-      ember.style.left = `${Math.random() * 100}%`;
-      ember.style.backgroundColor = emberColors[Math.floor(Math.random() * emberColors.length)];
-      const size = 4 + Math.random() * 8;
-      ember.style.width = `${size}px`;
-      ember.style.height = `${size}px`;
-      ember.style.animationDuration = `${1.4 + Math.random() * 1.8}s`;
-      ember.style.animationDelay = `${Math.random() * 0.4}s`;
-      container.appendChild(ember);
-    }
+    const spawnEmberWave = (count) => {
+      while (container.childElementCount > 650) {
+        container.firstElementChild.remove();
+      }
 
-    setTimeout(() => {
-      container.innerHTML = '';
-    }, 3500);
+      const fragment = document.createDocumentFragment();
+      for (let i = 0; i < count; i++) {
+        const ember = document.createElement('div');
+        ember.className = 'sekiro-ember-piece';
+        ember.style.left = `${Math.random() * 100}%`;
+        const color = emberColors[Math.floor(Math.random() * emberColors.length)];
+        ember.style.backgroundColor = color;
+        ember.style.color = color;
+        const size = 5 + Math.random() * 9;
+        ember.style.width = `${size}px`;
+        ember.style.height = `${size}px`;
+        ember.style.animationDuration = `${1.8 + Math.random() * 2.0}s`;
+        ember.style.animationDelay = `${Math.random() * 0.2}s`;
+        ember.addEventListener('animationend', () => ember.remove(), { once: true });
+        fragment.appendChild(ember);
+      }
+      container.appendChild(fragment);
+    };
+
+    spawnEmberWave(60);
+    setTimeout(() => spawnEmberWave(50), 200);
+    setTimeout(() => spawnEmberWave(55), 450);
+    setTimeout(() => spawnEmberWave(65), 750);
+    setTimeout(() => spawnEmberWave(50), 1050);
   }
 }

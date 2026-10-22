@@ -33,17 +33,17 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./src/style.css?v=6.6.5">
+  <link rel="stylesheet" href="./src/style.css?v=6.6.6">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=6.6.5').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=6.6.6').then(reg => {
           reg.update();
         }).catch(() => {});
       });
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!sessionStorage.getItem('sw_reloaded_665')) {
-          sessionStorage.setItem('sw_reloaded_665', '1');
+        if (!sessionStorage.getItem('sw_reloaded_666')) {
+          sessionStorage.setItem('sw_reloaded_666', '1');
           window.location.reload();
         }
       });
@@ -551,7 +551,7 @@
           <div class="trophy-stage-actions">
             <button id="trophy-celebrate-btn" class="glass-btn trophy-btn">
               <svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.2L21.6 12l-7.2 2.4L12 21.6l-2.4-7.2L2.4 12l7.2-2.4z"/></svg>
-              <span id="trophy-celebrate-label">Tung Pháo Hoa Khải Hoàn</span>
+              <span id="trophy-celebrate-label" data-i18n="trophy_celebrate_btn">Bắn Pháo Hoa Ăn Mừng</span>
             </button>
           </div>
         </div>
@@ -599,8 +599,8 @@
           </div>
         </div>
       </div>
-      <div id="trophy-confetti-container" class="trophy-confetti-container"></div>
     </div>
+    <div id="trophy-confetti-container" class="trophy-confetti-container"></div>
   </div>
 
   <!-- Welcome & Introduction Onboarding Modal -->
@@ -1134,6 +1134,6 @@
   </div>
 
   <!-- Main Game Script -->
-  <script type="module" src="./src/main.js?v=6.6.5"></script>
+  <script type="module" src="./src/main.js?v=6.6.6"></script>
 </body>
 </html>

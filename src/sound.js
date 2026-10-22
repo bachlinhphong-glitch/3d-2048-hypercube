@@ -831,6 +831,58 @@ class SoundManager {
   }
 
   // =========================================================================
+  // Spammable Celebratory Fireworks Launch & Crackle Burst
+  // =========================================================================
+  playFireworkBurst() {
+    this.triggerHaptic('combo');
+    if (this.muted) return;
+    this.ensureContext();
+    if (!this.ctx) return;
+
+    try {
+      const t = this.ctx.currentTime;
+
+      // 1. Launch Whistle / Pop thump
+      const osc = this.ctx.createOscillator();
+      const oscGain = this.ctx.createGain();
+      const baseFreq = 240 + Math.random() * 260;
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(baseFreq * 2.4, t);
+      osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.45, t + 0.1);
+      oscGain.gain.setValueAtTime(0.18, t);
+      oscGain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+      osc.connect(oscGain);
+      oscGain.connect(this.ctx.destination);
+      osc.start(t);
+      osc.stop(t + 0.13);
+
+      // 2. Crackle explosion burst
+      const noise = this.ctx.createBufferSource();
+      const bufLen = Math.floor(this.ctx.sampleRate * 0.26);
+      const buf = this.ctx.createBuffer(1, bufLen, this.ctx.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < bufLen; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (this.ctx.sampleRate * 0.05));
+      }
+      noise.buffer = buf;
+
+      const filter = this.ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(2800 + Math.random() * 1800, t + 0.03);
+      filter.Q.setValueAtTime(2.6, t + 0.03);
+
+      const noiseGain = this.ctx.createGain();
+      noiseGain.gain.setValueAtTime(0.2, t + 0.03);
+      noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.26);
+
+      noise.connect(filter);
+      filter.connect(noiseGain);
+      noiseGain.connect(this.ctx.destination);
+      noise.start(t + 0.03);
+    } catch {}
+  }
+
+  // =========================================================================
   // 2. Sekiro / Isshin Ashina / Dark Souls Epic Boss Execution Fanfare
   // =========================================================================
   playBossExecutionFanfare() {
