@@ -15,8 +15,8 @@ export const QUEST_DEFS = [
     icon: `<svg class="quest-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>`,
     titleKey: 'quest_2_title',
     descKey: 'quest_2_desc',
-    target: 3,
-    unit: 'mode'
+    target: 2,
+    unit: ''
   },
   {
     id: 'q_rush_score',
@@ -40,7 +40,7 @@ export const QUEST_DEFS = [
     titleKey: 'quest_5_title',
     descKey: 'quest_5_desc',
     target: 3,
-    unit: 'spell'
+    unit: ''
   },
   {
     id: 'q_combo_3',
@@ -97,10 +97,18 @@ export class QuestManager {
       trophy_claimed: false
     };
 
-    if (saved && typeof saved === 'object') {
-      return { ...defaultState, ...saved };
+    const state = (saved && typeof saved === 'object') ? { ...defaultState, ...saved } : defaultState;
+
+    // Auto-migrate q_all_modes: 2 spatial modes exist (4x4 & 3x3x3). If player has explored >= 2, mark complete!
+    if (state.q_all_modes && !state.q_all_modes.completed) {
+      const explored = (state.q_all_modes.modes && state.q_all_modes.modes.length) || state.q_all_modes.current || 0;
+      if (explored >= 2) {
+        state.q_all_modes.completed = true;
+        state.q_all_modes.current = 2;
+      }
     }
-    return defaultState;
+
+    return state;
   }
 
   saveState() {
@@ -294,7 +302,7 @@ export class QuestManager {
     if (!q.modes.includes(modeName)) {
       q.modes.push(modeName);
       q.current = q.modes.length;
-      if (q.current >= 3 && !q.completed) {
+      if (q.current >= 2 && !q.completed) {
         this.markCompleted('q_all_modes');
       } else {
         this.saveState();
@@ -467,12 +475,14 @@ export class QuestManager {
       const card = document.createElement('div');
       card.className = `quest-item-card ${isDone ? 'completed' : ''}`;
 
+      const unitStr = def.unit ? ` ${def.unit}` : '';
+
       card.innerHTML = `
         <div class="quest-item-icon">${def.icon}</div>
         <div class="quest-item-details">
           <div class="quest-item-header">
             <span class="quest-item-title">${t(def.titleKey)}</span>
-            <span class="quest-item-status">${isDone ? '<span class="quest-done-badge"><svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px;"><polyline points="20 6 9 17 4 12"/></svg>Hoàn thành</span>' : `${progressVal}/${def.target} ${def.unit}`}</span>
+            <span class="quest-item-status">${isDone ? '<span class="quest-done-badge"><svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px;"><polyline points="20 6 9 17 4 12"/></svg>Hoàn thành</span>' : `${progressVal}/${def.target}${unitStr}`}</span>
           </div>
           <div class="quest-item-desc">${t(def.descKey)}</div>
           <div class="quest-item-progress-track">

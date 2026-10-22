@@ -962,10 +962,11 @@ body.tile-grabbing *,
 }
 
 .quest-item-status {
-  font-size: 11px;
-  font-weight: 800;
+  font-size: 11.5px;
+  font-weight: 700;
   color: #ffd700;
-  font-family: ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.3px;
 }
 
 .quest-item-card.completed .quest-item-status {
