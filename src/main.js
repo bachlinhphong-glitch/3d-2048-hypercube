@@ -2852,9 +2852,9 @@ class GameApp {
         }
 
         if (status === 'depleted') {
-          btn.title = 'Đã hết lượt trong ván này (tối đa 2 lần/game)';
+          btn.title = 'Đã hết lượt trong ván này (tối đa 2 lần)';
         } else if (status === 'cooldown') {
-          btn.title = `Đang hồi chiêu! Tạo khối [${this.gameLogic.nextRechargeMilestone}] để hồi chiêu.`;
+          btn.title = `Đang tạm khóa! Cần ghép được ô [${this.gameLogic.nextRechargeMilestone}] để mở lại trợ giúp.`;
         } else {
           btn.title = `Sẵn sàng sử dụng (Còn ${remaining}/${this.gameLogic.maxSpellUses} lần)`;
         }
@@ -2865,8 +2865,8 @@ class GameApp {
           badge.textContent = '0';
           badge.title = 'Đã hết 2 lượt';
         } else if (status === 'cooldown') {
-          badge.textContent = `⏱${this.gameLogic.nextRechargeMilestone}`;
-          badge.title = `Cần khối ${this.gameLogic.nextRechargeMilestone} để hồi`;
+          badge.textContent = `🔒${this.gameLogic.nextRechargeMilestone}`;
+          badge.title = `Ghép được ô [${this.gameLogic.nextRechargeMilestone}] để mở lại trợ giúp`;
         } else {
           badge.textContent = `${remaining}`;
           badge.title = `Còn ${remaining}/${this.gameLogic.maxSpellUses} lượt`;
@@ -2900,7 +2900,7 @@ class GameApp {
       }
     });
 
-    this.showSpellToast(`⚡ HỒI CHIÊU: ĐẠT MỐC [${milestone}] ĐÃ HỒI LẠI KỸ NĂNG!`, true);
+    this.showSpellToast(`🎉 MỞ KHÓA: Đạt mốc [${milestone}] đã mở lại lượt trợ giúp!`, true);
     this.updateSpellUI();
   }
 
@@ -2913,7 +2913,7 @@ class GameApp {
       return;
     }
     if (status === 'cooldown') {
-      this.showSpellToast(`ĐANG HỒI CHIÊU: Hãy tạo khối [${this.gameLogic.nextRechargeMilestone}] để hồi chiêu!`);
+      this.showSpellToast(`🔒 Đang tạm khóa: Cần ghép được ô [${this.gameLogic.nextRechargeMilestone}] để mở lại trợ giúp!`);
       return;
     }
 
@@ -2973,7 +2973,7 @@ class GameApp {
       return;
     }
     if (status === 'cooldown') {
-      this.showSpellToast(`ĐANG HỒI CHIÊU: Hãy tạo khối [${this.gameLogic.nextRechargeMilestone}] để hồi chiêu!`);
+      this.showSpellToast(`🔒 Đang tạm khóa: Cần ghép được ô [${this.gameLogic.nextRechargeMilestone}] để mở lại trợ giúp!`);
       return;
     }
 
@@ -3030,7 +3030,7 @@ class GameApp {
       return;
     }
     if (status === 'cooldown') {
-      this.showSpellToast(`ĐANG HỒI CHIÊU: Hãy tạo khối [${this.gameLogic.nextRechargeMilestone}] để hồi chiêu!`);
+      this.showSpellToast(`🔒 Đang tạm khóa: Cần ghép được ô [${this.gameLogic.nextRechargeMilestone}] để mở lại trợ giúp!`);
       return;
     }
 
