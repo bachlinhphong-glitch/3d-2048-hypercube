@@ -3533,13 +3533,14 @@ body.theme-zen_clay .share-x .share-app-svg {
 
   /* Summoner Spell Buttons for Thumbs */
   .spell-bar {
-    bottom: max(14px, env(safe-area-inset-bottom, 14px));
+    bottom: calc(max(16px, env(safe-area-inset-bottom, 16px)) + 12px) !important;
     gap: 10px;
+    z-index: 100 !important;
   }
 
   .spell-btn {
-    width: 62px;
-    height: 66px;
+    width: 64px;
+    height: 68px;
     border-radius: 14px;
     gap: 2px;
   }
@@ -3584,7 +3585,7 @@ body.theme-zen_clay .share-x .share-app-svg {
   }
 
   .bottom-bar {
-    margin-bottom: calc(max(14px, env(safe-area-inset-bottom, 14px)) + 74px); /* Clean breathing space above spell buttons */
+    margin-bottom: calc(max(16px, env(safe-area-inset-bottom, 16px)) + 84px) !important; /* Clean breathing space above spell buttons */
   }
 
   /* D-Pad on mobile viewports: hidden by default to prevent overlapping summoner spells */
@@ -3706,8 +3707,10 @@ body.theme-zen_clay .share-x .share-app-svg {
   transform: translateX(-50%);
   display: flex;
   gap: 14px;
-  z-index: 45;
-  pointer-events: auto;
+  z-index: 100 !important;
+  pointer-events: auto !important;
+  touch-action: manipulation !important;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .spell-btn {
@@ -3722,12 +3725,20 @@ body.theme-zen_clay .share-x .share-app-svg {
   align-items: center;
   justify-content: center;
   gap: 3px;
-  cursor: pointer;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  touch-action: manipulation !important;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
   transition: transform 0.18s ease, border-color 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.12);
-  user-select: none;
   overflow: visible;
-  touch-action: manipulation;
+}
+
+/* CRITICAL SAFARI FIX: All inner children must have pointer-events: none so that touches directly hit the button element itself */
+.spell-btn * {
+  pointer-events: none !important;
 }
 
 .spell-btn:hover:not(.depleted):not(.in-cooldown):not(.active-swap) {
@@ -4726,13 +4737,14 @@ body.theme-zen_clay .rush-progress-track {
 
   /* Bottom Summoner Spell Bar - Thumb friendly & safely anchored */
   .spell-bar {
-    bottom: max(14px, env(safe-area-inset-bottom, 14px)) !important;
+    bottom: calc(max(16px, env(safe-area-inset-bottom, 16px)) + 12px) !important;
     gap: 10px;
+    z-index: 100 !important;
   }
 
   .spell-btn {
-    width: 62px !important;
-    height: 66px !important;
+    width: 64px !important;
+    height: 68px !important;
     border-radius: 14px;
     gap: 2px;
   }
@@ -4752,7 +4764,7 @@ body.theme-zen_clay .rush-progress-track {
 
   /* Clean breathing space above spell buttons for hint capsule */
   .bottom-bar {
-    margin-bottom: calc(max(14px, env(safe-area-inset-bottom, 14px)) + 74px) !important;
+    margin-bottom: calc(max(16px, env(safe-area-inset-bottom, 16px)) + 84px) !important;
   }
 }
 

@@ -117,7 +117,7 @@ export class InputManager {
         return;
       }
       if (e.button !== 0 && e.pointerType === 'mouse') return;
-      if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel')) {
+      if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .spell-bar, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel')) {
         return;
       }
 
@@ -137,7 +137,7 @@ export class InputManager {
       if (!this.enabled) return;
 
       // Do not process swipes if released on interactive control elements
-      if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel')) {
+      if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .spell-bar, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel')) {
         return;
       }
 

@@ -670,24 +670,58 @@ class GameApp {
     this.badgeSpellSwap = document.getElementById('badge-spell-swap');
     this.spellToastEl = document.getElementById('spell-toast');
 
-    if (this.btnSpellHint) {
-      this.btnSpellHint.addEventListener('click', (e) => {
-        e.stopPropagation();
-        this.handleSpellHint();
+    // Helper to reliably trigger spell taps across iOS Safari (WebKit touch quirks), in-app browsers, and desktop
+    const bindSpellTap = (btn, handler) => {
+      if (!btn) return;
+      let lastTrigger = 0;
+      let touchStartX = 0;
+      let touchStartY = 0;
+      let touchStartTime = 0;
+
+      const trigger = (e) => {
+        const now = performance.now();
+        if (now - lastTrigger < 320) return;
+        lastTrigger = now;
+        if (e) {
+          if (e.cancelable && e.type !== 'click') e.preventDefault();
+          e.stopPropagation();
+        }
+        handler();
+      };
+
+      btn.addEventListener('touchstart', (e) => {
+        if (e.touches && e.touches[0]) {
+          touchStartX = e.touches[0].clientX;
+          touchStartY = e.touches[0].clientY;
+          touchStartTime = performance.now();
+        }
+      }, { passive: true });
+
+      btn.addEventListener('touchend', (e) => {
+        if (e.changedTouches && e.changedTouches[0]) {
+          const dx = Math.abs(e.changedTouches[0].clientX - touchStartX);
+          const dy = Math.abs(e.changedTouches[0].clientY - touchStartY);
+          const dt = performance.now() - touchStartTime;
+          if (dx < 16 && dy < 16 && dt < 500) {
+            trigger(e);
+          }
+        }
+      }, { passive: false });
+
+      btn.addEventListener('pointerup', (e) => {
+        if (e.pointerType === 'mouse') {
+          trigger(e);
+        }
       });
-    }
-    if (this.btnSpellUndo) {
-      this.btnSpellUndo.addEventListener('click', (e) => {
-        e.stopPropagation();
-        this.handleSpellUndo();
+
+      btn.addEventListener('click', (e) => {
+        trigger(e);
       });
-    }
-    if (this.btnSpellSwap) {
-      this.btnSpellSwap.addEventListener('click', (e) => {
-        e.stopPropagation();
-        this.handleSpellSwap();
-      });
-    }
+    };
+
+    bindSpellTap(this.btnSpellHint, () => this.handleSpellHint());
+    bindSpellTap(this.btnSpellUndo, () => this.handleSpellUndo());
+    bindSpellTap(this.btnSpellSwap, () => this.handleSpellSwap());
 
     this.updateScoreUI();
     this.updateSpellUI();
@@ -1335,11 +1369,6 @@ class GameApp {
     if (!this.container || !this.sceneManager || !this.sceneManager.camera) return null;
     const rect = this.container.getBoundingClientRect();
     if (rect.width <= 0 || rect.height <= 0) return null;
-    const x = ((clientX - rect.left) / rect.width) * 2 - 1;
-    const y = -((clientY - rect.top) / rect.height) * 2 + 1;
-
-    const raycaster = new THREE.Raycaster();
-    raycaster.setFromCamera(new THREE.Vector2(x, y), this.sceneManager.camera);
 
     const tileGroups = [];
     for (let l = 0; l < this.tiles3D.length; l++) {
@@ -1352,18 +1381,39 @@ class GameApp {
         }
       }
     }
+    if (tileGroups.length === 0) return null;
 
-    const intersects = raycaster.intersectObjects(tileGroups, true);
-    if (intersects.length === 0) return null;
-
-    for (let i = 0; i < intersects.length; i++) {
-      let obj = intersects[i].object;
-      while (obj) {
-        if (obj.userData && obj.userData.tileInstance) {
-          return obj.userData.tileInstance;
+    const raycaster = new THREE.Raycaster();
+    const probe = (px, py) => {
+      const x = ((px - rect.left) / rect.width) * 2 - 1;
+      const y = -((py - rect.top) / rect.height) * 2 + 1;
+      raycaster.setFromCamera(new THREE.Vector2(x, y), this.sceneManager.camera);
+      const intersects = raycaster.intersectObjects(tileGroups, true);
+      if (intersects.length === 0) return null;
+      for (let i = 0; i < intersects.length; i++) {
+        let obj = intersects[i].object;
+        while (obj) {
+          if (obj.userData && obj.userData.tileInstance) {
+            return obj.userData.tileInstance;
+          }
+          obj = obj.parent;
         }
-        obj = obj.parent;
       }
+      return null;
+    };
+
+    let hit = probe(clientX, clientY);
+    if (hit) return hit;
+
+    // Mobile touch & WebKit proximity fallback: check slight offsets (±14px, ±22px)
+    const offsets = [
+      [0, -14], [0, 14], [-14, 0], [14, 0],
+      [-12, -12], [12, -12], [-12, 12], [12, 12],
+      [0, -22], [0, 22], [-22, 0], [22, 0]
+    ];
+    for (let i = 0; i < offsets.length; i++) {
+      hit = probe(clientX + offsets[i][0], clientY + offsets[i][1]);
+      if (hit) return hit;
     }
     return null;
   }
@@ -1405,7 +1455,7 @@ class GameApp {
   onTileGrabStart(e) {
     if (this.isSwapMode || this.isAnimating || this.gameLogic.gameOver) return;
     if (e.button !== 0 && e.pointerType === 'mouse') return;
-    if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel, .dpad-btn, .cam-btn, .slice-btn, .banner-container, .inapp-challenge-card, .trophy-tab-btn, .custom-bg-input')) {
+    if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .spell-bar, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel, .dpad-btn, .cam-btn, .slice-btn, .banner-container, .inapp-challenge-card, .trophy-tab-btn, .custom-bg-input')) {
       return;
     }
 
@@ -2877,7 +2927,20 @@ class GameApp {
     if (this.questManager) {
       this.questManager.recordSpell('hint');
     }
-    const dirMap = {
+
+    // Trigger visual Ghost Preview trajectory if available
+    if (this.ghostPreview) {
+      this.ghostPreview.showGhost(res.direction);
+      if (this.hintGhostTimeout) clearTimeout(this.hintGhostTimeout);
+      this.hintGhostTimeout = setTimeout(() => {
+        if (this.ghostPreview) {
+          this.ghostPreview.hideGhost();
+        }
+      }, 3500);
+    }
+
+    const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || window.innerWidth <= 768;
+    const dirMapDesktop = {
       up: 'TRƯỢT LÊN TRÊN (W / ↑)',
       down: 'TRƯỢT XUỐNG DƯỚI (S / ↓)',
       left: 'TRƯỢT SANG TRÁI (A / ←)',
@@ -2885,10 +2948,19 @@ class GameApp {
       layerUp: 'LÊN TẦNG TRÊN (E / Space)',
       layerDown: 'XUỐNG TẦNG DƯỚI (Q / Shift)'
     };
+    const dirMapTouch = {
+      up: '👆 Vuốt LÊN TRÊN',
+      down: '👇 Vuốt XUỐNG DƯỚI',
+      left: '👈 Vuốt sang TRÁI',
+      right: '👉 Vuốt sang PHẢI',
+      layerUp: '🔺 Tầng TRÊN (Phím E)',
+      layerDown: '🔻 Tầng DƯỚI (Phím Q)'
+    };
 
-    const dirText = dirMap[res.direction] || res.direction;
+    const dirText = (isTouchDevice ? dirMapTouch[res.direction] : dirMapDesktop[res.direction]) || res.direction;
     this.showSpellToast(`GỢI Ý TỐI ƯU: ${dirText}`);
     this.updateSpellUI();
+    this.saveGameState();
   }
 
   handleSpellUndo() {
