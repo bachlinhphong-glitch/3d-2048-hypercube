@@ -1558,15 +1558,40 @@ class GameApp {
       const hit = raycaster.ray.intersectPlane(dragPlane, targetWorldPos);
 
       if (hit) {
-        this.heldTile.group.position.x = THREE.MathUtils.lerp(this.heldTile.group.position.x, targetWorldPos.x, 0.6);
-        this.heldTile.group.position.z = THREE.MathUtils.lerp(this.heldTile.group.position.z, targetWorldPos.z, 0.6);
+        // Elastic rubber-band tether anchored to home slot
+        const originX = this.heldTileOrigin.position.x;
+        const originZ = this.heldTileOrigin.position.z;
+        const rawDx = targetWorldPos.x - originX;
+        const rawDz = targetWorldPos.z - originZ;
+        const rawDist = Math.hypot(rawDx, rawDz);
+
+        // Maximum stretch allowed from home slot (~0.8 cell pitch)
+        const maxStretch = 1.45;
+        let finalX = originX;
+        let finalZ = originZ;
+
+        if (rawDist > 0.001) {
+          // Hyperbolic tangent provides natural rubber-band diminishing return
+          const dampedDist = maxStretch * Math.tanh(rawDist / maxStretch);
+          finalX = originX + (rawDx / rawDist) * dampedDist;
+          finalZ = originZ + (rawDz / rawDist) * dampedDist;
+        }
+
+        // Hard tray boundary clamp: under NO circumstances can a tile leave the tray
+        const maxTrayBound = this.mode === '3x3x3' ? 2.55 : 3.15;
+        finalX = THREE.MathUtils.clamp(finalX, -maxTrayBound, maxTrayBound);
+        finalZ = THREE.MathUtils.clamp(finalZ, -maxTrayBound, maxTrayBound);
+
+        // Smooth physical tracking
+        this.heldTile.group.position.x = THREE.MathUtils.lerp(this.heldTile.group.position.x, finalX, 0.45);
+        this.heldTile.group.position.z = THREE.MathUtils.lerp(this.heldTile.group.position.z, finalZ, 0.45);
       }
     }
 
     // "Ngắm nghía" (Dynamic 3D Inspection Tilt):
-    const targetTiltZ = THREE.MathUtils.clamp(-totalDx * 0.0025 - (deltaX * 0.015), -0.55, 0.55);
-    const targetTiltX = THREE.MathUtils.clamp(totalDy * 0.0025 + (deltaY * 0.015), -0.55, 0.55);
-    const targetSpinY = THREE.MathUtils.clamp(totalDx * 0.0018, -0.65, 0.65);
+    const targetTiltZ = THREE.MathUtils.clamp(-totalDx * 0.0025 - (deltaX * 0.015), -0.45, 0.45);
+    const targetTiltX = THREE.MathUtils.clamp(totalDy * 0.0025 + (deltaY * 0.015), -0.45, 0.45);
+    const targetSpinY = THREE.MathUtils.clamp(totalDx * 0.0018, -0.5, 0.5);
 
     this.heldTile.group.rotation.x = THREE.MathUtils.lerp(this.heldTile.group.rotation.x, this.heldTileOrigin.rotation.x + targetTiltX, 0.35);
     this.heldTile.group.rotation.z = THREE.MathUtils.lerp(this.heldTile.group.rotation.z, this.heldTileOrigin.rotation.z + targetTiltZ, 0.35);
@@ -1612,12 +1637,21 @@ class GameApp {
     const tile = this.heldTile;
     const origin = this.heldTileOrigin;
 
+    // Release held reference first to avoid race conditions
+    this.heldTile = null;
+    this.heldTileOrigin = null;
+    if (this.inputManager) this.inputManager.isTileHeld = false;
+    if (this.sceneManager && this.sceneManager.controls) {
+      this.sceneManager.controls.enabled = true;
+    }
+    if (this.container) this.container.style.cursor = 'default';
+
     const totalDx = e.clientX - this.dragStartPointer.x;
     const totalDy = e.clientY - this.dragStartPointer.y;
     const dist = Math.hypot(totalDx, totalDy);
     const speed = Math.hypot(this.pointerVelocity.vx, this.pointerVelocity.vy);
 
-    const isFling = (dist >= 38) || (dist >= 24 && speed >= 350);
+    const isFling = (dist >= 35) || (dist >= 22 && speed >= 320);
 
     if (isFling) {
       let direction = null;
@@ -1633,36 +1667,38 @@ class GameApp {
         // "Ném sang bên (vẫn đúng luật)":
         soundManager.playTileToss();
 
-        const impulse = {
-          right: { x: 2.8, z: 0 },
-          left:  { x: -2.8, z: 0 },
-          up:    { x: 0, z: -2.8 },
-          down:  { x: 0, z: 2.8 }
-        }[direction];
+        // Check if this specific held tile will move in the grid
+        const willThisTileMove = sim.movements && sim.movements.some(
+          m => m.from.l === origin.l && m.from.r === origin.r && m.from.c === origin.c
+        );
 
-        gsap.to(tile.group.position, {
-          x: tile.group.position.x + impulse.x * 0.35,
-          z: tile.group.position.z + impulse.z * 0.35,
-          y: origin.position.y,
-          duration: 0.16,
-          ease: 'power2.in'
-        });
-        gsap.to(tile.group.rotation, { x: 0, y: 0, z: 0, duration: 0.16 });
-        gsap.to(tile.group.scale, { x: 1, y: 1, z: 1, duration: 0.16 });
+        if (!willThisTileMove) {
+          // This specific tile cannot move in this direction (blocked by rim or other tiles):
+          // Spring it cleanly back to its home slot coordinates
+          gsap.killTweensOf(tile.group.position);
+          gsap.killTweensOf(tile.group.rotation);
+          gsap.killTweensOf(tile.group.scale);
+
+          gsap.to(tile.group.position, {
+            x: origin.position.x,
+            y: origin.position.y,
+            z: origin.position.z,
+            duration: 0.22,
+            ease: 'back.out(1.8)'
+          });
+          gsap.to(tile.group.rotation, { x: 0, y: 0, z: 0, duration: 0.18, ease: 'power2.out' });
+          gsap.to(tile.group.scale, { x: 1, y: 1, z: 1, duration: 0.18, ease: 'power2.out' });
+        } else {
+          // It will move: let handleMove's slideTo smoothly translate it to destination!
+          gsap.to(tile.group.rotation, { x: 0, y: 0, z: 0, duration: 0.12 });
+          gsap.to(tile.group.scale, { x: 1, y: 1, z: 1, duration: 0.12 });
+        }
 
         tile.setHeld(false);
-        this.heldTile = null;
-        this.heldTileOrigin = null;
-        if (this.inputManager) this.inputManager.isTileHeld = false;
-        if (this.sceneManager && this.sceneManager.controls) {
-          this.sceneManager.controls.enabled = true;
-        }
-        if (this.container) this.container.style.cursor = 'default';
-
         this.handleMove(direction);
         return;
       } else {
-        // Move is blocked in 2048 rules -> bounce back to home slot with wobble
+        // Move is completely blocked in 2048 rules -> bounce back to home slot
         soundManager.playTileDrop();
         soundManager.triggerHaptic('slide');
 
@@ -1674,37 +1710,30 @@ class GameApp {
           x: origin.position.x,
           y: origin.position.y,
           z: origin.position.z,
-          duration: 0.36,
+          duration: 0.32,
           ease: 'back.out(2.2)'
         });
         gsap.to(tile.group.rotation, {
           x: origin.rotation.x,
           y: origin.rotation.y,
           z: origin.rotation.z,
-          duration: 0.28,
+          duration: 0.24,
           ease: 'power2.out'
         });
         gsap.to(tile.group.scale, {
           x: 1,
           y: 1,
           z: 1,
-          duration: 0.25,
+          duration: 0.22,
           ease: 'power2.out'
         });
 
         tile.setHeld(false);
-        this.heldTile = null;
-        this.heldTileOrigin = null;
-        if (this.inputManager) this.inputManager.isTileHeld = false;
-        if (this.sceneManager && this.sceneManager.controls) {
-          this.sceneManager.controls.enabled = true;
-        }
-        if (this.container) this.container.style.cursor = 'default';
         return;
       }
     }
 
-    // Released without fling
+    // Released without fling: gentle drop back into home slot
     soundManager.playTileDrop();
 
     gsap.killTweensOf(tile.group.position);
@@ -1715,32 +1744,25 @@ class GameApp {
       x: origin.position.x,
       y: origin.position.y,
       z: origin.position.z,
-      duration: 0.28,
-      ease: 'bounce.out'
+      duration: 0.26,
+      ease: 'back.out(1.6)'
     });
     gsap.to(tile.group.rotation, {
       x: origin.rotation.x,
       y: origin.rotation.y,
       z: origin.rotation.z,
-      duration: 0.22,
+      duration: 0.2,
       ease: 'power2.out'
     });
     gsap.to(tile.group.scale, {
       x: 1,
       y: 1,
       z: 1,
-      duration: 0.2,
+      duration: 0.18,
       ease: 'power2.out'
     });
 
     tile.setHeld(false);
-    this.heldTile = null;
-    this.heldTileOrigin = null;
-    if (this.inputManager) this.inputManager.isTileHeld = false;
-    if (this.sceneManager && this.sceneManager.controls) {
-      this.sceneManager.controls.enabled = true;
-    }
-    if (this.container) this.container.style.cursor = 'default';
   }
 
   onTileGrabCancel() {
@@ -2454,6 +2476,9 @@ class GameApp {
   }
 
   async handleMove(direction) {
+    if (this.heldTile) {
+      this.onTileGrabCancel();
+    }
     this.registerInteraction();
     this.dismissFirstSwipeGuide();
     if (this.ghostPreview) this.ghostPreview.hideGhost();
@@ -2533,6 +2558,25 @@ class GameApp {
               freshTile.group.scale.set(1, 1, 1);
               this.tiles3D[l][r][c] = freshTile;
               logicTile.id = freshTile.id;
+            }
+
+            // Guarantee unmoved tile is seated exactly at its slot coordinates
+            const placedTile = this.tiles3D[l][r][c];
+            if (placedTile && placedTile.group) {
+              const expectedPos = getGridPosition(l, r, c);
+              const curPos = placedTile.group.position;
+              const dist = Math.hypot(curPos.x - expectedPos.x, curPos.y - expectedPos.y, curPos.z - expectedPos.z);
+              if (dist > 0.04) {
+                gsap.to(placedTile.group.position, {
+                  x: expectedPos.x,
+                  y: expectedPos.y,
+                  z: expectedPos.z,
+                  duration: slideDuration,
+                  ease: 'power2.out'
+                });
+                gsap.to(placedTile.group.rotation, { x: 0, y: 0, z: 0, duration: slideDuration });
+                gsap.to(placedTile.group.scale, { x: 1, y: 1, z: 1, duration: slideDuration });
+              }
             }
           }
         }
@@ -2722,6 +2766,55 @@ class GameApp {
         }
       });
       return;
+    }
+
+    // Safety Grid Reconciliation & Orphan Mesh Collector:
+    // Guarantees all active tiles are perfectly aligned with zero visual drifting or orphaned meshes
+    const finalActiveTiles = new Set();
+    for (let l = 0; l < this.gameLogic.layers; l++) {
+      for (let r = 0; r < this.gameLogic.rows; r++) {
+        for (let c = 0; c < this.gameLogic.cols; c++) {
+          const tile = this.tiles3D[l]?.[r]?.[c];
+          if (tile && tile.group) {
+            finalActiveTiles.add(tile);
+            tile.setHeld(false);
+            tile.isSelected = false;
+            tile.isHovered = false;
+            const targetPos = getGridPosition(l, r, c);
+            const dist = Math.hypot(
+              tile.group.position.x - targetPos.x,
+              tile.group.position.y - targetPos.y,
+              tile.group.position.z - targetPos.z
+            );
+            if (dist > 0.05) {
+              gsap.to(tile.group.position, {
+                x: targetPos.x,
+                y: targetPos.y,
+                z: targetPos.z,
+                duration: 0.15,
+                ease: 'power2.out'
+              });
+              gsap.to(tile.group.rotation, { x: 0, y: 0, z: 0, duration: 0.15 });
+              gsap.to(tile.group.scale, { x: 1, y: 1, z: 1, duration: 0.15 });
+            }
+          }
+        }
+      }
+    }
+
+    if (this.sceneManager && this.sceneManager.scene) {
+      const orphans = new Set();
+      this.sceneManager.scene.traverse((obj) => {
+        if (obj.userData && obj.userData.isTile3D) {
+          const inst = obj.userData.tileInstance;
+          if (inst && !finalActiveTiles.has(inst)) {
+            orphans.add(inst);
+          }
+        }
+      });
+      orphans.forEach(inst => {
+        try { inst.dispose(true); } catch {}
+      });
     }
 
     if (isGameOver) {
