@@ -114,8 +114,10 @@ export class Tile3D {
     this.bombRing = null;
     this.selectionOutline = null;
     this.hoverOutline = null;
+    this.heldOutline = null;
     this.isSelected = false;
     this.isHovered = false;
+    this.isHeld = false;
 
     this.group.add(this.decorGroup);
 
@@ -415,10 +417,43 @@ export class Tile3D {
     }
   }
 
+  setHeld(isHeld) {
+    if (this.isHeld === isHeld) return;
+    this.isHeld = isHeld;
+
+    if (this.heldOutline) {
+      this.group.remove(this.heldOutline);
+      if (this.heldOutline.geometry) this.heldOutline.geometry.dispose();
+      if (this.heldOutline.material) this.heldOutline.material.dispose();
+      this.heldOutline = null;
+    }
+    if (this.hoverOutline) {
+      this.group.remove(this.hoverOutline);
+      if (this.hoverOutline.geometry) this.hoverOutline.geometry.dispose();
+      if (this.hoverOutline.material) this.hoverOutline.material.dispose();
+      this.hoverOutline = null;
+    }
+
+    if (isHeld) {
+      const { size, height } = getTileDimensions();
+      const boxGeo = new THREE.BoxGeometry(size * 1.035, height * 1.035, size * 1.035);
+      const edgesGeo = new THREE.EdgesGeometry(boxGeo);
+      boxGeo.dispose();
+      const isGrandTile = this.value >= 2048;
+      const lineMat = new THREE.LineBasicMaterial({
+        color: isGrandTile ? 0xffaa00 : 0x00f0ff,
+        transparent: true,
+        opacity: 0.95
+      });
+      this.heldOutline = new THREE.LineSegments(edgesGeo, lineMat);
+      this.group.add(this.heldOutline);
+    }
+  }
+
   setHovered(isHovered) {
     if (this.isHovered === isHovered) return;
     this.isHovered = isHovered;
-    if (this.isSelected) return; // Do not override lift or outline if selected
+    if (this.isSelected || this.isHeld) return; // Do not override lift or outline if selected or held
 
     const basePos = getGridPosition(this.layer, this.row, this.col);
 
@@ -527,10 +562,22 @@ export class Tile3D {
       if (this.hoverOutline.material) this.hoverOutline.material.dispose();
       this.hoverOutline = null;
     }
+    if (this.heldOutline) {
+      this.group.remove(this.heldOutline);
+      if (this.heldOutline.geometry) this.heldOutline.geometry.dispose();
+      if (this.heldOutline.material) this.heldOutline.material.dispose();
+      this.heldOutline = null;
+    }
     this.isSelected = false;
     this.isHovered = false;
+    this.isHeld = false;
 
     gsap.killTweensOf(this.group.position);
+    gsap.killTweensOf(this.group.rotation);
+    gsap.killTweensOf(this.group.scale);
+
+    gsap.to(this.group.rotation, { x: 0, y: 0, z: 0, duration: duration, ease: 'power2.out' });
+    gsap.to(this.group.scale, { x: 1, y: 1, z: 1, duration: duration, ease: 'power2.out' });
 
     return gsap.to(this.group.position, {
       x: targetPos.x,
@@ -606,8 +653,15 @@ export class Tile3D {
       if (this.hoverOutline.material) this.hoverOutline.material.dispose();
       this.hoverOutline = null;
     }
+    if (this.heldOutline) {
+      this.group.remove(this.heldOutline);
+      if (this.heldOutline.geometry) this.heldOutline.geometry.dispose();
+      if (this.heldOutline.material) this.heldOutline.material.dispose();
+      this.heldOutline = null;
+    }
     this.isSelected = false;
     this.isHovered = false;
+    this.isHeld = false;
 
     if (immediate) {
       this.disposeClonedMaterials();

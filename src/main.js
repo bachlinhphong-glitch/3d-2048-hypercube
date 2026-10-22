@@ -90,6 +90,15 @@ class GameApp {
     this.hoveredTile = null;
     this.toastTimeout = null;
 
+    // 3D Tile Grab, Inspection Tilt & Fling-to-Move State
+    this.heldTile = null;
+    this.heldTileOrigin = null;
+    this.tileLiftElevation = 0;
+    this.dragStartPointer = null;
+    this.lastPointer = null;
+    this.pointerVelocity = { vx: 0, vy: 0 };
+    this.lastGhostDir = null;
+
     // Slice View State (for 3x3x3 X-Ray / Exploded View)
     this.sliceMode = 'all'; // 'all' | 0 | 1 | 2 | 'exploded'
     this._sliceCycleOrder = ['all', 0, 1, 2, 'exploded'];
@@ -1148,6 +1157,8 @@ class GameApp {
       () => this.cycleSliceMode()
     );
 
+    this.initTileGrabControls();
+
     this.container.addEventListener('pointermove', (e) => {
       if (!this.isSwapMode || this.isAnimating) return;
       this.handleCanvasPointerMove(e.clientX, e.clientY);
@@ -1371,6 +1382,363 @@ class GameApp {
         hitTile.setHovered(true);
       }
     }
+  }
+
+  initTileGrabControls() {
+    this.container.addEventListener('pointerdown', (e) => {
+      this.onTileGrabStart(e);
+    });
+
+    window.addEventListener('pointermove', (e) => {
+      this.onTileGrabMove(e);
+    });
+
+    window.addEventListener('pointerup', (e) => {
+      this.onTileGrabEnd(e);
+    });
+
+    window.addEventListener('pointercancel', () => {
+      this.onTileGrabCancel();
+    });
+  }
+
+  onTileGrabStart(e) {
+    if (this.isSwapMode || this.isAnimating || this.gameLogic.gameOver) return;
+    if (e.button !== 0 && e.pointerType === 'mouse') return;
+    if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel, .dpad-btn, .cam-btn, .slice-btn, .banner-container, .inapp-challenge-card, .trophy-tab-btn, .custom-bg-input')) {
+      return;
+    }
+
+    const hitTile = this.findTileFromPoint(e.clientX, e.clientY);
+    if (!hitTile || !hitTile.group) {
+      this.heldTile = null;
+      if (this.inputManager) this.inputManager.isTileHeld = false;
+      return;
+    }
+
+    this.registerInteraction();
+    this.dismissFirstSwipeGuide();
+    this.heldTile = hitTile;
+    if (this.inputManager) this.inputManager.isTileHeld = true;
+
+    if (this.sceneManager && this.sceneManager.controls) {
+      this.sceneManager.controls.enabled = false;
+    }
+
+    const homePos = getGridPosition(hitTile.layer, hitTile.row, hitTile.col);
+    this.heldTileOrigin = {
+      l: hitTile.layer,
+      r: hitTile.row,
+      c: hitTile.col,
+      position: { x: homePos.x, y: homePos.y, z: homePos.z },
+      rotation: hitTile.group.rotation.clone(),
+      scale: hitTile.group.scale.clone()
+    };
+
+    const now = performance.now();
+    this.dragStartPointer = { x: e.clientX, y: e.clientY, time: now };
+    this.lastPointer = { x: e.clientX, y: e.clientY, time: now };
+    this.pointerVelocity = { vx: 0, vy: 0 };
+    this.lastGhostDir = null;
+
+    hitTile.setHeld(true);
+    soundManager.playTileGrab();
+
+    document.body.classList.add('tile-grabbing');
+
+    // Smoothly lift tile in 3D above the board
+    this.tileLiftElevation = homePos.y + 1.25;
+
+    gsap.killTweensOf(hitTile.group.position);
+    gsap.killTweensOf(hitTile.group.rotation);
+    gsap.killTweensOf(hitTile.group.scale);
+
+    gsap.to(hitTile.group.position, {
+      y: this.tileLiftElevation,
+      duration: 0.18,
+      ease: 'power2.out'
+    });
+    gsap.to(hitTile.group.scale, {
+      x: 1.12,
+      y: 1.12,
+      z: 1.12,
+      duration: 0.18,
+      ease: 'back.out(1.6)'
+    });
+
+    if (this.sceneManager) {
+      this.sceneManager.requestShadowUpdate(20);
+    }
+  }
+
+  onTileGrabMove(e) {
+    if (!this.heldTile || !this.heldTile.group) {
+      if (!this.isSwapMode && !this.isAnimating && e.pointerType === 'mouse' && this.container) {
+        const hitTile = this.findTileFromPoint(e.clientX, e.clientY);
+        this.container.style.cursor = hitTile ? 'grab' : 'default';
+      }
+      return;
+    }
+
+    const now = performance.now();
+    const dt = Math.max((now - this.lastPointer.time) / 1000, 0.001);
+
+    const deltaX = e.clientX - this.lastPointer.x;
+    const deltaY = e.clientY - this.lastPointer.y;
+
+    const currentVx = deltaX / dt;
+    const currentVy = deltaY / dt;
+    this.pointerVelocity.vx = this.pointerVelocity.vx * 0.4 + currentVx * 0.6;
+    this.pointerVelocity.vy = this.pointerVelocity.vy * 0.4 + currentVy * 0.6;
+
+    this.lastPointer = { x: e.clientX, y: e.clientY, time: now };
+
+    const totalDx = e.clientX - this.dragStartPointer.x;
+    const totalDy = e.clientY - this.dragStartPointer.y;
+
+    const rect = this.container.getBoundingClientRect();
+    if (rect.width > 0 && rect.height > 0) {
+      const ndcX = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      const ndcY = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+      const dragPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -this.tileLiftElevation);
+      const raycaster = new THREE.Raycaster();
+      raycaster.setFromCamera(new THREE.Vector2(ndcX, ndcY), this.sceneManager.camera);
+      const targetWorldPos = new THREE.Vector3();
+      const hit = raycaster.ray.intersectPlane(dragPlane, targetWorldPos);
+
+      if (hit) {
+        this.heldTile.group.position.x = THREE.MathUtils.lerp(this.heldTile.group.position.x, targetWorldPos.x, 0.6);
+        this.heldTile.group.position.z = THREE.MathUtils.lerp(this.heldTile.group.position.z, targetWorldPos.z, 0.6);
+      }
+    }
+
+    // "Ngắm nghía" (Dynamic 3D Inspection Tilt):
+    const targetTiltZ = THREE.MathUtils.clamp(-totalDx * 0.0025 - (deltaX * 0.015), -0.55, 0.55);
+    const targetTiltX = THREE.MathUtils.clamp(totalDy * 0.0025 + (deltaY * 0.015), -0.55, 0.55);
+    const targetSpinY = THREE.MathUtils.clamp(totalDx * 0.0018, -0.65, 0.65);
+
+    this.heldTile.group.rotation.x = THREE.MathUtils.lerp(this.heldTile.group.rotation.x, this.heldTileOrigin.rotation.x + targetTiltX, 0.35);
+    this.heldTile.group.rotation.z = THREE.MathUtils.lerp(this.heldTile.group.rotation.z, this.heldTileOrigin.rotation.z + targetTiltZ, 0.35);
+    this.heldTile.group.rotation.y = THREE.MathUtils.lerp(this.heldTile.group.rotation.y, this.heldTileOrigin.rotation.y + targetSpinY, 0.35);
+
+    // Dynamic ghost trajectory preview
+    const dist = Math.hypot(totalDx, totalDy);
+    if (this.ghostPreview) {
+      if (dist >= 30) {
+        const currentDir = Math.abs(totalDx) > Math.abs(totalDy) ? (totalDx > 0 ? 'right' : 'left') : (totalDy > 0 ? 'down' : 'up');
+        if (this.lastGhostDir !== currentDir) {
+          this.lastGhostDir = currentDir;
+          this.ghostPreview.showGhost(currentDir);
+        }
+      } else if (this.lastGhostDir) {
+        this.lastGhostDir = null;
+        this.ghostPreview.hideGhost();
+      }
+    }
+
+    if (this.sceneManager) {
+      this.sceneManager.requestShadowUpdate(2);
+    }
+  }
+
+  onTileGrabEnd(e) {
+    if (!this.heldTile || !this.heldTileOrigin) {
+      document.body.classList.remove('tile-grabbing');
+      if (this.inputManager) this.inputManager.isTileHeld = false;
+      if (this.sceneManager && this.sceneManager.controls) {
+        this.sceneManager.controls.enabled = true;
+      }
+      return;
+    }
+
+    if (this.ghostPreview) {
+      this.ghostPreview.hideGhost();
+      this.lastGhostDir = null;
+    }
+
+    document.body.classList.remove('tile-grabbing');
+
+    const tile = this.heldTile;
+    const origin = this.heldTileOrigin;
+
+    const totalDx = e.clientX - this.dragStartPointer.x;
+    const totalDy = e.clientY - this.dragStartPointer.y;
+    const dist = Math.hypot(totalDx, totalDy);
+    const speed = Math.hypot(this.pointerVelocity.vx, this.pointerVelocity.vy);
+
+    const isFling = (dist >= 38) || (dist >= 24 && speed >= 350);
+
+    if (isFling) {
+      let direction = null;
+      if (Math.abs(totalDx) > Math.abs(totalDy)) {
+        direction = totalDx > 0 ? 'right' : 'left';
+      } else {
+        direction = totalDy > 0 ? 'down' : 'up';
+      }
+
+      const sim = this.gameLogic.simulateMove(direction);
+
+      if (sim && sim.moved) {
+        // "Ném sang bên (vẫn đúng luật)":
+        soundManager.playTileToss();
+
+        const impulse = {
+          right: { x: 2.8, z: 0 },
+          left:  { x: -2.8, z: 0 },
+          up:    { x: 0, z: -2.8 },
+          down:  { x: 0, z: 2.8 }
+        }[direction];
+
+        gsap.to(tile.group.position, {
+          x: tile.group.position.x + impulse.x * 0.35,
+          z: tile.group.position.z + impulse.z * 0.35,
+          y: origin.position.y,
+          duration: 0.16,
+          ease: 'power2.in'
+        });
+        gsap.to(tile.group.rotation, { x: 0, y: 0, z: 0, duration: 0.16 });
+        gsap.to(tile.group.scale, { x: 1, y: 1, z: 1, duration: 0.16 });
+
+        tile.setHeld(false);
+        this.heldTile = null;
+        this.heldTileOrigin = null;
+        if (this.inputManager) this.inputManager.isTileHeld = false;
+        if (this.sceneManager && this.sceneManager.controls) {
+          this.sceneManager.controls.enabled = true;
+        }
+        if (this.container) this.container.style.cursor = 'default';
+
+        this.handleMove(direction);
+        return;
+      } else {
+        // Move is blocked in 2048 rules -> bounce back to home slot with wobble
+        soundManager.playTileDrop();
+        soundManager.triggerHaptic('slide');
+
+        gsap.killTweensOf(tile.group.position);
+        gsap.killTweensOf(tile.group.rotation);
+        gsap.killTweensOf(tile.group.scale);
+
+        gsap.to(tile.group.position, {
+          x: origin.position.x,
+          y: origin.position.y,
+          z: origin.position.z,
+          duration: 0.36,
+          ease: 'back.out(2.2)'
+        });
+        gsap.to(tile.group.rotation, {
+          x: origin.rotation.x,
+          y: origin.rotation.y,
+          z: origin.rotation.z,
+          duration: 0.28,
+          ease: 'power2.out'
+        });
+        gsap.to(tile.group.scale, {
+          x: 1,
+          y: 1,
+          z: 1,
+          duration: 0.25,
+          ease: 'power2.out'
+        });
+
+        tile.setHeld(false);
+        this.heldTile = null;
+        this.heldTileOrigin = null;
+        if (this.inputManager) this.inputManager.isTileHeld = false;
+        if (this.sceneManager && this.sceneManager.controls) {
+          this.sceneManager.controls.enabled = true;
+        }
+        if (this.container) this.container.style.cursor = 'default';
+        return;
+      }
+    }
+
+    // Released without fling
+    soundManager.playTileDrop();
+
+    gsap.killTweensOf(tile.group.position);
+    gsap.killTweensOf(tile.group.rotation);
+    gsap.killTweensOf(tile.group.scale);
+
+    gsap.to(tile.group.position, {
+      x: origin.position.x,
+      y: origin.position.y,
+      z: origin.position.z,
+      duration: 0.28,
+      ease: 'bounce.out'
+    });
+    gsap.to(tile.group.rotation, {
+      x: origin.rotation.x,
+      y: origin.rotation.y,
+      z: origin.rotation.z,
+      duration: 0.22,
+      ease: 'power2.out'
+    });
+    gsap.to(tile.group.scale, {
+      x: 1,
+      y: 1,
+      z: 1,
+      duration: 0.2,
+      ease: 'power2.out'
+    });
+
+    tile.setHeld(false);
+    this.heldTile = null;
+    this.heldTileOrigin = null;
+    if (this.inputManager) this.inputManager.isTileHeld = false;
+    if (this.sceneManager && this.sceneManager.controls) {
+      this.sceneManager.controls.enabled = true;
+    }
+    if (this.container) this.container.style.cursor = 'default';
+  }
+
+  onTileGrabCancel() {
+    if (!this.heldTile) return;
+    document.body.classList.remove('tile-grabbing');
+
+    if (this.ghostPreview) {
+      this.ghostPreview.hideGhost();
+      this.lastGhostDir = null;
+    }
+
+    const tile = this.heldTile;
+    const origin = this.heldTileOrigin;
+
+    if (origin) {
+      gsap.killTweensOf(tile.group.position);
+      gsap.killTweensOf(tile.group.rotation);
+      gsap.killTweensOf(tile.group.scale);
+
+      gsap.to(tile.group.position, {
+        x: origin.position.x,
+        y: origin.position.y,
+        z: origin.position.z,
+        duration: 0.22,
+        ease: 'power2.out'
+      });
+      gsap.to(tile.group.rotation, {
+        x: origin.rotation.x,
+        y: origin.rotation.y,
+        z: origin.rotation.z,
+        duration: 0.2
+      });
+      gsap.to(tile.group.scale, {
+        x: 1,
+        y: 1,
+        z: 1,
+        duration: 0.2
+      });
+    }
+
+    tile.setHeld(false);
+    this.heldTile = null;
+    this.heldTileOrigin = null;
+    if (this.inputManager) this.inputManager.isTileHeld = false;
+    if (this.sceneManager && this.sceneManager.controls) {
+      this.sceneManager.controls.enabled = true;
+    }
+    if (this.container) this.container.style.cursor = 'default';
   }
 
   updateScoreUI(addedScore = 0) {
@@ -1749,6 +2117,7 @@ class GameApp {
   }
 
   startNewGame(checkSaved = false) {
+    if (this.heldTile) this.onTileGrabCancel();
     if (this.aiBot) this.aiBot.stop();
     this.hideModal();
     this.cancelSwapMode();

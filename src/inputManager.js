@@ -10,6 +10,7 @@ export class InputManager {
     this.pointerStartX = 0;
     this.pointerStartY = 0;
     this.isPointerDown = false;
+    this.isTileHeld = false;
     this.pointerStartTime = 0;
 
     this.enabled = true;
@@ -129,6 +130,10 @@ export class InputManager {
     window.addEventListener('pointerup', (e) => {
       if (!this.isPointerDown) return;
       this.isPointerDown = false;
+      if (this.isTileHeld) {
+        this.isTileHeld = false;
+        return;
+      }
       if (!this.enabled) return;
 
       // Do not process swipes if released on interactive control elements
@@ -170,6 +175,7 @@ export class InputManager {
 
     this.domElement.addEventListener('pointercancel', () => {
       this.isPointerDown = false;
+      this.isTileHeld = false;
     });
 
     // 3. UI Buttons for movement are handled by main.js via #dir-pad

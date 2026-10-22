@@ -212,6 +212,13 @@ body.theme-telemetry .glass-select {
   background-position: center;
   background-repeat: no-repeat;
   transition: background-image 0.35s ease-out;
+  cursor: grab;
+}
+
+body.tile-grabbing,
+body.tile-grabbing *,
+#canvas-container.grabbing {
+  cursor: grabbing !important;
 }
 
 /* UI Overlay */
