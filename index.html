@@ -100,14 +100,14 @@
             <line x1="12" y1="22.08" x2="12" y2="12"></line>
           </svg>
           <select id="header-select-shape" class="glass-select shape-quick-select" title="Chọn hình khối 3D" data-i18n-title="shape_tooltip">
-            <option value="auto_evolution" data-i18n="shape_auto" selected>Tiến Hóa Tự Động</option>
-            <option value="rounded_cube" data-i18n="shape_cube">Khối Bo Góc</option>
-            <option value="crystal_octahedron" data-i18n="shape_octahedron">Bát Diện Kim Cương</option>
-            <option value="core_sphere" data-i18n="shape_sphere">Cầu Năng Lượng</option>
-            <option value="hex_prism" data-i18n="shape_hex">Lăng Trụ Lục Giác</option>
-            <option value="cyber_pyramid" data-i18n="shape_pyramid">Kim Tự Tháp</option>
-            <option value="star_dodecahedron" data-i18n="shape_dodecahedron">Thập Nhị Diện</option>
-            <option value="plasma_torus" data-i18n="shape_torus">Vòng Xoáy Năng Lượng</option>
+            <option value="auto_evolution" data-i18n="shape_auto" selected>Auto</option>
+            <option value="rounded_cube" data-i18n="shape_cube">Cube</option>
+            <option value="crystal_octahedron" data-i18n="shape_octahedron">Crystal</option>
+            <option value="core_sphere" data-i18n="shape_sphere">Sphere</option>
+            <option value="hex_prism" data-i18n="shape_hex">Hex</option>
+            <option value="cyber_pyramid" data-i18n="shape_pyramid">Pyramid</option>
+            <option value="star_dodecahedron" data-i18n="shape_dodecahedron">Gem</option>
+            <option value="plasma_torus" data-i18n="shape_torus">Ring</option>
           </select>
         </div>
         <button id="btn-toggle-rush" class="glass-btn rush-btn" data-i18n-title="rush_tooltip" title="Chế độ đếm ngược Time Rush">
@@ -710,6 +710,33 @@
             </div>
           </div>
         </div>
+
+        <!-- Indie Dev Manifesto & Open Source Badge -->
+        <div class="welcome-manifesto-card">
+          <div class="manifesto-header">
+            <span class="manifesto-tag" data-i18n="manifesto_tag">❤️ GÓC TÁC GIẢ & TUYÊN NGÔN INDIE</span>
+            <span class="manifesto-badge-clean" data-i18n="manifesto_badge">✨ 100% Không Quảng Cáo</span>
+          </div>
+          <p class="manifesto-text" data-i18n="manifesto_quote">
+            "Mình tự tay lập trình phiên bản 2048 3D này vì quá mệt mỏi với những app trên Store: cứ trượt được 3 nước là bắt xem video quảng cáo 30s. Web này viết bằng <b>Three.js WebGL &amp; Web Audio API</b> thuần túy: <b>Cam kết sạch 100%, không quảng cáo, mở là chơi ngay, miễn phí vĩnh viễn</b> cho anh em giải trí!"
+          </p>
+          <div class="manifesto-tech-row">
+            <span class="tech-pill">⚡ Three.js WebGL</span>
+            <span class="tech-pill">🎵 Web Audio API</span>
+            <span class="tech-pill">📦 PWA Offline</span>
+            <span class="tech-pill">🛡️ Zero Tracking</span>
+          </div>
+          <div class="manifesto-links-row">
+            <a href="https://github.com/bachlinhphong-glitch/3d-2048-hypercube" target="_blank" rel="noopener noreferrer" class="manifesto-btn github-btn">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+              <span data-i18n="manifesto_btn_github">⭐ Xem mã nguồn GitHub</span>
+            </a>
+            <a href="https://github.com/bachlinhphong-glitch/3d-2048-hypercube/issues" target="_blank" rel="noopener noreferrer" class="manifesto-btn feedback-btn">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+              <span data-i18n="manifesto_btn_feedback">💬 Góp ý &amp; Báo lỗi cho Dev</span>
+            </a>
+          </div>
+        </div>
       </div>
 
       <!-- Footer action -->
@@ -915,14 +942,14 @@
         <div class="settings-row">
           <label class="settings-label" data-i18n="setting_shape">Hình khối 3D</label>
           <select id="select-shape" class="settings-select">
-            <option value="auto_evolution" data-i18n="shape_auto" selected>Tiến Hóa Tự Động</option>
-            <option value="rounded_cube" data-i18n="shape_cube">Khối Bo Góc</option>
-            <option value="crystal_octahedron" data-i18n="shape_octahedron">Bát Diện Kim Cương</option>
-            <option value="core_sphere" data-i18n="shape_sphere">Cầu Năng Lượng</option>
-            <option value="hex_prism" data-i18n="shape_hex">Lăng Trụ Lục Giác</option>
-            <option value="cyber_pyramid" data-i18n="shape_pyramid">Kim Tự Tháp</option>
-            <option value="star_dodecahedron" data-i18n="shape_dodecahedron">Thập Nhị Diện</option>
-            <option value="plasma_torus" data-i18n="shape_torus">Vòng Xoáy Năng Lượng</option>
+            <option value="auto_evolution" data-i18n="shape_auto" selected>Auto</option>
+            <option value="rounded_cube" data-i18n="shape_cube">Cube</option>
+            <option value="crystal_octahedron" data-i18n="shape_octahedron">Crystal</option>
+            <option value="core_sphere" data-i18n="shape_sphere">Sphere</option>
+            <option value="hex_prism" data-i18n="shape_hex">Hex</option>
+            <option value="cyber_pyramid" data-i18n="shape_pyramid">Pyramid</option>
+            <option value="star_dodecahedron" data-i18n="shape_dodecahedron">Gem</option>
+            <option value="plasma_torus" data-i18n="shape_torus">Ring</option>
           </select>
         </div>
 
@@ -1005,6 +1032,17 @@
             <svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
             <span data-i18n="btn_share">Chia sẻ điểm số</span>
           </button>
+        </div>
+
+        <!-- Indie Creator Signature in Settings -->
+        <div class="settings-indie-footer">
+          <div class="indie-footer-badge">
+            <span class="heart-pulse">❤️</span> Tự tay lập trình bởi Indie Dev • 100% Sạch &amp; Không Quảng Cáo
+          </div>
+          <div class="indie-footer-links">
+            <a href="https://github.com/bachlinhphong-glitch/3d-2048-hypercube" target="_blank" rel="noopener noreferrer">⭐ GitHub Repository</a> •
+            <a href="https://github.com/bachlinhphong-glitch/3d-2048-hypercube/issues" target="_blank" rel="noopener noreferrer">💬 Báo lỗi &amp; Góp ý</a>
+          </div>
         </div>
       </div>
     </div>
@@ -1096,6 +1134,6 @@
   </div>
 
   <!-- Main Game Script -->
-  <script type="module" src="./src/main.js?v=6.6.0"></script>
+  <script type="module" src="./src/main.js?v=6.6.1"></script>
 </body>
 </html>

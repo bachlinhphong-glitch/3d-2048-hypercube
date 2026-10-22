@@ -14,6 +14,17 @@ import { BossManager } from './bossManager.js';
 import { i18n, t, setLanguage, getCurrentLanguage } from './i18n.js';
 import { QuestManager } from './questManager.js';
 import { createChampionsTrophyMesh, createBossTrophyMesh } from './trophy.js';
+export const SHAPE_NAMES = {
+  auto_evolution: 'Auto',
+  rounded_cube: 'Cube',
+  crystal_octahedron: 'Crystal',
+  core_sphere: 'Sphere',
+  hex_prism: 'Hex',
+  cyber_pyramid: 'Pyramid',
+  star_dodecahedron: 'Gem',
+  plasma_torus: 'Ring',
+};
+
 
 class GameApp {
   constructor() {
@@ -223,6 +234,44 @@ class GameApp {
         closeSettings();
       }
     });
+
+    // Easter Egg: Tap logo '2048' 5 times within 2.5s for Dev Signature & Confetti
+    const gameTitleLogo = document.querySelector('.game-title');
+    if (gameTitleLogo) {
+      let logoClicks = 0;
+      let lastLogoClick = 0;
+      gameTitleLogo.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.registerInteraction();
+        const now = performance.now();
+        if (now - lastLogoClick > 2500) {
+          logoClicks = 0;
+        }
+        lastLogoClick = now;
+        logoClicks++;
+
+        soundManager.playClick();
+        soundManager.triggerHaptic('click');
+
+        gsap.killTweensOf(gameTitleLogo);
+        gsap.fromTo(gameTitleLogo, 
+          { scale: 0.88, rotate: (logoClicks % 2 === 0 ? 6 : -6) },
+          { scale: 1, rotate: 0, duration: 0.28, ease: 'back.out(2)' }
+        );
+
+        if (logoClicks >= 5) {
+          logoClicks = 0;
+          soundManager.playMilestoneUnlock(2048);
+          soundManager.triggerHaptic('win');
+          if (this.particleSystem) {
+            for (let b = 0; b < 3; b++) {
+              this.particleSystem.burst(0, 1.2 + 0.4 * b, 0, 2048);
+            }
+          }
+          this.showSpellToast(t('easter_egg_toast') || '☕ Trứng Phục Sinh: Code bằng cả con tim & cà phê, nói KHÔNG với quảng cáo rác! — From Dev with ❤️');
+        }
+      });
+    }
 
     // Welcome & Intro Onboarding Modal
     const welcomeModal = document.getElementById('welcome-modal');
