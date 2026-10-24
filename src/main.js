@@ -474,19 +474,20 @@ class GameApp {
           return;
         }
         const nextP = this.bossManager.cyclePhaseForTest();
-        if (nextP === 3) {
-          // Prepare two 1024 tiles for testing the 2048 obliteration strike
+        if (nextP === 4) {
+          // Prepare two 1024 tiles for testing the 2048 obliteration strike on Phase 4
           this.cleanAllSceneTiles();
           this.tiles3D = this.createEmptyTileGrid();
           this.gameLogic.reset();
           this.spawnSpecificTile(0, 0, 0, 1024);
           this.spawnSpecificTile(0, 0, 1, 1024);
-          this.showSpellToast('PHASE 3 • COSMIC SINGULARITY (2,048 HP) — Trượt Trái để gộp 2048!');
+          this.showSpellToast('PHASE 4 • OMNIVERSE GOD (2,048 HP) — Trượt Trái để gộp 2048!');
         } else {
           const toastNames = {
             1: 'PHASE 1 • PLANET TITAN (500 HP)',
             2: 'PHASE 2 • SOLAR SYSTEM (1,500 HP)',
-            4: '💥 BIG BANG SUPERNOVA FINALE'
+            3: 'PHASE 3 • COSMIC SINGULARITY (2,048 HP)',
+            5: '💥 BIG BANG SUPERNOVA FINALE'
           };
           this.showSpellToast(toastNames[nextP] || `Boss Phase ${nextP}`);
         }

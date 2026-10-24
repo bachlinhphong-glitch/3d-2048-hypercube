@@ -5,11 +5,12 @@ import { soundManager } from './sound.js';
 import { Boss3DController } from './boss3D.js';
 
 /**
- * ⚡ BossManager — 3-Phase Boss Raid Lifecycle & Challenge Engine
+ * ⚡ BossManager — 4-Phase Boss Raid Lifecycle & Challenge Engine
  *
  * PHASE 1: PLANET TITAN (500 HP | 60s, +45s on clear + cleanses low [2], [4] tiles)
  * PHASE 2: SOLAR HELIOS (1,500 HP | +45s, +60s on clear)
- * PHASE 3: COSMIC SINGULARITY (2,048 HP — Merge 1024 + 1024 -> 2048 to obliterate the Singularity)
+ * PHASE 3: COSMIC SINGULARITY (2,048 HP | +60s, +60s on clear)
+ * PHASE 4: OMNIVERSE GOD (2,048 HP | +60s — Merge [1024 + 1024] -> [2048] or deplete HP to obliterate)
  */
 export class BossManager {
   constructor(gameApp) {
@@ -142,6 +143,12 @@ export class BossManager {
         this.phaseBadgeEl.textContent = 'PHASE 3 • UNIVERSE';
         this.phaseBadgeEl.className = 'boss-phase-badge p3';
       }
+    } else if (phase === 4) {
+      this.maxHp = 2048;
+      if (this.phaseBadgeEl) {
+        this.phaseBadgeEl.textContent = 'PHASE 4 • OMNIVERSE';
+        this.phaseBadgeEl.className = 'boss-phase-badge p4';
+      }
     }
   }
 
@@ -199,14 +206,7 @@ export class BossManager {
     if (!this.isActive || this.isDefeated || this.isObliterating) return;
 
     let damage = value;
-    let is2048Finale = false;
-
-    if (this.phase === 3) {
-      if (value === 2048) {
-        damage = this.hp;
-        is2048Finale = true;
-      }
-    }
+    let is2048Finale = (value === 2048);
 
     // Deduct HP directly
     this.hp = Math.max(0, this.hp - damage);
@@ -232,7 +232,7 @@ export class BossManager {
 
     // Check Phase completion or Finale
     if (is2048Finale) {
-      this.execute2048Finale();
+      this.executeGrandFinale();
     } else if (this.hp <= 0) {
       this.onPhaseCleared();
     }
@@ -263,7 +263,23 @@ export class BossManager {
       if (this.boss3D) this.boss3D.setHpRatio(1.0);
       this.updateHUD();
 
-      this.triggerBanner('💥 COSMIC SINGULARITY — PHASE 3', '2,048 HP | Gộp khối [1024 + 1024] -> [2048] để hủy diệt!');
+      this.triggerBanner('💥 COSMIC SINGULARITY — PHASE 3', '2,048 HP | Hố Đen Quasar sụp đổ trọng lực!');
+    } else if (this.phase === 3) {
+      // Phase 3 -> Phase 4 (Omniverse Transcendent God)
+      this.emitExpandingRingWave(0x00f0ff);
+      soundManager.playPhaseTransition();
+      this.cleanseLowTiles();
+
+      this.timer += 60.0;
+      this.applyPhaseVisuals(4);
+      this.hp = 2048;
+      if (this.boss3D) this.boss3D.setHpRatio(1.0);
+      this.updateHUD();
+
+      this.triggerBanner('🌌 OMNIVERSE GOD — PHASE 4', '2,048 HP | +60s • Chúa Tể Đa Vũ Trụ Thức Tỉnh!');
+    } else if (this.phase === 4) {
+      // Phase 4 Defeated!
+      this.executeGrandFinale();
     }
   }
 
@@ -331,25 +347,34 @@ export class BossManager {
     }
   }
 
-  execute2048Finale() {
+  executeGrandFinale() {
     this.isObliterating = true;
     this.isDefeated = true;
     this.hp = 0;
     this.updateHUD();
 
     if (this.flashEl) {
-      this.flashEl.style.opacity = '0.75';
-      gsap.to(this.flashEl, { opacity: 0, duration: 1.0, ease: 'power2.out' });
+      this.flashEl.style.opacity = '0.85';
+      gsap.to(this.flashEl, { opacity: 0, duration: 1.2, ease: 'power2.out' });
     }
 
     soundManager.playBossObliteration();
     soundManager.triggerHaptic('bomb');
-    this.gameApp.particleSystem.screenShake(this.camera, 0.35);
+    this.gameApp.particleSystem.screenShake(this.camera, 0.45);
 
     const totalSecs = Math.round(this.clearTime);
     const m = Math.floor(totalSecs / 60);
     const s = totalSecs % 60;
     const timeStr = `${m > 0 ? m + 'm ' : ''}${s}s`;
+
+    // Sekiro God Slain Banner
+    this.triggerBanner('🏆 VẠN CỔ DIỆT TRÙM — GOD SLAIN', 'Chiến tích bất tử đã khắc ghi vào vũ trụ!');
+
+    // Achievement Pop-up Toast
+    this.showAchievementUnlockToast();
+
+    // Cascading Fireworks Burst Series
+    this.spamCelebrationFireworks();
 
     if (this.boss3D) {
       this.boss3D.playBigBangExplosion(() => {
@@ -357,6 +382,65 @@ export class BossManager {
       });
     } else {
       this.showBossVictoryModal(timeStr);
+    }
+  }
+
+  execute2048Finale() {
+    this.executeGrandFinale();
+  }
+
+  showAchievementUnlockToast() {
+    if (soundManager.playBossExecutionFanfare) {
+      soundManager.playBossExecutionFanfare();
+    }
+    if (soundManager.playTrophyUnlocked) {
+      soundManager.playTrophyUnlocked();
+    }
+
+    const toast = document.createElement('div');
+    toast.className = 'boss-achievement-toast';
+    toast.innerHTML = `
+      <div class="boss-ach-toast-icon">🏆</div>
+      <div class="boss-ach-toast-body">
+        <div class="boss-ach-toast-tag">THÀNH TỰU THẦN THOẠI MỞ KHÓA!</div>
+        <div class="boss-ach-toast-title">Kẻ Hủy Diệt Hư Không (Boss Slayer)</div>
+        <div class="boss-ach-toast-desc">Đã đánh bại toàn bộ các giai đoạn Trùm Hắc Ám!</div>
+      </div>
+    `;
+    document.body.appendChild(toast);
+
+    gsap.fromTo(toast,
+      { y: -80, opacity: 0, scale: 0.8 },
+      { y: 0, opacity: 1, scale: 1, duration: 0.6, ease: 'back.out(2.2)' }
+    );
+
+    setTimeout(() => {
+      gsap.to(toast, {
+        y: -40,
+        opacity: 0,
+        scale: 0.9,
+        duration: 0.45,
+        ease: 'power2.in',
+        onComplete: () => toast.remove()
+      });
+    }, 4500);
+  }
+
+  spamCelebrationFireworks() {
+    const totalBursts = 8;
+    for (let i = 0; i < totalBursts; i++) {
+      setTimeout(() => {
+        if (soundManager.playFireworkBurst) soundManager.playFireworkBurst();
+        const colors = [0xffd700, 0x00f0ff, 0xff2a6d, 0xa855f7, 0x10b981];
+        const col = colors[i % colors.length];
+        const rx = (Math.random() - 0.5) * 5;
+        const ry = 2.5 + Math.random() * 3.5;
+        const rz = (Math.random() - 0.5) * 4;
+        if (this.gameApp.particleSystem) {
+          this.gameApp.particleSystem.burst(rx, ry, rz, col);
+        }
+        this.emitExpandingRingWave(col);
+      }, i * 280);
     }
   }
 
@@ -374,11 +458,13 @@ export class BossManager {
       this.gameApp.questManager.recordBossDefeated();
     }
 
-    soundManager.playTrophyUnlocked();
+    if (soundManager.playTrophyUnlocked) {
+      soundManager.playTrophyUnlocked();
+    }
     this.spawnBossEmbers();
 
     if (this.victoryTimeEl) this.victoryTimeEl.textContent = clearTimeStr;
-    if (this.victoryDamageEl) this.victoryDamageEl.textContent = '4,048 HP';
+    if (this.victoryDamageEl) this.victoryDamageEl.textContent = '6,096 HP';
     if (this.victoryScoreEl) this.victoryScoreEl.textContent = this.gameApp.gameLogic.score.toLocaleString();
 
     this.victoryModal.style.display = 'flex';
@@ -392,6 +478,14 @@ export class BossManager {
         this.victoryModal.style.display = 'none';
       }, 350);
     };
+
+    const fireworksBtn = document.getElementById('boss-victory-btn-fireworks');
+    if (fireworksBtn) {
+      fireworksBtn.onclick = (e) => {
+        e.stopPropagation();
+        this.spamCelebrationFireworks();
+      };
+    }
 
     const viewTrophyBtn = document.getElementById('boss-victory-btn-view-trophy');
     if (viewTrophyBtn) {
@@ -502,7 +596,7 @@ export class BossManager {
       return 1;
     }
     const nextP = this.boss3D.cyclePhaseForTest();
-    if (nextP <= 3) {
+    if (nextP <= 4) {
       this.phase = nextP;
       this.maxHp = nextP === 1 ? 500 : (nextP === 2 ? 1500 : 2048);
       this.hp = this.maxHp;
@@ -510,7 +604,7 @@ export class BossManager {
       this.boss3D.setHpRatio(1.0);
       this.updateHUD();
       if (this.phaseBadgeEl) {
-        const names = { 1: 'PHASE 1 • PLANET', 2: 'PHASE 2 • SOLAR SYSTEM', 3: 'PHASE 3 • UNIVERSE' };
+        const names = { 1: 'PHASE 1 • PLANET', 2: 'PHASE 2 • SOLAR SYSTEM', 3: 'PHASE 3 • UNIVERSE', 4: 'PHASE 4 • OMNIVERSE' };
         this.phaseBadgeEl.textContent = names[nextP] || 'PHASE 1 • PLANET';
         this.phaseBadgeEl.className = `boss-phase-badge p${nextP}`;
       }

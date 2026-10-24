@@ -358,6 +358,24 @@ export class QuestManager {
     }
   }
 
+  recordBossDefeated() {
+    try {
+      localStorage.setItem('3d2048_boss_defeated', 'true');
+    } catch {}
+
+    // Ensure q_boss_hit is completed
+    const q = this.state.q_boss_hit;
+    if (q && !q.completed) {
+      q.current = Math.max(q.current || 0, 300);
+      this.markCompleted('q_boss_hit');
+    }
+
+    this.updateStatusPill();
+    if (this.trophyViewer) {
+      this.trophyViewer.setUnlocked(true);
+    }
+  }
+
   recordSpell(spellType) {
     if (!spellType) return;
     const q = this.state.q_spells_master;

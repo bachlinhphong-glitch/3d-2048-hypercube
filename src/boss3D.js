@@ -41,15 +41,17 @@ export class Boss3DController {
     this.backdropHalo = this._createBacklightHalo();
     this.animGroup.add(this.backdropHalo);
 
-    // 3 Distinct 3D Groups for 3 Phases + Active VFX Container
+    // 4 Distinct 3D Groups for 4 Phases + Active VFX Container
     this.phase1Group = new THREE.Group();
     this.phase2Group = new THREE.Group();
     this.phase3Group = new THREE.Group();
+    this.phase4Group = new THREE.Group();
     this.fxGroup = new THREE.Group();
 
     this.animGroup.add(this.phase1Group);
     this.animGroup.add(this.phase2Group);
     this.animGroup.add(this.phase3Group);
+    this.animGroup.add(this.phase4Group);
     this.animGroup.add(this.fxGroup);
 
     // Shared Shader Uniforms
@@ -59,10 +61,11 @@ export class Boss3DController {
       uHpRatio: { value: 1.0 }
     };
 
-    // Build the 3 distinct 3D models
+    // Build the 4 distinct 3D models
     this._buildPhase1Planet();
     this._buildPhase2SolarSystem();
     this._buildPhase3Universe();
+    this._buildPhase4Omniverse();
 
     this.setPhase(1, false);
 
@@ -675,6 +678,225 @@ export class Boss3DController {
   }
 
   // ==========================================================================
+  // 3.5. PHASE 4: OMNIVERSE GOD (Quantum Tesseract, Merkaba Rings, God-Rays)
+  // ==========================================================================
+  _buildPhase4Omniverse() {
+    // 4.1 Quantum Polyhedron Core with Custom Chromatic Iridescent Shader
+    const coreVertexShader = `
+      varying vec3 vNormal;
+      varying vec3 vViewPosition;
+      void main() {
+        vNormal = normalize(normalMatrix * normal);
+        vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+        vViewPosition = -mvPosition.xyz;
+        gl_Position = projectionMatrix * mvPosition;
+      }
+    `;
+
+    const coreFragmentShader = `
+      uniform float uTime;
+      uniform float uHitFlash;
+      varying vec3 vNormal;
+      varying vec3 vViewPosition;
+
+      void main() {
+        vec3 normal = normalize(vNormal);
+        vec3 viewDir = normalize(vViewPosition);
+        float fresnel = pow(1.0 - abs(dot(normal, viewDir)), 2.2);
+
+        // Chromatic multi-spectral color cycle (Gold, Cyan, Magenta, Violet)
+        vec3 gold = vec3(1.0, 0.84, 0.0);
+        vec3 cyan = vec3(0.0, 0.94, 1.0);
+        vec3 rose = vec3(1.0, 0.15, 0.55);
+        vec3 violet = vec3(0.68, 0.32, 0.98);
+
+        float t = uTime * 1.8;
+        vec3 col = mix(gold, cyan, sin(t + normal.x * 3.5) * 0.5 + 0.5);
+        col = mix(col, rose, cos(t * 1.2 + normal.y * 3.5) * 0.5 + 0.5);
+        col = mix(col, violet, sin(t * 1.5 + normal.z * 3.5) * 0.5 + 0.5);
+
+        // Core divine white center highlight & hit flash
+        col += fresnel * vec3(1.0, 1.0, 1.0) * 1.35;
+        col += vec3(uHitFlash * 1.5);
+
+        gl_FragColor = vec4(col, 0.95);
+      }
+    `;
+
+    const coreShaderMat = new THREE.ShaderMaterial({
+      vertexShader: coreVertexShader,
+      fragmentShader: coreFragmentShader,
+      uniforms: this.uniforms,
+      transparent: true,
+      blending: THREE.AdditiveBlending
+    });
+
+    const innerGeo = new THREE.OctahedronGeometry(0.85, 0);
+    this.p4InnerCore = new THREE.Mesh(innerGeo, coreShaderMat);
+    this.phase4Group.add(this.p4InnerCore);
+
+    // 4.2 Outer Tesseract Geometric Cage (Icosahedron with golden edges & holographic faces)
+    const cageGeo = new THREE.IcosahedronGeometry(1.48, 1);
+    const cageEdges = new THREE.EdgesGeometry(cageGeo);
+    const edgeMat = new THREE.LineBasicMaterial({
+      color: 0xffd700,
+      transparent: true,
+      opacity: 0.85,
+      blending: THREE.AdditiveBlending
+    });
+    this.p4CageWire = new THREE.LineSegments(cageEdges, edgeMat);
+    this.phase4Group.add(this.p4CageWire);
+
+    const faceMat = new THREE.MeshBasicMaterial({
+      color: 0x00f0ff,
+      transparent: true,
+      opacity: 0.16,
+      blending: THREE.AdditiveBlending,
+      side: THREE.DoubleSide,
+      depthWrite: false
+    });
+    this.p4CageFaces = new THREE.Mesh(cageGeo, faceMat);
+    this.phase4Group.add(this.p4CageFaces);
+
+    // 4.3 3 Sacred Merkaba Gimbal Rings (Yaw, Pitch, Roll)
+    this.p4RingsGroup = new THREE.Group();
+
+    // Ring 1 - Gold (X-plane)
+    const r1Geo = new THREE.TorusGeometry(1.88, 0.038, 16, 64);
+    const r1Mat = new THREE.MeshBasicMaterial({
+      color: 0xffd700,
+      transparent: true,
+      opacity: 0.92,
+      blending: THREE.AdditiveBlending
+    });
+    this.p4Ring1 = new THREE.Mesh(r1Geo, r1Mat);
+    this.p4RingsGroup.add(this.p4Ring1);
+
+    // Ring 2 - Cyan (Y-plane)
+    const r2Geo = new THREE.TorusGeometry(2.22, 0.038, 16, 64);
+    const r2Mat = new THREE.MeshBasicMaterial({
+      color: 0x00f0ff,
+      transparent: true,
+      opacity: 0.92,
+      blending: THREE.AdditiveBlending
+    });
+    this.p4Ring2 = new THREE.Mesh(r2Geo, r2Mat);
+    this.p4Ring2.rotation.x = Math.PI / 2;
+    this.p4RingsGroup.add(this.p4Ring2);
+
+    // Ring 3 - Neon Magenta (Z-plane)
+    const r3Geo = new THREE.TorusGeometry(2.56, 0.038, 16, 64);
+    const r3Mat = new THREE.MeshBasicMaterial({
+      color: 0xff007f,
+      transparent: true,
+      opacity: 0.92,
+      blending: THREE.AdditiveBlending
+    });
+    this.p4Ring3 = new THREE.Mesh(r3Geo, r3Mat);
+    this.p4Ring3.rotation.y = Math.PI / 2;
+    this.p4RingsGroup.add(this.p4Ring3);
+
+    // 12 Sacred Orbiting Diamonds (4 on each ring)
+    this.p4Satellites = [];
+    const satGeo = new THREE.OctahedronGeometry(0.1, 0);
+    const satMat = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.95,
+      blending: THREE.AdditiveBlending
+    });
+
+    for (let r = 0; r < 3; r++) {
+      const radius = r === 0 ? 1.88 : (r === 1 ? 2.22 : 2.56);
+      for (let s = 0; s < 4; s++) {
+        const satMesh = new THREE.Mesh(satGeo, satMat);
+        this.p4RingsGroup.add(satMesh);
+        this.p4Satellites.push({
+          mesh: satMesh,
+          ringIdx: r,
+          radius,
+          angleOffset: (s * Math.PI) / 2,
+          speed: (r === 0 ? 1.4 : (r === 1 ? -1.1 : 1.7)) * (0.8 + s * 0.05)
+        });
+      }
+    }
+
+    this.phase4Group.add(this.p4RingsGroup);
+
+    // 4.4 6 Cardinal Trans-Dimensional Quasar God-Ray Beams
+    this.p4BeamsGroup = new THREE.Group();
+    const beamGeo = new THREE.ConeGeometry(0.24, 3.8, 16, 1, true);
+    const beamMat = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.45,
+      blending: THREE.AdditiveBlending,
+      side: THREE.DoubleSide,
+      depthWrite: false
+    });
+
+    const dirs = [
+      { rot: [0, 0, -Math.PI / 2], pos: [2.0, 0, 0] },
+      { rot: [0, 0, Math.PI / 2], pos: [-2.0, 0, 0] },
+      { rot: [0, 0, 0], pos: [0, 2.0, 0] },
+      { rot: [Math.PI, 0, 0], pos: [0, -2.0, 0] },
+      { rot: [Math.PI / 2, 0, 0], pos: [0, 0, 2.0] },
+      { rot: [-Math.PI / 2, 0, 0], pos: [0, 0, -2.0] }
+    ];
+
+    dirs.forEach(d => {
+      const b = new THREE.Mesh(beamGeo, beamMat);
+      b.rotation.set(d.rot[0], d.rot[1], d.rot[2]);
+      b.position.set(d.pos[0], d.pos[1], d.pos[2]);
+      this.p4BeamsGroup.add(b);
+    });
+    this.phase4Group.add(this.p4BeamsGroup);
+
+    // 4.5 Transcendent Omniverse Particle Cloud (2,500 particles in harmonic toroid cloud)
+    const pCount = 2500;
+    const pGeo = new THREE.BufferGeometry();
+    const pPos = new Float32Array(pCount * 3);
+    const pCols = new Float32Array(pCount * 3);
+    const pColPalette = [
+      new THREE.Color(0xffd700),
+      new THREE.Color(0x00f0ff),
+      new THREE.Color(0xff2a6d),
+      new THREE.Color(0xa855f7),
+      new THREE.Color(0xffffff)
+    ];
+
+    for (let i = 0; i < pCount; i++) {
+      const u = Math.random() * Math.PI * 2;
+      const v = Math.random() * Math.PI * 2;
+      const R = 2.0 + Math.random() * 0.8;
+      const r = 0.5 + Math.random() * 0.6;
+      pPos[i * 3]     = (R + r * Math.cos(v)) * Math.cos(u);
+      pPos[i * 3 + 1] = r * Math.sin(v);
+      pPos[i * 3 + 2] = (R + r * Math.cos(v)) * Math.sin(u);
+
+      const c = pColPalette[i % pColPalette.length];
+      pCols[i * 3]     = c.r;
+      pCols[i * 3 + 1] = c.g;
+      pCols[i * 3 + 2] = c.b;
+    }
+
+    pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+    pGeo.setAttribute('color', new THREE.BufferAttribute(pCols, 3));
+
+    const pMat = new THREE.PointsMaterial({
+      size: 0.08,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.85,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    });
+
+    this.p4ParticleCloud = new THREE.Points(pGeo, pMat);
+    this.phase4Group.add(this.p4ParticleCloud);
+  }
+
+  // ==========================================================================
   // 4. PHASE MORPHING & TRANSITION ANIMATIONS
   // ==========================================================================
   setVisible(vis) {
@@ -704,12 +926,13 @@ export class Boss3DController {
     this.currentPhase = phaseNum;
 
     // Update dynamic point light color per phase
-    const lightColors = { 1: 0xff5500, 2: 0xffaa22, 3: 0x00f0ff };
+    const lightColors = { 1: 0xff5500, 2: 0xffaa22, 3: 0x00f0ff, 4: 0xff00ff };
     if (this.bossPointLight) {
       this.bossPointLight.color.setHex(lightColors[phaseNum] || 0xff5500);
+      this.bossPointLight.intensity = phaseNum === 4 ? 4.5 : 3.2;
     }
 
-    const groups = [null, this.phase1Group, this.phase2Group, this.phase3Group];
+    const groups = [null, this.phase1Group, this.phase2Group, this.phase3Group, this.phase4Group];
     const targetGroup = groups[phaseNum];
     if (!targetGroup) return;
 
@@ -717,19 +940,22 @@ export class Boss3DController {
     gsap.killTweensOf(this.phase1Group.scale);
     gsap.killTweensOf(this.phase2Group.scale);
     gsap.killTweensOf(this.phase3Group.scale);
+    gsap.killTweensOf(this.phase4Group.scale);
 
     if (!animateTransition) {
       this.phase1Group.visible = phaseNum === 1;
       this.phase2Group.visible = phaseNum === 2;
       this.phase3Group.visible = phaseNum === 3;
+      this.phase4Group.visible = phaseNum === 4;
       this.phase1Group.scale.set(1, 1, 1);
       this.phase2Group.scale.set(1, 1, 1);
       this.phase3Group.scale.set(1, 1, 1);
+      this.phase4Group.scale.set(1, 1, 1);
       return;
     }
 
     // Shockwave Ring on morphing
-    const ringColor = phaseNum === 2 ? 0xfbbf24 : (phaseNum === 3 ? 0xa855f7 : 0xff5500);
+    const ringColor = phaseNum === 2 ? 0xfbbf24 : (phaseNum === 3 ? 0xa855f7 : (phaseNum === 4 ? 0x00f0ff : 0xff5500));
     this._spawnShockwaveRing(ringColor, 0.9);
 
     // Phase 2 Transition: If moving to Phase 3, planets spiral into the center first!
@@ -741,7 +967,7 @@ export class Boss3DController {
     }
 
     // Shrink out old groups
-    [this.phase1Group, this.phase2Group, this.phase3Group].forEach((g, idx) => {
+    [this.phase1Group, this.phase2Group, this.phase3Group, this.phase4Group].forEach((g, idx) => {
       if (idx + 1 !== phaseNum && g.visible) {
         gsap.to(g.scale, {
           x: 0.01, y: 0.01, z: 0.01,
@@ -776,10 +1002,12 @@ export class Boss3DController {
     } else if (this.currentPhase === 2) {
       this.setPhase(3, true);
     } else if (this.currentPhase === 3) {
+      this.setPhase(4, true);
+    } else if (this.currentPhase === 4) {
       this.playBigBangExplosion(() => {
         this.setPhase(1, true);
       });
-      return 4; // Big bang
+      return 5;
     } else {
       this.setPhase(1, true);
     }
@@ -928,7 +1156,9 @@ export class Boss3DController {
 
     const state = { progress: 0 };
     gsap.killTweensOf(this.phase3Group.scale);
+    gsap.killTweensOf(this.phase4Group.scale);
     gsap.to(this.phase3Group.scale, { x: 0.001, y: 0.001, z: 0.001, duration: 0.28, ease: 'power3.in' });
+    gsap.to(this.phase4Group.scale, { x: 0.001, y: 0.001, z: 0.001, duration: 0.28, ease: 'power3.in' });
 
     gsap.to(state, {
       progress: 1,
@@ -948,8 +1178,9 @@ export class Boss3DController {
         this.fxGroup.remove(supernova);
         geo.dispose();
         mat.dispose();
-        // Reset scale of Phase 3 for future iterations
+        // Reset scale of Phases 3 & 4 for future iterations
         this.phase3Group.scale.set(1, 1, 1);
+        this.phase4Group.scale.set(1, 1, 1);
         if (onComplete) onComplete();
       }
     });
@@ -1074,6 +1305,50 @@ export class Boss3DController {
       if (this.p3Galaxy) this.p3Galaxy.rotation.y += effDt * 0.55;
       if (this.p3DiskMain) this.p3DiskMain.rotation.z -= effDt * 1.25;
       if (this.p3DiskLensed) this.p3DiskLensed.rotation.z += effDt * 0.95;
+    }
+
+    // --- PHASE 4 ANIMATIONS (OMNIVERSE GOD) ---
+    else if (this.currentPhase === 4) {
+      if (this.p4InnerCore) {
+        this.p4InnerCore.rotation.x += effDt * 1.6;
+        this.p4InnerCore.rotation.y += effDt * 2.4;
+      }
+      if (this.p4CageWire) {
+        this.p4CageWire.rotation.x -= effDt * 0.85;
+        this.p4CageWire.rotation.z += effDt * 0.65;
+      }
+      if (this.p4CageFaces) {
+        this.p4CageFaces.rotation.x = this.p4CageWire.rotation.x;
+        this.p4CageFaces.rotation.z = this.p4CageWire.rotation.z;
+      }
+      if (this.p4Ring1) this.p4Ring1.rotation.z += effDt * 1.35;
+      if (this.p4Ring2) this.p4Ring2.rotation.y -= effDt * 1.15;
+      if (this.p4Ring3) this.p4Ring3.rotation.x += effDt * 0.95;
+
+      if (this.p4Satellites) {
+        this.p4Satellites.forEach(s => {
+          const a = t * s.speed + s.angleOffset;
+          if (s.ringIdx === 0) {
+            s.mesh.position.set(Math.cos(a) * s.radius, Math.sin(a) * s.radius, 0);
+          } else if (s.ringIdx === 1) {
+            s.mesh.position.set(Math.cos(a) * s.radius, 0, Math.sin(a) * s.radius);
+          } else {
+            s.mesh.position.set(0, Math.cos(a) * s.radius, Math.sin(a) * s.radius);
+          }
+          s.mesh.rotation.x += effDt * 2.5;
+          s.mesh.rotation.y += effDt * 2.5;
+        });
+      }
+
+      if (this.p4BeamsGroup) {
+        this.p4BeamsGroup.rotation.y += effDt * 0.45;
+        this.p4BeamsGroup.rotation.x = Math.sin(t * 1.2) * 0.15;
+      }
+
+      if (this.p4ParticleCloud) {
+        this.p4ParticleCloud.rotation.y += effDt * 0.35;
+        this.p4ParticleCloud.rotation.z = Math.sin(t * 0.8) * 0.2;
+      }
     }
   }
 

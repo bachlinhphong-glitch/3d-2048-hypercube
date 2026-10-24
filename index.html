@@ -33,17 +33,17 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./src/style.css?v=6.7.1">
+  <link rel="stylesheet" href="./src/style.css?v=6.8.0">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=6.7.1').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=6.8.0').then(reg => {
           reg.update();
         }).catch(() => {});
       });
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!sessionStorage.getItem('sw_reloaded_671')) {
-          sessionStorage.setItem('sw_reloaded_671', '1');
+        if (!sessionStorage.getItem('sw_reloaded_680')) {
+          sessionStorage.setItem('sw_reloaded_680', '1');
           window.location.reload();
         }
       });
@@ -582,7 +582,7 @@
               </div>
               <div class="boss-t-stat">
                 <span class="label">Yêu cầu thử thách:</span>
-                <span class="val">Vượt 3 Phase (4,048 HP)</span>
+                <span class="val">Vượt 4 Phase (6,096 HP)</span>
               </div>
               <div class="boss-t-stat">
                 <span class="label">Đòn kết liễu:</span>
@@ -842,7 +842,7 @@
           </svg>
         </div>
         <h2 id="boss-victory-heading" class="boss-victory-title" data-i18n="boss_victory_heading">CHIẾN CÔNG HIỂN HÁCH!</h2>
-        <p id="boss-victory-subtitle" class="boss-victory-subtitle" data-i18n="boss_victory_congrats">Nhiệt liệt hoan nghênh và chúc mừng Dũng Sĩ! Bạn đã xuất sắc vượt qua mọi thử thách, tiêu diệt hoàn toàn Trùm Hư Không Singularity qua 3 giai đoạn nghẹt thở!</p>
+        <p id="boss-victory-subtitle" class="boss-victory-subtitle" data-i18n="boss_victory_congrats">Nhiệt liệt hoan nghênh và chúc mừng Dũng Sĩ! Bạn đã xuất sắc vượt qua mọi thử thách, tiêu diệt hoàn toàn Trùm Tối Thượng qua cả 4 giai đoạn nghẹt thở!</p>
       </div>
 
       <div class="boss-achievement-container">
@@ -855,7 +855,7 @@
           <div class="boss-achievement-details">
             <div class="boss-achievement-tier" data-i18n="boss_achieve_tier">THÀNH TỰU HUYỀN THOẠI ĐÃ MỞ KHÓA</div>
             <div class="boss-achievement-name" data-i18n="boss_achieve_name">KẺ HỦY DIỆT HƯ KHÔNG (SINGULARITY SLAYER)</div>
-            <div class="boss-achievement-desc" data-i18n="boss_achieve_desc">Tiêu diệt thành công Dark Singularity Core ở Phase 3 bằng đòn kết liễu khối [2048]!</div>
+            <div class="boss-achievement-desc" data-i18n="boss_achieve_desc">Tiêu diệt thành công Chúa Tể Đa Chiều Omniverse bằng đòn kết liễu huyền thoại!</div>
           </div>
         </div>
       </div>
@@ -868,7 +868,7 @@
         </div>
         <div class="boss-v-stat">
           <span class="boss-v-label" data-i18n="boss_stat_damage">Tổng sát thương</span>
-          <span id="boss-v-damage" class="boss-v-val">4,048 HP</span>
+          <span id="boss-v-damage" class="boss-v-val">6,096 HP</span>
         </div>
         <div class="boss-v-stat">
           <span class="boss-v-label" data-i18n="boss_stat_score">Điểm số trận đấu</span>
@@ -881,6 +881,9 @@
       </div>
 
       <div class="boss-victory-actions">
+        <button id="boss-victory-btn-fireworks" class="modal-btn secondary" style="border-color: #f59e0b; color: #fde047;">
+          <span>🎉 Bắn Pháo Hoa</span>
+        </button>
         <button id="boss-victory-btn-view-trophy" class="modal-btn secondary" style="border-color: #ef4444; color: #fca5a5;">
           <svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
           <span>Chiêm Ngưỡng Cúp Trảm Trùm 3D</span>
@@ -1134,6 +1137,6 @@
   </div>
 
   <!-- Main Game Script -->
-  <script type="module" src="./src/main.js?v=6.7.1"></script>
+  <script type="module" src="./src/main.js?v=6.8.0"></script>
 </body>
 </html>

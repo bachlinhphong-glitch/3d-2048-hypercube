@@ -987,6 +987,10 @@ class SoundManager {
   playTrophyUnlockFanfare() {
     this.playChampionsLeagueFanfare();
   }
+
+  playTrophyUnlocked() {
+    this.playTrophyUnlockFanfare();
+  }
 }
 
 export const soundManager = new SoundManager();

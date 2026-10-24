@@ -2463,6 +2463,92 @@ body.theme-gentle_light .boss-v-val {
   color: #0f172a;
 }
 
+/* ================= 🏆 REALTIME BOSS ACHIEVEMENT UNLOCK TOAST ================= */
+.boss-achievement-toast {
+  position: fixed;
+  top: 85px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3100;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 24px;
+  background: linear-gradient(135deg, rgba(28, 20, 48, 0.96) 0%, rgba(14, 12, 26, 0.98) 100%);
+  border: 2px solid rgba(251, 191, 36, 0.85);
+  border-radius: 20px;
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.8), 0 0 35px rgba(251, 191, 36, 0.45);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  will-change: transform, opacity;
+  user-select: none;
+}
+
+.boss-ach-toast-icon {
+  font-size: 32px;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.3) 0%, transparent 70%);
+  border-radius: 50%;
+  filter: drop-shadow(0 0 12px rgba(251, 191, 36, 0.8));
+  animation: achTrophyGlow 1.8s ease-in-out infinite alternate;
+}
+
+@keyframes achTrophyGlow {
+  from { transform: scale(0.95); filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.6)); }
+  to { transform: scale(1.1); filter: drop-shadow(0 0 18px rgba(251, 191, 36, 1)); }
+}
+
+.boss-ach-toast-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+}
+
+.boss-ach-toast-tag {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: #fbbf24;
+  text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+}
+
+.boss-ach-toast-title {
+  font-size: 16px;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 0.3px;
+}
+
+.boss-ach-toast-desc {
+  font-size: 12px;
+  font-weight: 500;
+  color: #cbd5e1;
+}
+
+body.theme-gentle_light .boss-achievement-toast,
+body.theme-zen_clay .boss-achievement-toast {
+  background: rgba(255, 255, 255, 0.98);
+  border-color: rgba(217, 119, 6, 0.85);
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.15), 0 0 25px rgba(217, 119, 6, 0.25);
+}
+
+body.theme-gentle_light .boss-ach-toast-title,
+body.theme-zen_clay .boss-ach-toast-title {
+  color: #0f172a;
+}
+
+body.theme-gentle_light .boss-ach-toast-desc,
+body.theme-zen_clay .boss-ach-toast-desc {
+  color: #475569;
+}
+
 /* ================= ⚙️ SETTINGS MODAL ================= */
 .settings-modal-overlay {
   position: fixed !important;
@@ -3031,6 +3117,26 @@ body.in-boss-mode #demo-theme-switcher {
   border: 1px solid rgba(251, 191, 36, 0.8);
   color: #fbbf24;
   box-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
+}
+
+.boss-phase-badge.p4 {
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.35), rgba(245, 158, 11, 0.35));
+  border: 1.5px solid rgba(244, 63, 94, 0.9);
+  color: #ffffff;
+  box-shadow: 0 0 14px rgba(236, 72, 153, 0.7), 0 0 26px rgba(245, 158, 11, 0.5);
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.9);
+  animation: pulse-p4-badge 1.8s ease-in-out infinite alternate;
+}
+
+@keyframes pulse-p4-badge {
+  from {
+    box-shadow: 0 0 12px rgba(236, 72, 153, 0.6), 0 0 22px rgba(245, 158, 11, 0.4);
+    border-color: rgba(244, 63, 94, 0.9);
+  }
+  to {
+    box-shadow: 0 0 22px rgba(0, 240, 255, 0.9), 0 0 36px rgba(236, 72, 153, 0.7);
+    border-color: rgba(0, 240, 255, 0.95);
+  }
 }
 
 .boss-timer-wrap {

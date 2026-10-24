@@ -22,7 +22,7 @@ export const DICTIONARY = {
     rush_tooltip: 'Chế độ đếm ngược thời gian kịch tính',
     btn_boss: 'Đấu trùm',
     btn_boss_active: 'Đang đấu trùm',
-    boss_tooltip: 'Chế độ thử thách đấu trùm 3 giai đoạn',
+    boss_tooltip: 'Chế độ thử thách đấu trùm 4 giai đoạn',
     btn_ai: 'Tự chơi',
     btn_ai_active: 'Dừng tự chơi',
     ai_tooltip: 'Bật/Tắt chế độ máy tự tính toán và đi từng nước',
@@ -202,7 +202,7 @@ export const DICTIONARY = {
 
     // Boss Rules Details
     rule_boss_goal_title: 'Mục tiêu tối thượng:',
-    rule_boss_goal_desc: 'Hạ gục Trùm Hư Không qua 3 giai đoạn (Phase 1: 500 HP ➔ Phase 2: 1,500 HP ➔ Phase 3: 2,048 HP).',
+    rule_boss_goal_desc: 'Hạ gục Trùm Hư Không qua 4 giai đoạn (Phase 1: Hành Tinh ➔ Phase 2: Hệ Mặt Trời ➔ Phase 3: Vũ Trụ ➔ Phase 4: Chúa Tể Đa Chiều Omniverse).',
     rule_boss_dmg_title: 'Sát thương số học:',
     rule_boss_dmg_desc: 'Mỗi lần gộp khối sẽ tích tụ năng lượng bắn laser trừ máu Boss (khối càng lớn sát thương càng cao, khối 2048 kết liễu ngay lập tức!).',
     rule_boss_time_title: 'Thời gian nghẹt thở:',
@@ -220,10 +220,10 @@ export const DICTIONARY = {
 
     // Boss Victory & Achievements
     boss_victory_heading: 'CHIẾN CÔNG HIỂN HÁCH!',
-    boss_victory_congrats: 'Nhiệt liệt hoan nghênh và chúc mừng Dũng Sĩ! Bạn đã xuất sắc vượt qua mọi thử thách, tiêu diệt hoàn toàn Trùm Hư Không Singularity qua 3 giai đoạn nghẹt thở!',
+    boss_victory_congrats: 'Nhiệt liệt hoan nghênh và chúc mừng Dũng Sĩ! Bạn đã xuất sắc vượt qua mọi thử thách, tiêu diệt hoàn toàn Trùm Tối Thượng qua cả 4 giai đoạn nghẹt thở!',
     boss_achieve_tier: 'THÀNH TỰU HUYỀN THOẠI ĐÃ MỞ KHÓA',
     boss_achieve_name: 'KẺ HỦY DIỆT HƯ KHÔNG (SINGULARITY SLAYER)',
-    boss_achieve_desc: 'Tiêu diệt thành công Dark Singularity Core ở Phase 3 bằng đòn kết liễu khối [2048]!',
+    boss_achieve_desc: 'Tiêu diệt thành công Chúa Tể Đa Chiều Omniverse bằng đòn kết liễu huyền thoại!',
     boss_stat_time: 'Thời gian diệt trùm',
     boss_stat_damage: 'Tổng sát thương',
     boss_stat_score: 'Điểm số trận đấu',
