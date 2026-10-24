@@ -206,7 +206,7 @@ export const DICTIONARY = {
     rule_boss_dmg_title: 'Sát thương số học:',
     rule_boss_dmg_desc: 'Mỗi lần gộp khối sẽ tích tụ năng lượng bắn laser trừ máu Boss (khối càng lớn sát thương càng cao, khối 2048 kết liễu ngay lập tức!).',
     rule_boss_time_title: 'Thời gian nghẹt thở:',
-    rule_boss_time_desc: 'Mỗi giai đoạn có thời gian giới hạn. Khi qua màn sẽ được dọn khối rác [2],[4] và cộng thêm thời gian.',
+    rule_boss_time_desc: 'Mỗi giai đoạn có thời gian thoải mái 2 phút (120s). Khi vượt qua mỗi giai đoạn sẽ được dọn sạch khối rác [2],[4] và cộng dồn thêm +120s.',
     rule_boss_bonus_title: 'Phép thuật cứu nguy đặc biệt:',
     rule_boss_bonus_desc: 'Nếu đồng hồ điểm về 0s mà Boss vẫn còn máu, mỗi phép bổ trợ (Gợi ý, Đi lại, Đổi vị trí) còn lại sẽ tự động quy đổi thành +15 giây thưởng để tiếp tục trận đấu!',
 

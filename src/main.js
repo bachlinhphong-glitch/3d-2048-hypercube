@@ -470,7 +470,7 @@ class GameApp {
         e.preventDefault();
         if (!this.isBossRaid) {
           this.activateBossModeWithCleanReset();
-          this.showSpellToast('PHASE 1 • PLANET TITAN (500 HP)');
+          this.showSpellToast('PHASE 1 • PLANET TITAN (500 HP | 120s)');
           return;
         }
         const nextP = this.bossManager.cyclePhaseForTest();
@@ -481,12 +481,12 @@ class GameApp {
           this.gameLogic.reset();
           this.spawnSpecificTile(0, 0, 0, 1024);
           this.spawnSpecificTile(0, 0, 1, 1024);
-          this.showSpellToast('PHASE 4 • OMNIVERSE GOD (2,048 HP) — Trượt Trái để gộp 2048!');
+          this.showSpellToast('PHASE 4 • OMNIVERSE GOD (2,048 HP | +120s) — Trượt Trái để gộp 2048!');
         } else {
           const toastNames = {
-            1: 'PHASE 1 • PLANET TITAN (500 HP)',
-            2: 'PHASE 2 • SOLAR SYSTEM (1,500 HP)',
-            3: 'PHASE 3 • COSMIC SINGULARITY (2,048 HP)',
+            1: 'PHASE 1 • PLANET TITAN (500 HP | 120s)',
+            2: 'PHASE 2 • SOLAR SYSTEM (1,500 HP | +120s)',
+            3: 'PHASE 3 • COSMIC SINGULARITY (2,048 HP | +120s)',
             5: '💥 BIG BANG SUPERNOVA FINALE'
           };
           this.showSpellToast(toastNames[nextP] || `Boss Phase ${nextP}`);

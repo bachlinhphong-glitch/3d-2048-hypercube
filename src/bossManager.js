@@ -7,10 +7,10 @@ import { Boss3DController } from './boss3D.js';
 /**
  * ⚡ BossManager — 4-Phase Boss Raid Lifecycle & Challenge Engine
  *
- * PHASE 1: PLANET TITAN (500 HP | 60s, +45s on clear + cleanses low [2], [4] tiles)
- * PHASE 2: SOLAR HELIOS (1,500 HP | +45s, +60s on clear)
- * PHASE 3: COSMIC SINGULARITY (2,048 HP | +60s, +60s on clear)
- * PHASE 4: OMNIVERSE GOD (2,048 HP | +60s — Merge [1024 + 1024] -> [2048] or deplete HP to obliterate)
+ * PHASE 1: PLANET TITAN (500 HP | 120s, +120s on clear + cleanses low [2], [4] tiles)
+ * PHASE 2: SOLAR HELIOS (1,500 HP | +120s, +120s on clear)
+ * PHASE 3: COSMIC SINGULARITY (2,048 HP | +120s, +120s on clear)
+ * PHASE 4: OMNIVERSE GOD (2,048 HP | +120s — Merge [1024 + 1024] -> [2048] or deplete HP to obliterate)
  */
 export class BossManager {
   constructor(gameApp) {
@@ -22,7 +22,7 @@ export class BossManager {
     this.phase = 1;
     this.maxHp = 500;
     this.hp = 500;
-    this.timer = 60.0;
+    this.timer = 120.0;
     this.clearTime = 0.0;
     this.isDefeated = false;
     this.isObliterating = false;
@@ -79,7 +79,7 @@ export class BossManager {
     this.phase = 1;
     this.maxHp = 500;
     this.hp = 500;
-    this.timer = 60.0;
+    this.timer = 120.0;
     this.clearTime = 0.0;
     this.isDefeated = false;
     this.isObliterating = false;
@@ -98,7 +98,7 @@ export class BossManager {
     if (this.hudEl) this.hudEl.style.display = 'flex';
     this.updateHUD();
 
-    this.triggerBanner('PLANET TITAN — PHASE 1', '500 HP | 60s');
+    this.triggerBanner('PLANET TITAN — PHASE 1', '500 HP | 120s (2:00)');
     soundManager.playPhaseTransition();
     soundManager.triggerHaptic('slide');
   }
@@ -245,38 +245,38 @@ export class BossManager {
       soundManager.playPhaseTransition();
       this.cleanseLowTiles();
 
-      this.timer += 45.0;
+      this.timer += 120.0;
       this.applyPhaseVisuals(2);
       this.hp = 1500;
       if (this.boss3D) this.boss3D.setHpRatio(1.0);
       this.updateHUD();
 
-      this.triggerBanner('SOLAR HELIOS — PHASE 2', '1,500 HP | +45s (Đã dọn sạch các khối [2], [4])');
+      this.triggerBanner('SOLAR HELIOS — PHASE 2', '1,500 HP | +120s (Đã dọn sạch các khối [2], [4])');
     } else if (this.phase === 2) {
       // Phase 2 -> Phase 3 (Cosmic Singularity)
       this.emitExpandingRingWave(0xa855f7);
       soundManager.playPhaseTransition();
 
-      this.timer += 60.0;
+      this.timer += 120.0;
       this.applyPhaseVisuals(3);
       this.hp = 2048;
       if (this.boss3D) this.boss3D.setHpRatio(1.0);
       this.updateHUD();
 
-      this.triggerBanner('💥 COSMIC SINGULARITY — PHASE 3', '2,048 HP | Hố Đen Quasar sụp đổ trọng lực!');
+      this.triggerBanner('💥 COSMIC SINGULARITY — PHASE 3', '2,048 HP | +120s • Hố Đen Quasar sụp đổ trọng lực!');
     } else if (this.phase === 3) {
       // Phase 3 -> Phase 4 (Omniverse Transcendent God)
       this.emitExpandingRingWave(0x00f0ff);
       soundManager.playPhaseTransition();
       this.cleanseLowTiles();
 
-      this.timer += 60.0;
+      this.timer += 120.0;
       this.applyPhaseVisuals(4);
       this.hp = 2048;
       if (this.boss3D) this.boss3D.setHpRatio(1.0);
       this.updateHUD();
 
-      this.triggerBanner('🌌 OMNIVERSE GOD — PHASE 4', '2,048 HP | +60s • Chúa Tể Đa Vũ Trụ Thức Tỉnh!');
+      this.triggerBanner('🌌 OMNIVERSE GOD — PHASE 4', '2,048 HP | +120s • Chúa Tể Đa Vũ Trụ Thức Tỉnh!');
     } else if (this.phase === 4) {
       // Phase 4 Defeated!
       this.executeGrandFinale();
@@ -600,7 +600,7 @@ export class BossManager {
       this.phase = nextP;
       this.maxHp = nextP === 1 ? 500 : (nextP === 2 ? 1500 : 2048);
       this.hp = this.maxHp;
-      this.timer = 60.0;
+      this.timer = 120.0;
       this.boss3D.setHpRatio(1.0);
       this.updateHUD();
       if (this.phaseBadgeEl) {
@@ -619,7 +619,7 @@ export class BossManager {
     this.phase = 3;
     this.applyPhaseVisuals(3);
     this.hp = 2048;
-    this.timer = 60.0;
+    this.timer = 120.0;
     if (this.boss3D) {
       this.boss3D.setPhase(3, true);
       this.boss3D.setHpRatio(1.0);
