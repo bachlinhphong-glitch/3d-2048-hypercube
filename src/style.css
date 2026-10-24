@@ -5092,62 +5092,92 @@ body.theme-zen_clay .rush-progress-track {
   text-shadow: 0 0 22px rgba(250, 204, 21, 1), 0 0 45px rgba(245, 158, 11, 0.8), 0 2px 6px rgba(0, 0, 0, 0.95);
 }
 
-/* 2. Electrifying Combo Streak Badge */
+/* 2. Sleek Floating Combo Streak (Pure Typography & Vibrant Glow — No Clunky Pill Container) */
 .combo-callout {
   position: absolute;
-  top: 112px;
-  left: 50%;
-  transform: translateX(-50%);
   z-index: 52;
   pointer-events: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 6px 18px;
-  border-radius: 999px;
-  font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
-  font-size: 0.95rem;
-  font-weight: 800;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
-  transition: opacity 0.25s ease;
+  font-family: 'Outfit', 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 1.55rem;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  text-transform: none;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  user-select: none;
   white-space: nowrap;
+  will-change: transform, opacity;
 }
 
 .combo-callout.hidden {
   display: none !important;
 }
 
+/* Distinctive Electric Colors (Different from basic +2/+4 score colors) */
 .combo-callout.combo-x2 {
-  background: rgba(249, 115, 22, 0.22);
-  border: 1.5px solid rgba(249, 115, 22, 0.7);
-  color: #ffedd5;
-  text-shadow: 0 0 10px rgba(249, 115, 22, 0.8);
+  color: #ffffff;
+  text-shadow:
+    0 0 10px #f43f5e,
+    0 0 22px #ec4899,
+    0 0 38px #a855f7,
+    0 2px 4px rgba(0, 0, 0, 0.95);
 }
 
 .combo-callout.combo-x3 {
-  background: rgba(234, 179, 8, 0.24);
-  border: 1.5px solid rgba(234, 179, 8, 0.8);
-  color: #fef08a;
-  text-shadow: 0 0 14px rgba(234, 179, 8, 0.9);
+  color: #ffffff;
+  text-shadow:
+    0 0 12px #eab308,
+    0 0 26px #f59e0b,
+    0 0 42px #d97706,
+    0 2px 4px rgba(0, 0, 0, 0.95);
 }
 
 .combo-callout.combo-x4 {
-  background: rgba(236, 72, 153, 0.25);
-  border: 1.5px solid rgba(236, 72, 153, 0.85);
-  color: #fdf2f8;
-  text-shadow: 0 0 16px rgba(236, 72, 153, 0.95);
+  color: #ffffff;
+  text-shadow:
+    0 0 14px #06b6d4,
+    0 0 28px #3b82f6,
+    0 0 46px #6366f1,
+    0 2px 4px rgba(0, 0, 0, 0.95);
 }
 
 .combo-callout.combo-x5 {
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(168, 85, 247, 0.3));
-  border: 1.5px solid rgba(250, 204, 21, 0.9);
   color: #ffffff;
-  text-shadow: 0 0 18px rgba(250, 204, 21, 1), 0 0 30px rgba(168, 85, 247, 0.8);
+  text-shadow:
+    0 0 16px #fbbf24,
+    0 0 32px #ec4899,
+    0 0 52px #00f0ff,
+    0 2px 5px rgba(0, 0, 0, 0.95);
+}
+
+/* Light & Warm Theme High-Contrast Overrides */
+body.theme-gentle_light .combo-callout.combo-x2,
+body.theme-zen_clay .combo-callout.combo-x2 {
+  color: #e11d48;
+  text-shadow: 0 0 10px rgba(225, 29, 72, 0.4), 0 2px 4px rgba(255, 255, 255, 0.9);
+}
+
+body.theme-gentle_light .combo-callout.combo-x3,
+body.theme-zen_clay .combo-callout.combo-x3 {
+  color: #d97706;
+  text-shadow: 0 0 10px rgba(217, 119, 6, 0.4), 0 2px 4px rgba(255, 255, 255, 0.9);
+}
+
+body.theme-gentle_light .combo-callout.combo-x4,
+body.theme-zen_clay .combo-callout.combo-x4 {
+  color: #0284c7;
+  text-shadow: 0 0 10px rgba(2, 132, 199, 0.4), 0 2px 4px rgba(255, 255, 255, 0.9);
+}
+
+body.theme-gentle_light .combo-callout.combo-x5,
+body.theme-zen_clay .combo-callout.combo-x5 {
+  color: #9333ea;
+  text-shadow: 0 0 12px rgba(147, 51, 234, 0.4), 0 2px 4px rgba(255, 255, 255, 0.9);
 }
 
 /* 3. Non-blocking Milestone Unlock Celebration Banner */
@@ -5369,9 +5399,8 @@ body.in-app-browser .spell-bar {
     gap: 8px;
   }
   .combo-callout {
-    top: 142px;
-    font-size: 0.84rem;
-    padding: 5px 14px;
+    font-size: 1.35rem;
+    padding: 0 !important;
   }
   .milestone-icon {
     font-size: 1.3rem;

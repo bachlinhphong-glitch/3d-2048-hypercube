@@ -2386,20 +2386,20 @@ class GameApp {
     );
   }
 
-  showComboCallout(count) {
+  showComboCallout(count, screenPos = null) {
     if (!this.comboCalloutEl) return;
     let text = '';
     let cls = 'combo-x2';
     if (count === 2) {
-      text = t('combo_2') || 'Combo x2 🔥';
+      text = t('combo_2') || 'Combo x2';
     } else if (count === 3) {
-      text = t('combo_3') || 'Siêu Combo x3 ⚡';
+      text = t('combo_3') || 'Combo x3';
       cls = 'combo-x3';
     } else if (count === 4) {
-      text = t('combo_4') || 'Bùng Nổ x4 💥';
+      text = t('combo_4') || 'Combo x4';
       cls = 'combo-x4';
     } else {
-      const raw = t('combo_5') || 'Thần Thoại x{n} 🌟';
+      const raw = t('combo_5') || 'Combo x{n}';
       text = raw.replace('{n}', count);
       cls = 'combo-x5';
     }
@@ -2409,23 +2409,31 @@ class GameApp {
     this.comboCalloutEl.classList.remove('hidden');
     this.comboCalloutEl.removeAttribute('aria-hidden');
 
+    if (screenPos) {
+      this.comboCalloutEl.style.left = `${screenPos.x}px`;
+      this.comboCalloutEl.style.top = `${screenPos.y - 32}px`;
+      this.comboCalloutEl.style.transform = 'translate(-50%, -50%)';
+    } else {
+      this.comboCalloutEl.style.left = '50%';
+      this.comboCalloutEl.style.top = '145px';
+      this.comboCalloutEl.style.transform = 'translate(-50%, -50%)';
+    }
+
     gsap.killTweensOf(this.comboCalloutEl);
     gsap.fromTo(this.comboCalloutEl,
-      { scale: 0.4, opacity: 0, y: 18 },
-      { scale: 1, opacity: 1, y: 0, duration: 0.28, ease: 'back.out(2.2)' }
-    );
-    gsap.to(this.comboCalloutEl, {
-      opacity: 0,
-      y: -22,
-      scale: 0.92,
-      duration: 0.35,
-      delay: 1.15,
-      ease: 'power2.in',
-      onComplete: () => {
-        this.comboCalloutEl.classList.add('hidden');
-        this.comboCalloutEl.setAttribute('aria-hidden', 'true');
+      { scale: 0.6, opacity: 1, y: 0 },
+      {
+        scale: 1.25,
+        opacity: 0,
+        y: -48,
+        duration: 0.95,
+        ease: 'power2.out',
+        onComplete: () => {
+          this.comboCalloutEl.classList.add('hidden');
+          this.comboCalloutEl.setAttribute('aria-hidden', 'true');
+        }
       }
-    });
+    );
   }
 
   showMilestoneCelebration(value) {
@@ -2634,6 +2642,7 @@ class GameApp {
 
     // Process merges
     let maxMergedVal = 0;
+    let lastMergeScreenPos = null;
     mergesToProcess.forEach(m => {
       const surviving = this.tiles3D[m.targetL][m.targetR][m.targetC];
       maxMergedVal = Math.max(maxMergedVal, m.newValue);
@@ -2661,6 +2670,7 @@ class GameApp {
 
         // 3D Floating Score Popup
         const screenPos = this.project3DToScreen(new THREE.Vector3(pos.x, pos.y + 0.6, pos.z));
+        lastMergeScreenPos = screenPos;
         this.spawnFloatingScore(`+${m.newValue}`, screenPos, m.newValue);
 
         // Milestone Unlock Celebration
@@ -2688,6 +2698,7 @@ class GameApp {
 
         // 3D Floating Score Popup
         const screenPos = this.project3DToScreen(new THREE.Vector3(pos.x, pos.y + 0.6, pos.z));
+        lastMergeScreenPos = screenPos;
         this.spawnFloatingScore(`+${m.newValue}`, screenPos, m.newValue);
 
         // Milestone Unlock Celebration
@@ -2700,7 +2711,7 @@ class GameApp {
 
     // Show Combo Streak Callout
     if (this.comboCount >= 2) {
-      this.showComboCallout(this.comboCount);
+      this.showComboCallout(this.comboCount, lastMergeScreenPos);
     }
 
     // Screen Shake on big merge (or if in Hyper Neon)
