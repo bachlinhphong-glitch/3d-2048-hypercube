@@ -1,4 +1,4 @@
-const CACHE_NAME = 'v6.6.8-2048-hypercube';
+const CACHE_NAME = 'v6.6.9-2048-hypercube';
 const CACHE_URLS = [
   './',
   './index.html',
@@ -17,6 +17,7 @@ const CACHE_URLS = [
   './src/ghostPreview.js',
   './src/aiBot.js',
   './src/bossManager.js',
+  './src/boss3D.js',
   './src/i18n.js',
   './src/trophy.js',
   './src/questManager.js',

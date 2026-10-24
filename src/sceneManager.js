@@ -778,6 +778,52 @@ export class SceneManager {
     });
   }
 
+  setBossCamera(active) {
+    this.isBossCamera = active;
+    this.requestShadowUpdate(60);
+    gsap.killTweensOf(this.camera.position);
+    gsap.killTweensOf(this.controls.target);
+
+    const mobile = this.isMobilePortrait();
+    const targetPos = active
+      ? new THREE.Vector3(0, mobile ? 9.8 : 8.8, mobile ? 13.5 : 11.2)
+      : this.getDefaultCamPos(1);
+
+    const targetLook = active
+      ? new THREE.Vector3(0, mobile ? 2.2 : 1.85, -1.2)
+      : this.getDefaultTarget();
+
+    if (this.controls) this.controls.enabled = false;
+
+    gsap.to(this.camera.position, {
+      x: targetPos.x,
+      y: targetPos.y,
+      z: targetPos.z,
+      duration: 0.75,
+      ease: 'power2.inOut',
+      onUpdate: () => {
+        this.camera.lookAt(targetLook);
+        this.requestShadowUpdate(2);
+      },
+      onComplete: () => {
+        if (this.controls) {
+          this.controls.target.copy(targetLook);
+          this.controls.cursor.copy(targetLook);
+          this.controls.enabled = true;
+          this.controls.update();
+        }
+      }
+    });
+
+    gsap.to(this.controls.target, {
+      x: targetLook.x,
+      y: targetLook.y,
+      z: targetLook.z,
+      duration: 0.75,
+      ease: 'power2.inOut'
+    });
+  }
+
   handleResize() {
     const width = this.container.clientWidth;
     const height = this.container.clientHeight;

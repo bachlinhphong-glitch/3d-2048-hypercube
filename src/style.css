@@ -2930,24 +2930,70 @@ body.theme-zen_clay .share-x .share-app-svg {
   to { box-shadow: 0 0 20px rgba(0, 240, 255, 0.9); }
 }
 
+/* ================= BOSS HUD & HEADER COEXISTENCE FIX ================= */
+
+/* Hide secondary header pills and demo switcher during Boss Mode to guarantee 1-row header & ample headroom */
+body.in-boss-mode .header-modes-cluster .shape-quick-wrapper,
+body.in-boss-mode .header-modes-cluster #btn-toggle-rush,
+body.in-boss-mode .header-modes-cluster #btn-quests-toggle,
+body.in-boss-mode #demo-theme-switcher {
+  display: none !important;
+}
+
 .boss-hud {
-  position: absolute;
-  top: 72px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: min(92%, 480px);
-  background: rgba(10, 16, 26, 0.88);
+  position: absolute !important;
+  top: 86px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: min(90%, 460px) !important;
+  background: rgba(10, 16, 26, 0.92) !important;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(0, 240, 255, 0.28);
-  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.55), 0 0 18px rgba(0, 240, 255, 0.12);
-  border-radius: var(--radius-full);
-  padding: 6px 14px;
+  border: 1px solid rgba(56, 189, 248, 0.38) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.65), 0 0 16px rgba(56, 189, 248, 0.16) !important;
+  border-radius: var(--radius-full) !important;
+  padding: 6px 16px !important;
   display: flex;
   align-items: center;
-  z-index: 50;
+  z-index: 25 !important;
   pointer-events: auto;
   transition: all 0.3s ease;
+}
+
+@media (max-width: 640px) {
+  .boss-hud {
+    top: 78px !important;
+    width: min(94%, 380px) !important;
+    padding: 5px 12px !important;
+  }
+}
+
+/* Floating 3D Damage Numbers */
+.boss-dmg-popup {
+  position: fixed;
+  top: 22%;
+  left: 50%;
+  transform: translate(-50%, 0) scale(0.9);
+  z-index: 45;
+  font-family: 'Outfit', 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 1.85rem;
+  font-weight: 900;
+  color: #38bdf8;
+  text-shadow: 0 0 16px rgba(56, 189, 248, 0.85), 0 3px 8px rgba(0, 0, 0, 0.95);
+  pointer-events: none;
+  animation: bossDmgFloat 0.95s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.boss-dmg-popup.crit {
+  font-size: 2.45rem;
+  color: #ffd700;
+  text-shadow: 0 0 25px rgba(255, 215, 0, 0.95), 0 4px 12px rgba(0, 0, 0, 0.95);
+}
+
+@keyframes bossDmgFloat {
+  0%   { opacity: 0; transform: translate(-50%, 18px) scale(0.65); }
+  22%  { opacity: 1; transform: translate(-50%, -6px) scale(1.15); }
+  100% { opacity: 0; transform: translate(-50%, -52px) scale(0.95); }
 }
 
 .boss-hud-inner {
@@ -4952,16 +4998,15 @@ body.theme-zen_clay .rush-progress-track {
     font-size: 20px !important;
   }
 
-  /* Boss HUD on mobile: Anchored below 2-row header without obscuring the 3D board */
+  /* Boss HUD on mobile: Centered below single-row header */
   .boss-hud {
     position: absolute !important;
-    top: 106px !important;
-    left: 10px !important;
-    right: 48px !important;
-    width: auto !important;
-    max-width: 320px !important;
-    transform: none !important;
-    padding: 6px 12px !important;
+    top: 64px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: min(94%, 380px) !important;
+    max-width: 380px !important;
+    padding: 5px 12px !important;
     z-index: 25 !important;
   }
 

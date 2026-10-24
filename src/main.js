@@ -55,6 +55,8 @@ class GameApp {
     this.soundManager = soundManager;
     window.soundManager = soundManager;
     this.bossManager = new BossManager(this);
+    this.boss3D = this.bossManager.boss3D;
+    window.boss3D = this.boss3D;
     this.isBossRaid = false;
     this.trophyMascot = null;
     this.bossTrophyMascot = null;
@@ -462,12 +464,32 @@ class GameApp {
       });
     }
 
-    // Keyboard shortcut Alt+B for testing Phase 3
+    // Keyboard shortcut Alt+B to cycle Phase 1 -> Phase 2 -> Phase 3 -> Big Bang Supernova
     window.addEventListener('keydown', (e) => {
       if (e.altKey && (e.code === 'KeyB' || e.key === 'b' || e.key === 'B')) {
         e.preventDefault();
-        if (!this.isBossRaid) this.activateBossModeWithCleanReset();
-        this.bossManager.setupTestPhase3();
+        if (!this.isBossRaid) {
+          this.activateBossModeWithCleanReset();
+          this.showSpellToast('PHASE 1 • PLANET TITAN (500 HP)');
+          return;
+        }
+        const nextP = this.bossManager.cyclePhaseForTest();
+        if (nextP === 3) {
+          // Prepare two 1024 tiles for testing the 2048 obliteration strike
+          this.cleanAllSceneTiles();
+          this.tiles3D = this.createEmptyTileGrid();
+          this.gameLogic.reset();
+          this.spawnSpecificTile(0, 0, 0, 1024);
+          this.spawnSpecificTile(0, 0, 1, 1024);
+          this.showSpellToast('PHASE 3 • COSMIC SINGULARITY (2,048 HP) — Trượt Trái để gộp 2048!');
+        } else {
+          const toastNames = {
+            1: 'PHASE 1 • PLANET TITAN (500 HP)',
+            2: 'PHASE 2 • SOLAR SYSTEM (1,500 HP)',
+            4: '💥 BIG BANG SUPERNOVA FINALE'
+          };
+          this.showSpellToast(toastNames[nextP] || `Boss Phase ${nextP}`);
+        }
       }
     });
 
@@ -811,6 +833,9 @@ class GameApp {
   switchTheme(newTheme) {
     this.currentTheme = newTheme;
     document.body.className = `theme-${newTheme}`;
+    if (this.isBossRaid) {
+      document.body.classList.add('in-boss-mode');
+    }
     this.sceneManager.setTheme(newTheme);
     if (this.board && this.board.setTheme) {
       this.board.setTheme(newTheme);
