@@ -33,17 +33,17 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./src/style.css?v=6.6.9">
+  <link rel="stylesheet" href="./src/style.css?v=6.7.0">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=6.6.9').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=6.7.0').then(reg => {
           reg.update();
         }).catch(() => {});
       });
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!sessionStorage.getItem('sw_reloaded_669')) {
-          sessionStorage.setItem('sw_reloaded_669', '1');
+        if (!sessionStorage.getItem('sw_reloaded_670')) {
+          sessionStorage.setItem('sw_reloaded_670', '1');
           window.location.reload();
         }
       });
@@ -1134,6 +1134,6 @@
   </div>
 
   <!-- Main Game Script -->
-  <script type="module" src="./src/main.js?v=6.6.9"></script>
+  <script type="module" src="./src/main.js?v=6.7.0"></script>
 </body>
 </html>

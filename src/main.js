@@ -3482,24 +3482,24 @@ class GameApp {
   updateTrophyMascot() {
     if (!this.questManager) return;
 
-    // 1. 2048 Grand Master Trophy Mascot (Right corner)
+    // 1. 2048 Grand Master Trophy Mascot (Right flank outside board)
     const isC1Unlocked = this.questManager.isAllCompleted();
     if (isC1Unlocked && !this.trophyMascot) {
       this.trophyMascot = createChampionsTrophyMesh(true);
-      this.trophyMascot.scale.set(0.18, 0.18, 0.18);
-      this.trophyMascot.position.set(2.8, 0.25, -2.8);
+      this.trophyMascot.scale.set(0.24, 0.24, 0.24);
+      this.trophyMascot.position.set(4.85, 0.0, -2.4);
       this.sceneManager.scene.add(this.trophyMascot);
     } else if (!isC1Unlocked && this.trophyMascot) {
       this.sceneManager.scene.remove(this.trophyMascot);
       this.trophyMascot = null;
     }
 
-    // 2. Dark Singularity Slayer Trophy Mascot (Left corner)
+    // 2. Dark Singularity Slayer Trophy Mascot (Left flank outside board)
     const isBossUnlocked = this.questManager.isBossDefeated();
     if (isBossUnlocked && !this.bossTrophyMascot) {
       this.bossTrophyMascot = createBossTrophyMesh(true);
-      this.bossTrophyMascot.scale.set(0.18, 0.18, 0.18);
-      this.bossTrophyMascot.position.set(-2.8, 0.25, -2.8);
+      this.bossTrophyMascot.scale.set(0.24, 0.24, 0.24);
+      this.bossTrophyMascot.position.set(-4.85, 0.0, -2.4);
       this.sceneManager.scene.add(this.bossTrophyMascot);
     } else if (!isBossUnlocked && this.bossTrophyMascot) {
       this.sceneManager.scene.remove(this.bossTrophyMascot);

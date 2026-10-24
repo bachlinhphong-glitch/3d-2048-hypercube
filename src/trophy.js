@@ -94,27 +94,29 @@ export function createChampionsTrophyMesh(isUnlocked = true) {
   const cubeTex = new THREE.CanvasTexture(cubeCanvas);
 
   // Materials - Iconic UEFA Sterling Silver 925 & Imperial 24K Gold Trim
-  const silverColor = 0xf8fafc;
+  const silverColor = 0xffffff;
   const silverMat = new THREE.MeshStandardMaterial({
     color: silverColor,
-    roughness: isUnlocked ? 0.08 : 0.25,
-    metalness: 0.98,
-    emissive: 0x1e293b,
-    emissiveIntensity: isUnlocked ? 0.35 : 0.15
+    roughness: isUnlocked ? 0.16 : 0.35,
+    metalness: 0.58,
+    emissive: 0xdbeafe,
+    emissiveIntensity: isUnlocked ? 0.38 : 0.15
   });
 
   const goldTrimMat = new THREE.MeshStandardMaterial({
     color: 0xffd700,
-    roughness: 0.12,
-    metalness: 0.95,
-    emissive: 0x422006,
-    emissiveIntensity: isUnlocked ? 0.5 : 0.2
+    roughness: 0.18,
+    metalness: 0.82,
+    emissive: 0xd97706,
+    emissiveIntensity: isUnlocked ? 0.45 : 0.2
   });
 
   const pedestalMat = new THREE.MeshStandardMaterial({
-    color: 0x090d16,
-    roughness: 0.2,
-    metalness: 0.8
+    color: 0x0f172a,
+    roughness: 0.35,
+    metalness: 0.65,
+    emissive: 0x1e293b,
+    emissiveIntensity: 0.2
   });
 
   const plaqueMat = new THREE.MeshBasicMaterial({
@@ -125,19 +127,19 @@ export function createChampionsTrophyMesh(isUnlocked = true) {
   const gemMat = new THREE.MeshStandardMaterial({
     color: 0x00f0ff,
     roughness: 0.08,
-    metalness: 0.3,
-    emissive: 0x00a2ff,
-    emissiveIntensity: isUnlocked ? 0.9 : 0.3,
+    metalness: 0.25,
+    emissive: 0x0284c7,
+    emissiveIntensity: isUnlocked ? 0.95 : 0.35,
     transparent: true,
     opacity: 0.92
   });
 
   const crownCubeMat = new THREE.MeshStandardMaterial({
     map: cubeTex,
-    roughness: 0.1,
-    metalness: 0.95,
-    emissive: 0xffd700,
-    emissiveIntensity: isUnlocked ? 0.45 : 0.2
+    roughness: 0.18,
+    metalness: 0.55,
+    emissive: 0xf59e0b,
+    emissiveIntensity: isUnlocked ? 0.5 : 0.2
   });
 
   // --- Pedestal Base ---
@@ -194,19 +196,29 @@ export function createChampionsTrophyMesh(isUnlocked = true) {
   chaliceBase.position.y = 3.05;
   trophyGroup.add(chaliceBase);
 
-  const chaliceBowl = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.2, 1.35, 36), silverMat);
+  // Chalice Outer Wall (openEnded so top is open)
+  const chaliceBowl = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.2, 1.35, 36, 1, true), silverMat);
   chaliceBowl.position.y = 3.95;
   trophyGroup.add(chaliceBowl);
 
+  // Chalice Inner Wall (bright silver-white interior)
   const innerMat = new THREE.MeshStandardMaterial({
-    color: 0x94a3b8,
-    roughness: 0.2,
-    metalness: 0.95,
+    color: 0xf1f5f9,
+    roughness: 0.28,
+    metalness: 0.45,
+    emissive: 0x94a3b8,
+    emissiveIntensity: 0.35,
     side: THREE.BackSide
   });
-  const chaliceInner = new THREE.Mesh(new THREE.CylinderGeometry(1.42, 1.1, 1.3, 36), innerMat);
+  const chaliceInner = new THREE.Mesh(new THREE.CylinderGeometry(1.42, 1.1, 1.3, 36, 1, true), innerMat);
   chaliceInner.position.y = 4.0;
   trophyGroup.add(chaliceInner);
+
+  // Chalice Inner Base Floor (circular disk at bottom of cup)
+  const innerFloor = new THREE.Mesh(new THREE.CircleGeometry(1.1, 36), innerMat);
+  innerFloor.rotation.x = -Math.PI / 2;
+  innerFloor.position.y = 3.36;
+  trophyGroup.add(innerFloor);
 
   const bowlRim = new THREE.Mesh(new THREE.TorusGeometry(1.5, 0.09, 16, 48), goldTrimMat);
   bowlRim.rotation.x = Math.PI / 2;
