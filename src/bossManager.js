@@ -341,6 +341,21 @@ export class BossManager {
         }
       }
     }
+
+    // Ensure board always has at least 2 active tiles so the player cannot be soft-locked
+    let remainingTiles = 0;
+    for (let l = 0; l < logic.layers; l++) {
+      for (let r = 0; r < logic.rows; r++) {
+        for (let c = 0; c < logic.cols; c++) {
+          if (logic.grid[l][r][c]) remainingTiles++;
+        }
+      }
+    }
+    while (remainingTiles < 2) {
+      this.gameApp.spawnTile();
+      remainingTiles++;
+    }
+
     if (count > 0) {
       this.gameApp.showSpellToast(`✨ Đã dọn sạch ${count} khối số nhỏ [2] & [4]!`);
       this.gameApp.saveGameState();

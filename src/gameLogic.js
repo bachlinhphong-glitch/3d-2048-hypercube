@@ -27,14 +27,6 @@ export class Game2048Logic {
     this.history = [];
   }
 
-  get spellCharges() {
-    return {
-      hint: Math.max(0, this.maxSpellUses - this.spells.hint.used),
-      undo: Math.max(0, this.maxSpellUses - this.spells.undo.used),
-      swap: Math.max(0, this.maxSpellUses - this.spells.swap.used)
-    };
-  }
-
   initDimensions() {
     if (this.mode === '3x3x3') {
       this.layers = 3;
@@ -639,11 +631,45 @@ export class Game2048Logic {
     return { moved, grid: newGrid, scoreAdded, movements, merges };
   }
 
-  evaluateBoard(grid, scoreAdded) {
+  evaluateBoard(grid, scoreAdded = 0) {
     let emptyCount = 0;
     let maxTile = 0;
     let maxTilePos = null;
     let smoothness = 0;
+
+    // Corner snake gradient matrices for 4x4
+    const SNAKE_4X4 = [
+      // Top-Left snake
+      [
+        [2048, 1024, 512, 256],
+        [16,   32,   64,  128],
+        [8,    4,    2,   1  ],
+        [0.5,  0.25, 0.1, 0  ]
+      ],
+      // Top-Right snake
+      [
+        [256, 512, 1024, 2048],
+        [128,  64,   32,   16],
+        [1,    2,    4,    8 ],
+        [0,   0.1, 0.25, 0.5 ]
+      ],
+      // Bottom-Left snake
+      [
+        [0.5,  0.25, 0.1, 0  ],
+        [8,    4,    2,   1  ],
+        [16,   32,   64,  128],
+        [2048, 1024, 512, 256]
+      ],
+      // Bottom-Right snake
+      [
+        [0,   0.1, 0.25, 0.5 ],
+        [1,    2,    4,    8 ],
+        [128,  64,   32,   16],
+        [256, 512, 1024, 2048]
+      ]
+    ];
+
+    let snakeScores = [0, 0, 0, 0];
 
     for (let l = 0; l < this.layers; l++) {
       for (let r = 0; r < this.rows; r++) {
@@ -653,30 +679,75 @@ export class Game2048Logic {
             emptyCount++;
           } else {
             const val = cell.value;
+            const logVal = Math.log2(val);
             if (val > maxTile) {
               maxTile = val;
               maxTilePos = { l, r, c };
             }
 
+            if (this.mode === '4x4') {
+              for (let s = 0; s < 4; s++) {
+                snakeScores[s] += SNAKE_4X4[s][r][c] * logVal;
+              }
+            }
+
             if (c < this.cols - 1 && grid[l][r][c + 1]) {
-              smoothness -= Math.abs(Math.log2(val) - Math.log2(grid[l][r][c + 1].value));
+              smoothness -= Math.abs(logVal - Math.log2(grid[l][r][c + 1].value));
             }
             if (r < this.rows - 1 && grid[l][r + 1][c]) {
-              smoothness -= Math.abs(Math.log2(val) - Math.log2(grid[l][r + 1][c].value));
+              smoothness -= Math.abs(logVal - Math.log2(grid[l][r + 1][c].value));
+            }
+            if (this.mode === '3x3x3' && l < this.layers - 1 && grid[l + 1][r][c]) {
+              smoothness -= Math.abs(logVal - Math.log2(grid[l + 1][r][c].value));
             }
           }
         }
       }
     }
 
-    let cornerBonus = 0;
-    if (maxTilePos) {
-      const isCorner = (maxTilePos.r === 0 || maxTilePos.r === this.rows - 1) &&
-                       (maxTilePos.c === 0 || maxTilePos.c === this.cols - 1);
-      if (isCorner) cornerBonus = 800;
+    // Monotonicity evaluation
+    let monoPenalty = 0;
+    for (let l = 0; l < this.layers; l++) {
+      for (let r = 0; r < this.rows; r++) {
+        let diffInc = 0, diffDec = 0;
+        for (let c = 0; c < this.cols - 1; c++) {
+          const v1 = grid[l][r][c] ? Math.log2(grid[l][r][c].value) : 0;
+          const v2 = grid[l][r][c + 1] ? Math.log2(grid[l][r][c + 1].value) : 0;
+          if (v1 > v2) diffDec += (v1 - v2);
+          else diffInc += (v2 - v1);
+        }
+        monoPenalty -= Math.min(diffInc, diffDec);
+      }
+      for (let c = 0; c < this.cols; c++) {
+        let diffInc = 0, diffDec = 0;
+        for (let r = 0; r < this.rows - 1; r++) {
+          const v1 = grid[l][r][c] ? Math.log2(grid[l][r][c].value) : 0;
+          const v2 = grid[l][r + 1][c] ? Math.log2(grid[l][r + 1][c].value) : 0;
+          if (v1 > v2) diffDec += (v1 - v2);
+          else diffInc += (v2 - v1);
+        }
+        monoPenalty -= Math.min(diffInc, diffDec);
+      }
     }
 
-    return (emptyCount * 180) + (scoreAdded * 2.5) + cornerBonus + (smoothness * 20);
+    let cornerBonus = 0;
+    if (maxTilePos) {
+      const isCorner2D = (maxTilePos.r === 0 || maxTilePos.r === this.rows - 1) &&
+                         (maxTilePos.c === 0 || maxTilePos.c === this.cols - 1);
+      const isCorner3D = this.mode !== '3x3x3' || (maxTilePos.l === 0 || maxTilePos.l === this.layers - 1);
+      if (isCorner2D && isCorner3D) {
+        cornerBonus = Math.log2(maxTile) * 120;
+      }
+    }
+
+    const maxSnake = this.mode === '4x4' ? Math.max(...snakeScores) : 0;
+
+    return (emptyCount * 250) +
+           (maxSnake * 1.5) +
+           (smoothness * 22) +
+           (monoPenalty * 40) +
+           cornerBonus +
+           (scoreAdded * 2.5);
   }
 
   getBestMove() {
