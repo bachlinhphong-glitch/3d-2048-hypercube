@@ -2549,6 +2549,98 @@ body.theme-zen_clay .boss-ach-toast-desc {
   color: #475569;
 }
 
+/* ================= 🚀 HOLOGRAPHIC GAME ENTRANCE TOAST & FLASH ================= */
+.game-entrance-toast {
+  position: fixed;
+  top: 96px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3200;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 28px;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.94) 0%, rgba(24, 18, 43, 0.96) 100%);
+  border: 1.5px solid rgba(56, 189, 248, 0.7);
+  border-radius: 9999px;
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.8), 0 0 35px rgba(56, 189, 248, 0.4);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  will-change: transform, opacity;
+  user-select: none;
+}
+
+.entrance-toast-icon {
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.9));
+  animation: entranceIconGlow 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes entranceIconGlow {
+  from { transform: scale(0.9) rotate(-8deg); filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.7)); }
+  to { transform: scale(1.15) rotate(8deg); filter: drop-shadow(0 0 16px rgba(251, 191, 36, 0.9)); }
+}
+
+.entrance-toast-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+}
+
+.entrance-toast-title {
+  font-family: 'Outfit', -apple-system, sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  background: linear-gradient(90deg, #ffffff 0%, #38bdf8 60%, #ffd700 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 8px rgba(56, 189, 248, 0.4));
+}
+
+.entrance-toast-sub {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  letter-spacing: 0.4px;
+}
+
+body.theme-gentle_light .game-entrance-toast,
+body.theme-zen_clay .game-entrance-toast {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1.5px solid rgba(14, 165, 233, 0.5);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15), 0 0 20px rgba(56, 189, 248, 0.2);
+}
+
+body.theme-gentle_light .entrance-toast-title,
+body.theme-zen_clay .entrance-toast-title {
+  background: linear-gradient(90deg, #0f172a 0%, #0284c7 60%, #d97706 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+body.theme-gentle_light .entrance-toast-sub,
+body.theme-zen_clay .entrance-toast-sub {
+  color: #64748b;
+}
+
+/* Ambient canvas intro flash overlay */
+.game-intro-flash {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.28) 0%, rgba(0, 240, 255, 0.12) 40%, transparent 75%);
+  pointer-events: none;
+  z-index: 2900;
+  opacity: 0;
+  will-change: opacity;
+}
+
 /* ================= ⚙️ SETTINGS MODAL ================= */
 .settings-modal-overlay {
   position: fixed !important;

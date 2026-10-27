@@ -28,6 +28,8 @@ export const DICTIONARY = {
     ai_tooltip: 'Bật/Tắt chế độ máy tự tính toán và đi từng nước',
     btn_new_game: 'Chơi mới',
     new_game_tooltip: 'Bắt đầu ván chơi mới',
+    game_ready_callout: 'BẮT ĐẦU VÁN MỚI!',
+    game_ready_sub: 'Vuốt để gộp khối & phá vỡ kỷ lục',
     settings_tooltip: 'Mở Cài đặt hệ thống',
 
     // Settings Modal
@@ -289,6 +291,8 @@ export const DICTIONARY = {
     ai_tooltip: 'Toggle heuristic AI auto-play solver',
     btn_new_game: 'New Game',
     new_game_tooltip: 'Start a fresh match',
+    game_ready_callout: 'READY • GAME ON!',
+    game_ready_sub: 'Swipe to merge & break your record',
     settings_tooltip: 'Open Game Settings',
 
     // Settings Modal
@@ -548,6 +552,8 @@ export const DICTIONARY = {
     ai_tooltip: 'AI自動プレイを切り替え',
     btn_new_game: '新規',
     new_game_tooltip: '新しいゲームを開始',
+    game_ready_callout: 'スタート • ゲーム開始!',
+    game_ready_sub: 'スワイプして数字を合体させよう',
     settings_tooltip: 'ゲーム設定を開く',
 
     // Settings Modal
@@ -785,6 +791,8 @@ export const DICTIONARY = {
     ai_tooltip: 'AI 자동 플레이 켜기/끄기',
     btn_new_game: '새 게임',
     new_game_tooltip: '새로운 게임 시작',
+    game_ready_callout: '준비 • 게임 시작!',
+    game_ready_sub: '스와이프하여 타일을 합치세요',
     settings_tooltip: '게임 설정 열기',
 
     // Settings Modal

@@ -2222,6 +2222,7 @@ class GameApp {
     this.isAnimating = false;
 
     if (checkSaved && this.restoreSavedGame()) {
+      this.playBoardEntrance(true);
       this.isAnimating = false;
       return;
     }
@@ -2483,14 +2484,60 @@ class GameApp {
     });
   }
 
-  playBoardEntrance() {
+  playBoardEntrance(isRestoring = false) {
     if (!this.board || !this.board.group) return;
+
+    // 1. Futuristic Intro Audio Chime & Sub-bass Impact
+    if (soundManager && soundManager.playGameStartEntrance) {
+      soundManager.playGameStartEntrance();
+    }
+
+    // 2. Camera Intro Glide / Dynamic Swoop
+    if (this.sceneManager && this.sceneManager.playEntranceCameraSwoop) {
+      this.sceneManager.playEntranceCameraSwoop(0.88);
+    }
+
+    // 3. Board Group 3D Descent with subtle tilt
     gsap.killTweensOf(this.board.group.position);
+    gsap.killTweensOf(this.board.group.rotation);
+
+    this.board.group.rotation.x = -0.12;
+    this.board.group.rotation.y = 0.15;
+
+    gsap.to(this.board.group.rotation, {
+      x: 0,
+      y: 0,
+      duration: 0.85,
+      ease: 'power3.out'
+    });
+
     gsap.fromTo(this.board.group.position,
-      { y: 2.5 },
-      { y: 0, duration: 0.72, ease: 'back.out(1.5)' }
+      { y: 4.2 },
+      {
+        y: 0,
+        duration: 0.82,
+        ease: 'elastic.out(1.1, 0.65)',
+        onComplete: () => {
+          this.board.group.position.y = 0;
+          this.board.group.rotation.set(0, 0, 0);
+        }
+      }
     );
+
+    // 4. Ground Shockwave Ring on Impact
+    setTimeout(() => {
+      if (this.sceneManager && this.sceneManager.emitEntranceShockwave) {
+        const waveColor = this.mode === '3x3x3' ? 0xa855f7 : 0x00f0ff;
+        this.sceneManager.emitEntranceShockwave(waveColor);
+      }
+      if (this.particleSystem && this.sceneManager) {
+        this.particleSystem.screenShake(this.sceneManager.camera, 0.18);
+      }
+    }, 320);
+
+    // 5. Cascading Tile Materialization with 360 Spin & Particle Sparks
     if (this.tiles3D) {
+      let delayStep = 0.16;
       for (let l = 0; l < this.tiles3D.length; l++) {
         for (let r = 0; r < this.tiles3D[l].length; r++) {
           for (let c = 0; c < this.tiles3D[l][r].length; c++) {
@@ -2498,15 +2545,116 @@ class GameApp {
             if (tile && tile.group) {
               const pos = getGridPosition(l, r, c);
               gsap.killTweensOf(tile.group.position);
+              gsap.killTweensOf(tile.group.rotation);
+              gsap.killTweensOf(tile.group.scale);
+
+              tile.group.scale.set(0, 0, 0);
+              tile.group.rotation.y = Math.PI * 2;
+
+              gsap.to(tile.group.rotation, {
+                y: 0,
+                duration: 0.72,
+                delay: delayStep,
+                ease: 'power2.out'
+              });
+
+              const currentTile = tile;
               gsap.fromTo(tile.group.position,
-                { y: pos.y + 2.5 },
-                { y: pos.y, duration: 0.72, ease: 'back.out(1.5)', delay: 0.04 }
+                { y: pos.y + 3.2 },
+                {
+                  y: pos.y,
+                  duration: 0.70,
+                  delay: delayStep,
+                  ease: 'back.out(2.0)',
+                  onStart: () => {
+                    gsap.to(currentTile.group.scale, {
+                      x: 1, y: 1, z: 1,
+                      duration: 0.62,
+                      ease: 'back.out(2.2)'
+                    });
+                  },
+                  onComplete: () => {
+                    if (this.particleSystem) {
+                      this.particleSystem.burst(pos.x, pos.y + 0.25, pos.z, currentTile.value);
+                    }
+                  }
+                }
               );
+
+              delayStep += isRestoring ? 0.05 : 0.14;
             }
           }
         }
       }
     }
+
+    // 6. Holographic Entrance Toast & Ambient Radial Flash
+    this.showEntranceToast(isRestoring);
+  }
+
+  showEntranceToast(isRestoring = false) {
+    // 1. Ambient Radial Lens Flare Flash
+    let flash = document.querySelector('.game-intro-flash');
+    if (!flash) {
+      flash = document.createElement('div');
+      flash.className = 'game-intro-flash';
+      document.body.appendChild(flash);
+    }
+    gsap.killTweensOf(flash);
+    gsap.fromTo(flash,
+      { opacity: 0.65 },
+      { opacity: 0, duration: 0.65, ease: 'power2.out' }
+    );
+
+    // 2. Holographic Entrance Toast
+    const existing = document.querySelector('.game-entrance-toast');
+    if (existing) existing.remove();
+
+    const toast = document.createElement('div');
+    toast.className = 'game-entrance-toast';
+
+    const is3D = this.mode === '3x3x3';
+    const isBoss = this.isBossRaid;
+    const isRush = this.isRushMode;
+
+    let icon = '⚡';
+    let title = isRestoring ? (t('welcome_back') || 'CHÀO MỪNG TRỞ LẠI!') : (t('game_ready_callout') || 'BẮT ĐẦU VÁN MỚI!');
+    let sub = is3D ? (t('mode_3x3x3') || '3x3x3 Đa Tầng Không Gian') : (t('game_ready_sub') || 'Vuốt để gộp khối & phá vỡ kỷ lục');
+
+    if (isBoss) {
+      icon = '👹';
+      title = 'BOSS RAID ACTIVATED!';
+      sub = 'Tiêu diệt 4 Giai đoạn Trùm Hắc Ám';
+    } else if (isRush) {
+      icon = '💣';
+      title = 'RUSH MODE STARTED!';
+      sub = 'Gỡ bom hẹn giờ & giữ nhịp thời gian';
+    }
+
+    toast.innerHTML = `
+      <span class="entrance-toast-icon">${icon}</span>
+      <div class="entrance-toast-content">
+        <div class="entrance-toast-title">${title}</div>
+        <div class="entrance-toast-sub">${sub}</div>
+      </div>
+    `;
+    document.body.appendChild(toast);
+
+    gsap.fromTo(toast,
+      { y: -60, opacity: 0, scale: 0.8 },
+      { y: 0, opacity: 1, scale: 1, duration: 0.55, ease: 'back.out(2.0)' }
+    );
+
+    setTimeout(() => {
+      gsap.to(toast, {
+        y: -30,
+        opacity: 0,
+        scale: 0.9,
+        duration: 0.4,
+        ease: 'power2.in',
+        onComplete: () => toast.remove()
+      });
+    }, 1500);
   }
 
   async handleMove(direction) {

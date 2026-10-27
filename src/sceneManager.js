@@ -824,6 +824,85 @@ export class SceneManager {
     });
   }
 
+  playEntranceCameraSwoop(duration = 0.88) {
+    this.requestShadowUpdate(50);
+    gsap.killTweensOf(this.camera.position);
+    gsap.killTweensOf(this.controls.target);
+
+    const targetPos = this.getDefaultCamPos(1);
+    const targetLook = this.getDefaultTarget();
+
+    if (this.controls) this.controls.enabled = false;
+
+    // Start slightly higher and tilted
+    this.camera.position.set(
+      targetPos.x,
+      targetPos.y + (this.mode === '3x3x3' ? 4.5 : 3.6),
+      targetPos.z + (this.mode === '3x3x3' ? 5.2 : 4.2)
+    );
+    this.camera.lookAt(targetLook);
+
+    gsap.to(this.camera.position, {
+      x: targetPos.x,
+      y: targetPos.y,
+      z: targetPos.z,
+      duration: duration,
+      ease: 'power3.out',
+      onUpdate: () => {
+        this.camera.lookAt(targetLook);
+        this.requestShadowUpdate(2);
+      },
+      onComplete: () => {
+        if (this.controls) {
+          this.controls.target.copy(targetLook);
+          this.controls.cursor.copy(targetLook);
+          this.controls.enabled = true;
+          this.controls.update();
+        }
+      }
+    });
+
+    gsap.to(this.controls.target, {
+      x: targetLook.x,
+      y: targetLook.y,
+      z: targetLook.z,
+      duration: duration,
+      ease: 'power3.out'
+    });
+  }
+
+  emitEntranceShockwave(colorHex = 0x00f0ff) {
+    const ringGeo = new THREE.RingGeometry(0.2, 0.65, 48);
+    const ringMat = new THREE.MeshBasicMaterial({
+      color: colorHex,
+      transparent: true,
+      opacity: 0.9,
+      side: THREE.DoubleSide
+    });
+    const waveMesh = new THREE.Mesh(ringGeo, ringMat);
+    waveMesh.rotation.x = -Math.PI / 2;
+    waveMesh.position.set(0, 0.15, 0);
+    this.scene.add(waveMesh);
+
+    gsap.to(waveMesh.scale, {
+      x: 18,
+      y: 18,
+      z: 18,
+      duration: 0.92,
+      ease: 'power2.out'
+    });
+    gsap.to(ringMat, {
+      opacity: 0,
+      duration: 0.92,
+      ease: 'power2.in',
+      onComplete: () => {
+        ringGeo.dispose();
+        ringMat.dispose();
+        this.scene.remove(waveMesh);
+      }
+    });
+  }
+
   handleResize() {
     const width = this.container.clientWidth;
     const height = this.container.clientHeight;

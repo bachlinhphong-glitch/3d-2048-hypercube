@@ -173,6 +173,52 @@ class SoundManager {
     }
   }
 
+  playGameStartEntrance() {
+    this.triggerHaptic('slide');
+    if (this.muted) return;
+    this.ensureContext();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+
+    // 1. Sub-bass cinematic riser & impact
+    const subOsc = this.ctx.createOscillator();
+    const subGain = this.ctx.createGain();
+    subOsc.type = 'sine';
+    subOsc.frequency.setValueAtTime(65, t);
+    subOsc.frequency.exponentialRampToValueAtTime(140, t + 0.32);
+    subOsc.frequency.exponentialRampToValueAtTime(48, t + 0.75);
+
+    subGain.gain.setValueAtTime(0.001, t);
+    subGain.gain.linearRampToValueAtTime(0.25, t + 0.28);
+    subGain.gain.exponentialRampToValueAtTime(0.001, t + 0.8);
+
+    subOsc.connect(subGain);
+    subGain.connect(this.ctx.destination);
+    subOsc.start(t);
+    subOsc.stop(t + 0.85);
+
+    // 2. Cyber Crystal Chime Chord (C Major 9 arpeggio: C5, E5, G5, B5, D6)
+    const freqs = [523.25, 659.25, 783.99, 987.77, 1174.66];
+    freqs.forEach((freq, idx) => {
+      const startTime = t + 0.08 + (idx * 0.065);
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = idx % 2 === 0 ? 'sine' : 'triangle';
+      osc.frequency.setValueAtTime(freq, startTime);
+
+      gain.gain.setValueAtTime(0.001, startTime);
+      gain.gain.linearRampToValueAtTime(0.12, startTime + 0.025);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.65);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(startTime);
+      osc.stop(startTime + 0.7);
+    });
+  }
+
   playClick() {
     if (this.muted) return;
     this.ensureContext();
