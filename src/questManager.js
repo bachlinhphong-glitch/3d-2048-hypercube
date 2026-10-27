@@ -312,10 +312,14 @@ export class QuestManager {
     }
   }
 
+  isAIRunning() {
+    return !!(this.game && this.game.aiBot && this.game.aiBot.isRunning);
+  }
+
   // --- Event Trackers ---
 
   recordMode(modeName) {
-    if (!modeName) return;
+    if (this.isAIRunning() || !modeName) return;
     const q = this.state.q_all_modes;
     if (!q.modes) q.modes = [];
     if (!q.modes.includes(modeName)) {
@@ -330,6 +334,7 @@ export class QuestManager {
   }
 
   recordMoveMergesAndTiles(mergesCount, maxTile) {
+    if (this.isAIRunning()) return;
     if (mergesCount >= 3) {
       const qCombo = this.state.q_combo_3;
       if (mergesCount > qCombo.current) qCombo.current = mergesCount;
@@ -358,6 +363,7 @@ export class QuestManager {
   }
 
   recordRushScore(score) {
+    if (this.isAIRunning()) return;
     const q = this.state.q_rush_score;
     if (score > q.current) q.current = score;
     if (q.current >= 1000 && !q.completed) {
@@ -368,6 +374,7 @@ export class QuestManager {
   }
 
   recordBossDamage(damage) {
+    if (this.isAIRunning()) return;
     const q = this.state.q_boss_hit;
     q.current = (q.current || 0) + damage;
     if (q.current >= 300 && !q.completed) {
@@ -378,6 +385,7 @@ export class QuestManager {
   }
 
   recordBossDefeated() {
+    if (this.isAIRunning()) return;
     try {
       localStorage.setItem('3d2048_boss_defeated', 'true');
     } catch {}
@@ -396,7 +404,7 @@ export class QuestManager {
   }
 
   recordSpell(spellType) {
-    if (!spellType) return;
+    if (this.isAIRunning() || !spellType) return;
     const q = this.state.q_spells_master;
     if (!q.spells) q.spells = [];
     if (!q.spells.includes(spellType)) {
@@ -413,6 +421,7 @@ export class QuestManager {
   // --- Completion & Rewards ---
 
   markCompleted(questId) {
+    if (this.isAIRunning()) return;
     const q = this.state[questId];
     if (!q || q.completed) return;
 
@@ -538,6 +547,14 @@ export class QuestManager {
     requestAnimationFrame(() => {
       this.modal.classList.add('active');
     });
+
+    const aiLockBanner = document.getElementById('trophy-ai-lock-banner');
+    if (aiLockBanner) {
+      aiLockBanner.style.display = this.isAIRunning() ? 'flex' : 'none';
+    }
+    if (this.isAIRunning() && this.game && this.game.showSpellToast) {
+      this.game.showSpellToast(t('toast_ai_quest_lock') || '⚠️ AI Auto-Play đang bật: Thành tựu tạm khóa cho đến khi bạn tắt AI.');
+    }
 
     this.renderQuestList();
 

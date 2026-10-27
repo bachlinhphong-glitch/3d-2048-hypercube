@@ -20,6 +20,7 @@ export class BossManager {
 
     this.isActive = false;
     this.loop = 1;
+    this.usedAIBot = false;
     this.phase = 1;
     this.maxHp = 500;
     this.hp = 500;
@@ -78,6 +79,7 @@ export class BossManager {
     this.clearVFX();
     this.isActive = true;
     this.loop = Math.max(1, parseInt(loop, 10) || 1);
+    this.usedAIBot = !!(this.gameApp && this.gameApp.aiBot && this.gameApp.aiBot.isRunning);
     this.phase = 1;
     this.clearTime = 0.0;
     this.isDefeated = false;
@@ -225,6 +227,9 @@ export class BossManager {
     if (!this.isActive || this.isDefeated || this.isObliterating) return;
 
     let damageMult = 1.0;
+    if (this.gameApp && this.gameApp.aiBot && this.gameApp.aiBot.isRunning) {
+      this.usedAIBot = true;
+    }
     if (this.loop > 1) {
       damageMult += (this.loop - 1) * 0.25;
     }
@@ -431,6 +436,8 @@ export class BossManager {
   }
 
   showAchievementUnlockToast() {
+    const isAI = (this.usedAIBot || (this.gameApp && this.gameApp.aiBot && this.gameApp.aiBot.isRunning));
+    if (isAI) return;
     if (soundManager.playBossExecutionFanfare) {
       soundManager.playBossExecutionFanfare();
     }
@@ -491,50 +498,63 @@ export class BossManager {
       return;
     }
 
+    const isAI = (this.usedAIBot || (this.gameApp && this.gameApp.aiBot && this.gameApp.aiBot.isRunning));
+
     const currentSecs = Math.round(this.clearTime);
     let isNewBestTime = false;
     let bestTimeSecs = null;
-    try {
-      const storedTime = localStorage.getItem('3d2048_boss_best_time');
-      if (storedTime) {
-        bestTimeSecs = parseInt(storedTime, 10);
-      }
-      if (!bestTimeSecs || currentSecs < bestTimeSecs) {
-        bestTimeSecs = currentSecs;
-        localStorage.setItem('3d2048_boss_best_time', String(currentSecs));
-        isNewBestTime = true;
-      }
-    } catch {}
-
-    // Track Max Loop reached
     let maxLoop = 1;
-    try {
-      const storedLoop = localStorage.getItem('3d2048_boss_max_loop');
-      if (storedLoop) {
-        maxLoop = Math.max(parseInt(storedLoop, 10), this.loop);
-      } else {
-        maxLoop = this.loop;
-      }
-      localStorage.setItem('3d2048_boss_max_loop', String(maxLoop));
-    } catch {}
 
-    // Track Boss Best Score
-    try {
-      localStorage.setItem('3d2048_boss_defeated', 'true');
-      const currentScore = this.gameApp.gameLogic.score;
-      const storedBossScore = parseInt(localStorage.getItem('3d2048_boss_best_score') || '0', 10);
-      if (currentScore > storedBossScore) {
-        localStorage.setItem('3d2048_boss_best_score', String(currentScore));
-      }
-    } catch {}
+    if (!isAI) {
+      try {
+        const storedTime = localStorage.getItem('3d2048_boss_best_time');
+        if (storedTime) {
+          bestTimeSecs = parseInt(storedTime, 10);
+        }
+        if (!bestTimeSecs || currentSecs < bestTimeSecs) {
+          bestTimeSecs = currentSecs;
+          localStorage.setItem('3d2048_boss_best_time', String(currentSecs));
+          isNewBestTime = true;
+        }
+      } catch {}
 
-    if (this.gameApp && this.gameApp.questManager) {
-      this.gameApp.questManager.recordBossDefeated();
+      // Track Max Loop reached
+      try {
+        const storedLoop = localStorage.getItem('3d2048_boss_max_loop');
+        if (storedLoop) {
+          maxLoop = Math.max(parseInt(storedLoop, 10), this.loop);
+        } else {
+          maxLoop = this.loop;
+        }
+        localStorage.setItem('3d2048_boss_max_loop', String(maxLoop));
+      } catch {}
+
+      // Track Boss Best Score
+      try {
+        localStorage.setItem('3d2048_boss_defeated', 'true');
+        const currentScore = this.gameApp.gameLogic.score;
+        const storedBossScore = parseInt(localStorage.getItem('3d2048_boss_best_score') || '0', 10);
+        if (currentScore > storedBossScore) {
+          localStorage.setItem('3d2048_boss_best_score', String(currentScore));
+        }
+      } catch {}
+
+      if (this.gameApp && this.gameApp.questManager) {
+        this.gameApp.questManager.recordBossDefeated();
+      }
+
+      if (soundManager.playTrophyUnlocked) {
+        soundManager.playTrophyUnlocked();
+      }
+    } else {
+      try {
+        const storedTime = localStorage.getItem('3d2048_boss_best_time');
+        if (storedTime) bestTimeSecs = parseInt(storedTime, 10);
+        const storedLoop = localStorage.getItem('3d2048_boss_max_loop');
+        if (storedLoop) maxLoop = parseInt(storedLoop, 10);
+      } catch {}
     }
 
-    if (soundManager.playTrophyUnlocked) {
-      soundManager.playTrophyUnlocked();
-    }
     this.spawnBossEmbers();
 
     // Format best time string
@@ -553,13 +573,17 @@ export class BossManager {
 
     // Records Bar
     const bestTimeEl = document.getElementById('boss-v-best-time');
-    if (bestTimeEl) bestTimeEl.textContent = bestTimeStr;
+    if (bestTimeEl) {
+      bestTimeEl.textContent = isAI ? (bestTimeSecs ? `${bestTimeStr} (Thủ công)` : '--:--') : bestTimeStr;
+    }
 
     const newRecordBadge = document.getElementById('boss-v-new-record-badge');
-    if (newRecordBadge) newRecordBadge.style.display = isNewBestTime ? 'inline-flex' : 'none';
+    if (newRecordBadge) newRecordBadge.style.display = (!isAI && isNewBestTime) ? 'inline-flex' : 'none';
 
     const loopLevelEl = document.getElementById('boss-v-loop-level');
-    if (loopLevelEl) loopLevelEl.textContent = `Vòng ${this.loop} (Kỷ lục: Loop ${maxLoop})`;
+    if (loopLevelEl) {
+      loopLevelEl.textContent = isAI ? `Vòng ${this.loop} (Chế độ AI)` : `Vòng ${this.loop} (Kỷ lục: Loop ${maxLoop})`;
+    }
 
     // Action button labels
     const nextLoop = (this.loop || 1) + 1;
@@ -571,7 +595,29 @@ export class BossManager {
 
     const headingEl = document.getElementById('boss-victory-heading');
     if (headingEl) {
-      headingEl.textContent = this.loop > 1 ? `CHIẾN CÔNG VÒNG LẶP ${this.loop}!` : `CHIẾN CÔNG HIỂN HÁCH!`;
+      if (isAI) {
+        headingEl.textContent = 'CHIẾN CÔNG (HỖ TRỢ BỞI AI)';
+      } else {
+        headingEl.textContent = this.loop > 1 ? `CHIẾN CÔNG VÒNG LẶP ${this.loop}!` : `CHIẾN CÔNG HIỂN HÁCH!`;
+      }
+    }
+
+    // Achievement Badge updates for AI Mode
+    const achTier = this.victoryModal.querySelector('.boss-achievement-tier');
+    const achName = this.victoryModal.querySelector('.boss-achievement-name');
+    const achDesc = this.victoryModal.querySelector('.boss-achievement-desc');
+    const achBadge = this.victoryModal.querySelector('.boss-achievement-badge');
+
+    if (isAI) {
+      if (achTier) achTier.textContent = '⚠️ CHẾ ĐỘ TỰ ĐỘNG CHƠI (AI BOT)';
+      if (achName) achName.textContent = 'TẠM KHÓA THÀNH TỰU (LOCKED)';
+      if (achDesc) achDesc.textContent = 'Trận đánh có sự tham gia của AI. Hãy tự tay chiến đấu và kết liễu Chúa Tể Đa Chiều để mở khóa thành tựu Thần Thoại!';
+      if (achBadge) achBadge.style.opacity = '0.75';
+    } else {
+      if (achTier) achTier.textContent = t('boss_achieve_tier');
+      if (achName) achName.textContent = t('boss_achieve_name');
+      if (achDesc) achDesc.textContent = t('boss_achieve_desc');
+      if (achBadge) achBadge.style.opacity = '1';
     }
 
     this.victoryModal.style.display = 'flex';

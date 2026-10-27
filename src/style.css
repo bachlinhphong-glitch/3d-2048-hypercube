@@ -750,6 +750,33 @@ body.tile-grabbing *,
   box-shadow: 0 0 15px rgba(239, 68, 68, 0.35);
 }
 
+/* AI Lock Notification Banner in Trophy Modal */
+.trophy-ai-lock-banner {
+  margin: 6px 24px 0;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: 12px;
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #fca5a5;
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.4;
+  animation: pulseAiBanner 2s infinite;
+}
+
+@keyframes pulseAiBanner {
+  0%, 100% { border-color: rgba(239, 68, 68, 0.4); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  50% { border-color: rgba(245, 158, 11, 0.7); box-shadow: 0 0 10px rgba(245, 158, 11, 0.25); }
+}
+
+.trophy-ai-lock-banner .ai-lock-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
 .trophy-modal-body {
   display: grid;
   grid-template-columns: 360px 1fr;
@@ -1346,7 +1373,34 @@ body.tile-grabbing *,
     width: 96vw;
     max-height: 94vh;
   }
-  .trophy-modal-body {
+  /* AI Lock Notification Banner in Trophy Modal */
+.trophy-ai-lock-banner {
+  margin: 6px 24px 0;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: 12px;
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #fca5a5;
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.4;
+  animation: pulseAiBanner 2s infinite;
+}
+
+@keyframes pulseAiBanner {
+  0%, 100% { border-color: rgba(239, 68, 68, 0.4); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  50% { border-color: rgba(245, 158, 11, 0.7); box-shadow: 0 0 10px rgba(245, 158, 11, 0.25); }
+}
+
+.trophy-ai-lock-banner .ai-lock-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.trophy-modal-body {
     grid-template-columns: 1fr;
     gap: 16px;
     padding: 14px 16px;
@@ -2572,6 +2626,12 @@ body.theme-gentle_light .boss-achievement-badge {
 
 body.theme-gentle_light .boss-achievement-name {
   color: #78350f;
+}
+
+body.theme-gentle_light .trophy-ai-lock-banner {
+  background: #fef2f2;
+  border-color: #fecdd3;
+  color: #b91c1c;
 }
 
 body.theme-gentle_light .boss-v-stat {

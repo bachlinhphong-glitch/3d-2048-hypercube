@@ -504,6 +504,9 @@ class GameApp {
         aiBtn.classList.toggle('active', isRunning);
         const textEl = aiBtn.querySelector('.btn-text');
         if (textEl) textEl.textContent = isRunning ? t('btn_ai_active') : t('btn_ai');
+        if (isRunning && this.bossManager && this.isBossRaid) {
+          this.bossManager.usedAIBot = true;
+        }
         this.showSpellToast(isRunning ? t('toast_ai_start') : t('toast_ai_stop'));
         this.registerInteraction();
       });
@@ -511,6 +514,9 @@ class GameApp {
         aiBtn.classList.toggle('active', running);
         const textEl = aiBtn.querySelector('.btn-text');
         if (textEl) textEl.textContent = running ? t('btn_ai_active') : t('btn_ai');
+        if (running && this.bossManager && this.isBossRaid) {
+          this.bossManager.usedAIBot = true;
+        }
       };
     }
 
@@ -2439,6 +2445,7 @@ class GameApp {
   }
 
   showMilestoneCelebration(value) {
+    if (this.aiBot && this.aiBot.isRunning) return;
     soundManager.playMilestoneUnlock(value);
     
     // Trigger sparkling milestone confetti
@@ -2828,13 +2835,15 @@ class GameApp {
           this.spawnFloatingScore(`+${m.newValue}`, screenPos, m.newValue);
         }
 
-        // Track All-Time Max Tile Record
-        try {
-          const prevMax = parseInt(localStorage.getItem('3d2048_max_tile') || '0', 10);
-          if (m.newValue > prevMax) {
-            localStorage.setItem('3d2048_max_tile', String(m.newValue));
-          }
-        } catch {}
+        // Track All-Time Max Tile Record (Only when playing manually)
+        if (!this.aiBot || !this.aiBot.isRunning) {
+          try {
+            const prevMax = parseInt(localStorage.getItem('3d2048_max_tile') || '0', 10);
+            if (m.newValue > prevMax) {
+              localStorage.setItem('3d2048_max_tile', String(m.newValue));
+            }
+          } catch {}
+        }
 
         // Milestone Unlock Celebration
         if (m.newValue >= 64 && !this.celebratedMilestones.has(m.newValue)) {
@@ -2870,13 +2879,15 @@ class GameApp {
           this.spawnFloatingScore(`+${m.newValue}`, screenPos, m.newValue);
         }
 
-        // Track All-Time Max Tile Record
-        try {
-          const prevMax = parseInt(localStorage.getItem('3d2048_max_tile') || '0', 10);
-          if (m.newValue > prevMax) {
-            localStorage.setItem('3d2048_max_tile', String(m.newValue));
-          }
-        } catch {}
+        // Track All-Time Max Tile Record (Only when playing manually)
+        if (!this.aiBot || !this.aiBot.isRunning) {
+          try {
+            const prevMax = parseInt(localStorage.getItem('3d2048_max_tile') || '0', 10);
+            if (m.newValue > prevMax) {
+              localStorage.setItem('3d2048_max_tile', String(m.newValue));
+            }
+          } catch {}
+        }
 
         // Milestone Unlock Celebration
         if (m.newValue >= 64 && !this.celebratedMilestones.has(m.newValue)) {

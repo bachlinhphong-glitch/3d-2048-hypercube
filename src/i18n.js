@@ -252,8 +252,10 @@ export const DICTIONARY = {
     toast_undo_done: 'Đã đi lại 1 bước!',
     toast_swap_prompt: 'Chạm 2 khối liên tiếp để đổi vị trí!',
     toast_swap_success: 'Đổi vị trí thành công!',
-    toast_ai_start: 'AI AUTO-PLAY: ĐANG TỰ ĐỘNG CHƠI...',
-    toast_ai_stop: 'AI AUTO-PLAY: ĐÃ TẠM DỪNG',
+    toast_ai_start: '🤖 AI AUTO-PLAY BẬT: Đã tạm khóa mở khóa thành tựu để bảo đảm tính công bằng!',
+    toast_ai_stop: '🎮 ĐÃ TẮT AI AUTO-PLAY: Bạn có thể tự chơi để mở khóa thành tựu & cúp!',
+    toast_ai_quest_lock: '⚠️ AI Auto-Play đang bật: Tiến độ nhiệm vụ và mở khóa thành tựu tạm khóa cho đến khi bạn tắt AI.',
+    trophy_ai_lock_msg: 'AI Auto-Play đang bật: Tiến độ nhiệm vụ và mở khóa thành tựu tạm khóa để đảm bảo tính công bằng! Hãy tắt AI để tự chơi và mở khóa.',
 
     // Quests & 3D Trophy
     btn_quests: 'Cúp',
@@ -523,8 +525,10 @@ export const DICTIONARY = {
     toast_undo_done: 'Step undone!',
     toast_swap_prompt: 'Tap 2 tiles in sequence to swap them!',
     toast_swap_success: 'Tiles swapped successfully!',
-    toast_ai_start: 'AI AUTO-PLAY: RUNNING...',
-    toast_ai_stop: 'AI AUTO-PLAY: PAUSED',
+    toast_ai_start: '🤖 AI AUTO-PLAY ON: Achievements are locked during AI auto-play for fair play!',
+    toast_ai_stop: '🎮 AI AUTO-PLAY OFF: Play manually to unlock achievements & records!',
+    toast_ai_quest_lock: '⚠️ AI Auto-Play is running: Quest progress & achievements are paused until AI is disabled.',
+    trophy_ai_lock_msg: 'AI Auto-Play is running: Quests and achievements are locked for fair play! Turn off AI to play manually and earn trophies.',
 
     // Quests & 3D Trophy
     btn_quests: 'Quests',
@@ -770,8 +774,10 @@ export const DICTIONARY = {
     toast_undo_done: '1手戻しました！',
     toast_swap_prompt: '入れ替える2つのタイルを順番にタップしてください！',
     toast_swap_success: '入れ替えが完了しました！',
-    toast_ai_start: 'AI自動プレイ: 実行中...',
-    toast_ai_stop: 'AI自動プレイ: 一時停止',
+    toast_ai_start: '🤖 AIオートプレイON: 公平性のため実績の解除は一時ロックされます！',
+    toast_ai_stop: '🎮 AIオートプレイOFF: 手動プレイで実績や記録を解除できます！',
+    toast_ai_quest_lock: '⚠️ AI実行中: AIをオフにするまで実績の進行は一時停止されます。',
+    trophy_ai_lock_msg: 'AIオートプレイが有効です: 公平性のため実績とトロフィーの解除はロックされます。手動プレイで挑戦してください。',
 
     // Quests & 3D Trophy
     btn_quests: 'クエスト',
@@ -1017,8 +1023,10 @@ export const DICTIONARY = {
     toast_undo_done: '1수를 되돌렸습니다!',
     toast_swap_prompt: '위치를 바꿀 2개의 타일을 차례로 터치하세요!',
     toast_swap_success: '타일 위치를 변경했습니다!',
-    toast_ai_start: 'AI 자동 재생: 작동 중...',
-    toast_ai_stop: 'AI 자동 재생: 일시 중지',
+    toast_ai_start: '🤖 AI 자동 플레이 ON: 공정성을 위해 실행 중에는 업적이 일시 잠금됩니다!',
+    toast_ai_stop: '🎮 AI 자동 플레이 OFF: 직접 플레이하여 업적과 기록을 달성하세요!',
+    toast_ai_quest_lock: '⚠️ AI 실행 중: AI를 끌 때까지 업적 진행이 일시 중지됩니다.',
+    trophy_ai_lock_msg: 'AI 자동 플레이 실행 중: 공정성을 위해 퀘스트와 업적이 잠금됩니다. 수동으로 플레이하여 트로피를 획득하세요.',
 
     // Quests & 3D Trophy
     btn_quests: '퀘스트',
