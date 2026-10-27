@@ -112,7 +112,7 @@ export class BossManager {
 
     const loopTag = this.loop > 1 ? `[VÒNG LẶP ${this.loop}] ` : '';
     const loopSub = this.loop > 1 ? ` • Sát thương & Điểm x${(1 + (this.loop - 1) * 0.5).toFixed(1)}` : '';
-    this.triggerBanner(`${loopTag}PLANET TITAN — PHASE 1`, `${this.maxHp.toLocaleString()} HP | ${Math.round(this.timer)}s${loopSub}`);
+    this.triggerBanner(`${loopTag}CORE PRIME — PHASE 1 • THỂ HÀNH TINH`, `${this.maxHp.toLocaleString()} HP | ${Math.round(this.timer)}s${loopSub}`);
     soundManager.playPhaseTransition();
     soundManager.triggerHaptic('slide');
   }
@@ -149,19 +149,19 @@ export class BossManager {
     if (phase === 1) {
       this.maxHp = Math.round(500 * hpMult);
       if (this.phaseBadgeEl) {
-        this.phaseBadgeEl.textContent = `${loopPrefix}PHASE 1 • PLANET`;
+        this.phaseBadgeEl.textContent = `${loopPrefix}PHASE 1 • PLANET CORE`;
         this.phaseBadgeEl.className = 'boss-phase-badge p1';
       }
     } else if (phase === 2) {
       this.maxHp = Math.round(1500 * hpMult);
       if (this.phaseBadgeEl) {
-        this.phaseBadgeEl.textContent = `${loopPrefix}PHASE 2 • SOLAR SYSTEM`;
+        this.phaseBadgeEl.textContent = `${loopPrefix}PHASE 2 • SOLAR QUASAR`;
         this.phaseBadgeEl.className = 'boss-phase-badge p2';
       }
     } else if (phase === 3) {
       this.maxHp = Math.round(2048 * hpMult);
       if (this.phaseBadgeEl) {
-        this.phaseBadgeEl.textContent = `${loopPrefix}PHASE 3 • UNIVERSE`;
+        this.phaseBadgeEl.textContent = `${loopPrefix}PHASE 3 • SINGULARITY`;
         this.phaseBadgeEl.className = 'boss-phase-badge p3';
       }
     } else if (phase === 4) {
@@ -208,8 +208,8 @@ export class BossManager {
 
         soundManager.playSpellRecharge();
         this.emitExpandingRingWave(0x38bdf8);
-        this.triggerBanner('⚡ PHÉP THUẬT CỨU NGUY!', `+${bonusSeconds}s THỜI GIAN (Quy đổi ${remainingSpells} phép)`);
-        this.gameApp.showSpellToast(`⚡ CỨU NGUY: Quy đổi ${remainingSpells} phép bổ trợ thành +${bonusSeconds}s chiến đấu!`, true);
+        this.triggerBanner('⚡ GIAO THỨC CỨU NGUY KHẨN CẤP!', `+${bonusSeconds}s THỜI GIAN (Quy đổi ${remainingSpells} mô-đun)`);
+        this.gameApp.showSpellToast(`⚡ GIAO THỨC KHẨN CẤP: Quy đổi ${remainingSpells} mô-đun hỗ trợ thành +${bonusSeconds}s duy trì trận đấu!`, true);
         this.updateHUD();
         return;
       }
@@ -282,7 +282,7 @@ export class BossManager {
       if (this.boss3D) this.boss3D.setHpRatio(1.0);
       this.updateHUD();
 
-      this.triggerBanner(`${loopTag}SOLAR HELIOS — PHASE 2`, `${this.hp.toLocaleString()} HP | +120s (Đã dọn sạch các khối [2], [4])`);
+      this.triggerBanner(`${loopTag}SOLAR QUASAR — PHASE 2 • QUANG NĂNG VĨNH CỬU`, `${this.hp.toLocaleString()} HP | +120s • Đã thanh lọc phân mảnh [2], [4]`);
     } else if (this.phase === 2) {
       // Phase 2 -> Phase 3 (Cosmic Singularity)
       this.emitExpandingRingWave(0xa855f7);
@@ -294,7 +294,7 @@ export class BossManager {
       if (this.boss3D) this.boss3D.setHpRatio(1.0);
       this.updateHUD();
 
-      this.triggerBanner(`${loopTag}💥 COSMIC SINGULARITY — PHASE 3`, `${this.hp.toLocaleString()} HP | +120s • Hố Đen Quasar sụp đổ trọng lực!`);
+      this.triggerBanner(`${loopTag}💥 SINGULARITY CORE — PHASE 3 • ĐIỂM KỲ DỊ HƯ KHÔNG`, `${this.hp.toLocaleString()} HP | +120s • Vết nứt không gian mở rộng!`);
     } else if (this.phase === 3) {
       // Phase 3 -> Phase 4 (Omniverse Transcendent God)
       this.emitExpandingRingWave(0x00f0ff);
@@ -307,7 +307,7 @@ export class BossManager {
       if (this.boss3D) this.boss3D.setHpRatio(1.0);
       this.updateHUD();
 
-      this.triggerBanner(`${loopTag}🌌 OMNIVERSE GOD — PHASE 4`, `${this.hp.toLocaleString()} HP | +120s • Chúa Tể Đa Vũ Trụ Thức Tỉnh!`);
+      this.triggerBanner(`${loopTag}🌌 OMNIVERSE SOVEREIGN — PHASE 4 • CHÚA TỂ ĐA CHIỀU`, `${this.hp.toLocaleString()} HP | +120s • Thực thể tối thượng thức tỉnh!`);
     } else if (this.phase === 4) {
       // Phase 4 Defeated!
       this.executeGrandFinale();
@@ -414,7 +414,7 @@ export class BossManager {
     const timeStr = `${m > 0 ? m + 'm ' : ''}${s}s`;
 
     // Sekiro God Slain Banner
-    this.triggerBanner('🏆 VẠN CỔ DIỆT TRÙM — GOD SLAIN', 'Chiến tích bất tử đã khắc ghi vào vũ trụ!');
+    this.triggerBanner('🏆 TUYỆT ĐỐI THANH TRỪNG — ENTITY SEVERED', 'Trật tự không thời gian vĩnh hằng đã được tái lập!');
 
     // Achievement Pop-up Toast
     this.showAchievementUnlockToast();
@@ -451,8 +451,8 @@ export class BossManager {
       <div class="boss-ach-toast-icon">🏆</div>
       <div class="boss-ach-toast-body">
         <div class="boss-ach-toast-tag">THÀNH TỰU THẦN THOẠI MỞ KHÓA!</div>
-        <div class="boss-ach-toast-title">Kẻ Hủy Diệt Hư Không (Boss Slayer)</div>
-        <div class="boss-ach-toast-desc">Đã đánh bại toàn bộ các giai đoạn Trùm Hắc Ám!</div>
+        <div class="boss-ach-toast-title">Kẻ Thanh Trừng Hư Không (Void Slayer)</div>
+        <div class="boss-ach-toast-desc">Đã thanh trừng toàn bộ 4 dạng thức của Thực Thể Hư Không!</div>
       </div>
     `;
     document.body.appendChild(toast);
@@ -590,15 +590,15 @@ export class BossManager {
     const loopBtnText = document.getElementById('boss-v-btn-loop-text');
     if (loopBtnText) {
       const bonusPct = (nextLoop - 1) * 50;
-      loopBtnText.textContent = `⚔️ Tiến vào Vòng lặp ${nextLoop} (New Game+ • +${bonusPct}% Điểm)`;
+      loopBtnText.textContent = `⚔️ Khởi Động Vòng Lặp ${nextLoop} (NG+ • +${bonusPct}% Điểm)`;
     }
 
     const headingEl = document.getElementById('boss-victory-heading');
     if (headingEl) {
       if (isAI) {
-        headingEl.textContent = 'CHIẾN CÔNG (HỖ TRỢ BỞI AI)';
+        headingEl.textContent = 'HOÀN THÀNH CHIẾN DỊCH (HỖ TRỢ BỞI AI)';
       } else {
-        headingEl.textContent = this.loop > 1 ? `CHIẾN CÔNG VÒNG LẶP ${this.loop}!` : `CHIẾN CÔNG HIỂN HÁCH!`;
+        headingEl.textContent = this.loop > 1 ? `THANH TRỪNG VÒNG LẶP ${this.loop}!` : (typeof t === 'function' ? t('boss_victory_heading') : 'THANH TRỪNG HOÀN TẤT');
       }
     }
 
@@ -611,7 +611,7 @@ export class BossManager {
     if (isAI) {
       if (achTier) achTier.textContent = '⚠️ CHẾ ĐỘ TỰ ĐỘNG CHƠI (AI BOT)';
       if (achName) achName.textContent = 'TẠM KHÓA THÀNH TỰU (LOCKED)';
-      if (achDesc) achDesc.textContent = 'Trận đánh có sự tham gia của AI. Hãy tự tay chiến đấu và kết liễu Chúa Tể Đa Chiều để mở khóa thành tựu Thần Thoại!';
+      if (achDesc) achDesc.textContent = 'Trận đánh có sự hỗ trợ của AI. Hãy tự tay điều khiển và kết liễu Thực Thể Đa Chiều để xác lập kỷ lục & mở khóa Cúp Thần Thoại!';
       if (achBadge) achBadge.style.opacity = '0.75';
     } else {
       if (achTier) achTier.textContent = t('boss_achieve_tier');
@@ -699,7 +699,7 @@ export class BossManager {
     // Keep board completely intact!
     this.startRaid(this.loop);
     const bonusPct = (this.loop - 1) * 50;
-    this.gameApp.showSpellToast(`🌌 VÒNG LẶP ${this.loop}: Chúa Tể tái sinh với sức mạnh mới! (Thưởng điểm +${bonusPct}%)`, true);
+    this.gameApp.showSpellToast(`🌌 VÒNG LẶP ${this.loop}: Thực Thể tái tạo với cấp độ lượng tử mới! (+${bonusPct}% Điểm Thưởng)`, true);
   }
 
   enterEndlessMode() {
@@ -717,7 +717,7 @@ export class BossManager {
         this.gameApp.gameLogic.scoreMultiplier = 1.0;
       }
       this.gameApp.saveGameState();
-      this.gameApp.showSpellToast('🏆 CHẾ ĐỘ VÔ TẬN: Bàn cờ giữ nguyên! Hãy chinh phục khối 4096, 8192 & phá kỷ lục điểm!', true);
+      this.gameApp.showSpellToast('🏆 CHẾ ĐỘ TỰ DO VÔ HẠN: Bàn cờ được bảo toàn! Tự do tiến tới khối 4096, 8192 và xác lập kỷ lục mới!', true);
     }
   }
 
@@ -826,8 +826,8 @@ export class BossManager {
       this.boss3D.setHpRatio(1.0);
       this.updateHUD();
       if (this.phaseBadgeEl) {
-        const names = { 1: 'PHASE 1 • PLANET', 2: 'PHASE 2 • SOLAR SYSTEM', 3: 'PHASE 3 • UNIVERSE', 4: 'PHASE 4 • OMNIVERSE' };
-        this.phaseBadgeEl.textContent = names[nextP] || 'PHASE 1 • PLANET';
+        const names = { 1: 'PHASE 1 • PLANET CORE', 2: 'PHASE 2 • SOLAR QUASAR', 3: 'PHASE 3 • SINGULARITY', 4: 'PHASE 4 • OMNIVERSE' };
+        this.phaseBadgeEl.textContent = names[nextP] || 'PHASE 1 • PLANET CORE';
         this.phaseBadgeEl.className = `boss-phase-badge p${nextP}`;
       }
     }
@@ -856,8 +856,8 @@ export class BossManager {
     this.gameApp.spawnSpecificTile(0, 0, 0, 1024);
     this.gameApp.spawnSpecificTile(0, 0, 1, 1024);
 
-    this.triggerBanner('COSMIC SINGULARITY — PHASE 3', 'Trượt sang Trái (A / ←) để gộp 2 khối [1024] -> [2048]!');
-    this.gameApp.showSpellToast('Sẵn sàng: Trượt sang Trái để hủy diệt Siêu Hố Đen Vũ Trụ!');
+    this.triggerBanner('SINGULARITY CORE — PHASE 3', 'Hợp nhất 2 khối [1024] thành [2048] để kích hoạt đòn kết liễu!');
+    this.gameApp.showSpellToast('Sẵn sàng: Hợp nhất [1024] thành [2048] để hủy diệt Điểm Kỳ Dị!');
   }
 
   clearVFX() {

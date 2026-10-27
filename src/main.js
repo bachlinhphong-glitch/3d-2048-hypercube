@@ -470,7 +470,7 @@ class GameApp {
         e.preventDefault();
         if (!this.isBossRaid) {
           this.activateBossModeWithCleanReset();
-          this.showSpellToast('PHASE 1 • PLANET TITAN (500 HP | 120s)');
+          this.showSpellToast('PHASE 1 • CORE PRIME: LÕI HÀNH TINH (500 HP | 120s)');
           return;
         }
         const nextP = this.bossManager.cyclePhaseForTest();
@@ -481,12 +481,12 @@ class GameApp {
           this.gameLogic.reset();
           this.spawnSpecificTile(0, 0, 0, 1024);
           this.spawnSpecificTile(0, 0, 1, 1024);
-          this.showSpellToast('PHASE 4 • OMNIVERSE GOD (2,048 HP | +120s) — Trượt Trái để gộp 2048!');
+          this.showSpellToast('PHASE 4 • OMNIVERSE SOVEREIGN (2,048 HP | +120s) — Gộp khối 2048 để hủy diệt!');
         } else {
           const toastNames = {
-            1: 'PHASE 1 • PLANET TITAN (500 HP | 120s)',
-            2: 'PHASE 2 • SOLAR SYSTEM (1,500 HP | +120s)',
-            3: 'PHASE 3 • COSMIC SINGULARITY (2,048 HP | +120s)',
+            1: 'PHASE 1 • CORE PRIME: LÕI HÀNH TINH (500 HP | 120s)',
+            2: 'PHASE 2 • SOLAR QUASAR (1,500 HP | +120s)',
+            3: 'PHASE 3 • SINGULARITY CORE (2,048 HP | +120s)',
             5: '💥 BIG BANG SUPERNOVA FINALE'
           };
           this.showSpellToast(toastNames[nextP] || `Boss Phase ${nextP}`);
@@ -2629,13 +2629,13 @@ class GameApp {
     let sub = is3D ? (t('mode_3x3x3') || '3x3x3 Đa Tầng Không Gian') : (t('game_ready_sub') || 'Vuốt để gộp khối & phá vỡ kỷ lục');
 
     if (isBoss) {
-      icon = '👹';
-      title = 'BOSS RAID ACTIVATED!';
-      sub = 'Tiêu diệt 4 Giai đoạn Trùm Hắc Ám';
+      icon = '⚔️';
+      title = 'CHIẾN DỊCH HƯ KHÔNG • VOID RAID';
+      sub = 'Thanh trừng 4 Dạng thức Thực Thể Hư Không';
     } else if (isRush) {
-      icon = '💣';
-      title = 'RUSH MODE STARTED!';
-      sub = 'Gỡ bom hẹn giờ & giữ nhịp thời gian';
+      icon = '⚡';
+      title = 'CHẾ ĐỘ ĐUA GIỜ • TIME RUSH';
+      sub = 'Duy trì nhịp xung kích & bứt phá giới hạn';
     }
 
     toast.innerHTML = `
@@ -3621,7 +3621,7 @@ class GameApp {
           this.updateSpellUI();
 
           soundManager.playSpellRecharge();
-          this.showSpellToast(`⚡ CỨU NGUY: Quy đổi ${remainingSpells} phép bổ trợ thành +${bonusSeconds}s sinh tồn!`, true);
+          this.showSpellToast(`⚡ GIAO THỨC KHẨN CẤP: Quy đổi ${remainingSpells} mô-đun thành +${bonusSeconds}s sinh tồn!`, true);
         } else {
           this.rushTime = 0;
           this.gameLogic.gameOver = true;

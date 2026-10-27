@@ -350,13 +350,13 @@ export function createBossTrophyMesh(isUnlocked = true) {
     pCtx.fillStyle = '#f87171';
     pCtx.shadowColor = '#991b1b';
     pCtx.shadowBlur = 8;
-    pCtx.fillText('TRẢM TƯỚNG HƯ KHÔNG — ĐOẠT MỆNH HOÀN TẤT', 256, 96);
+    pCtx.fillText('KẺ THANH TRỪNG HƯ KHÔNG — ENTITY SEVERED', 256, 96);
   } else {
     pCtx.font = '900 30px "Segoe UI", Arial, sans-serif';
     pCtx.fillStyle = '#71717a';
     pCtx.shadowColor = '#000';
     pCtx.shadowBlur = 8;
-    pCtx.fillText('🔒 CÚP TRẢM TƯỚNG HẮC ÁM', 256, 48);
+    pCtx.fillText('🔒 CÚP TRẢM THẦN HƯ KHÔNG', 256, 48);
 
     pCtx.font = 'bold 18px "Segoe UI", Arial, sans-serif';
     pCtx.fillStyle = '#52525b';

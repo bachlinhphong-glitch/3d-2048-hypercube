@@ -202,10 +202,10 @@ export class QuestManager {
       if (bossStatusEl) {
         if (this.isBossDefeated()) {
           bossStatusEl.className = 'val unlocked';
-          bossStatusEl.innerHTML = '⚔️ ĐÃ TIÊU DIỆT HOÀN TẤT';
+          bossStatusEl.innerHTML = '⚔️ ĐÃ THANH TRỪNG HOÀN TOÀN';
         } else {
           bossStatusEl.className = 'val locked';
-          bossStatusEl.innerHTML = '🔒 Chưa tiêu diệt';
+          bossStatusEl.innerHTML = '🔒 Chưa thanh trừng';
         }
       }
 
@@ -254,17 +254,17 @@ export class QuestManager {
       const isDefeated = this.isBossDefeated();
       if (isDefeated) {
         statusEl.className = 'trophy-status-pill unlocked boss';
-        statusEl.innerHTML = '⚔️ ĐÃ MỞ KHÓA — CÚP TRẢM TƯỚNG HẮC ÁM';
+        statusEl.innerHTML = '⚔️ ĐÃ MỞ KHÓA — CÚP TRẢM THẦN HƯ KHÔNG';
       } else {
         statusEl.className = 'trophy-status-pill locked';
-        statusEl.innerHTML = '🔒 KHÓA — TIÊU DIỆT TRÙM ĐỂ MỞ';
+        statusEl.innerHTML = '🔒 KHÓA — THANH TRỪNG THỰC THỂ ĐỂ MỞ';
       }
     } else {
       const completedCount = this.getCompletedCount();
       const totalCount = QUEST_DEFS.length;
       if (this.isAllCompleted()) {
         statusEl.className = 'trophy-status-pill unlocked';
-        statusEl.innerHTML = '🏆 ĐÃ MỞ KHÓA — CÚP BẬC THẦY 2048';
+        statusEl.innerHTML = '🏆 ĐÃ MỞ KHÓA — CÚP CHIẾN TÍCH 2048';
       } else {
         statusEl.className = 'trophy-status-pill locked';
         statusEl.innerHTML = `🔒 KHÓA — CÒN ${totalCount - completedCount} NHIỆM VỤ`;
@@ -486,7 +486,7 @@ export class QuestManager {
     this.triggerConfetti();
 
     if (this.game.showSpellToast) {
-      this.game.showSpellToast('🏆 BẠN ĐÃ MỞ KHÓA CÚP BẬC THẦY 2048!');
+      this.game.showSpellToast('🏆 BẠN ĐÃ MỞ KHÓA CÚP CHIẾN TÍCH 2048 BẬC THẦY!');
     }
 
     this.openModal('c1');
