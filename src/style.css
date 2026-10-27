@@ -50,12 +50,20 @@ option,
 optgroup,
 input,
 textarea,
+.glass-btn,
 .glass-select,
 .shape-quick-select {
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Plus Jakarta Sans', Helvetica, Arial, sans-serif !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  font-kerning: normal;
+  letter-spacing: 0.25px;
+}
+
+.btn-text {
+  letter-spacing: 0.35px;
+  display: inline-block;
 }
 
 /* ================= THEME STYLES ================= */
@@ -3140,9 +3148,15 @@ body.in-boss-mode #demo-theme-switcher {
 
 @media (max-width: 640px) {
   .boss-hud {
-    top: 78px !important;
+    top: 72px !important;
     width: min(94%, 380px) !important;
-    padding: 5px 12px !important;
+    padding: 5px 10px !important;
+  }
+
+  .boss-phase-badge {
+    font-size: 9px !important;
+    padding: 2px 7px !important;
+    letter-spacing: 0.4px !important;
   }
 }
 
@@ -3183,13 +3197,14 @@ body.in-boss-mode #demo-theme-switcher {
 }
 
 .boss-phase-badge {
-  font-size: 10.5px;
+  font-size: 10px;
   font-weight: 800;
-  letter-spacing: 0.8px;
-  padding: 3px 10px;
+  letter-spacing: 0.5px;
+  padding: 3px 8px;
   border-radius: var(--radius-full);
   white-space: nowrap;
   text-transform: uppercase;
+  flex-shrink: 0;
 }
 
 .boss-phase-badge.p1 {
@@ -3257,17 +3272,19 @@ body.in-boss-mode #demo-theme-switcher {
 .boss-hp-track {
   position: relative;
   flex: 1;
-  height: 12px;
-  background: rgba(255, 255, 255, 0.08);
+  min-width: 130px;
+  height: 16px;
+  background: rgba(0, 0, 0, 0.55);
   border-radius: var(--radius-full);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6);
   overflow: hidden;
 }
 
 .boss-hp-fill {
   height: 100%;
-  background: linear-gradient(90deg, #00f0ff 0%, #a855f7 50%, #fbbf24 100%);
-  box-shadow: 0 0 12px rgba(0, 240, 255, 0.6);
+  background: linear-gradient(90deg, #00f0ff 0%, #38bdf8 50%, #a855f7 100%);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
   border-radius: var(--radius-full);
   transition: width 0.22s ease-out;
 }
@@ -3281,11 +3298,13 @@ body.in-boss-mode #demo-theme-switcher {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 9px;
+  font-family: 'SFMono-Regular', Consolas, Menlo, monospace, sans-serif;
+  font-size: 10px;
   font-weight: 800;
   color: #ffffff;
-  letter-spacing: 0.5px;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+  letter-spacing: 0.6px;
+  text-shadow: 0 0 3px #000000, 0 0 6px #000000, 0 1px 2px #000000;
+  z-index: 2;
   pointer-events: none;
 }
 
@@ -5199,7 +5218,7 @@ body.theme-zen_clay .rush-progress-track {
   /* Boss HUD on mobile: Centered below single-row header */
   .boss-hud {
     position: absolute !important;
-    top: 64px !important;
+    top: 72px !important;
     left: 50% !important;
     transform: translateX(-50%) !important;
     width: min(94%, 380px) !important;
