@@ -208,6 +208,25 @@ export class QuestManager {
           bossStatusEl.innerHTML = '🔒 Chưa tiêu diệt';
         }
       }
+
+      const bestTimeSecs = localStorage.getItem('3d2048_boss_best_time');
+      const bestTimeEl = document.getElementById('boss-t-best-time');
+      if (bestTimeEl) {
+        if (bestTimeSecs) {
+          const s = parseInt(bestTimeSecs, 10);
+          const m = Math.floor(s / 60);
+          const remS = s % 60;
+          bestTimeEl.textContent = `${m > 0 ? m + 'm ' : ''}${remS}s`;
+        } else {
+          bestTimeEl.textContent = '--:--';
+        }
+      }
+
+      const maxLoop = localStorage.getItem('3d2048_boss_max_loop') || '1';
+      const maxLoopEl = document.getElementById('boss-t-max-loop');
+      if (maxLoopEl) {
+        maxLoopEl.textContent = `Loop ${maxLoop}`;
+      }
     } else {
       if (tabC1Btn) tabC1Btn.classList.add('active');
       if (tabBossBtn) tabBossBtn.classList.remove('active');

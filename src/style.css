@@ -2354,11 +2354,66 @@ body.theme-zen_clay .welcome-start-btn {
   color: #fbbf24;
 }
 
-.boss-victory-actions {
-  padding: 16px 24px 24px;
+/* Records Bar in Boss Victory Modal */
+.boss-victory-records-bar {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   justify-content: center;
+  align-items: center;
+  padding: 0 24px 8px;
+  flex-wrap: wrap;
+}
+
+.boss-v-rec-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(251, 191, 36, 0.08);
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  border-radius: 999px;
+  padding: 5px 14px;
+  font-size: 12px;
+  color: #e2e8f0;
+}
+
+.boss-v-rec-icon {
+  font-size: 13px;
+}
+
+.boss-v-rec-lbl {
+  color: #94a3b8;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.boss-v-rec-num {
+  font-weight: 700;
+  color: #fbbf24;
+  font-family: SFMono-Regular, Consolas, monospace;
+}
+
+.boss-v-new-pill {
+  background: linear-gradient(135deg, #ef4444, #f59e0b);
+  color: #ffffff;
+  font-size: 9.5px;
+  font-weight: 900;
+  padding: 1px 6px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+  animation: pulseNewRecord 1.6s infinite;
+}
+
+@keyframes pulseNewRecord {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
+  50% { transform: scale(1.08); box-shadow: 0 0 10px 2px rgba(245, 158, 11, 0.8); }
+}
+
+.boss-victory-actions {
+  padding: 12px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
 }
 
 .boss-v-start-btn {
@@ -2385,6 +2440,63 @@ body.theme-zen_clay .welcome-start-btn {
 .boss-v-start-btn svg {
   width: 16px;
   height: 16px;
+}
+
+.boss-v-start-btn.loop-btn {
+  width: 100%;
+  justify-content: center;
+  background: linear-gradient(135deg, #a855f7, #ec4899 50%, #f59e0b 100%);
+  border: 1px solid rgba(244, 114, 182, 0.6);
+  box-shadow: 0 6px 24px rgba(236, 72, 153, 0.4);
+  font-size: 14.5px;
+  padding: 13px 20px;
+}
+
+.boss-v-start-btn.loop-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 32px rgba(236, 72, 153, 0.65);
+}
+
+.boss-v-endless-btn {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(59, 130, 246, 0.22));
+  border: 1.5px solid rgba(56, 189, 248, 0.65);
+  color: #38bdf8;
+  font-size: 13.5px;
+  font-weight: 800;
+  padding: 11px 20px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 18px rgba(56, 189, 248, 0.25);
+}
+
+.boss-v-endless-btn:hover {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.22), rgba(59, 130, 246, 0.35));
+  border-color: #7dd3fc;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(56, 189, 248, 0.45);
+}
+
+.boss-victory-sub-actions {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+.boss-victory-sub-actions .modal-btn {
+  flex: 1 1 auto;
+  min-width: 120px;
+  padding: 8px 12px;
+  font-size: 12px;
 }
 
 /* Gentle Light Overrides for Modals */
@@ -2465,6 +2577,26 @@ body.theme-gentle_light .boss-achievement-name {
 body.theme-gentle_light .boss-v-stat {
   background: #f8fafc;
   border-color: #e2e8f0;
+}
+
+body.theme-gentle_light .boss-v-rec-pill {
+  background: #fef3c7;
+  border-color: #fde68a;
+  color: #78350f;
+}
+
+body.theme-gentle_light .boss-v-rec-lbl {
+  color: #92400e;
+}
+
+body.theme-gentle_light .boss-v-rec-num {
+  color: #b45309;
+}
+
+body.theme-gentle_light .boss-v-endless-btn {
+  background: #f0f9ff;
+  border-color: #38bdf8;
+  color: #0284c7;
 }
 
 body.theme-gentle_light .boss-v-val {

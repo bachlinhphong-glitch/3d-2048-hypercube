@@ -19,6 +19,7 @@ export class BossManager {
     this.camera = gameApp.sceneManager.camera;
 
     this.isActive = false;
+    this.loop = 1;
     this.phase = 1;
     this.maxHp = 500;
     this.hp = 500;
@@ -72,17 +73,26 @@ export class BossManager {
     }
   }
 
-  startRaid() {
+  startRaid(loop = 1) {
     this.clearAllTweens();
     this.clearVFX();
     this.isActive = true;
+    this.loop = Math.max(1, parseInt(loop, 10) || 1);
     this.phase = 1;
-    this.maxHp = 500;
-    this.hp = 500;
-    this.timer = 120.0;
     this.clearTime = 0.0;
     this.isDefeated = false;
     this.isObliterating = false;
+
+    // Apply loop buffs to player
+    if (this.gameApp && this.gameApp.gameLogic) {
+      this.gameApp.gameLogic.scoreMultiplier = 1.0 + (this.loop - 1) * 0.5;
+    }
+
+    // Scaling based on Loop (New Game+)
+    const hpMult = Math.pow(1.35, this.loop - 1);
+    this.maxHp = Math.round(500 * hpMult);
+    this.hp = this.maxHp;
+    this.timer = 120.0 + Math.min(60, (this.loop - 1) * 15);
 
     // Show 3D Boss & Camera Framing
     if (this.boss3D) {
@@ -98,7 +108,9 @@ export class BossManager {
     if (this.hudEl) this.hudEl.style.display = 'flex';
     this.updateHUD();
 
-    this.triggerBanner('PLANET TITAN — PHASE 1', '500 HP | 120s (2:00)');
+    const loopTag = this.loop > 1 ? `[VÒNG LẶP ${this.loop}] ` : '';
+    const loopSub = this.loop > 1 ? ` • Sát thương & Điểm x${(1 + (this.loop - 1) * 0.5).toFixed(1)}` : '';
+    this.triggerBanner(`${loopTag}PLANET TITAN — PHASE 1`, `${this.maxHp.toLocaleString()} HP | ${Math.round(this.timer)}s${loopSub}`);
     soundManager.playPhaseTransition();
     soundManager.triggerHaptic('slide');
   }
@@ -109,6 +121,10 @@ export class BossManager {
     this.isActive = false;
     this.isDefeated = false;
     this.isObliterating = false;
+
+    if (this.gameApp && this.gameApp.gameLogic) {
+      this.gameApp.gameLogic.scoreMultiplier = 1.0;
+    }
 
     if (this.boss3D) {
       this.boss3D.setVisible(false);
@@ -125,28 +141,31 @@ export class BossManager {
     if (this.boss3D) {
       this.boss3D.setPhase(phase, true);
     }
+    const hpMult = Math.pow(1.35, (this.loop || 1) - 1);
+    const loopPrefix = (this.loop > 1) ? `L${this.loop} • ` : '';
+
     if (phase === 1) {
-      this.maxHp = 500;
+      this.maxHp = Math.round(500 * hpMult);
       if (this.phaseBadgeEl) {
-        this.phaseBadgeEl.textContent = 'PHASE 1 • PLANET';
+        this.phaseBadgeEl.textContent = `${loopPrefix}PHASE 1 • PLANET`;
         this.phaseBadgeEl.className = 'boss-phase-badge p1';
       }
     } else if (phase === 2) {
-      this.maxHp = 1500;
+      this.maxHp = Math.round(1500 * hpMult);
       if (this.phaseBadgeEl) {
-        this.phaseBadgeEl.textContent = 'PHASE 2 • SOLAR SYSTEM';
+        this.phaseBadgeEl.textContent = `${loopPrefix}PHASE 2 • SOLAR SYSTEM`;
         this.phaseBadgeEl.className = 'boss-phase-badge p2';
       }
     } else if (phase === 3) {
-      this.maxHp = 2048;
+      this.maxHp = Math.round(2048 * hpMult);
       if (this.phaseBadgeEl) {
-        this.phaseBadgeEl.textContent = 'PHASE 3 • UNIVERSE';
+        this.phaseBadgeEl.textContent = `${loopPrefix}PHASE 3 • UNIVERSE`;
         this.phaseBadgeEl.className = 'boss-phase-badge p3';
       }
     } else if (phase === 4) {
-      this.maxHp = 2048;
+      this.maxHp = Math.round(2048 * hpMult);
       if (this.phaseBadgeEl) {
-        this.phaseBadgeEl.textContent = 'PHASE 4 • OMNIVERSE';
+        this.phaseBadgeEl.textContent = `${loopPrefix}PHASE 4 • OMNIVERSE`;
         this.phaseBadgeEl.className = 'boss-phase-badge p4';
       }
     }
@@ -205,8 +224,12 @@ export class BossManager {
   onTileMerge(value, tileGridPos) {
     if (!this.isActive || this.isDefeated || this.isObliterating) return;
 
-    let damage = value;
-    let is2048Finale = (value === 2048);
+    let damageMult = 1.0;
+    if (this.loop > 1) {
+      damageMult += (this.loop - 1) * 0.25;
+    }
+    let damage = Math.round(value * damageMult);
+    let is2048Finale = (this.phase === 4 && value >= 2048);
 
     // Deduct HP directly
     this.hp = Math.max(0, this.hp - damage);
@@ -239,6 +262,9 @@ export class BossManager {
   }
 
   onPhaseCleared() {
+    const hpMult = Math.pow(1.35, (this.loop || 1) - 1);
+    const loopTag = this.loop > 1 ? `[VÒNG ${this.loop}] ` : '';
+
     if (this.phase === 1) {
       // Phase 1 -> Phase 2 (Solar Helios)
       this.emitExpandingRingWave(0xfbbf24);
@@ -247,11 +273,11 @@ export class BossManager {
 
       this.timer += 120.0;
       this.applyPhaseVisuals(2);
-      this.hp = 1500;
+      this.hp = Math.round(1500 * hpMult);
       if (this.boss3D) this.boss3D.setHpRatio(1.0);
       this.updateHUD();
 
-      this.triggerBanner('SOLAR HELIOS — PHASE 2', '1,500 HP | +120s (Đã dọn sạch các khối [2], [4])');
+      this.triggerBanner(`${loopTag}SOLAR HELIOS — PHASE 2`, `${this.hp.toLocaleString()} HP | +120s (Đã dọn sạch các khối [2], [4])`);
     } else if (this.phase === 2) {
       // Phase 2 -> Phase 3 (Cosmic Singularity)
       this.emitExpandingRingWave(0xa855f7);
@@ -259,11 +285,11 @@ export class BossManager {
 
       this.timer += 120.0;
       this.applyPhaseVisuals(3);
-      this.hp = 2048;
+      this.hp = Math.round(2048 * hpMult);
       if (this.boss3D) this.boss3D.setHpRatio(1.0);
       this.updateHUD();
 
-      this.triggerBanner('💥 COSMIC SINGULARITY — PHASE 3', '2,048 HP | +120s • Hố Đen Quasar sụp đổ trọng lực!');
+      this.triggerBanner(`${loopTag}💥 COSMIC SINGULARITY — PHASE 3`, `${this.hp.toLocaleString()} HP | +120s • Hố Đen Quasar sụp đổ trọng lực!`);
     } else if (this.phase === 3) {
       // Phase 3 -> Phase 4 (Omniverse Transcendent God)
       this.emitExpandingRingWave(0x00f0ff);
@@ -272,11 +298,11 @@ export class BossManager {
 
       this.timer += 120.0;
       this.applyPhaseVisuals(4);
-      this.hp = 2048;
+      this.hp = Math.round(2048 * hpMult);
       if (this.boss3D) this.boss3D.setHpRatio(1.0);
       this.updateHUD();
 
-      this.triggerBanner('🌌 OMNIVERSE GOD — PHASE 4', '2,048 HP | +120s • Chúa Tể Đa Vũ Trụ Thức Tỉnh!');
+      this.triggerBanner(`${loopTag}🌌 OMNIVERSE GOD — PHASE 4`, `${this.hp.toLocaleString()} HP | +120s • Chúa Tể Đa Vũ Trụ Thức Tỉnh!`);
     } else if (this.phase === 4) {
       // Phase 4 Defeated!
       this.executeGrandFinale();
@@ -465,8 +491,41 @@ export class BossManager {
       return;
     }
 
+    const currentSecs = Math.round(this.clearTime);
+    let isNewBestTime = false;
+    let bestTimeSecs = null;
+    try {
+      const storedTime = localStorage.getItem('3d2048_boss_best_time');
+      if (storedTime) {
+        bestTimeSecs = parseInt(storedTime, 10);
+      }
+      if (!bestTimeSecs || currentSecs < bestTimeSecs) {
+        bestTimeSecs = currentSecs;
+        localStorage.setItem('3d2048_boss_best_time', String(currentSecs));
+        isNewBestTime = true;
+      }
+    } catch {}
+
+    // Track Max Loop reached
+    let maxLoop = 1;
+    try {
+      const storedLoop = localStorage.getItem('3d2048_boss_max_loop');
+      if (storedLoop) {
+        maxLoop = Math.max(parseInt(storedLoop, 10), this.loop);
+      } else {
+        maxLoop = this.loop;
+      }
+      localStorage.setItem('3d2048_boss_max_loop', String(maxLoop));
+    } catch {}
+
+    // Track Boss Best Score
     try {
       localStorage.setItem('3d2048_boss_defeated', 'true');
+      const currentScore = this.gameApp.gameLogic.score;
+      const storedBossScore = parseInt(localStorage.getItem('3d2048_boss_best_score') || '0', 10);
+      if (currentScore > storedBossScore) {
+        localStorage.setItem('3d2048_boss_best_score', String(currentScore));
+      }
     } catch {}
 
     if (this.gameApp && this.gameApp.questManager) {
@@ -478,9 +537,42 @@ export class BossManager {
     }
     this.spawnBossEmbers();
 
+    // Format best time string
+    const bSecs = bestTimeSecs || currentSecs;
+    const bM = Math.floor(bSecs / 60);
+    const bS = bSecs % 60;
+    const bestTimeStr = `${bM > 0 ? bM + 'm ' : ''}${bS}s`;
+
+    // Compute total loop damage
+    const hpMult = Math.pow(1.35, (this.loop || 1) - 1);
+    const totalLoopDamage = Math.round(6096 * hpMult);
+
     if (this.victoryTimeEl) this.victoryTimeEl.textContent = clearTimeStr;
-    if (this.victoryDamageEl) this.victoryDamageEl.textContent = '6,096 HP';
+    if (this.victoryDamageEl) this.victoryDamageEl.textContent = `${totalLoopDamage.toLocaleString()} HP`;
     if (this.victoryScoreEl) this.victoryScoreEl.textContent = this.gameApp.gameLogic.score.toLocaleString();
+
+    // Records Bar
+    const bestTimeEl = document.getElementById('boss-v-best-time');
+    if (bestTimeEl) bestTimeEl.textContent = bestTimeStr;
+
+    const newRecordBadge = document.getElementById('boss-v-new-record-badge');
+    if (newRecordBadge) newRecordBadge.style.display = isNewBestTime ? 'inline-flex' : 'none';
+
+    const loopLevelEl = document.getElementById('boss-v-loop-level');
+    if (loopLevelEl) loopLevelEl.textContent = `Vòng ${this.loop} (Kỷ lục: Loop ${maxLoop})`;
+
+    // Action button labels
+    const nextLoop = (this.loop || 1) + 1;
+    const loopBtnText = document.getElementById('boss-v-btn-loop-text');
+    if (loopBtnText) {
+      const bonusPct = (nextLoop - 1) * 50;
+      loopBtnText.textContent = `⚔️ Tiến vào Vòng lặp ${nextLoop} (New Game+ • +${bonusPct}% Điểm)`;
+    }
+
+    const headingEl = document.getElementById('boss-victory-heading');
+    if (headingEl) {
+      headingEl.textContent = this.loop > 1 ? `CHIẾN CÔNG VÒNG LẶP ${this.loop}!` : `CHIẾN CÔNG HIỂN HÁCH!`;
+    }
 
     this.victoryModal.style.display = 'flex';
     this.victoryModal.classList.remove('active');
@@ -493,6 +585,33 @@ export class BossManager {
         this.victoryModal.style.display = 'none';
       }, 350);
     };
+
+    const loopBtn = document.getElementById('boss-victory-btn-loop');
+    if (loopBtn) {
+      loopBtn.onclick = (e) => {
+        e.stopPropagation();
+        closeVictory();
+        this.nextLoop();
+      };
+    }
+
+    const endlessBtn = document.getElementById('boss-victory-btn-endless');
+    if (endlessBtn) {
+      endlessBtn.onclick = (e) => {
+        e.stopPropagation();
+        closeVictory();
+        this.enterEndlessMode();
+      };
+    }
+
+    const restartBtn = document.getElementById('boss-victory-btn-restart');
+    if (restartBtn) {
+      restartBtn.onclick = (e) => {
+        e.stopPropagation();
+        closeVictory();
+        this.restartFreshGame();
+      };
+    }
 
     const fireworksBtn = document.getElementById('boss-victory-btn-fireworks');
     if (fireworksBtn) {
@@ -517,8 +636,7 @@ export class BossManager {
       this.victoryContinueBtn.onclick = (e) => {
         e.stopPropagation();
         closeVictory();
-        this.gameApp.toggleBossRaid(false);
-        this.gameApp.startNewGame(false);
+        this.nextLoop();
       };
     }
 
@@ -527,6 +645,49 @@ export class BossManager {
         e.stopPropagation();
         this.gameApp.shareScore();
       };
+    }
+  }
+
+  nextLoop() {
+    this.loop = (this.loop || 1) + 1;
+    // Keep board completely intact!
+    this.startRaid(this.loop);
+    const bonusPct = (this.loop - 1) * 50;
+    this.gameApp.showSpellToast(`🌌 VÒNG LẶP ${this.loop}: Chúa Tể tái sinh với sức mạnh mới! (Thưởng điểm +${bonusPct}%)`, true);
+  }
+
+  enterEndlessMode() {
+    this.stopRaid();
+    if (this.gameApp) {
+      this.gameApp.isBossRaid = false;
+      const bossBtn = document.getElementById('btn-toggle-boss');
+      if (bossBtn) {
+        bossBtn.classList.remove('active');
+        const textEl = bossBtn.querySelector('.btn-text');
+        if (textEl) textEl.textContent = 'Boss Raid';
+      }
+      if (this.gameApp.gameLogic) {
+        this.gameApp.gameLogic.keepPlaying = true;
+        this.gameApp.gameLogic.scoreMultiplier = 1.0;
+      }
+      this.gameApp.saveGameState();
+      this.gameApp.showSpellToast('🏆 CHẾ ĐỘ VÔ TẬN: Bàn cờ giữ nguyên! Hãy chinh phục khối 4096, 8192 & phá kỷ lục điểm!', true);
+    }
+  }
+
+  restartFreshGame() {
+    this.loop = 1;
+    this.stopRaid();
+    if (this.gameApp) {
+      this.gameApp.isBossRaid = false;
+      const bossBtn = document.getElementById('btn-toggle-boss');
+      if (bossBtn) {
+        bossBtn.classList.remove('active');
+        const textEl = bossBtn.querySelector('.btn-text');
+        if (textEl) textEl.textContent = 'Boss Raid';
+      }
+      this.gameApp.clearSavedGameState();
+      this.gameApp.startNewGame(false);
     }
   }
 

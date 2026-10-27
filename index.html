@@ -581,6 +581,14 @@
                 <span id="boss-t-status" class="val locked">🔒 Chưa tiêu diệt</span>
               </div>
               <div class="boss-t-stat">
+                <span class="label" data-i18n="boss_t_best_time_label">Kỷ lục Tốc độ:</span>
+                <span id="boss-t-best-time" class="val gold">--:--</span>
+              </div>
+              <div class="boss-t-stat">
+                <span class="label" data-i18n="boss_t_max_loop_label">Vòng lặp cao nhất:</span>
+                <span id="boss-t-max-loop" class="val" style="color: #c084fc;">Loop 1</span>
+              </div>
+              <div class="boss-t-stat">
                 <span class="label">Yêu cầu thử thách:</span>
                 <span class="val">Vượt 4 Phase (6,096 HP)</span>
               </div>
@@ -880,18 +888,49 @@
         </div>
       </div>
 
+      <!-- Records & Milestones Bar -->
+      <div class="boss-victory-records-bar">
+        <div class="boss-v-rec-pill">
+          <span class="boss-v-rec-icon">⚡</span>
+          <span class="boss-v-rec-lbl" data-i18n="boss_rec_speed">Kỷ lục Tốc độ:</span>
+          <span id="boss-v-best-time" class="boss-v-rec-num">--:--</span>
+          <span id="boss-v-new-record-badge" class="boss-v-new-pill" style="display: none;" data-i18n="boss_rec_new">KỶ LỤC MỚI! ⭐</span>
+        </div>
+        <div class="boss-v-rec-pill">
+          <span class="boss-v-rec-icon">🌌</span>
+          <span class="boss-v-rec-lbl" data-i18n="boss_rec_loop">Vòng lặp:</span>
+          <span id="boss-v-loop-level" class="boss-v-rec-num">Vòng 1 (Kỷ lục: Loop 1)</span>
+        </div>
+      </div>
+
       <div class="boss-victory-actions">
-        <button id="boss-victory-btn-fireworks" class="modal-btn secondary" style="border-color: #f59e0b; color: #fde047;">
+        <!-- Primary Action: New Game+ Loop -->
+        <button id="boss-victory-btn-loop" class="boss-v-start-btn loop-btn">
+          <span id="boss-v-btn-loop-text">⚔️ Tiến vào Vòng lặp 2 (New Game+ • +50% Điểm)</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><polyline points="9 18 15 12 9 6"/></svg>
+
+        </button>
+
+        <!-- Secondary Action: Endless Mode 4096+ -->
+        <button id="boss-victory-btn-endless" class="boss-v-endless-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <span data-i18n="boss_btn_endless">🏆 Tự do chinh phục 4096+ (Chế độ Vô Tận)</span>
+        </button>
+
+        <!-- Sub-actions Row -->
+        <div class="boss-victory-sub-actions">
+          <button id="boss-victory-btn-fireworks" class="modal-btn secondary" style="border-color: #f59e0b; color: #fde047;">
           <span>🎉 Bắn Pháo Hoa</span>
         </button>
         <button id="boss-victory-btn-view-trophy" class="modal-btn secondary" style="border-color: #ef4444; color: #fca5a5;">
           <svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
           <span>Chiêm Ngưỡng Cúp Trảm Trùm 3D</span>
         </button>
-        <button id="boss-victory-btn-continue" class="boss-v-start-btn">
-          <span data-i18n="boss_btn_continue">Nhận vinh danh & Tiếp tục</span>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-        </button>
+          <button id="boss-victory-btn-restart" class="modal-btn secondary" style="border-color: #64748b; color: #94a3b8;">
+            <span data-i18n="boss_btn_restart">🔄 Chơi ván mới</span>
+          </button>
+          <button id="boss-victory-btn-continue" style="display: none;"></button>
+        </div>
       </div>
       <div id="boss-victory-confetti" class="boss-embers-container"></div>
     </div>

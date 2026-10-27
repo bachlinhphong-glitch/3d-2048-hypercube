@@ -2820,7 +2820,21 @@ class GameApp {
         // 3D Floating Score Popup
         const screenPos = this.project3DToScreen(new THREE.Vector3(pos.x, pos.y + 0.6, pos.z));
         lastMergeScreenPos = screenPos;
-        this.spawnFloatingScore(`+${m.newValue}`, screenPos, m.newValue);
+        if (this.isBossRaid && this.bossManager && this.bossManager.loop > 1) {
+          const scoreMult = 1 + (this.bossManager.loop - 1) * 0.5;
+          const scoreVal = Math.round(m.newValue * scoreMult);
+          this.spawnFloatingScore(`+${scoreVal} (x${scoreMult.toFixed(1)})`, screenPos, m.newValue);
+        } else {
+          this.spawnFloatingScore(`+${m.newValue}`, screenPos, m.newValue);
+        }
+
+        // Track All-Time Max Tile Record
+        try {
+          const prevMax = parseInt(localStorage.getItem('3d2048_max_tile') || '0', 10);
+          if (m.newValue > prevMax) {
+            localStorage.setItem('3d2048_max_tile', String(m.newValue));
+          }
+        } catch {}
 
         // Milestone Unlock Celebration
         if (m.newValue >= 64 && !this.celebratedMilestones.has(m.newValue)) {
@@ -2848,7 +2862,21 @@ class GameApp {
         // 3D Floating Score Popup
         const screenPos = this.project3DToScreen(new THREE.Vector3(pos.x, pos.y + 0.6, pos.z));
         lastMergeScreenPos = screenPos;
-        this.spawnFloatingScore(`+${m.newValue}`, screenPos, m.newValue);
+        if (this.isBossRaid && this.bossManager && this.bossManager.loop > 1) {
+          const scoreMult = 1 + (this.bossManager.loop - 1) * 0.5;
+          const scoreVal = Math.round(m.newValue * scoreMult);
+          this.spawnFloatingScore(`+${scoreVal} (x${scoreMult.toFixed(1)})`, screenPos, m.newValue);
+        } else {
+          this.spawnFloatingScore(`+${m.newValue}`, screenPos, m.newValue);
+        }
+
+        // Track All-Time Max Tile Record
+        try {
+          const prevMax = parseInt(localStorage.getItem('3d2048_max_tile') || '0', 10);
+          if (m.newValue > prevMax) {
+            localStorage.setItem('3d2048_max_tile', String(m.newValue));
+          }
+        } catch {}
 
         // Milestone Unlock Celebration
         if (m.newValue >= 64 && !this.celebratedMilestones.has(m.newValue)) {
@@ -2933,7 +2961,7 @@ class GameApp {
     const isGameOver = !this.gameLogic.hasValidMoves();
     this.gameLogic.gameOver = isGameOver;
 
-    if (result.won) {
+    if (result.won && !this.isBossRaid) {
       soundManager.playWin();
       this.saveGameState();
       this.showModal({

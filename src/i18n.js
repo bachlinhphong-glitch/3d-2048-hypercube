@@ -233,6 +233,14 @@ export const DICTIONARY = {
     boss_stat_finisher_val: 'Khối 2048 Siêu Cấp',
     boss_btn_share: 'Chia sẻ chiến tích',
     boss_btn_continue: 'Nhận vinh danh & Tiếp tục',
+    boss_rec_speed: 'Kỷ lục Tốc độ:',
+    boss_rec_loop: 'Vòng lặp:',
+    boss_rec_new: 'KỶ LỤC MỚI! ⭐',
+    boss_btn_endless: '🏆 Tự do chinh phục 4096+ (Chế độ Vô Tận)',
+    boss_btn_restart: '🔄 Chơi ván mới',
+    boss_btn_trophy: 'Chiêm Ngưỡng Cúp Trảm Trùm 3D',
+    boss_t_best_time_label: 'Kỷ lục Tốc độ:',
+    boss_t_max_loop_label: 'Vòng lặp cao nhất:',
 
     // Boss Mode
     boss_title: 'BOSS MODE ACTIVATED',
@@ -496,6 +504,14 @@ export const DICTIONARY = {
     boss_stat_finisher_val: 'Legendary 2048 Tile',
     boss_btn_share: 'Share Victory',
     boss_btn_continue: 'Claim Glory & Continue',
+    boss_rec_speed: 'Speedrun Record:',
+    boss_rec_loop: 'Loop Level:',
+    boss_rec_new: 'NEW RECORD! ⭐',
+    boss_btn_endless: '🏆 Endless Mode (Reach 4096+ Freely)',
+    boss_btn_restart: '🔄 Fresh New Game',
+    boss_btn_trophy: 'View 3D Boss Slayer Trophy',
+    boss_t_best_time_label: 'Speedrun Record:',
+    boss_t_max_loop_label: 'Highest Loop:',
 
     // Boss Mode
     boss_title: 'BOSS MODE ACTIVATED',
@@ -735,6 +751,14 @@ export const DICTIONARY = {
     boss_stat_finisher_val: '伝説の2048ブロック',
     boss_btn_share: '戦績をシェア',
     boss_btn_continue: '栄誉を受け取り続ける',
+    boss_rec_speed: 'スピード記録:',
+    boss_rec_loop: 'ループ:',
+    boss_rec_new: '新記録! ⭐',
+    boss_btn_endless: '🏆 エンドレスモード (自由に4096+を目指す)',
+    boss_btn_restart: '🔄 新しいゲーム',
+    boss_btn_trophy: '3Dボス討伐トロフィーを見る',
+    boss_t_best_time_label: 'スピード記録:',
+    boss_t_max_loop_label: '最高ループ:',
 
     // Boss Mode
     boss_title: 'ボスモード起動',
@@ -974,6 +998,14 @@ export const DICTIONARY = {
     boss_stat_finisher_val: '전설의 2048 블록',
     boss_btn_share: '전적 공유하기',
     boss_btn_continue: '영예 수락 및 계속하기',
+    boss_rec_speed: '스피드 기록:',
+    boss_rec_loop: '루프 레벨:',
+    boss_rec_new: '새 기록! ⭐',
+    boss_btn_endless: '🏆 엔들리스 모드 (자유롭게 4096+ 도전)',
+    boss_btn_restart: '🔄 새로운 게임',
+    boss_btn_trophy: '3D 보스 토벌 트로피 감상',
+    boss_t_best_time_label: '스피드 기록:',
+    boss_t_max_loop_label: '최고 루프:',
 
     // Boss Mode
     boss_title: '보스 모드 활성화',

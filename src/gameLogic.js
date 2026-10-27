@@ -9,6 +9,7 @@ export class Game2048Logic {
     this.won = false;
     this.keepPlaying = false;
     this.gameOver = false;
+    this.scoreMultiplier = 1.0;
 
     // Rush Mode Properties
     this.isRushMode = false;
@@ -81,6 +82,7 @@ export class Game2048Logic {
     this.won = false;
     this.keepPlaying = false;
     this.gameOver = false;
+    this.scoreMultiplier = 1.0;
     this.moveCount = 0;
 
     // Reset summoner spells (mỗi bổ trợ tối đa 2 lần/game, dùng 1 lần thì chờ hồi chiêu mốc 256)
@@ -110,6 +112,7 @@ export class Game2048Logic {
         )
       ),
       score: this.score,
+      scoreMultiplier: this.scoreMultiplier || 1.0,
       won: this.won,
       keepPlaying: this.keepPlaying,
       gameOver: this.gameOver,
@@ -124,6 +127,7 @@ export class Game2048Logic {
     if (!data || !data.grid) return false;
     this.grid = data.grid;
     this.score = data.score || 0;
+    this.scoreMultiplier = data.scoreMultiplier || 1.0;
     this.won = !!data.won;
     this.keepPlaying = !!data.keepPlaying;
     this.gameOver = !!data.gameOver;
@@ -316,7 +320,8 @@ export class Game2048Logic {
 
     if (moved) {
       this.grid = newGrid;
-      this.score += scoreAdded;
+      const finalScoreAdded = Math.round(scoreAdded * (this.scoreMultiplier || 1.0));
+      this.score += finalScoreAdded;
       if (this.score > this.bestScore) {
         this.bestScore = this.score;
         this.saveBestScore();
@@ -397,7 +402,9 @@ export class Game2048Logic {
 
       return {
         moved: true,
-        scoreAdded,
+        scoreAdded: finalScoreAdded,
+        baseScoreAdded: scoreAdded,
+        scoreMultiplier: this.scoreMultiplier || 1.0,
         movements,
         defusedBombs,
         explodedBombs,
