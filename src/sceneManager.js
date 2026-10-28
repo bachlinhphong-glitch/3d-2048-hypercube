@@ -292,25 +292,17 @@ export class SceneManager {
     this.starfield.visible = true;
     this.scene.add(this.starfield);
 
-    // 3. Floating Atmospheric Dust Particles
-    const dustCount = 80;
-    const dustGeo = new THREE.BufferGeometry();
-    const dustPositions = new Float32Array(dustCount * 3);
-    for (let i = 0; i < dustCount * 3; i += 3) {
-      dustPositions[i] = (Math.random() - 0.5) * 22;
-      dustPositions[i + 1] = Math.random() * 12 - 1.5;
-      dustPositions[i + 2] = (Math.random() - 0.5) * 22;
-    }
-    dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPositions, 3));
+    // 3. Floating Atmospheric Dust Particles (Disabled: Zero fine dust "bụi mịn")
     this.dustMat = new THREE.PointsMaterial({
       color: 0x38bdf8,
       size: 0.14,
       transparent: true,
-      opacity: 0.7
+      opacity: 0,
+      visible: false
     });
-    this.cyberDust = new THREE.Points(dustGeo, this.dustMat);
-    this.cyberDust.visible = true;
-    this.scene.add(this.cyberDust);
+    this.cyberDust = new THREE.Points(new THREE.BufferGeometry(), this.dustMat);
+    this.cyberDust.visible = false;
+    // Note: Never added to this.scene to ensure zero dust particles in space
   }
 
   getBackgroundTexture(themeName) {

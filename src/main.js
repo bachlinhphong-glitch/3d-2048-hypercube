@@ -1203,11 +1203,11 @@ class GameApp {
     }
   }
 
-  spawnSpecificTile(l, r, c, value) {
+  spawnSpecificTile(l, r, c, value, delay = 0) {
     const tile3D = new Tile3D(l, r, c, value, this.sceneManager.scene, this.currentShape, false, 0);
     this.tiles3D[l][r][c] = tile3D;
     this.gameLogic.setTile(l, r, c, { value, id: tile3D.id, isBomb: false, bombCountdown: 0 });
-    tile3D.spawnAnimation();
+    tile3D.spawnAnimation(delay);
     return tile3D;
   }
 
@@ -2258,9 +2258,9 @@ class GameApp {
     this.updateScoreUI();
     this.updateSpellUI();
 
-    // Spawn 2 initial tiles
-    this.spawnTile();
-    this.spawnTile();
+    // Spawn 2 initial tiles with staggered brick drop
+    this.spawnTile(0);
+    this.spawnTile(0.09);
 
     this.playBoardEntrance();
 
@@ -2272,7 +2272,7 @@ class GameApp {
     this.isAnimating = false;
   }
 
-  spawnTile() {
+  spawnTile(delay = 0) {
     const spawnInfo = this.gameLogic.getRandomSpawnInfo();
     if (!spawnInfo) return null;
 
@@ -2281,7 +2281,7 @@ class GameApp {
     this.tiles3D[l][r][c] = tile3D;
     this.gameLogic.setTile(l, r, c, { value, id: tile3D.id, isBomb, bombCountdown });
 
-    tile3D.spawnAnimation();
+    tile3D.spawnAnimation(delay);
     if (this.mode === '3x3x3' && typeof this.sliceMode === 'number') {
       tile3D.setSliceDim(l !== this.sliceMode);
     }
@@ -2815,10 +2815,7 @@ class GameApp {
 
         this.comboCount++;
         const pos = getGridPosition(m.targetL, m.targetR, m.targetC);
-        const burstCount = m.newValue >= 512 ? 3 : 1;
-        for (let b = 0; b < burstCount; b++) {
-          this.particleSystem.burst(pos.x, pos.y + 0.5 * b, pos.z, m.newValue);
-        }
+        // No fine dust particles on regular merges - clean tactile brick slam instead
         soundManager.playMerge(m.newValue, this.comboCount);
         if (m.newValue >= 512) {
           this.particleSystem.screenShake(this.sceneManager.camera, 0.18);
@@ -2859,10 +2856,7 @@ class GameApp {
 
         this.comboCount++;
         const pos = getGridPosition(m.targetL, m.targetR, m.targetC);
-        const burstCount = m.newValue >= 512 ? 3 : 1;
-        for (let b = 0; b < burstCount; b++) {
-          this.particleSystem.burst(pos.x, pos.y + 0.5 * b, pos.z, m.newValue);
-        }
+        // No fine dust particles on regular merges - clean tactile brick slam instead
         soundManager.playMerge(m.newValue, this.comboCount);
         if (m.newValue >= 512) {
           this.particleSystem.screenShake(this.sceneManager.camera, 0.18);

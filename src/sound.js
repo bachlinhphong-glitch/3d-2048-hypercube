@@ -351,21 +351,22 @@ class SoundManager {
     if (!this.ctx) return;
 
     const t = this.ctx.currentTime;
+    // Deep tactile physical brick thud
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
 
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(130, t);
-    osc.frequency.exponentialRampToValueAtTime(48, t + 0.08);
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(145, t);
+    osc.frequency.exponentialRampToValueAtTime(38, t + 0.08);
 
-    gain.gain.setValueAtTime(0.15, t);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.09);
+    gain.gain.setValueAtTime(0.22, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.095);
 
     osc.connect(gain);
     gain.connect(this.ctx.destination);
 
     osc.start(t);
-    osc.stop(t + 0.09);
+    osc.stop(t + 0.095);
   }
 
   playMerge(value = 4, combo = 0) {

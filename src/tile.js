@@ -3,6 +3,7 @@ import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.j
 import gsap from 'gsap';
 import { getGridPosition, getTileDimensions } from './board.js';
 import { textureManager } from './textureManager.js';
+import { soundManager } from './sound.js';
 
 let nextTileId = 1;
 
@@ -534,14 +535,76 @@ export class Tile3D {
     });
   }
 
-  spawnAnimation() {
-    return gsap.to(this.group.scale, {
-      x: 1,
-      y: 1,
-      z: 1,
-      duration: 0.32,
-      ease: 'back.out(2.0)'
+  spawnAnimation(delay = 0) {
+    const basePos = getGridPosition(this.layer, this.row, this.col);
+    const dropHeight = 2.4;
+
+    const tl = gsap.timeline({ delay });
+
+    // Set initial airborne falling state at beginning of timeline
+    tl.set(this.group.position, {
+      x: basePos.x,
+      y: basePos.y + dropHeight,
+      z: basePos.z
     });
+    tl.set(this.group.scale, {
+      x: 0.84,
+      y: 1.26,
+      z: 0.84
+    });
+
+    // Phase 1: High velocity drop towards the board
+    tl.to(this.group.position, {
+      y: basePos.y,
+      duration: 0.22,
+      ease: 'power3.in',
+      onComplete: () => {
+        if (soundManager && soundManager.playTileDrop) {
+          soundManager.playTileDrop();
+        }
+      }
+    });
+
+    // Phase 2: Instant physical impact squash (flattening against the floor)
+    tl.to(this.group.scale, {
+      x: 1.24,
+      y: 0.74,
+      z: 1.24,
+      duration: 0.08,
+      ease: 'power2.out'
+    });
+
+    // Phase 3: Elastic upward rebound
+    tl.to(this.group.position, {
+      y: basePos.y + 0.16,
+      duration: 0.09,
+      ease: 'power1.out'
+    }, '-=0.02');
+
+    tl.to(this.group.scale, {
+      x: 0.94,
+      y: 1.08,
+      z: 0.94,
+      duration: 0.09,
+      ease: 'power1.out'
+    }, '<');
+
+    // Phase 4: Final solid thud settle onto the board
+    tl.to(this.group.position, {
+      y: basePos.y,
+      duration: 0.1,
+      ease: 'bounce.out'
+    });
+
+    tl.to(this.group.scale, {
+      x: 1.0,
+      y: 1.0,
+      z: 1.0,
+      duration: 0.1,
+      ease: 'power2.out'
+    }, '<');
+
+    return tl;
   }
 
   slideTo(targetLayer, targetRow, targetCol, duration = 0.16) {
@@ -592,17 +655,54 @@ export class Tile3D {
     this.value = newValue;
     this.buildGeometry();
 
-    return gsap.fromTo(
-      this.group.scale,
-      { x: 1.28, y: 1.28, z: 1.28 },
-      {
-        x: 1,
-        y: 1,
-        z: 1,
-        duration: 0.28,
-        ease: 'back.out(2.5)'
+    const basePos = getGridPosition(this.layer, this.row, this.col);
+    const tl = gsap.timeline();
+
+    // Phase 1: Collision pop & upward fusion surge
+    tl.to(this.group.position, {
+      y: basePos.y + 0.32,
+      duration: 0.08,
+      ease: 'power2.out'
+    });
+    tl.to(this.group.scale, {
+      x: 1.26,
+      y: 1.26,
+      z: 1.26,
+      duration: 0.08,
+      ease: 'power2.out'
+    }, '<');
+
+    // Phase 2: Heavy impact slam back down into the slot
+    tl.to(this.group.position, {
+      y: basePos.y,
+      duration: 0.11,
+      ease: 'power3.in',
+      onComplete: () => {
+        if (soundManager && soundManager.playTileDrop) {
+          soundManager.playTileDrop();
+        }
       }
-    );
+    });
+
+    // Phase 3: Physical squash on impact against the grid
+    tl.to(this.group.scale, {
+      x: 1.18,
+      y: 0.82,
+      z: 1.18,
+      duration: 0.07,
+      ease: 'power2.out'
+    });
+
+    // Phase 4: Crisp elastic settle
+    tl.to(this.group.scale, {
+      x: 1.0,
+      y: 1.0,
+      z: 1.0,
+      duration: 0.12,
+      ease: 'elastic.out(1.2, 0.5)'
+    });
+
+    return tl;
   }
 
   update(delta) {
