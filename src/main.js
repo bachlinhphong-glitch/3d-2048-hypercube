@@ -66,6 +66,9 @@ class GameApp {
     window.THREE = THREE;
     window.textureManager = textureManager;
     window.Tile3D = Tile3D;
+    window.setLanguage = setLanguage;
+    window.i18n = i18n;
+    window.t = t;
 
     // 3D tiles grid: tiles3D[layer][row][col]
     this.tiles3D = this.createEmptyTileGrid();

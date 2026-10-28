@@ -179,6 +179,20 @@ export class QuestManager {
         this.game.toggleBossRaid(true);
       });
     }
+
+    // Dynamic Language Synchronization Listener
+    window.addEventListener('languageChanged', () => {
+      this.renderQuestsList();
+      this.updateStatusPill();
+      this.updateBossStatsTexts();
+      const celebrateLabel = document.getElementById('trophy-celebrate-label');
+      if (celebrateLabel) {
+        celebrateLabel.textContent = this.currentTab === 'boss' ? (t('trophy_celebrate_boss_btn') || 'Khai hỏa Hỏa Lực Hư Không') : (t('trophy_celebrate_btn') || 'Bắn Pháo Hoa Ăn Mừng');
+      }
+      if (this.trophyViewer) {
+        this.trophyViewer.rebuildTrophyMesh();
+      }
+    });
   }
 
   switchTab(tab = 'c1') {
@@ -198,16 +212,7 @@ export class QuestManager {
       if (celebrateLabel) celebrateLabel.textContent = t('trophy_celebrate_boss_btn') || 'Bắn Pháo Lửa Diệt Trùm';
 
       // Update boss status details
-      const bossStatusEl = document.getElementById('boss-t-status');
-      if (bossStatusEl) {
-        if (this.isBossDefeated()) {
-          bossStatusEl.className = 'val unlocked';
-          bossStatusEl.innerHTML = '⚔️ ĐÃ THANH TRỪNG HOÀN TOÀN';
-        } else {
-          bossStatusEl.className = 'val locked';
-          bossStatusEl.innerHTML = '🔒 Chưa thanh trừng';
-        }
-      }
+      this.updateBossStatsTexts();
 
       const bestTimeSecs = localStorage.getItem('3d2048_boss_best_time');
       const bestTimeEl = document.getElementById('boss-t-best-time');
@@ -246,6 +251,19 @@ export class QuestManager {
     }
   }
 
+  updateBossStatsTexts() {
+    const bossStatusEl = document.getElementById('boss-t-status');
+    if (bossStatusEl) {
+      if (this.isBossDefeated()) {
+        bossStatusEl.className = 'val unlocked';
+        bossStatusEl.textContent = t('boss_t_status_unlocked') || '⚔️ ĐÃ THANH TRỪNG HOÀN TOÀN';
+      } else {
+        bossStatusEl.className = 'val locked';
+        bossStatusEl.textContent = t('boss_t_status_locked') || '🔒 Chưa thanh trừng';
+      }
+    }
+  }
+
   updateStatusPill() {
     const statusEl = document.getElementById('trophy-status-pill');
     if (!statusEl) return;
@@ -254,20 +272,22 @@ export class QuestManager {
       const isDefeated = this.isBossDefeated();
       if (isDefeated) {
         statusEl.className = 'trophy-status-pill unlocked boss';
-        statusEl.innerHTML = '⚔️ ĐÃ MỞ KHÓA — CÚP TRẢM THẦN HƯ KHÔNG';
+        statusEl.textContent = t('trophy_status_boss_unlocked') || '⚔️ ĐÃ MỞ KHÓA — CÚP TRẢM THẦN HƯ KHÔNG';
       } else {
         statusEl.className = 'trophy-status-pill locked';
-        statusEl.innerHTML = '🔒 KHÓA — THANH TRỪNG THỰC THỂ ĐỂ MỞ';
+        statusEl.textContent = t('trophy_status_boss_locked') || '🔒 KHÓA — THANH TRỪNG THỰC THỂ ĐỂ MỞ';
       }
     } else {
       const completedCount = this.getCompletedCount();
       const totalCount = QUEST_DEFS.length;
       if (this.isAllCompleted()) {
         statusEl.className = 'trophy-status-pill unlocked';
-        statusEl.innerHTML = '🏆 ĐÃ MỞ KHÓA — CÚP CHIẾN TÍCH 2048';
+        statusEl.textContent = t('trophy_status_c1_unlocked') || '🏆 ĐÃ MỞ KHÓA — CÚP CHIẾN TÍCH 2048';
       } else {
         statusEl.className = 'trophy-status-pill locked';
-        statusEl.innerHTML = `🔒 KHÓA — CÒN ${totalCount - completedCount} NHIỆM VỤ`;
+        const remaining = totalCount - completedCount;
+        const tmpl = t('trophy_status_c1_locked') || '🔒 KHÓA — CÒN {n} NHIỆM VỤ';
+        statusEl.textContent = tmpl.replace('{n}', remaining);
       }
     }
   }
@@ -289,7 +309,7 @@ export class QuestManager {
         this.game.particleSystem.screenShake(this.trophyViewer.camera, 0.24);
       }
       if (this.game.showSpellToast) {
-        this.game.showSpellToast('⚔️ Mưa lửa trảm tướng diệt trùm thành công!');
+        this.game.showSpellToast(t('toast_celebrate_boss'));
       }
     } else {
       if (this.game.soundManager) {
@@ -307,7 +327,7 @@ export class QuestManager {
         this.game.particleSystem.screenShake(this.trophyViewer.camera, 0.14);
       }
       if (this.game.showSpellToast) {
-        this.game.showSpellToast('🎉 Rực rỡ pháo hoa ăn mừng chiến tích!');
+        this.game.showSpellToast(t('toast_celebrate_c1'));
       }
     }
   }
@@ -528,7 +548,7 @@ export class QuestManager {
         <div class="quest-item-details">
           <div class="quest-item-header">
             <span class="quest-item-title">${t(def.titleKey)}</span>
-            <span class="quest-item-status">${isDone ? '<span class="quest-done-badge"><svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px;"><polyline points="20 6 9 17 4 12"/></svg>Hoàn thành</span>' : `${progressVal}/${def.target}${unitStr}`}</span>
+            <span class="quest-item-status">${isDone ? '<span class="quest-done-badge"><svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px;"><polyline points="20 6 9 17 4 12"/></svg>' + t('quest_completed') + '</span>' : progressVal + '/' + def.target + unitStr}</span>
           </div>
           <div class="quest-item-desc">${t(def.descKey)}</div>
           <div class="quest-item-progress-track">
