@@ -275,14 +275,8 @@ class GameApp {
 
         if (logoClicks >= 5) {
           logoClicks = 0;
-          soundManager.playMilestoneUnlock(2048);
+          soundManager.playClick();
           soundManager.triggerHaptic('win');
-          if (this.particleSystem) {
-            for (let b = 0; b < 3; b++) {
-              this.particleSystem.burst(0, 1.2 + 0.4 * b, 0, 2048);
-            }
-          }
-          this.showSpellToast(t('easter_egg_toast') || '☕ Trứng Phục Sinh: Code bằng cả con tim & cà phê, nói KHÔNG với quảng cáo rác! — From Dev with ❤️');
         }
       });
     }
@@ -541,7 +535,7 @@ class GameApp {
       sliceControls.style.display = this.mode === '3x3x3' ? 'flex' : 'none';
     }
 
-    // Tile Shape Selector (Header quick select & Settings modal select)
+    // Tile Shape Selector (Header Apple Glass dropdown & Settings modal select)
     const headerShapeSelect = document.getElementById('header-select-shape');
     const shapeSelect = document.getElementById('select-shape');
     if (headerShapeSelect) {
@@ -554,6 +548,52 @@ class GameApp {
       shapeSelect.value = this.currentShape;
       shapeSelect.addEventListener('change', (e) => {
         this.switchTileShape(e.target.value);
+      });
+    }
+
+    const shapeTriggerBtn = document.getElementById('btn-shape-trigger');
+    const shapeGlassMenu = document.getElementById('shape-glass-menu');
+    const shapeDropdownWrapper = document.getElementById('shape-dropdown-wrapper');
+    const shapeTriggerLabel = document.getElementById('shape-trigger-label');
+
+    if (shapeTriggerLabel) {
+      shapeTriggerLabel.textContent = SHAPE_NAMES[this.currentShape] || 'Auto';
+    }
+
+    if (shapeTriggerBtn && shapeGlassMenu) {
+      shapeTriggerBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = shapeGlassMenu.style.display !== 'none';
+        shapeGlassMenu.style.display = isOpen ? 'none' : 'flex';
+        shapeDropdownWrapper?.classList.toggle('open', !isOpen);
+        shapeTriggerBtn.setAttribute('aria-expanded', String(!isOpen));
+        soundManager.playClick();
+      });
+
+      const menuItems = shapeGlassMenu.querySelectorAll('.apple-glass-menu-item');
+      menuItems.forEach(item => {
+        if (item.dataset.value === this.currentShape) {
+          item.classList.add('active');
+        } else {
+          item.classList.remove('active');
+        }
+        item.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const chosenShape = item.dataset.value;
+          this.switchTileShape(chosenShape);
+          shapeGlassMenu.style.display = 'none';
+          shapeDropdownWrapper?.classList.remove('open');
+          shapeTriggerBtn.setAttribute('aria-expanded', 'false');
+          soundManager.playClick();
+        });
+      });
+
+      document.addEventListener('click', (e) => {
+        if (shapeGlassMenu.style.display !== 'none' && !shapeDropdownWrapper?.contains(e.target)) {
+          shapeGlassMenu.style.display = 'none';
+          shapeDropdownWrapper?.classList.remove('open');
+          shapeTriggerBtn.setAttribute('aria-expanded', 'false');
+        }
       });
     }
 
@@ -825,6 +865,18 @@ class GameApp {
     const shapeSelect = document.getElementById('select-shape');
     if (shapeSelect && shapeSelect.value !== newShape) {
       shapeSelect.value = newShape;
+    }
+
+    const shapeTriggerLabel = document.getElementById('shape-trigger-label');
+    if (shapeTriggerLabel) {
+      shapeTriggerLabel.textContent = SHAPE_NAMES[newShape] || 'Auto';
+    }
+    const shapeGlassMenu = document.getElementById('shape-glass-menu');
+    if (shapeGlassMenu) {
+      const items = shapeGlassMenu.querySelectorAll('.apple-glass-menu-item');
+      items.forEach(item => {
+        item.classList.toggle('active', item.dataset.value === newShape);
+      });
     }
 
     for (let l = 0; l < this.tiles3D.length; l++) {

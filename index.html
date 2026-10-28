@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0d1117">
+  <meta name="color-scheme" content="dark">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="mobile-web-app-capable" content="yes">
@@ -92,14 +93,31 @@
       </div>
 
       <!-- Cluster 3 (Center-Right): Shapes & Quick Modes -->
-      <div class="header-modes-cluster">
-        <div class="shape-quick-wrapper">
+      <div class="header-modes-cluster">        <div class="shape-quick-wrapper" id="shape-dropdown-wrapper">
           <svg class="header-btn-svg shape-prefix-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
             <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
             <line x1="12" y1="22.08" x2="12" y2="12"></line>
           </svg>
-          <select id="header-select-shape" class="glass-select shape-quick-select" title="Chọn hình khối 3D" data-i18n-title="shape_tooltip">
+          <button id="btn-shape-trigger" class="shape-trigger-btn" type="button" aria-haspopup="listbox" aria-expanded="false" title="Chọn hình khối 3D" data-i18n-title="shape_tooltip">
+            <span id="shape-trigger-label" data-i18n="shape_auto">Auto</span>
+            <svg class="shape-chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+          <!-- Custom Apple Glass Dropdown Menu -->
+          <div id="shape-glass-menu" class="apple-glass-dropdown" role="listbox" style="display:none;">
+            <div class="apple-glass-menu-item active" data-value="auto_evolution" data-i18n="shape_auto">Auto</div>
+            <div class="apple-glass-menu-item" data-value="rounded_cube" data-i18n="shape_cube">Cube</div>
+            <div class="apple-glass-menu-item" data-value="crystal_octahedron" data-i18n="shape_octahedron">Crystal</div>
+            <div class="apple-glass-menu-item" data-value="core_sphere" data-i18n="shape_sphere">Sphere</div>
+            <div class="apple-glass-menu-item" data-value="hex_prism" data-i18n="shape_hex">Hex</div>
+            <div class="apple-glass-menu-item" data-value="cyber_pyramid" data-i18n="shape_pyramid">Pyramid</div>
+            <div class="apple-glass-menu-item" data-value="star_dodecahedron" data-i18n="shape_dodecahedron">Gem</div>
+            <div class="apple-glass-menu-item" data-value="plasma_torus" data-i18n="shape_torus">Ring</div>
+          </div>
+          <!-- Synchronized hidden select for backwards compatibility -->
+          <select id="header-select-shape" class="glass-select shape-quick-select" style="display:none;" title="Chọn hình khối 3D">
             <option value="auto_evolution" data-i18n="shape_auto" selected>Auto</option>
             <option value="rounded_cube" data-i18n="shape_cube">Cube</option>
             <option value="crystal_octahedron" data-i18n="shape_octahedron">Crystal</option>
@@ -698,36 +716,8 @@
             </div>
           </div>
         </div>
-
-        <!-- Indie Dev Manifesto & Open Source Badge -->
-        <div class="welcome-manifesto-card">
-          <div class="manifesto-header">
-            <span class="manifesto-tag" data-i18n="manifesto_tag">Góc Tác Giả & Tuyên Ngôn Indie</span>
-            <span class="manifesto-badge-clean" data-i18n="manifesto_badge">100% Không Quảng Cáo</span>
-          </div>
-          <p class="manifesto-text" data-i18n="manifesto_quote">
-            "Mình tự tay lập trình phiên bản 2048 3D này vì quá mệt mỏi với những app trên Store: cứ trượt được 3 nước là bắt xem video quảng cáo 30s. Web này viết bằng <b>Three.js WebGL &amp; Web Audio API</b> thuần túy: <b>Cam kết sạch 100%, không quảng cáo, mở là chơi ngay, miễn phí vĩnh viễn</b> cho anh em giải trí!"
-          </p>
-          <div class="manifesto-tech-row">
-            <span class="tech-pill">Three.js WebGL</span>
-            <span class="tech-pill">Web Audio API</span>
-            <span class="tech-pill">PWA Offline</span>
-            <span class="tech-pill">Zero Tracking</span>
-          </div>
-          <div class="manifesto-links-row">
-            <a href="https://github.com/bachlinhphong-glitch/3d-2048-hypercube" target="_blank" rel="noopener noreferrer" class="manifesto-btn github-btn">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-              <span data-i18n="manifesto_btn_github">Mã nguồn GitHub</span>
-            </a>
-            <a href="https://github.com/bachlinhphong-glitch/3d-2048-hypercube/issues" target="_blank" rel="noopener noreferrer" class="manifesto-btn feedback-btn">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-              <span data-i18n="manifesto_btn_feedback">Góp ý & Báo lỗi</span>
-            </a>
-          </div>
-        </div>
       </div>
-
-      <!-- Footer action -->
+<!-- Footer action -->
       <div class="welcome-modal-footer">
         <label class="welcome-dont-show">
           <input type="checkbox" id="welcome-dont-show-checkbox">
@@ -1055,19 +1045,7 @@
             <span data-i18n="btn_share">Chia sẻ điểm số</span>
           </button>
         </div>
-
-        <!-- Indie Creator Signature in Settings -->
-        <div class="settings-indie-footer">
-          <div class="indie-footer-badge">
-            <span class="heart-pulse">❤️</span> Tự tay lập trình bởi Indie Dev • 100% Sạch &amp; Không Quảng Cáo
-          </div>
-          <div class="indie-footer-links">
-            <a href="https://github.com/bachlinhphong-glitch/3d-2048-hypercube" target="_blank" rel="noopener noreferrer">⭐ GitHub Repository</a> •
-            <a href="https://github.com/bachlinhphong-glitch/3d-2048-hypercube/issues" target="_blank" rel="noopener noreferrer">💬 Báo lỗi &amp; Góp ý</a>
-          </div>
-        </div>
-      </div>
-    </div>
+</div>
   </div>
 
   <!-- Multi-App Social Share Modal -->
