@@ -6702,7 +6702,30 @@ select option:checked,
   box-shadow: 0 4px 20px rgba(56, 189, 248, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
 }
 
+.shape-prefix-icon,
+.shape-quick-wrapper .shape-prefix-icon,
+.shape-trigger-btn .shape-prefix-icon {
+  position: static !important;
+  transform: none !important;
+  top: auto !important;
+  left: auto !important;
+  width: 15px !important;
+  height: 15px !important;
+  stroke: #38bdf8 !important;
+  stroke-width: 2.2 !important;
+  flex-shrink: 0 !important;
+  margin: 0 !important;
+  display: inline-block !important;
+  pointer-events: none !important;
+}
+
 .shape-trigger-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  width: 100% !important;
+  height: 100% !important;
   background: transparent !important;
   border: none !important;
   outline: none !important;
@@ -6710,20 +6733,27 @@ select option:checked,
   font-family: inherit !important;
   font-size: 13px !important;
   font-weight: 700 !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 5px !important;
-  padding: 0 0 0 5px !important;
+  padding: 0 4px !important;
   cursor: pointer !important;
+  white-space: nowrap !important;
   line-height: 1 !important;
 }
 
-.shape-chevron-icon {
-  width: 14px !important;
-  height: 14px !important;
+.shape-trigger-btn #shape-trigger-label {
+  display: inline-block !important;
+  line-height: 1 !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+.shape-chevron-icon,
+.shape-trigger-btn .shape-chevron-icon {
+  width: 12px !important;
+  height: 12px !important;
   color: rgba(255, 255, 255, 0.75) !important;
   transition: transform 0.2s ease !important;
   flex-shrink: 0 !important;
+  margin-left: 1px !important;
 }
 
 .shape-quick-wrapper.open .shape-chevron-icon {

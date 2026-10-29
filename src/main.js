@@ -869,7 +869,19 @@ class GameApp {
 
     const shapeTriggerLabel = document.getElementById('shape-trigger-label');
     if (shapeTriggerLabel) {
-      shapeTriggerLabel.textContent = SHAPE_NAMES[newShape] || 'Auto';
+      const i18nKeyMap = {
+        auto_evolution: 'shape_auto',
+        rounded_cube: 'shape_cube',
+        crystal_octahedron: 'shape_octahedron',
+        core_sphere: 'shape_sphere',
+        hex_prism: 'shape_hex',
+        cyber_pyramid: 'shape_pyramid',
+        star_dodecahedron: 'shape_dodecahedron',
+        plasma_torus: 'shape_torus'
+      };
+      const key = i18nKeyMap[newShape];
+      if (key) shapeTriggerLabel.setAttribute('data-i18n', key);
+      shapeTriggerLabel.textContent = (key ? t(key) : null) || SHAPE_NAMES[newShape] || 'Auto';
     }
     const shapeGlassMenu = document.getElementById('shape-glass-menu');
     if (shapeGlassMenu) {
