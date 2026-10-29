@@ -171,6 +171,37 @@ export class Tile3D {
     }
   }
 
+
+  addGrand2048CubeDecor(size, height) {
+    // 1. Delicate 24K Gold Chamfer Tracery Overlay
+    const boxGeo = new THREE.BoxGeometry(size * 1.012, height * 1.012, size * 1.012);
+    const edgesGeo = new THREE.EdgesGeometry(boxGeo);
+    boxGeo.dispose();
+    const goldLineMat = new THREE.LineBasicMaterial({
+      color: 0xffea79,
+      transparent: true,
+      opacity: 0.85
+    });
+    const edgeLines = new THREE.LineSegments(edgesGeo, goldLineMat);
+    this.decorGroup.add(edgeLines);
+
+    // 2. Floating Imperial Gold Crown Halo
+    const haloRadius = size * 0.46;
+    const haloGeo = new THREE.TorusGeometry(haloRadius, 0.022, 8, 36);
+    const haloMat = new THREE.MeshStandardMaterial({
+      color: 0xffd700,
+      emissive: 0xffaa00,
+      emissiveIntensity: 0.75,
+      roughness: 0.15,
+      metalness: 0.85
+    });
+    const haloMesh = new THREE.Mesh(haloGeo, haloMat);
+    haloMesh.rotation.x = Math.PI / 2;
+    haloMesh.position.y = height * 0.5 + 0.08;
+    this.decorGroup.add(haloMesh);
+    this.crownHalo = haloMesh;
+  }
+
   buildGeometry() {
     // Clean up existing mesh references and dispose cloned materials
     this.disposeClonedMaterials();
@@ -195,6 +226,11 @@ export class Tile3D {
       const mats = textureManager.getTileMaterials(this.value, this.isBomb, this.bombCountdown);
       this.innerMesh = new THREE.Mesh(geo, mats.map(m => m.clone()));
       this.group.add(this.innerMesh);
+
+      // Grand Iconic 2048 3D Enhancements (Luminous Bevel Tracery & Floating Crown Halo)
+      if (this.value >= 2048 && !this.isBomb) {
+        this.addGrand2048CubeDecor(size, height);
+      }
     } else if (effShape === 'crystal_octahedron') {
       const radius = size * 0.58;
       const { geo, edges } = getSharedOctahedron();
@@ -240,6 +276,14 @@ export class Tile3D {
       ring2.rotation.z = Math.PI / 3;
       this.decorGroup.add(ring2);
       this.ring2 = ring2;
+
+      if (this.value >= 2048 && !this.isBomb) {
+        const ring3 = new THREE.Mesh(torusGeo, torusMat.clone());
+        ring3.scale.set(radius * 1.08, radius * 1.08, radius * 1.08);
+        ring3.rotation.x = Math.PI / 2;
+        this.decorGroup.add(ring3);
+        this.ring3 = ring3;
+      }
 
       this.addBillboardLabel(size);
     } else if (effShape === 'hex_prism') {
@@ -714,6 +758,14 @@ export class Tile3D {
       if (this.innerMesh) this.innerMesh.rotation.y += delta * 0.5;
       if (this.ring1) this.ring1.rotation.z += delta * 1.6;
       if (this.ring2) this.ring2.rotation.y -= delta * 1.3;
+      if (this.ring3) this.ring3.rotation.z += delta * 2.2;
+    }
+
+    if (this.crownHalo) {
+      this.crownHalo.rotation.z += delta * 1.2;
+      const t = performance.now() * 0.0025;
+      const { height } = getTileDimensions();
+      this.crownHalo.position.y = (height * 0.5 + 0.08) + Math.sin(t) * 0.025;
     } else if (effShape === 'hex_prism' && this.innerMesh) {
       this.innerMesh.rotation.y += delta * 0.6;
       this.decorGroup.rotation.y += delta * 0.6;
