@@ -493,11 +493,12 @@ export class TextureManager {
     const emissiveIntensity = isMinimalist ? 0 : ((isBomb ? 0.7 : style.intensity) * multiplier);
 
     const isGrand2048 = value >= 2048 && !isBomb;
-    const roughness = isGrand2048 ? (isLight ? 0.20 : 0.12) : (isLight ? 0.55 : (isDark ? 0.48 : 0.18));
-    const metalness = isGrand2048 ? (isLight ? 0.45 : 0.65) : (isLight ? 0.02 : (isDark ? 0.08 : 0.22));
+    // Apple-grade satin 24K gold finish: smooth, warm specular highlights
+    const roughness = isGrand2048 ? 0.24 : (isLight ? 0.55 : (isDark ? 0.48 : 0.18));
+    const metalness = isGrand2048 ? 0.38 : (isLight ? 0.02 : (isDark ? 0.08 : 0.22));
 
     const finalEmissiveColor = new THREE.Color(isBomb ? 0xff2222 : (isGrand2048 ? 0xffaa00 : (isMinimalist ? 0x000000 : style.emissive)));
-    const finalEmissiveIntensity = isGrand2048 ? 0.42 : (isMinimalist ? 0 : ((isBomb ? 0.7 : style.intensity) * multiplier));
+    const finalEmissiveIntensity = isGrand2048 ? 0.32 : (isMinimalist ? 0 : ((isBomb ? 0.7 : style.intensity) * multiplier));
 
     // High-performance tactile standard material
     const faceMatWithText = new THREE.MeshStandardMaterial({
@@ -509,11 +510,11 @@ export class TextureManager {
     });
 
     const solidSideMat = new THREE.MeshStandardMaterial({
-      color: new THREE.Color(isBomb ? 0xcc1111 : (isGrand2048 ? 0xd97706 : style.bg)),
+      color: new THREE.Color(isBomb ? 0xcc1111 : (isGrand2048 ? 0xf59e0b : style.bg)),
       roughness: roughness,
       metalness: metalness,
       emissive: finalEmissiveColor,
-      emissiveIntensity: finalEmissiveIntensity * (isGrand2048 ? 0.55 : 0.35)
+      emissiveIntensity: finalEmissiveIntensity * 0.45
     });
 
     // ONLY the top face (+Y, index 2) has the number!
@@ -666,133 +667,57 @@ export class TextureManager {
     this.materialCache.set(key, bombMat);
     return bombMat;
   }
-
   // ================= THE ICONIC 2048 MASTERPIECE DRAWING METHODS =================
   drawGrand2048Face(ctx, size, isMinimalist = false, isLight = false) {
-    // 1. Imperial 24K Liquid Gold Radial Foundation
-    const grad = ctx.createRadialGradient(size * 0.46, size * 0.38, 25, size / 2, size / 2, size * 0.68);
-    grad.addColorStop(0, '#fff6a3');    // Incandescent solar specular highlight
-    grad.addColorStop(0.22, '#ffd700'); // Pure 24K Radiant Gold
-    grad.addColorStop(0.60, '#f59e0b'); // Rich Amber Core Gold
-    grad.addColorStop(0.88, '#b45309'); // Deep Burnished Gold
-    grad.addColorStop(1, '#78350f');    // Heavy Bronze Ingot Bevel
+    // 1. Radiant 24K Imperial Gold Satin Foundation
+    const grad = ctx.createLinearGradient(0, 0, size, size);
+    if (isLight) {
+      grad.addColorStop(0, '#fffbeb');   // Brilliant sunlight crown
+      grad.addColorStop(0.25, '#fde047'); // Pure sparkling gold
+      grad.addColorStop(0.65, '#eab308'); // Warm golden amber
+      grad.addColorStop(1, '#ca8a04');    // Deep gold chamfer
+    } else {
+      grad.addColorStop(0, '#fff6a3');   // Incandescent solar highlight
+      grad.addColorStop(0.22, '#ffd700'); // Pure 24K Radiant Gold
+      grad.addColorStop(0.62, '#f59e0b'); // Rich Honey Gold Core
+      grad.addColorStop(1, '#d97706');    // Deep Warm Gold Bevel
+    }
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, size, size);
 
-    // 2. Micro-Diamond Guilloché / Starburst Flare Rays
+    // 2. Precision Diamond-Cut Apple Chamfer Inset
     ctx.save();
-    ctx.translate(size / 2, size / 2);
-    const rayCount = 24;
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
-    ctx.lineWidth = 1.6;
-    for (let i = 0; i < rayCount; i++) {
-      ctx.rotate((Math.PI * 2) / rayCount);
-      ctx.beginPath();
-      ctx.moveTo(0, 0);
-      ctx.lineTo(0, size * 0.55);
-      ctx.stroke();
-    }
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.65)';
+    ctx.lineWidth = 5;
+    ctx.strokeRect(10, 10, size - 20, size - 20);
+
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(18, 18, size - 36, size - 36);
+
+    // 3. Apple Satin Specular Sheen (Refined Top Light Luster)
+    const sheen = ctx.createLinearGradient(0, 0, 0, size * 0.45);
+    sheen.addColorStop(0, 'rgba(255, 255, 255, 0.32)');
+    sheen.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
+    ctx.fillStyle = sheen;
+    ctx.fillRect(10, 10, size - 20, size * 0.45);
     ctx.restore();
 
-    // 3. Luxurious Dual-Bevel Ingot Frame & 4 Corner Diamond Studs
-    ctx.save();
-    ctx.strokeStyle = '#fffbeb';
-    ctx.lineWidth = 8;
-    ctx.shadowColor = 'rgba(255, 215, 0, 0.75)';
-    ctx.shadowBlur = 14;
-    ctx.strokeRect(16, 16, size - 32, size - 32);
-
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.55)';
-    ctx.lineWidth = 2.2;
-    ctx.shadowBlur = 0;
-    ctx.strokeRect(26, 26, size - 52, size - 52);
-
-    // 4 Corner Diamond Studs
-    const cornerOffsets = [
-      [36, 36],
-      [size - 36, 36],
-      [size - 36, size - 36],
-      [36, size - 36]
-    ];
-    ctx.fillStyle = '#ffffff';
-    cornerOffsets.forEach(([cx, cy]) => {
-      ctx.save();
-      ctx.translate(cx, cy);
-      ctx.rotate(Math.PI / 4);
-      ctx.fillRect(-3.5, -3.5, 7, 7);
-      ctx.restore();
-    });
-    ctx.restore();
-
-    // 4. Curved Apple Sapphire Glass Specular Sheen
-    ctx.save();
-    ctx.beginPath();
-    ctx.ellipse(size / 2, 75, size * 0.44, 62, 0, 0, Math.PI * 2);
-    const sheenGrad = ctx.createLinearGradient(0, 10, 0, 140);
-    sheenGrad.addColorStop(0, 'rgba(255, 255, 255, 0.65)');
-    sheenGrad.addColorStop(0.5, 'rgba(255, 255, 255, 0.22)');
-    sheenGrad.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
-    ctx.fillStyle = sheenGrad;
-    ctx.fill();
-    ctx.restore();
-
-    // 5. Crown Jewel Starburst Emblem above the 2048 text
-    ctx.save();
-    ctx.translate(size / 2, 140);
-    ctx.fillStyle = '#ffffff';
-    ctx.shadowColor = '#ffd700';
-    ctx.shadowBlur = 12;
-    // 4-pointed radiant diamond star
-    ctx.beginPath();
-    ctx.moveTo(0, -18);
-    ctx.quadraticCurveTo(2, -2, 18, 0);
-    ctx.quadraticCurveTo(2, 2, 0, 18);
-    ctx.quadraticCurveTo(-2, 2, -18, 0);
-    ctx.quadraticCurveTo(-2, -2, 0, -18);
-    ctx.closePath();
-    ctx.fill();
-
-    // 2 mini flanker stars
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-    ctx.shadowBlur = 6;
-    [-42, 42].forEach(ox => {
-      ctx.beginPath();
-      ctx.arc(ox, 0, 3.5, 0, Math.PI * 2);
-      ctx.fill();
-    });
-    ctx.restore();
-
-    // 6. Legendary "2048" Masterpiece Typography
+    // 4. Apple-Grade Pristine Centered Typography
     ctx.save();
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.font = '900 132px "Outfit", "Plus Jakarta Sans", -apple-system, sans-serif';
+    ctx.font = '800 142px "Clear Sans", -apple-system, BlinkMacSystemFont, "SF Pro Display", "Plus Jakarta Sans", sans-serif';
 
-    const textY = size / 2 + 38;
+    const textY = size / 2 + 6;
 
-    // Layer A: Deep tactile 3D ambient shadow
-    ctx.shadowColor = 'rgba(60, 25, 0, 0.88)';
-    ctx.shadowBlur = 18;
-    ctx.shadowOffsetY = 8;
-    ctx.fillStyle = '#451a03';
-    ctx.fillText('2048', size / 2, textY);
+    // Soft organic ambient occlusion beneath the numerals
+    ctx.shadowColor = 'rgba(120, 53, 15, 0.55)';
+    ctx.shadowBlur = 12;
+    ctx.shadowOffsetY = 4;
 
-    // Layer B: Heavy Ingot Contour Rim
-    ctx.shadowColor = 'rgba(255, 215, 0, 0.75)';
-    ctx.shadowBlur = 14;
-    ctx.shadowOffsetY = 0;
-    ctx.strokeStyle = '#78350f';
-    ctx.lineWidth = 10;
-    ctx.lineJoin = 'round';
-    ctx.strokeText('2048', size / 2, textY);
-
-    // Layer C: Brilliant Diamond White Face with subtle warm golden gradient
-    const textGrad = ctx.createLinearGradient(0, textY - 60, 0, textY + 60);
-    textGrad.addColorStop(0, '#ffffff');
-    textGrad.addColorStop(0.7, '#ffffff');
-    textGrad.addColorStop(1, '#fff5cb');
-    ctx.shadowColor = 'transparent';
-    ctx.fillStyle = textGrad;
+    // Pure brilliant diamond white text
+    ctx.fillStyle = '#ffffff';
     ctx.fillText('2048', size / 2, textY);
     ctx.restore();
   }
@@ -800,85 +725,34 @@ export class TextureManager {
   drawGrand2048Sprite(ctx, size, isLight = false) {
     ctx.clearRect(0, 0, size, size);
 
-    // 1. Radiant Solar Lens Backing
-    const radGrad = ctx.createRadialGradient(size / 2, size / 2, 20, size / 2, size / 2, 235);
-    radGrad.addColorStop(0, 'rgba(255, 215, 0, 0.98)');
-    radGrad.addColorStop(0.55, 'rgba(217, 119, 6, 0.85)');
-    radGrad.addColorStop(0.85, 'rgba(146, 64, 14, 0.5)');
-    radGrad.addColorStop(1, 'rgba(146, 64, 14, 0.0)');
+    // Radiant Gold Circular Disc with Soft Feathered Edge
+    const radGrad = ctx.createRadialGradient(size / 2, size / 2, 20, size / 2, size / 2, size * 0.46);
+    radGrad.addColorStop(0, '#fef08a');
+    radGrad.addColorStop(0.35, '#f59e0b');
+    radGrad.addColorStop(0.85, '#d97706');
+    radGrad.addColorStop(1, 'rgba(180, 83, 9, 0)');
     ctx.fillStyle = radGrad;
     ctx.beginPath();
-    ctx.arc(size / 2, size / 2, 235, 0, Math.PI * 2);
+    ctx.arc(size / 2, size / 2, size * 0.46, 0, Math.PI * 2);
     ctx.fill();
 
-    // 2. Dual Concentric Gold Chrono-Rings
-    ctx.save();
+    // Subtle Apple Glass Outer Ring
     ctx.beginPath();
-    ctx.arc(size / 2, size / 2, 220, 0, Math.PI * 2);
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 9;
-    ctx.shadowColor = '#ffd700';
-    ctx.shadowBlur = 18;
+    ctx.arc(size / 2, size / 2, size * 0.43, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.55)';
+    ctx.lineWidth = 4;
     ctx.stroke();
 
-    ctx.beginPath();
-    ctx.arc(size / 2, size / 2, 200, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
-    ctx.lineWidth = 2.5;
-    ctx.shadowBlur = 0;
-    ctx.stroke();
-
-    // 8 Cardinal Celestial Diamonds
-    for (let i = 0; i < 8; i++) {
-      const angle = (i * Math.PI) / 4;
-      const tx = size / 2 + Math.cos(angle) * 210;
-      const ty = size / 2 + Math.sin(angle) * 210;
-      ctx.save();
-      ctx.translate(tx, ty);
-      ctx.rotate(angle + Math.PI / 4);
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(-3, -3, 6, 6);
-      ctx.restore();
-    }
-    ctx.restore();
-
-    // 3. Crown Emblem above number
-    ctx.save();
-    ctx.translate(size / 2, 155);
-    ctx.fillStyle = '#ffffff';
-    ctx.shadowColor = '#ffd700';
-    ctx.shadowBlur = 10;
-    ctx.beginPath();
-    ctx.moveTo(0, -14);
-    ctx.quadraticCurveTo(2, -2, 14, 0);
-    ctx.quadraticCurveTo(2, 2, 0, 14);
-    ctx.quadraticCurveTo(-2, 2, -14, 0);
-    ctx.quadraticCurveTo(-2, -2, 0, -14);
-    ctx.closePath();
-    ctx.fill();
-    ctx.restore();
-
-    // 4. Bold Diamond Text
+    // Pristine Centered Typography
     ctx.save();
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.font = '900 124px "Outfit", "Plus Jakarta Sans", sans-serif';
+    ctx.font = '800 136px "Clear Sans", -apple-system, BlinkMacSystemFont, "SF Pro Display", "Plus Jakarta Sans", sans-serif';
 
-    const textY = size / 2 + 30;
-    ctx.shadowColor = 'rgba(60, 30, 0, 0.9)';
-    ctx.shadowBlur = 16;
-    ctx.shadowOffsetY = 6;
-    ctx.fillStyle = '#451a03';
-    ctx.fillText('2048', size / 2, textY);
-
-    ctx.shadowColor = '#ffd700';
+    const textY = size / 2 + 6;
+    ctx.shadowColor = 'rgba(67, 20, 7, 0.55)';
     ctx.shadowBlur = 12;
-    ctx.shadowOffsetY = 0;
-    ctx.strokeStyle = '#78350f';
-    ctx.lineWidth = 8;
-    ctx.strokeText('2048', size / 2, textY);
-
-    ctx.shadowColor = 'transparent';
+    ctx.shadowOffsetY = 4;
     ctx.fillStyle = '#ffffff';
     ctx.fillText('2048', size / 2, textY);
     ctx.restore();
