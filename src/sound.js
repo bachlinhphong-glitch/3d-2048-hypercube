@@ -30,6 +30,18 @@ class SoundManager {
     }
   }
 
+  suspend() {
+    if (this.ctx && this.ctx.state === 'running') {
+      try { this.ctx.suspend(); } catch (e) {}
+    }
+  }
+
+  resume() {
+    if (this.ctx && this.ctx.state === 'suspended') {
+      try { this.ctx.resume(); } catch (e) {}
+    }
+  }
+
   toggleMute() {
     this.muted = !this.muted;
     if (this.muted && this.bgmPlaying) {

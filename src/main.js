@@ -732,6 +732,24 @@ class GameApp {
     window.addEventListener('touchstart', unlockAudio, { once: true, passive: true });
     window.addEventListener('pointerdown', unlockAudio, { once: true, passive: true });
 
+    // Battery & Performance: Page Visibility API for background power saving (5h away / tab switch)
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        this.hiddenTimestamp = Date.now();
+        soundManager.suspend();
+      } else {
+        if (this.hiddenTimestamp) {
+          const pausedDuration = Date.now() - this.hiddenTimestamp;
+          this.matchStartTime += pausedDuration;
+          this.hiddenTimestamp = null;
+        }
+        soundManager.resume();
+        if (this.clock) {
+          this.clock.getDelta(); // Flush delta so no sudden physics jump occurs
+        }
+      }
+    });
+
 
     // Summoner Spells Elements (Gợi ý, Đi lại, Đổi vị trí)
     this.btnSpellHint = document.getElementById('btn-spell-hint');

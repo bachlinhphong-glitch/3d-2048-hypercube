@@ -1,4 +1,4 @@
-const CACHE_NAME = 'v6.8.16-2048-clean-gold';
+const CACHE_NAME = 'v6.8.17-2048-power-save';
 const CACHE_URLS = [
   './',
   './index.html',
