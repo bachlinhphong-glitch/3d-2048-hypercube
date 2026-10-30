@@ -365,6 +365,32 @@ class SoundManager {
     osc.stop(t + 0.15);
   }
 
+  playPop() {
+    this.triggerHaptic('merge_small');
+    if (this.muted) return;
+    this.ensureContext();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'sine';
+    // Bubbly crystal pop: rapid upward chirp from 360Hz to 760Hz with fast decay
+    osc.frequency.setValueAtTime(360, t);
+    osc.frequency.exponentialRampToValueAtTime(780, t + 0.045);
+    osc.frequency.exponentialRampToValueAtTime(540, t + 0.09);
+
+    gain.gain.setValueAtTime(0.18, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.095);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.start(t);
+    osc.stop(t + 0.1);
+  }
+
   playTileDrop() {
     this.triggerHaptic('drop');
     if (this.muted) return;

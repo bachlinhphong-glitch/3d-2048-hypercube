@@ -132,6 +132,32 @@ export class Board {
     baseMesh.position.y = -baseHeight / 2;
     this.group.add(baseMesh);
 
+    // Ethereal Cosmic Gravity Field Disc (Lồng giam trọng lực phát sáng vũ trụ)
+    if (!isLight && !isDark) {
+      const fieldGeo = new THREE.RingGeometry(0.1, 7.6, 48);
+      const fieldMat = new THREE.MeshBasicMaterial({
+        color: 0x38bdf8,
+        transparent: true,
+        opacity: 0.18,
+        side: THREE.DoubleSide
+      });
+      const fieldMesh = new THREE.Mesh(fieldGeo, fieldMat);
+      fieldMesh.rotation.x = Math.PI / 2;
+      fieldMesh.position.y = -baseHeight - 0.06;
+      this.group.add(fieldMesh);
+
+      const ringGeo = new THREE.TorusGeometry(7.8, 0.04, 8, 48);
+      const ringMat = new THREE.MeshBasicMaterial({
+        color: 0x818cf8,
+        transparent: true,
+        opacity: 0.45
+      });
+      const outerContainment = new THREE.Mesh(ringGeo, ringMat);
+      outerContainment.rotation.x = Math.PI / 2;
+      outerContainment.position.y = -baseHeight - 0.05;
+      this.group.add(outerContainment);
+    }
+
     // Beveled frame rims
     const rimThickness = 0.22;
     const rimHeight = 0.25;

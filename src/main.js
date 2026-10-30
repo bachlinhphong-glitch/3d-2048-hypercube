@@ -15,7 +15,7 @@ import { i18n, t, setLanguage, getCurrentLanguage } from './i18n.js';
 import { QuestManager } from './questManager.js';
 import { createChampionsTrophyMesh, createBossTrophyMesh } from './trophy.js';
 export const SHAPE_NAMES = {
-  auto_evolution: 'Auto',
+  auto_evolution: 'Tiến Hóa',
   rounded_cube: 'Cube',
   prism_triangle: 'Prism',
   hex_prism: 'Hex',
@@ -28,6 +28,12 @@ export const SHAPE_NAMES = {
   quantum_knot: 'Knot',
   core_sphere: 'Sphere',
   portal_nexus: 'Nexus',
+  cosmic_evolution: 'Cosmic',
+  black_hole: 'Black Hole',
+  saturn_rings: 'Saturn',
+  pulsar_star: 'Pulsar',
+  magma_planet: 'Magma',
+  asteroid: 'Asteroid',
 };
 
 
@@ -568,10 +574,18 @@ class GameApp {
     if (shapeTriggerBtn && shapeGlassMenu) {
       shapeTriggerBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        const isOpen = shapeGlassMenu.style.display !== 'none';
-        shapeGlassMenu.style.display = isOpen ? 'none' : 'flex';
-        shapeDropdownWrapper?.classList.toggle('open', !isOpen);
-        shapeTriggerBtn.setAttribute('aria-expanded', String(!isOpen));
+        const isOpen = shapeDropdownWrapper?.classList.contains('open') || shapeGlassMenu.classList.contains('open');
+        if (isOpen) {
+          shapeDropdownWrapper?.classList.remove('open');
+          shapeGlassMenu.classList.remove('open');
+          shapeGlassMenu.style.setProperty('display', 'none', 'important');
+          shapeTriggerBtn.setAttribute('aria-expanded', 'false');
+        } else {
+          shapeDropdownWrapper?.classList.add('open');
+          shapeGlassMenu.classList.add('open');
+          shapeGlassMenu.style.setProperty('display', 'flex', 'important');
+          shapeTriggerBtn.setAttribute('aria-expanded', 'true');
+        }
         soundManager.playClick();
       });
 
@@ -586,17 +600,19 @@ class GameApp {
           e.stopPropagation();
           const chosenShape = item.dataset.value;
           this.switchTileShape(chosenShape);
-          shapeGlassMenu.style.display = 'none';
           shapeDropdownWrapper?.classList.remove('open');
+          shapeGlassMenu.classList.remove('open');
+          shapeGlassMenu.style.setProperty('display', 'none', 'important');
           shapeTriggerBtn.setAttribute('aria-expanded', 'false');
           soundManager.playClick();
         });
       });
 
       document.addEventListener('click', (e) => {
-        if (shapeGlassMenu.style.display !== 'none' && !shapeDropdownWrapper?.contains(e.target)) {
-          shapeGlassMenu.style.display = 'none';
+        if (shapeDropdownWrapper?.classList.contains('open') && !shapeDropdownWrapper?.contains(e.target)) {
           shapeDropdownWrapper?.classList.remove('open');
+          shapeGlassMenu.classList.remove('open');
+          shapeGlassMenu.style.setProperty('display', 'none', 'important');
           shapeTriggerBtn.setAttribute('aria-expanded', 'false');
         }
       });
@@ -905,7 +921,13 @@ class GameApp {
         plasma_torus: 'shape_torus',
         quantum_knot: 'shape_knot',
         core_sphere: 'shape_sphere',
-        portal_nexus: 'shape_portal'
+        portal_nexus: 'shape_portal',
+        cosmic_evolution: 'shape_cosmic',
+        black_hole: 'shape_black_hole',
+        saturn_rings: 'shape_saturn',
+        pulsar_star: 'shape_pulsar',
+        magma_planet: 'shape_magma',
+        asteroid: 'shape_asteroid'
       };
       const key = i18nKeyMap[newShape];
       if (key) shapeTriggerLabel.setAttribute('data-i18n', key);
@@ -2909,8 +2931,12 @@ class GameApp {
         const pos = getGridPosition(m.targetL, m.targetR, m.targetC);
         // No fine dust particles on regular merges - clean tactile brick slam instead
         soundManager.playMerge(m.newValue, this.comboCount);
-        if (m.newValue >= 512) {
-          this.particleSystem.screenShake(this.sceneManager.camera, 0.18);
+        if (m.newValue >= 128) {
+          if (this.particleSystem && this.particleSystem.supernovaBurst) {
+            this.particleSystem.supernovaBurst(pos.x, pos.y + 0.25, pos.z, m.newValue, this.sceneManager.camera);
+          }
+        } else if (m.newValue >= 64) {
+          this.particleSystem.screenShake(this.sceneManager.camera, 0.12);
         }
         if (this.isBossRaid && this.bossManager) {
           this.bossManager.onTileMerge(m.newValue, { l: m.targetL, r: m.targetR, c: m.targetC });
@@ -2950,8 +2976,12 @@ class GameApp {
         const pos = getGridPosition(m.targetL, m.targetR, m.targetC);
         // No fine dust particles on regular merges - clean tactile brick slam instead
         soundManager.playMerge(m.newValue, this.comboCount);
-        if (m.newValue >= 512) {
-          this.particleSystem.screenShake(this.sceneManager.camera, 0.18);
+        if (m.newValue >= 128) {
+          if (this.particleSystem && this.particleSystem.supernovaBurst) {
+            this.particleSystem.supernovaBurst(pos.x, pos.y + 0.25, pos.z, m.newValue, this.sceneManager.camera);
+          }
+        } else if (m.newValue >= 64) {
+          this.particleSystem.screenShake(this.sceneManager.camera, 0.12);
         }
         if (this.isBossRaid && this.bossManager) {
           this.bossManager.onTileMerge(m.newValue, { l: m.targetL, r: m.targetR, c: m.targetC });

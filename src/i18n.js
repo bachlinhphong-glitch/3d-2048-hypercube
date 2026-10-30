@@ -92,7 +92,31 @@ export const DICTIONARY = {
     shape_knot: 'Knot',
     shape_sphere: 'Sphere',
     shape_portal: 'Nexus',
-    shape_auto: 'Auto',
+    shape_auto: 'Tiến Hóa',
+    shape_cosmic: '우주 천체',
+    shape_black_hole: '블랙홀',
+    shape_saturn: '토성 고리',
+    shape_pulsar: '펄서 항성',
+    shape_magma: '마그마 행성',
+    shape_asteroid: '소행성',
+    shape_cosmic: '宇宙天体',
+    shape_black_hole: 'ブラックホール',
+    shape_saturn: '土星リング',
+    shape_pulsar: 'パルサー星',
+    shape_magma: 'マグマ惑星',
+    shape_asteroid: '小惑星',
+    shape_cosmic: 'Cosmic',
+    shape_black_hole: 'Black Hole',
+    shape_saturn: 'Saturn',
+    shape_pulsar: 'Pulsar',
+    shape_magma: 'Magma',
+    shape_asteroid: 'Asteroid',
+    shape_cosmic: 'Thiên Thể',
+    shape_black_hole: 'Hố Đen',
+    shape_saturn: 'Sao Thổ',
+    shape_pulsar: 'Sao Xung',
+    shape_magma: 'Dung Nham',
+    shape_asteroid: 'Thiên Thạch',
 
     // Themes
     theme_group_minimal: 'Phong Cách Hiền Hòa & Tối Giản',
@@ -395,7 +419,7 @@ export const DICTIONARY = {
     shape_knot: 'Knot',
     shape_sphere: 'Sphere',
     shape_portal: 'Nexus',
-    shape_auto: 'Auto',
+    shape_auto: 'Evolution',
 
     // Themes
     theme_group_minimal: 'Gentle & Minimalist Aesthetic',
@@ -680,7 +704,7 @@ export const DICTIONARY = {
     shape_knot: 'Knot',
     shape_sphere: 'Sphere',
     shape_portal: 'Nexus',
-    shape_auto: 'Auto',
+    shape_auto: '形状進化',
 
     // Themes
     theme_group_minimal: '優しいミニマリズム様式',
@@ -965,7 +989,7 @@ export const DICTIONARY = {
     shape_knot: 'Knot',
     shape_sphere: 'Sphere',
     shape_portal: 'Nexus',
-    shape_auto: 'Auto',
+    shape_auto: '진화',
 
     // Themes
     theme_group_minimal: '평온한 미니멀리즘 스타일',

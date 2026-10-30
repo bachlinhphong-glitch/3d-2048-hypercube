@@ -113,6 +113,19 @@ export class ParticleSystem {
     this.instancedMesh.instanceMatrix.needsUpdate = true;
   }
 
+  // Supernova celestial burst with shockwave particles and camera shake
+  supernovaBurst(x, y, z, value = 256, camera = null) {
+    this.burst(x, y, z, value);
+    if (camera) {
+      let intensity = 0.22;
+      if (value >= 2048) intensity = 0.58;
+      else if (value >= 1024) intensity = 0.44;
+      else if (value >= 512) intensity = 0.34;
+      else if (value >= 256) intensity = 0.26;
+      this.screenShake(camera, intensity);
+    }
+  }
+
   // Camera screen shake for impactful big merges
   screenShake(camera, intensity = 0.22) {
     const originalPos = camera.position.clone();

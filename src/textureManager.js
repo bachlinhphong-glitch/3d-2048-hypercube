@@ -758,6 +758,446 @@ export class TextureManager {
     ctx.restore();
   }
 
+
+  // ================= CELESTIAL PLANETARY EVOLUTION TEXTURES & MATERIALS =================
+  getAsteroidTexture(value = 2) {
+    const key = `asteroid_tex_${value}`;
+    if (this.textureCache.has(key)) return this.textureCache.get(key);
+
+    const size = 512;
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+
+    // Rocky charcoal basalt foundation
+    const grad = ctx.createLinearGradient(0, 0, size, size);
+    grad.addColorStop(0, '#434752');
+    grad.addColorStop(0.5, '#282c35');
+    grad.addColorStop(1, '#16191f');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, size, size);
+
+    // Stippled basalt noise & mineral grains
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+    for (let i = 0; i < 350; i++) {
+      const rx = Math.random() * size;
+      const ry = Math.random() * size;
+      const r = Math.random() * 2 + 0.5;
+      ctx.beginPath();
+      ctx.arc(rx, ry, r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Impact craters with rims and internal shadow
+    const craters = [
+      { x: 120, y: 140, r: 48 },
+      { x: 380, y: 160, r: 65 },
+      { x: 260, y: 320, r: 52 },
+      { x: 110, y: 390, r: 35 },
+      { x: 410, y: 380, r: 40 },
+      { x: 256, y: 110, r: 30 }
+    ];
+
+    craters.forEach(c => {
+      // Crater cavity shadow
+      const cGrad = ctx.createRadialGradient(c.x + c.r * 0.25, c.y + c.r * 0.25, c.r * 0.1, c.x, c.y, c.r);
+      cGrad.addColorStop(0, '#0d0e12');
+      cGrad.addColorStop(0.7, '#1b1d24');
+      cGrad.addColorStop(1, '#353a47');
+      ctx.fillStyle = cGrad;
+      ctx.beginPath();
+      ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Raised sunlit rim (crescent)
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+      ctx.lineWidth = c.r * 0.12;
+      ctx.beginPath();
+      ctx.arc(c.x, c.y, c.r, Math.PI * 0.75, Math.PI * 1.75);
+      ctx.stroke();
+    });
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    this.textureCache.set(key, tex);
+    return tex;
+  }
+
+  getMagmaTexture(value = 8) {
+    const key = `magma_tex_${value}`;
+    if (this.textureCache.has(key)) return this.textureCache.get(key);
+
+    const size = 512;
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+
+    // Scorched crust foundation
+    ctx.fillStyle = '#140c0b';
+    ctx.fillRect(0, 0, size, size);
+
+    // Deep volcanic glow underlay
+    const underGlow = ctx.createRadialGradient(size / 2, size / 2, 40, size / 2, size / 2, size * 0.48);
+    underGlow.addColorStop(0, 'rgba(255, 120, 0, 0.38)');
+    underGlow.addColorStop(0.6, 'rgba(220, 40, 0, 0.18)');
+    underGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = underGlow;
+    ctx.fillRect(0, 0, size, size);
+
+    // Glowing magma fissure network
+    const fissures = [
+      [[40, 200], [120, 230], [210, 200], [310, 250], [420, 220], [480, 290]],
+      [[210, 200], [230, 310], [290, 390], [350, 470]],
+      [[120, 230], [140, 340], [80, 430]],
+      [[256, 40], [270, 130], [210, 200]],
+      [[310, 250], [390, 140], [470, 90]],
+      [[60, 90], [160, 120], [270, 130]],
+      [[330, 340], [430, 380], [490, 440]]
+    ];
+
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    // Pass 1: Molten outer orange glow
+    ctx.shadowColor = '#ff4400';
+    ctx.shadowBlur = 18;
+    ctx.strokeStyle = '#ff3300';
+    ctx.lineWidth = 14;
+    fissures.forEach(branch => {
+      ctx.beginPath();
+      ctx.moveTo(branch[0][0], branch[0][1]);
+      for (let i = 1; i < branch.length; i++) ctx.lineTo(branch[i][0], branch[i][1]);
+      ctx.stroke();
+    });
+
+    // Pass 2: Hot yellow core
+    ctx.shadowColor = '#ffea00';
+    ctx.shadowBlur = 8;
+    ctx.strokeStyle = '#ffcc00';
+    ctx.lineWidth = 6;
+    fissures.forEach(branch => {
+      ctx.beginPath();
+      ctx.moveTo(branch[0][0], branch[0][1]);
+      for (let i = 1; i < branch.length; i++) ctx.lineTo(branch[i][0], branch[i][1]);
+      ctx.stroke();
+    });
+
+    // Pass 3: Ultra-hot white-hot molten center
+    ctx.shadowColor = '#ffffff';
+    ctx.shadowBlur = 4;
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2.5;
+    fissures.forEach(branch => {
+      ctx.beginPath();
+      ctx.moveTo(branch[0][0], branch[0][1]);
+      for (let i = 1; i < branch.length; i++) ctx.lineTo(branch[i][0], branch[i][1]);
+      ctx.stroke();
+    });
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    this.textureCache.set(key, tex);
+    return tex;
+  }
+
+  getGasGiantTexture(value = 32) {
+    const key = `gas_giant_tex_${value}`;
+    if (this.textureCache.has(key)) return this.textureCache.get(key);
+
+    const size = 512;
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+
+    const isNeptune = value >= 64;
+    const palette = isNeptune ? [
+      '#0f172a', '#0284c7', '#38bdf8', '#0369a1', '#0ea5e9', '#0c4a6e', '#7dd3fc',
+      '#1e293b', '#0284c7', '#0369a1', '#38bdf8', '#0ea5e9', '#0284c7', '#075985'
+    ] : [
+      '#3d1e16', '#a35d3d', '#e09867', '#f4ceaa', '#c87a51', '#783b27', '#edd4be',
+      '#9c5238', '#df9567', '#faecd9', '#b56843', '#803c27', '#e8be9b', '#5c2718'
+    ];
+
+    const bandH = size / palette.length;
+    for (let b = 0; b < palette.length; b++) {
+      ctx.fillStyle = palette[b];
+      ctx.beginPath();
+      const baseY = b * bandH;
+      ctx.moveTo(0, baseY);
+      for (let x = 0; x <= size; x += 16) {
+        const wave = Math.sin((x / size) * Math.PI * 4 + b * 1.2) * 5.5 + Math.cos((x / size) * Math.PI * 6 - b * 0.8) * 3.5;
+        ctx.lineTo(x, baseY + wave);
+      }
+      ctx.lineTo(size, baseY + bandH + 8);
+      ctx.lineTo(0, baseY + bandH + 8);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // Great Storm Vortex (Great Red Spot / Dark Spot)
+    const spotX = size * 0.65;
+    const spotY = size * 0.62;
+    const spotW = 75;
+    const spotH = 45;
+
+    ctx.save();
+    ctx.translate(spotX, spotY);
+    ctx.rotate(-0.15);
+    const spotGrad = ctx.createRadialGradient(0, 0, 5, 0, 0, spotW);
+    spotGrad.addColorStop(0, isNeptune ? '#00f0ff' : '#dc2626');
+    spotGrad.addColorStop(0.5, isNeptune ? '#0284c7' : '#ea580c');
+    spotGrad.addColorStop(0.85, isNeptune ? '#075985' : '#9a3412');
+    spotGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = spotGrad;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, spotW, spotH, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = isNeptune ? 'rgba(255, 255, 255, 0.45)' : 'rgba(255, 237, 213, 0.55)';
+    ctx.lineWidth = 3;
+    for (let s = 0; s < 3; s++) {
+      ctx.beginPath();
+      ctx.ellipse(0, 0, spotW * (0.4 + s * 0.22), spotH * (0.4 + s * 0.22), (s * Math.PI) / 3, 0, Math.PI * 1.5);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    this.textureCache.set(key, tex);
+    return tex;
+  }
+
+  getSaturnRingTexture() {
+    const key = 'saturn_ring_tex';
+    if (this.textureCache.has(key)) return this.textureCache.get(key);
+
+    const size = 512;
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+
+    ctx.clearRect(0, 0, size, size);
+    const cx = size / 2;
+    const cy = size / 2;
+
+    const bands = [
+      { r: 135, w: 10, col: 'rgba(245, 222, 179, 0.45)' },
+      { r: 152, w: 18, col: 'rgba(255, 236, 179, 0.75)' },
+      { r: 175, w: 22, col: 'rgba(250, 240, 210, 0.88)' },
+      { r: 194, w: 6, col: 'rgba(10, 10, 18, 0.2)' },
+      { r: 210, w: 18, col: 'rgba(224, 231, 255, 0.82)' },
+      { r: 232, w: 14, col: 'rgba(214, 211, 209, 0.65)' },
+      { r: 244, w: 6, col: 'rgba(186, 230, 253, 0.4)' }
+    ];
+
+    bands.forEach(b => {
+      ctx.beginPath();
+      ctx.arc(cx, cy, b.r, 0, Math.PI * 2);
+      ctx.strokeStyle = b.col;
+      ctx.lineWidth = b.w;
+      ctx.stroke();
+    });
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    this.textureCache.set(key, tex);
+    return tex;
+  }
+
+  getPulsarCoronaTexture(value = 512) {
+    const key = `pulsar_tex_${value}`;
+    if (this.textureCache.has(key)) return this.textureCache.get(key);
+
+    const size = 512;
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+
+    const cx = size / 2;
+    const cy = size / 2;
+
+    const isSolar = value >= 1024;
+    const coreGrad = ctx.createRadialGradient(cx, cy, 10, cx, cy, 240);
+    if (isSolar) {
+      coreGrad.addColorStop(0, '#ffffff');
+      coreGrad.addColorStop(0.2, '#fff7a3');
+      coreGrad.addColorStop(0.5, '#f59e0b');
+      coreGrad.addColorStop(0.85, '#dc2626');
+      coreGrad.addColorStop(1, 'rgba(185, 28, 28, 0)');
+    } else {
+      coreGrad.addColorStop(0, '#ffffff');
+      coreGrad.addColorStop(0.2, '#a5f3fc');
+      coreGrad.addColorStop(0.5, '#06b6d4');
+      coreGrad.addColorStop(0.85, '#4f46e5');
+      coreGrad.addColorStop(1, 'rgba(79, 70, 229, 0)');
+    }
+    ctx.fillStyle = coreGrad;
+    ctx.fillRect(0, 0, size, size);
+
+    ctx.strokeStyle = isSolar ? 'rgba(254, 240, 138, 0.35)' : 'rgba(165, 243, 252, 0.4)';
+    for (let i = 0; i < 28; i++) {
+      const angle = (i * Math.PI * 2) / 28;
+      const len = 120 + Math.random() * 110;
+      ctx.lineWidth = 1.5 + Math.random() * 3.5;
+      ctx.beginPath();
+      ctx.moveTo(cx + Math.cos(angle) * 40, cy + Math.sin(angle) * 40);
+      ctx.lineTo(cx + Math.cos(angle) * (40 + len), cy + Math.sin(angle) * (40 + len));
+      ctx.stroke();
+    }
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    this.textureCache.set(key, tex);
+    return tex;
+  }
+
+  getBlackHoleDiskTexture() {
+    const key = 'black_hole_disk_tex';
+    if (this.textureCache.has(key)) return this.textureCache.get(key);
+
+    const size = 512;
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+
+    const cx = size / 2;
+    const cy = size / 2;
+    ctx.clearRect(0, 0, size, size);
+
+    // Swirling Relativistic Accretion Disk with Doppler Asymmetry
+    const diskGrad = ctx.createRadialGradient(cx, cy, 90, cx, cy, 245);
+    diskGrad.addColorStop(0, 'rgba(255, 255, 255, 0.98)');
+    diskGrad.addColorStop(0.2, 'rgba(254, 240, 138, 0.95)');
+    diskGrad.addColorStop(0.55, 'rgba(245, 158, 11, 0.85)');
+    diskGrad.addColorStop(0.85, 'rgba(220, 38, 38, 0.55)');
+    diskGrad.addColorStop(1, 'rgba(180, 20, 10, 0)');
+
+    ctx.fillStyle = diskGrad;
+    ctx.beginPath();
+    ctx.arc(cx, cy, 245, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Spiral accretion arms
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.65)';
+    for (let a = 0; a < 8; a++) {
+      const baseAngle = (a * Math.PI * 2) / 8;
+      ctx.beginPath();
+      ctx.lineWidth = 3.5;
+      for (let r = 95; r < 235; r += 8) {
+        const theta = baseAngle + (r / 235) * Math.PI * 1.8;
+        const px = cx + Math.cos(theta) * r;
+        const py = cy + Math.sin(theta) * r;
+        if (r === 95) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+    }
+
+    // Event horizon core hole
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.beginPath();
+    ctx.arc(cx, cy, 88, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalCompositeOperation = 'source-over';
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    this.textureCache.set(key, tex);
+    return tex;
+  }
+
+  getCelestialMaterial(stage, value = 2) {
+    const key = `celestial_mat_${stage}_${value}`;
+    if (this.materialCache.has(key)) return this.materialCache.get(key);
+
+    let mat;
+    if (stage === 'asteroid') {
+      mat = new THREE.MeshStandardMaterial({
+        map: this.getAsteroidTexture(value),
+        roughness: 0.88,
+        metalness: 0.15,
+        flatShading: true
+      });
+    } else if (stage === 'magma') {
+      const magmaTex = this.getMagmaTexture(value);
+      mat = new THREE.MeshStandardMaterial({
+        map: magmaTex,
+        emissiveMap: magmaTex,
+        emissive: new THREE.Color(0xff4400),
+        emissiveIntensity: 0.85,
+        roughness: 0.45,
+        metalness: 0.25
+      });
+    } else if (stage === 'gas_giant') {
+      mat = new THREE.MeshStandardMaterial({
+        map: this.getGasGiantTexture(value),
+        roughness: 0.35,
+        metalness: 0.08
+      });
+    } else if (stage === 'saturn') {
+      mat = new THREE.MeshStandardMaterial({
+        map: this.getGasGiantTexture(value),
+        roughness: 0.40,
+        metalness: 0.12
+      });
+    } else if (stage === 'saturn_ring') {
+      mat = new THREE.MeshStandardMaterial({
+        map: this.getSaturnRingTexture(),
+        transparent: true,
+        opacity: 0.88,
+        side: THREE.DoubleSide,
+        depthWrite: false
+      });
+    } else if (stage === 'pulsar') {
+      const pulsarTex = this.getPulsarCoronaTexture(value);
+      mat = new THREE.MeshStandardMaterial({
+        map: pulsarTex,
+        emissiveMap: pulsarTex,
+        emissive: new THREE.Color(value >= 1024 ? 0xffaa00 : 0x00f0ff),
+        emissiveIntensity: 1.4,
+        roughness: 0.1,
+        metalness: 0.4
+      });
+    } else if (stage === 'black_hole_core') {
+      mat = new THREE.MeshStandardMaterial({
+        color: 0x000000,
+        emissive: 0x000000,
+        roughness: 1.0,
+        metalness: 0.0
+      });
+    } else if (stage === 'black_hole_disk') {
+      const diskTex = this.getBlackHoleDiskTexture();
+      mat = new THREE.MeshStandardMaterial({
+        map: diskTex,
+        emissiveMap: diskTex,
+        emissive: new THREE.Color(0xff9900),
+        emissiveIntensity: 1.6,
+        transparent: true,
+        side: THREE.DoubleSide,
+        depthWrite: false
+      });
+    } else if (stage === 'einstein_ring') {
+      mat = new THREE.MeshBasicMaterial({
+        color: 0xffd700,
+        transparent: true,
+        opacity: 0.65,
+        side: THREE.DoubleSide,
+        depthWrite: false
+      });
+    } else {
+      mat = this.getSphereMaterial(value);
+    }
+
+    this.materialCache.set(key, mat);
+    return mat;
+  }
 }
 
 export const textureManager = new TextureManager();

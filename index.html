@@ -34,17 +34,17 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./src/style.css?v=6.8.19">
+  <link rel="stylesheet" href="./src/style.css?v=6.8.21">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=6.8.19').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=6.8.21').then(reg => {
           reg.update();
         }).catch(() => {});
       });
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!sessionStorage.getItem('sw_reloaded_6819')) {
-          sessionStorage.setItem('sw_reloaded_6819', '1');
+        if (!sessionStorage.getItem('sw_reloaded_6821')) {
+          sessionStorage.setItem('sw_reloaded_6821', '1');
           window.location.reload();
         }
       });
@@ -100,14 +100,14 @@
               <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
               <line x1="12" y1="22.08" x2="12" y2="12"></line>
             </svg>
-            <span id="shape-trigger-label" data-i18n="shape_auto">Auto</span>
+            <span id="shape-trigger-label" data-i18n="shape_auto">Tiến Hóa</span>
             <svg class="shape-chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="6 9 12 15 18 9"></polyline>
             </svg>
           </button>
           <!-- Custom Apple Glass Dropdown Menu -->
           <div id="shape-glass-menu" class="apple-glass-dropdown" role="listbox" style="display:none;">
-            <div class="apple-glass-menu-item active" data-value="auto_evolution" data-i18n="shape_auto">Auto</div>
+            <div class="apple-glass-menu-item active" data-value="auto_evolution" data-i18n="shape_auto">Tiến Hóa</div>
             <div class="apple-glass-menu-item" data-value="rounded_cube" data-i18n="shape_cube">Cube</div>
             <div class="apple-glass-menu-item" data-value="prism_triangle" data-i18n="shape_triangle">Prism</div>
             <div class="apple-glass-menu-item" data-value="hex_prism" data-i18n="shape_hex">Hex</div>
@@ -120,10 +120,16 @@
             <div class="apple-glass-menu-item" data-value="quantum_knot" data-i18n="shape_knot">Knot</div>
             <div class="apple-glass-menu-item" data-value="core_sphere" data-i18n="shape_sphere">Sphere</div>
             <div class="apple-glass-menu-item" data-value="portal_nexus" data-i18n="shape_portal">Nexus</div>
+            <div class="apple-glass-menu-item" data-value="cosmic_evolution" data-i18n="shape_cosmic">Cosmic</div>
+            <div class="apple-glass-menu-item" data-value="black_hole" data-i18n="shape_black_hole">Black Hole</div>
+            <div class="apple-glass-menu-item" data-value="saturn_rings" data-i18n="shape_saturn">Saturn</div>
+            <div class="apple-glass-menu-item" data-value="pulsar_star" data-i18n="shape_pulsar">Pulsar</div>
+            <div class="apple-glass-menu-item" data-value="magma_planet" data-i18n="shape_magma">Magma</div>
+            <div class="apple-glass-menu-item" data-value="asteroid" data-i18n="shape_asteroid">Asteroid</div>
           </div>
           <!-- Synchronized hidden select for backwards compatibility -->
           <select id="header-select-shape" class="glass-select shape-quick-select" style="display:none;" title="Chọn hình khối 3D">
-            <option value="auto_evolution" data-i18n="shape_auto" selected>Auto</option>
+            <option value="auto_evolution" data-i18n="shape_auto" selected>Tiến Hóa</option>
             <option value="rounded_cube" data-i18n="shape_cube">Cube</option>
             <option value="prism_triangle" data-i18n="shape_triangle">Prism</option>
             <option value="hex_prism" data-i18n="shape_hex">Hex</option>
@@ -136,6 +142,12 @@
             <option value="quantum_knot" data-i18n="shape_knot">Knot</option>
             <option value="core_sphere" data-i18n="shape_sphere">Sphere</option>
             <option value="portal_nexus" data-i18n="shape_portal">Nexus</option>
+            <option value="cosmic_evolution" data-i18n="shape_cosmic">Cosmic</option>
+            <option value="black_hole" data-i18n="shape_black_hole">Black Hole</option>
+            <option value="saturn_rings" data-i18n="shape_saturn">Saturn</option>
+            <option value="pulsar_star" data-i18n="shape_pulsar">Pulsar</option>
+            <option value="magma_planet" data-i18n="shape_magma">Magma</option>
+            <option value="asteroid" data-i18n="shape_asteroid">Asteroid</option>
           </select>
         </div>
         <button id="btn-toggle-rush" class="glass-btn rush-btn" data-i18n-title="rush_tooltip" title="Chế độ đếm ngược Time Rush">
@@ -196,7 +208,7 @@
     </header>
 
     <!-- Minimalist Visual Demo Switcher Pill -->
-    <div id="demo-theme-switcher" class="demo-theme-switcher">
+    <div id="demo-theme-switcher" class="demo-theme-switcher" style="display:none !important;">
       <span class="demo-switcher-label">GIAO DIỆN:</span>
       <button class="demo-switch-btn active" data-theme="system" title="Tự động đồng bộ theo trình duyệt / hệ máy">
         <svg class="demo-btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -964,7 +976,7 @@
         <div class="settings-row">
           <label class="settings-label" data-i18n="setting_shape">Hình khối 3D</label>
           <select id="select-shape" class="settings-select">
-            <option value="auto_evolution" data-i18n="shape_auto" selected>Auto</option>
+            <option value="auto_evolution" data-i18n="shape_auto" selected>Tiến Hóa</option>
             <option value="rounded_cube" data-i18n="shape_cube">Cube</option>
             <option value="prism_triangle" data-i18n="shape_triangle">Prism</option>
             <option value="hex_prism" data-i18n="shape_hex">Hex</option>
@@ -977,6 +989,12 @@
             <option value="quantum_knot" data-i18n="shape_knot">Knot</option>
             <option value="core_sphere" data-i18n="shape_sphere">Sphere</option>
             <option value="portal_nexus" data-i18n="shape_portal">Nexus</option>
+            <option value="cosmic_evolution" data-i18n="shape_cosmic">Cosmic</option>
+            <option value="black_hole" data-i18n="shape_black_hole">Black Hole</option>
+            <option value="saturn_rings" data-i18n="shape_saturn">Saturn</option>
+            <option value="pulsar_star" data-i18n="shape_pulsar">Pulsar</option>
+            <option value="magma_planet" data-i18n="shape_magma">Magma</option>
+            <option value="asteroid" data-i18n="shape_asteroid">Asteroid</option>
           </select>
         </div>
 
@@ -1149,6 +1167,6 @@
   </div>
 
   <!-- Main Game Script -->
-  <script type="module" src="./src/main.js?v=6.8.19"></script>
+  <script type="module" src="./src/main.js?v=6.8.21"></script>
 </body>
 </html>

@@ -34,7 +34,13 @@ const sharedGeos = {
   knotHalo: null,
   portalRingOuter: null,
   portalRingInner: null,
-  portalBead: null
+  portalBead: null,
+  // Celestial Planetary Geometries
+  asteroid: null,
+  saturnRing: null,
+  pulsarRing: null,
+  blackHoleDisk: null,
+  einsteinRing: null
 };
 
 function getSharedRoundedBox(size, height) {
@@ -152,6 +158,35 @@ function getSharedPortalNexus() {
   };
 }
 
+function getSharedAsteroid() {
+  if (!sharedGeos.asteroid) {
+    sharedGeos.asteroid = new THREE.DodecahedronGeometry(1.0, 1);
+  }
+  return sharedGeos.asteroid;
+}
+
+function getSharedSaturnRing() {
+  if (!sharedGeos.saturnRing) {
+    sharedGeos.saturnRing = new THREE.RingGeometry(1.15, 1.95, 32);
+  }
+  return sharedGeos.saturnRing;
+}
+
+function getSharedPulsarRing() {
+  if (!sharedGeos.pulsarRing) {
+    sharedGeos.pulsarRing = new THREE.TorusGeometry(1.22, 0.045, 8, 24);
+  }
+  return sharedGeos.pulsarRing;
+}
+
+function getSharedBlackHoleDisk() {
+  if (!sharedGeos.blackHoleDisk) {
+    sharedGeos.blackHoleDisk = new THREE.RingGeometry(0.95, 2.05, 36);
+    sharedGeos.einsteinRing = new THREE.TorusGeometry(1.68, 0.035, 8, 32);
+  }
+  return { disk: sharedGeos.blackHoleDisk, einstein: sharedGeos.einsteinRing };
+}
+
 export class Tile3D {
   constructor(layer, row, col, value, scene, shape = 'auto_evolution', isBomb = false, bombCountdown = 5) {
     this.id = nextTileId++;
@@ -189,6 +224,15 @@ export class Tile3D {
   }
 
   getEffectiveShape() {
+    if (this.shapeType === 'cosmic_evolution') {
+      if (this.value <= 4) return 'asteroid';         // 2 & 4: Tiểu hành tinh đá thô ráp (Low-poly Asteroid)
+      if (this.value <= 16) return 'magma_planet';    // 8 & 16: Hành tinh Dung Nham (Molten Magma Fissures)
+      if (this.value <= 64) return 'gas_giant';       // 32 & 64: Hành tinh Khí Khổng Lồ (Turbulent Gas Giant)
+      if (this.value <= 256) return 'saturn_rings';   // 128 & 256: Hành tinh Vành Đai Sao Thổ (Saturn Dust Rings)
+      if (this.value <= 1024) return 'pulsar_star';   // 512 & 1024: Sao Xung Plasma Rực Rỡ (Solar Corona Pulsar)
+      if (this.value <= 2048) return 'black_hole';    // 2048: Hố Đen Vũ Trụ (Gargantua Singularity & Relativistic Disk)
+      return 'portal_nexus';                          // 4096+: Cổng Thứ Nguyên Vũ Trụ
+    }
     if (this.shapeType === 'auto_evolution') {
       if (this.value <= 2) return 'rounded_cube';         // 2: Bo Góc Tinh Giản
       if (this.value <= 4) return 'prism_triangle';       // 4: Lăng Kính Tam Giác
@@ -254,6 +298,11 @@ export class Tile3D {
     this.portalOuter = null;
     this.portalInner = null;
     this.portalBeadGroup = null;
+    this.saturnRing = null;
+    this.pulsarRing1 = null;
+    this.pulsarRing2 = null;
+    this.blackHoleDisk = null;
+    this.einsteinRing = null;
     if (this.labelSprite) {
       this.group.remove(this.labelSprite);
       this.labelSprite = null;
@@ -533,6 +582,97 @@ export class Tile3D {
       }
 
       this.addBillboardLabel(size);
+    } else if (effShape === 'asteroid') {
+      const radius = size * 0.52;
+      const geo = getSharedAsteroid();
+      const mat = textureManager.getCelestialMaterial('asteroid', this.value);
+      this.innerMesh = new THREE.Mesh(geo, mat.clone());
+      this.innerMesh.scale.set(radius, radius, radius);
+      this.group.add(this.innerMesh);
+      this.addBillboardLabel(size);
+    } else if (effShape === 'magma_planet') {
+      const radius = size * 0.50;
+      const geo = getSharedSphere();
+      const mat = textureManager.getCelestialMaterial('magma', this.value);
+      this.innerMesh = new THREE.Mesh(geo, mat.clone());
+      this.innerMesh.scale.set(radius, radius, radius);
+      this.group.add(this.innerMesh);
+      this.addBillboardLabel(size);
+    } else if (effShape === 'gas_giant') {
+      const radius = size * 0.52;
+      const geo = getSharedSphere();
+      const mat = textureManager.getCelestialMaterial('gas_giant', this.value);
+      this.innerMesh = new THREE.Mesh(geo, mat.clone());
+      this.innerMesh.scale.set(radius, radius, radius);
+      this.innerMesh.rotation.z = (15 * Math.PI) / 180;
+      this.group.add(this.innerMesh);
+      this.addBillboardLabel(size);
+    } else if (effShape === 'saturn_rings') {
+      const radius = size * 0.50;
+      const geo = getSharedSphere();
+      const mat = textureManager.getCelestialMaterial('saturn', this.value);
+      this.innerMesh = new THREE.Mesh(geo, mat.clone());
+      this.innerMesh.scale.set(radius, radius, radius);
+      this.innerMesh.rotation.z = (27 * Math.PI) / 180;
+      this.group.add(this.innerMesh);
+
+      const ringGeo = getSharedSaturnRing();
+      const ringMat = textureManager.getCelestialMaterial('saturn_ring', this.value);
+      const ringMesh = new THREE.Mesh(ringGeo, ringMat.clone());
+      ringMesh.scale.set(radius * 0.85, radius * 0.85, radius * 0.85);
+      ringMesh.rotation.x = Math.PI / 2;
+      ringMesh.rotation.y = (27 * Math.PI) / 180;
+      this.decorGroup.add(ringMesh);
+      this.saturnRing = ringMesh;
+
+      this.addBillboardLabel(size);
+    } else if (effShape === 'pulsar_star') {
+      const radius = size * 0.48;
+      const geo = getSharedSphere();
+      const mat = textureManager.getCelestialMaterial('pulsar', this.value);
+      this.innerMesh = new THREE.Mesh(geo, mat.clone());
+      this.innerMesh.scale.set(radius, radius, radius);
+      this.group.add(this.innerMesh);
+
+      const ringGeo = getSharedPulsarRing();
+      const torusMat = textureManager.getTorusMaterial(this.value, this.isBomb);
+      const ring1 = new THREE.Mesh(ringGeo, torusMat.clone());
+      ring1.scale.set(radius * 0.9, radius * 0.9, radius * 0.9);
+      ring1.rotation.x = Math.PI / 3;
+      this.decorGroup.add(ring1);
+      this.pulsarRing1 = ring1;
+
+      const ring2 = new THREE.Mesh(ringGeo, torusMat.clone());
+      ring2.scale.set(radius * 0.98, radius * 0.98, radius * 0.98);
+      ring2.rotation.x = -Math.PI / 4;
+      this.decorGroup.add(ring2);
+      this.pulsarRing2 = ring2;
+
+      this.addBillboardLabel(size);
+    } else if (effShape === 'black_hole') {
+      const radius = size * 0.50;
+      const geo = getSharedSphere();
+      const coreMat = textureManager.getCelestialMaterial('black_hole_core', this.value);
+      this.innerMesh = new THREE.Mesh(geo, coreMat.clone());
+      this.innerMesh.scale.set(radius * 0.62, radius * 0.62, radius * 0.62);
+      this.group.add(this.innerMesh);
+
+      const { disk, einstein } = getSharedBlackHoleDisk();
+      const diskMat = textureManager.getCelestialMaterial('black_hole_disk', this.value);
+      const diskMesh = new THREE.Mesh(disk, diskMat.clone());
+      diskMesh.scale.set(radius * 0.92, radius * 0.92, radius * 0.92);
+      diskMesh.rotation.x = Math.PI / 2.7;
+      this.decorGroup.add(diskMesh);
+      this.blackHoleDisk = diskMesh;
+
+      const einsteinMat = textureManager.getCelestialMaterial('einstein_ring', this.value);
+      const einsteinMesh = new THREE.Mesh(einstein, einsteinMat.clone());
+      einsteinMesh.scale.set(radius * 0.90, radius * 0.90, radius * 0.90);
+      einsteinMesh.rotation.x = Math.PI / 5.5;
+      this.decorGroup.add(einsteinMesh);
+      this.einsteinRing = einsteinMesh;
+
+      this.addBillboardLabel(size);
     }
 
     // Bomb indicator ring with shared geometry & cached material
@@ -741,77 +881,30 @@ export class Tile3D {
 
   spawnAnimation(delay = 0) {
     const basePos = getGridPosition(this.layer, this.row, this.col);
-    const dropHeight = 2.4;
+    gsap.killTweensOf(this.group.position);
+    gsap.killTweensOf(this.group.scale);
 
-    const tl = gsap.timeline({ delay });
+    // Set position solidly at resting grid slot (NO falling from sky, no jarring screen bounce)
+    this.group.position.set(basePos.x, basePos.y, basePos.z);
+    this.group.rotation.set(0, 0, 0);
+    this.group.scale.set(0, 0, 0);
 
-    // Set initial airborne falling state at beginning of timeline
-    tl.set(this.group.position, {
-      x: basePos.x,
-      y: basePos.y + dropHeight,
-      z: basePos.z
-    });
-    tl.set(this.group.scale, {
-      x: 0.84,
-      y: 1.26,
-      z: 0.84
-    });
-
-    // Phase 1: High velocity drop towards the board
-    tl.to(this.group.position, {
-      y: basePos.y,
-      duration: 0.22,
-      ease: 'power3.in',
-      onComplete: () => {
-        if (soundManager && soundManager.playTileDrop) {
-          soundManager.playTileDrop();
-        }
-      }
-    });
-
-    // Phase 2: Instant physical impact squash (flattening against the floor)
-    tl.to(this.group.scale, {
-      x: 1.24,
-      y: 0.74,
-      z: 1.24,
-      duration: 0.08,
-      ease: 'power2.out'
-    });
-
-    // Phase 3: Elastic upward rebound
-    tl.to(this.group.position, {
-      y: basePos.y + 0.16,
-      duration: 0.09,
-      ease: 'power1.out'
-    }, '-=0.02');
-
-    tl.to(this.group.scale, {
-      x: 0.94,
-      y: 1.08,
-      z: 0.94,
-      duration: 0.09,
-      ease: 'power1.out'
-    }, '<');
-
-    // Phase 4: Final solid thud settle onto the board
-    tl.to(this.group.position, {
-      y: basePos.y,
-      duration: 0.1,
-      ease: 'bounce.out'
-    });
-
-    tl.to(this.group.scale, {
+    // Smooth, instant, pleasant scale-in (zero eye fatigue, 60+ FPS responsive)
+    return gsap.to(this.group.scale, {
       x: 1.0,
       y: 1.0,
       z: 1.0,
-      duration: 0.1,
+      duration: 0.14,
+      delay: delay,
       ease: 'power2.out'
-    }, '<');
-
-    return tl;
+    });
   }
 
   slideTo(targetLayer, targetRow, targetCol, duration = 0.16) {
+    const dl = targetLayer - this.layer;
+    const dr = targetRow - this.row;
+    const dc = targetCol - this.col;
+
     this.layer = targetLayer;
     this.row = targetRow;
     this.col = targetCol;
@@ -844,15 +937,39 @@ export class Tile3D {
     gsap.killTweensOf(this.group.scale);
 
     gsap.to(this.group.rotation, { x: 0, y: 0, z: 0, duration: duration, ease: 'power2.out' });
-    gsap.to(this.group.scale, { x: 1, y: 1, z: 1, duration: duration, ease: 'power2.out' });
+
+    // Jelly in-flight dynamic squash & stretch
+    if (Math.abs(dc) > 0) {
+      gsap.to(this.group.scale, { x: 1.15, y: 0.9, z: 0.9, duration: duration * 0.5, yoyo: true, repeat: 1, ease: 'power1.inOut' });
+    } else if (Math.abs(dr) > 0) {
+      gsap.to(this.group.scale, { x: 0.9, y: 0.9, z: 1.15, duration: duration * 0.5, yoyo: true, repeat: 1, ease: 'power1.inOut' });
+    } else if (Math.abs(dl) > 0) {
+      gsap.to(this.group.scale, { x: 0.9, y: 1.18, z: 0.9, duration: duration * 0.5, yoyo: true, repeat: 1, ease: 'power1.inOut' });
+    }
 
     return gsap.to(this.group.position, {
       x: targetPos.x,
       y: targetPos.y,
       z: targetPos.z,
       duration: duration,
-      ease: 'power2.out'
+      ease: 'power2.out',
+      onComplete: () => {
+        this.triggerJellyImpact(dc, dr, dl);
+      }
     });
+  }
+
+  triggerJellyImpact(dc = 0, dr = 0, dl = 0) {
+    if (dc === 0 && dr === 0 && dl === 0) return;
+    const tl = gsap.timeline();
+    if (Math.abs(dc) > 0) {
+      tl.to(this.group.scale, { x: 0.78, y: 1.16, z: 1.16, duration: 0.06, ease: 'power2.out' });
+    } else if (Math.abs(dr) > 0) {
+      tl.to(this.group.scale, { x: 1.16, y: 1.16, z: 0.78, duration: 0.06, ease: 'power2.out' });
+    } else if (Math.abs(dl) > 0) {
+      tl.to(this.group.scale, { x: 1.16, y: 0.76, z: 1.16, duration: 0.06, ease: 'power2.out' });
+    }
+    tl.to(this.group.scale, { x: 1.0, y: 1.0, z: 1.0, duration: 0.24, ease: 'elastic.out(1.5, 0.42)' });
   }
 
   upgradeTo(newValue) {
@@ -862,16 +979,21 @@ export class Tile3D {
     const basePos = getGridPosition(this.layer, this.row, this.col);
     const tl = gsap.timeline();
 
-    // Phase 1: Collision pop & upward fusion surge
+    // Sound: Bubbly crystal pop
+    if (soundManager && soundManager.playPop) {
+      soundManager.playPop();
+    }
+
+    // Phase 1: Fluid collision surge & upward fusion swell
     tl.to(this.group.position, {
-      y: basePos.y + 0.32,
+      y: basePos.y + 0.38,
       duration: 0.08,
       ease: 'power2.out'
     });
     tl.to(this.group.scale, {
-      x: 1.26,
-      y: 1.26,
-      z: 1.26,
+      x: 1.34,
+      y: 1.34,
+      z: 1.34,
       duration: 0.08,
       ease: 'power2.out'
     }, '<');
@@ -879,7 +1001,7 @@ export class Tile3D {
     // Phase 2: Heavy impact slam back down into the slot
     tl.to(this.group.position, {
       y: basePos.y,
-      duration: 0.11,
+      duration: 0.10,
       ease: 'power3.in',
       onComplete: () => {
         if (soundManager && soundManager.playTileDrop) {
@@ -888,22 +1010,22 @@ export class Tile3D {
       }
     });
 
-    // Phase 3: Physical squash on impact against the grid
+    // Phase 3: Physical jelly squash on impact
     tl.to(this.group.scale, {
-      x: 1.18,
-      y: 0.82,
-      z: 1.18,
-      duration: 0.07,
+      x: 1.22,
+      y: 0.76,
+      z: 1.22,
+      duration: 0.06,
       ease: 'power2.out'
     });
 
-    // Phase 4: Crisp elastic settle
+    // Phase 4: Bouncy jelly elastic spring settle
     tl.to(this.group.scale, {
       x: 1.0,
       y: 1.0,
       z: 1.0,
-      duration: 0.12,
-      ease: 'elastic.out(1.2, 0.5)'
+      duration: 0.22,
+      ease: 'elastic.out(1.4, 0.4)'
     });
 
     return tl;
@@ -958,6 +1080,23 @@ export class Tile3D {
       if (this.portalInner) this.portalInner.rotation.z -= delta * 1.6;
       if (this.portalBeadGroup) this.portalBeadGroup.rotation.y += delta * 2.2;
       if (this.innerMesh) this.innerMesh.rotation.y += delta * 0.8;
+    } else if (effShape === 'asteroid' && this.innerMesh) {
+      this.innerMesh.rotation.x += delta * 0.45;
+      this.innerMesh.rotation.y += delta * 0.65;
+    } else if (effShape === 'magma_planet' && this.innerMesh) {
+      this.innerMesh.rotation.y += delta * 0.4;
+    } else if (effShape === 'gas_giant' && this.innerMesh) {
+      this.innerMesh.rotation.y += delta * 0.55;
+    } else if (effShape === 'saturn_rings') {
+      if (this.innerMesh) this.innerMesh.rotation.y += delta * 0.45;
+      if (this.saturnRing) this.saturnRing.rotation.z += delta * 0.85;
+    } else if (effShape === 'pulsar_star') {
+      if (this.innerMesh) this.innerMesh.rotation.y += delta * 1.4;
+      if (this.pulsarRing1) this.pulsarRing1.rotation.z += delta * 2.4;
+      if (this.pulsarRing2) this.pulsarRing2.rotation.y -= delta * 1.8;
+    } else if (effShape === 'black_hole') {
+      if (this.blackHoleDisk) this.blackHoleDisk.rotation.z += delta * 3.6;
+      if (this.einsteinRing) this.einsteinRing.rotation.y += delta * 0.9;
     }
 
     if (this.bombRing) {
