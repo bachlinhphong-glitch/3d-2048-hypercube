@@ -69,9 +69,9 @@ export class Boss3DController {
 
     this.setPhase(1, false);
 
-    // Realtime animation loop
+    // Realtime animation loop driven externally by BossManager / main render loop
     this._rafId = null;
-    this._startInternalLoop();
+    this._lastAspect = 0;
   }
 
   // ==========================================================================
@@ -1204,8 +1204,9 @@ export class Boss3DController {
     this.uniforms.uTime.value += effDt;
     const t = this.uniforms.uTime.value;
 
-    // Responsive Scale based on camera aspect ratio: prevents clipping on portrait phones
-    if (this.camera && this.camera.aspect) {
+    // Responsive Scale based on camera aspect ratio: avoids matrix recalculation every frame
+    if (this.camera && this.camera.aspect && this._lastAspect !== this.camera.aspect) {
+      this._lastAspect = this.camera.aspect;
       const respScale = Math.min(1.0, this.camera.aspect / 1.15);
       this.root.scale.setScalar(respScale);
     }
