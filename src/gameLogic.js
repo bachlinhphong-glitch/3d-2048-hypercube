@@ -1,3 +1,42 @@
+// Pre-computed traversal arrays: 100% zero-allocation during directional slides
+const INDICES_CACHE = {
+  1: { forward: [0], reverse: [0] },
+  3: { forward: [0, 1, 2], reverse: [2, 1, 0] },
+  4: { forward: [0, 1, 2, 3], reverse: [3, 2, 1, 0] }
+};
+
+// Static Corner snake gradient matrices for 4x4 evaluation
+const STATIC_SNAKE_4X4 = [
+  // Top-Left snake
+  [
+    [2048, 1024, 512, 256],
+    [16,   32,   64,  128],
+    [8,    4,    2,   1  ],
+    [0.5,  0.25, 0.1, 0  ]
+  ],
+  // Top-Right snake
+  [
+    [256, 512, 1024, 2048],
+    [128,  64,   32,   16],
+    [1,    2,    4,    8 ],
+    [0,   0.1, 0.25, 0.5 ]
+  ],
+  // Bottom-Left snake
+  [
+    [0.5,  0.25, 0.1, 0  ],
+    [8,    4,    2,   1  ],
+    [16,   32,   64,  128],
+    [2048, 1024, 512, 256]
+  ],
+  // Bottom-Right snake
+  [
+    [0,   0.1, 0.25, 0.5 ],
+    [1,    2,    4,    8 ],
+    [128,  64,   32,   16],
+    [256, 512, 1024, 2048]
+  ]
+];
+
 export class Game2048Logic {
   constructor(mode = '4x4') {
     this.mode = mode; // '4x4' or '3x3x3'
@@ -52,11 +91,22 @@ export class Game2048Logic {
   }
 
   createEmptyGrid() {
-    return Array.from({ length: this.layers }, () =>
-      Array.from({ length: this.rows }, () =>
-        Array(this.cols).fill(null)
-      )
-    );
+    const lCount = this.layers;
+    const rCount = this.rows;
+    const cCount = this.cols;
+    const grid = new Array(lCount);
+    for (let l = 0; l < lCount; l++) {
+      const layer = new Array(rCount);
+      for (let r = 0; r < rCount; r++) {
+        const row = new Array(cCount);
+        for (let c = 0; c < cCount; c++) {
+          row[c] = null;
+        }
+        layer[r] = row;
+      }
+      grid[l] = layer;
+    }
+    return grid;
   }
 
   loadBestScore() {
@@ -152,12 +202,35 @@ export class Game2048Logic {
     return cells;
   }
 
+  hasEmptyCells() {
+    for (let l = 0; l < this.layers; l++) {
+      for (let r = 0; r < this.rows; r++) {
+        for (let c = 0; c < this.cols; c++) {
+          if (!this.grid[l][r][c]) return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  getEmptyCellsCount() {
+    let count = 0;
+    for (let l = 0; l < this.layers; l++) {
+      for (let r = 0; r < this.rows; r++) {
+        for (let c = 0; c < this.cols; c++) {
+          if (!this.grid[l][r][c]) count++;
+        }
+      }
+    }
+    return count;
+  }
+
   getTotalCells() {
     return this.layers * this.rows * this.cols;
   }
 
   getActiveTilesCount() {
-    return this.getTotalCells() - this.getEmptyCells().length;
+    return this.getTotalCells() - this.getEmptyCellsCount();
   }
 
   // Get spawn info. If in Rush Mode and moveCount is a multiple of 6, spawn a Bomb Tile
@@ -187,8 +260,8 @@ export class Game2048Logic {
   }
 
   hasValidMoves() {
-    // 1. Any empty cells?
-    if (this.getEmptyCells().length > 0) return true;
+    // 1. Any empty cells? Short-circuit instantly with zero object allocation
+    if (this.hasEmptyCells()) return true;
 
     // 2. Any adjacent matching tiles in 3D?
     for (let l = 0; l < this.layers; l++) {
@@ -224,10 +297,10 @@ export class Game2048Logic {
     // Ignore layer moves in 4x4
     if (this.mode === '4x4' && vector.l !== 0) return { moved: false };
 
-    // Determine traversal order
-    const layerIndices = vector.l === 1 ? Array.from({ length: this.layers }, (_, i) => this.layers - 1 - i) : Array.from({ length: this.layers }, (_, i) => i);
-    const rowIndices = vector.r === 1 ? Array.from({ length: this.rows }, (_, i) => this.rows - 1 - i) : Array.from({ length: this.rows }, (_, i) => i);
-    const colIndices = vector.c === 1 ? Array.from({ length: this.cols }, (_, i) => this.cols - 1 - i) : Array.from({ length: this.cols }, (_, i) => i);
+    // Determine traversal order (zero-allocation static lookup)
+    const layerIndices = vector.l === 1 ? (INDICES_CACHE[this.layers]?.reverse || [0]) : (INDICES_CACHE[this.layers]?.forward || [0]);
+    const rowIndices = vector.r === 1 ? (INDICES_CACHE[this.rows]?.reverse || [0]) : (INDICES_CACHE[this.rows]?.forward || [0]);
+    const colIndices = vector.c === 1 ? (INDICES_CACHE[this.cols]?.reverse || [0]) : (INDICES_CACHE[this.cols]?.forward || [0]);
 
     let moved = false;
     let scoreAdded = 0;
@@ -543,7 +616,7 @@ export class Game2048Logic {
     };
   }
 
-  simulateMove(direction, sourceGrid = null) {
+  simulateMove(direction, sourceGrid = null, trackMovements = true) {
     const vectors = {
       up:        { l: 0,  r: -1, c: 0 },
       down:      { l: 0,  r: 1,  c: 0 },
@@ -557,14 +630,14 @@ export class Game2048Logic {
     if (!vector) return { moved: false };
     if (this.mode === '4x4' && vector.l !== 0) return { moved: false };
 
-    const layerIndices = vector.l === 1 ? Array.from({ length: this.layers }, (_, i) => this.layers - 1 - i) : Array.from({ length: this.layers }, (_, i) => i);
-    const rowIndices = vector.r === 1 ? Array.from({ length: this.rows }, (_, i) => this.rows - 1 - i) : Array.from({ length: this.rows }, (_, i) => i);
-    const colIndices = vector.c === 1 ? Array.from({ length: this.cols }, (_, i) => this.cols - 1 - i) : Array.from({ length: this.cols }, (_, i) => i);
+    const layerIndices = vector.l === 1 ? (INDICES_CACHE[this.layers]?.reverse || [0]) : (INDICES_CACHE[this.layers]?.forward || [0]);
+    const rowIndices = vector.r === 1 ? (INDICES_CACHE[this.rows]?.reverse || [0]) : (INDICES_CACHE[this.rows]?.forward || [0]);
+    const colIndices = vector.c === 1 ? (INDICES_CACHE[this.cols]?.reverse || [0]) : (INDICES_CACHE[this.cols]?.forward || [0]);
 
     let moved = false;
     let scoreAdded = 0;
-    const movements = [];
-    const merges = [];
+    const movements = trackMovements ? [] : null;
+    const merges = trackMovements ? [] : null;
     const mergedGrid = this.createEmptyGrid();
     const newGrid = this.createEmptyGrid();
     const activeGrid = sourceGrid || this.grid;
@@ -606,29 +679,33 @@ export class Game2048Logic {
             newGrid[nextL][nextR][nextC] = { ...tile, value: newValue };
             moved = true;
 
-            movements.push({
-              from: { l, r, c },
-              to: { l: nextL, r: nextR, c: nextC },
-              value: tile.value,
-              isMerge: true
-            });
+            if (trackMovements) {
+              movements.push({
+                from: { l, r, c },
+                to: { l: nextL, r: nextR, c: nextC },
+                value: tile.value,
+                isMerge: true
+              });
 
-            merges.push({
-              from1: newGrid[nextL][nextR][nextC]._origPos || { l: nextL, r: nextR, c: nextC },
-              from2: { l, r, c },
-              to: { l: nextL, r: nextR, c: nextC },
-              value: newValue
-            });
+              merges.push({
+                from1: newGrid[nextL][nextR][nextC]._origPos || { l: nextL, r: nextR, c: nextC },
+                from2: { l, r, c },
+                to: { l: nextL, r: nextR, c: nextC },
+                value: newValue
+              });
+            }
           } else {
             newGrid[currL][currR][currC] = { ...tile, _origPos: { l, r, c } };
             if (currL !== l || currR !== r || currC !== c) {
               moved = true;
-              movements.push({
-                from: { l, r, c },
-                to: { l: currL, r: currR, c: currC },
-                value: tile.value,
-                isMerge: false
-              });
+              if (trackMovements) {
+                movements.push({
+                  from: { l, r, c },
+                  to: { l: currL, r: currR, c: currC },
+                  value: tile.value,
+                  isMerge: false
+                });
+              }
             }
           }
         }
@@ -641,42 +718,10 @@ export class Game2048Logic {
   evaluateBoard(grid, scoreAdded = 0) {
     let emptyCount = 0;
     let maxTile = 0;
-    let maxTilePos = null;
+    let maxTileL = -1, maxTileR = -1, maxTileC = -1;
     let smoothness = 0;
 
-    // Corner snake gradient matrices for 4x4
-    const SNAKE_4X4 = [
-      // Top-Left snake
-      [
-        [2048, 1024, 512, 256],
-        [16,   32,   64,  128],
-        [8,    4,    2,   1  ],
-        [0.5,  0.25, 0.1, 0  ]
-      ],
-      // Top-Right snake
-      [
-        [256, 512, 1024, 2048],
-        [128,  64,   32,   16],
-        [1,    2,    4,    8 ],
-        [0,   0.1, 0.25, 0.5 ]
-      ],
-      // Bottom-Left snake
-      [
-        [0.5,  0.25, 0.1, 0  ],
-        [8,    4,    2,   1  ],
-        [16,   32,   64,  128],
-        [2048, 1024, 512, 256]
-      ],
-      // Bottom-Right snake
-      [
-        [0,   0.1, 0.25, 0.5 ],
-        [1,    2,    4,    8 ],
-        [128,  64,   32,   16],
-        [256, 512, 1024, 2048]
-      ]
-    ];
-
-    let snakeScores = [0, 0, 0, 0];
+    let snake0 = 0, snake1 = 0, snake2 = 0, snake3 = 0;
 
     for (let l = 0; l < this.layers; l++) {
       for (let r = 0; r < this.rows; r++) {
@@ -689,13 +734,16 @@ export class Game2048Logic {
             const logVal = Math.log2(val);
             if (val > maxTile) {
               maxTile = val;
-              maxTilePos = { l, r, c };
+              maxTileL = l;
+              maxTileR = r;
+              maxTileC = c;
             }
 
             if (this.mode === '4x4') {
-              for (let s = 0; s < 4; s++) {
-                snakeScores[s] += SNAKE_4X4[s][r][c] * logVal;
-              }
+              snake0 += STATIC_SNAKE_4X4[0][r][c] * logVal;
+              snake1 += STATIC_SNAKE_4X4[1][r][c] * logVal;
+              snake2 += STATIC_SNAKE_4X4[2][r][c] * logVal;
+              snake3 += STATIC_SNAKE_4X4[3][r][c] * logVal;
             }
 
             if (c < this.cols - 1 && grid[l][r][c + 1]) {
@@ -738,16 +786,19 @@ export class Game2048Logic {
     }
 
     let cornerBonus = 0;
-    if (maxTilePos) {
-      const isCorner2D = (maxTilePos.r === 0 || maxTilePos.r === this.rows - 1) &&
-                         (maxTilePos.c === 0 || maxTilePos.c === this.cols - 1);
-      const isCorner3D = this.mode !== '3x3x3' || (maxTilePos.l === 0 || maxTilePos.l === this.layers - 1);
+    if (maxTileL !== -1) {
+      const isCorner2D = (maxTileR === 0 || maxTileR === this.rows - 1) &&
+                         (maxTileC === 0 || maxTileC === this.cols - 1);
+      const isCorner3D = this.mode !== '3x3x3' || (maxTileL === 0 || maxTileL === this.layers - 1);
       if (isCorner2D && isCorner3D) {
         cornerBonus = Math.log2(maxTile) * 120;
       }
     }
 
-    const maxSnake = this.mode === '4x4' ? Math.max(...snakeScores) : 0;
+    let maxSnake = 0;
+    if (this.mode === '4x4') {
+      maxSnake = Math.max(snake0, snake1, snake2, snake3);
+    }
 
     return (emptyCount * 250) +
            (maxSnake * 1.5) +
@@ -768,7 +819,7 @@ export class Game2048Logic {
     let bestScore = -Infinity;
 
     for (const dir of directions) {
-      const sim = this.simulateMove(dir);
+      const sim = this.simulateMove(dir, null, false);
       if (!sim.moved) continue;
       const score = this.evaluateBoard(sim.grid, sim.scoreAdded);
       if (score > bestScore) {

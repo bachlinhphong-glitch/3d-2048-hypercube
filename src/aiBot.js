@@ -15,6 +15,8 @@ export class AIBot {
 
     // Precompute 4x4 Snake Weight Matrices (4 Corners x 2 Orientations = 8 Patterns)
     this.snakeMatrices4x4 = this.buildSnakeMatrices4x4();
+    // Zero-allocation pre-allocated score buffer for evaluation
+    this._snakeScores = new Float64Array(this.snakeMatrices4x4.length);
   }
 
   toggle() {
@@ -145,6 +147,9 @@ export class AIBot {
   // ===========================================================================
 
   findBestMove2D(gameLogic) {
+    if (gameLogic.mode === '3x3x3') {
+      return this.findBestMove3D(gameLogic);
+    }
     const directions = ['up', 'left', 'down', 'right'];
     const flatGrid = new Int32Array(16);
 
@@ -265,19 +270,26 @@ export class AIBot {
 
   sampleStrategicEmptySpots2D(grid, emptyIndices, maxCount) {
     // Pick empty spots that border non-zero tiles (highest tactical influence)
-    const scored = emptyIndices.map(idx => {
-      const r = Math.floor(idx / 4);
-      const c = idx % 4;
-      let neighborWeight = 0;
-      if (r > 0 && grid[(r - 1) * 4 + c] > 0) neighborWeight += 1;
-      if (r < 3 && grid[(r + 1) * 4 + c] > 0) neighborWeight += 1;
-      if (c > 0 && grid[r * 4 + c - 1] > 0) neighborWeight += 1;
-      if (c < 3 && grid[r * 4 + c + 1] > 0) neighborWeight += 1;
-      return { idx, score: neighborWeight };
+    // Zero-allocation in-place sort using calculated neighbor weights
+    emptyIndices.sort((idxA, idxB) => {
+      const rA = idxA >> 2;
+      const cA = idxA & 3;
+      const wA = (rA > 0 && grid[(rA - 1) * 4 + cA] > 0 ? 1 : 0) +
+                 (rA < 3 && grid[(rA + 1) * 4 + cA] > 0 ? 1 : 0) +
+                 (cA > 0 && grid[rA * 4 + cA - 1] > 0 ? 1 : 0) +
+                 (cA < 3 && grid[rA * 4 + cA + 1] > 0 ? 1 : 0);
+
+      const rB = idxB >> 2;
+      const cB = idxB & 3;
+      const wB = (rB > 0 && grid[(rB - 1) * 4 + cB] > 0 ? 1 : 0) +
+                 (rB < 3 && grid[(rB + 1) * 4 + cB] > 0 ? 1 : 0) +
+                 (cB > 0 && grid[rB * 4 + cB - 1] > 0 ? 1 : 0) +
+                 (cB < 3 && grid[rB * 4 + cB + 1] > 0 ? 1 : 0);
+
+      return wB - wA;
     });
 
-    scored.sort((a, b) => b.score - a.score);
-    return scored.slice(0, maxCount).map(s => s.idx);
+    return emptyIndices.slice(0, maxCount);
   }
 
   fastSimulate2D(grid, direction) {
@@ -382,8 +394,9 @@ export class AIBot {
     let smoothness = 0;
     let mergeBonus = 0;
 
-    // 1. Snake Gradient Score (Evaluate across all 8 orientations and take maximum)
-    const snakeScores = new Float64Array(this.snakeMatrices4x4.length);
+    // 1. Snake Gradient Score (Zero-allocation reuse of pre-allocated Float64Array buffer)
+    const snakeScores = this._snakeScores;
+    snakeScores.fill(0);
 
     for (let i = 0; i < 16; i++) {
       const val = grid[i];
@@ -481,12 +494,15 @@ export class AIBot {
   // ===========================================================================
 
   findBestMove3D(gameLogic) {
+    if (gameLogic.mode === '4x4') {
+      return this.findBestMove2D(gameLogic);
+    }
     const directions = ['up', 'left', 'down', 'right', 'layerDown', 'layerUp'];
     let bestDir = null;
     let bestScore = -Infinity;
 
     for (const dir of directions) {
-      const sim = gameLogic.simulateMove(dir);
+      const sim = gameLogic.simulateMove(dir, null, false);
       if (!sim || !sim.moved) continue;
 
       let score = this.evaluateGrid3D(sim.grid, sim.scoreAdded);
@@ -494,7 +510,7 @@ export class AIBot {
       // 2-ply lookahead for 3D
       let bestFollowUp = -Infinity;
       for (const dir2 of directions) {
-        const sim2 = gameLogic.simulateMove(dir2, sim.grid);
+        const sim2 = gameLogic.simulateMove(dir2, sim.grid, false);
         if (sim2 && sim2.moved) {
           const score2 = this.evaluateGrid3D(sim2.grid, sim2.scoreAdded);
           if (score2 > bestFollowUp) bestFollowUp = score2;
@@ -521,7 +537,7 @@ export class AIBot {
 
     let emptyCount = 0;
     let maxVal = 0;
-    let maxPos = null;
+    let maxL = -1, maxR = -1, maxC = -1;
     let smoothness = 0;
 
     for (let l = 0; l < layers; l++) {
@@ -534,7 +550,9 @@ export class AIBot {
             const val = cell.value;
             if (val > maxVal) {
               maxVal = val;
-              maxPos = { l, r, c };
+              maxL = l;
+              maxR = r;
+              maxC = c;
             }
             const logVal = Math.log2(val);
 
@@ -555,10 +573,10 @@ export class AIBot {
 
     // Corner bonus in 3D (8 outer corners of the 3x3x3 cube)
     let cornerBonus = 0;
-    if (maxPos) {
-      const isCornerX = (maxPos.c === 0 || maxPos.c === cols - 1);
-      const isCornerY = (maxPos.r === 0 || maxPos.r === rows - 1);
-      const isCornerZ = (maxPos.l === 0 || maxPos.l === layers - 1);
+    if (maxL !== -1) {
+      const isCornerX = (maxC === 0 || maxC === cols - 1);
+      const isCornerY = (maxR === 0 || maxR === rows - 1);
+      const isCornerZ = (maxL === 0 || maxL === layers - 1);
       if (isCornerX && isCornerY && isCornerZ) {
         cornerBonus = Math.log2(maxVal) * 220;
       }

@@ -15,6 +15,11 @@ export class SceneManager {
     this.defaultCamPos3x3 = new THREE.Vector3(0, 13.8, 11.2);
     this.defaultTarget3x3 = new THREE.Vector3(0, 2.6, -0.5);
 
+    // Pre-allocated mobile targets & zero-allocation scratch vector for render loop
+    this.defaultTargetMobile4x4 = new THREE.Vector3(0, 1.7, 0.65);
+    this.defaultTargetMobile3x3 = new THREE.Vector3(0, 2.7, 0.45);
+    this._scratchVec = new THREE.Vector3();
+
     this.initScene();
     this.initCamera();
     this.initRenderer();
@@ -40,9 +45,7 @@ export class SceneManager {
     if (this.isMobilePortrait()) {
       // Elevate the board on mobile portrait by targeting slightly in front (+Z),
       // creating generous ~100px clear margin above the bottom hint text and spell buttons.
-      return is3D 
-        ? new THREE.Vector3(0, 2.7, 0.45)
-        : new THREE.Vector3(0, 1.7, 0.65);
+      return is3D ? this.defaultTargetMobile3x3 : this.defaultTargetMobile4x4;
     }
     return is3D ? this.defaultTarget3x3 : this.defaultTarget4x4;
   }
@@ -997,8 +1000,8 @@ export class SceneManager {
       this.controls.cursor.copy(expectedTarget);
       const dist = this.controls.target.distanceTo(expectedTarget);
       if (dist > 2.0) {
-        const offset = this.controls.target.clone().sub(expectedTarget).clampLength(0, 2.0);
-        this.controls.target.copy(expectedTarget).add(offset);
+        this._scratchVec.copy(this.controls.target).sub(expectedTarget).clampLength(0, 2.0);
+        this.controls.target.copy(expectedTarget).add(this._scratchVec);
       }
     }
 

@@ -16,6 +16,15 @@ class SoundManager {
       const AudioContext = window.AudioContext || window.webkitAudioContext;
       if (AudioContext) {
         this.ctx = new AudioContext();
+        // Zero-leak auto garbage collection: Auto-disconnect oscillators when stopped
+        const origCreateOsc = this.ctx.createOscillator.bind(this.ctx);
+        this.ctx.createOscillator = () => {
+          const osc = origCreateOsc();
+          osc.addEventListener('ended', () => {
+            try { osc.disconnect(); } catch (e) {}
+          }, { once: true });
+          return osc;
+        };
         this.initialized = true;
       }
     } catch (e) {
