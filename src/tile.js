@@ -22,7 +22,19 @@ const sharedGeos = {
   dodecahedron: null,
   dodecahedronEdges: null,
   plasmaTorus: null,
-  plasmaOuterRing: null
+  plasmaOuterRing: null,
+  // 5 New Majestic Shapes
+  trianglePrism: null,
+  triangleEdges: null,
+  icosahedron: null,
+  icosahedronEdges: null,
+  capsule: null,
+  capsuleRing: null,
+  torusKnot: null,
+  knotHalo: null,
+  portalRingOuter: null,
+  portalRingInner: null,
+  portalBead: null
 };
 
 function getSharedRoundedBox(size, height) {
@@ -95,6 +107,51 @@ function getSharedPlasmaTorus() {
   return { geo: sharedGeos.plasmaTorus, outerGeo: sharedGeos.plasmaOuterRing };
 }
 
+function getSharedTrianglePrism() {
+  if (!sharedGeos.trianglePrism) {
+    sharedGeos.trianglePrism = new THREE.CylinderGeometry(1.0, 1.0, 1.0, 3);
+    sharedGeos.triangleEdges = new THREE.EdgesGeometry(sharedGeos.trianglePrism);
+  }
+  return { geo: sharedGeos.trianglePrism, edges: sharedGeos.triangleEdges };
+}
+
+function getSharedIcosahedron() {
+  if (!sharedGeos.icosahedron) {
+    sharedGeos.icosahedron = new THREE.IcosahedronGeometry(1.0, 0);
+    sharedGeos.icosahedronEdges = new THREE.EdgesGeometry(sharedGeos.icosahedron);
+  }
+  return { geo: sharedGeos.icosahedron, edges: sharedGeos.icosahedronEdges };
+}
+
+function getSharedCapsule() {
+  if (!sharedGeos.capsule) {
+    sharedGeos.capsule = new THREE.CapsuleGeometry(0.55, 0.5, 10, 18);
+    sharedGeos.capsuleRing = new THREE.TorusGeometry(0.85, 0.04, 8, 20);
+  }
+  return { geo: sharedGeos.capsule, ringGeo: sharedGeos.capsuleRing };
+}
+
+function getSharedTorusKnot() {
+  if (!sharedGeos.torusKnot) {
+    sharedGeos.torusKnot = new THREE.TorusKnotGeometry(0.68, 0.17, 56, 12, 2, 3);
+    sharedGeos.knotHalo = new THREE.TorusGeometry(1.25, 0.04, 8, 24);
+  }
+  return { geo: sharedGeos.torusKnot, haloGeo: sharedGeos.knotHalo };
+}
+
+function getSharedPortalNexus() {
+  if (!sharedGeos.portalRingOuter) {
+    sharedGeos.portalRingOuter = new THREE.TorusGeometry(1.08, 0.065, 8, 24);
+    sharedGeos.portalRingInner = new THREE.TorusGeometry(0.76, 0.045, 8, 20);
+    sharedGeos.portalBead = new THREE.SphereGeometry(0.12, 8, 8);
+  }
+  return {
+    outerRing: sharedGeos.portalRingOuter,
+    innerRing: sharedGeos.portalRingInner,
+    bead: sharedGeos.portalBead
+  };
+}
+
 export class Tile3D {
   constructor(layer, row, col, value, scene, shape = 'auto_evolution', isBomb = false, bombCountdown = 5) {
     this.id = nextTileId++;
@@ -133,13 +190,18 @@ export class Tile3D {
 
   getEffectiveShape() {
     if (this.shapeType === 'auto_evolution') {
-      if (this.value <= 4) return 'rounded_cube';         // 2, 4: Bo Góc êm mắt
-      if (this.value <= 16) return 'hex_prism';           // 8, 16: Lăng Trụ Lục Giác
-      if (this.value <= 64) return 'cyber_pyramid';        // 32, 64: Kim Tự Tháp Cyber
-      if (this.value <= 256) return 'crystal_octahedron'; // 128, 256: Bát Diện Pha Lê
-      if (this.value <= 512) return 'star_dodecahedron';  // 512: Thập Nhị Diện Tinh Tú
-      if (this.value <= 1024) return 'plasma_torus';      // 1024: Vòng Xoáy Plasma
-      return 'core_sphere';                               // 2048+: Lõi Cầu Thiên Hà Đa Tầng
+      if (this.value <= 2) return 'rounded_cube';         // 2: Bo Góc Tinh Giản
+      if (this.value <= 4) return 'prism_triangle';       // 4: Lăng Kính Tam Giác
+      if (this.value <= 8) return 'hex_prism';            // 8: Lăng Trụ Lục Giác
+      if (this.value <= 16) return 'cyber_pyramid';       // 16: Kim Tự Tháp Cyber
+      if (this.value <= 32) return 'crystal_octahedron';  // 32: Bát Diện Pha Lê
+      if (this.value <= 64) return 'star_dodecahedron';   // 64: Thập Nhị Diện Tinh Tú
+      if (this.value <= 128) return 'stellar_icosahedron';// 128: Nhị Thập Diện Cầu 20 Mặt
+      if (this.value <= 256) return 'chrono_capsule';     // 256: Viên Nang Lượng Tử
+      if (this.value <= 512) return 'plasma_torus';       // 512: Vòng Xoáy Plasma
+      if (this.value <= 1024) return 'quantum_knot';      // 1024: Nút Thắt Lượng Tử
+      if (this.value <= 2048) return 'core_sphere';       // 2048: Lõi Cầu Thiên Hà Hoàng Gia
+      return 'portal_nexus';                              // 4096+: Cổng Thứ Nguyên Tối Thượng
     }
     return this.shapeType;
   }
@@ -182,6 +244,16 @@ export class Tile3D {
       const child = this.decorGroup.children[0];
       this.decorGroup.remove(child);
     }
+    this.ring1 = null;
+    this.ring2 = null;
+    this.ring3 = null;
+    this.torusOuterRing = null;
+    this.capsuleRing1 = null;
+    this.capsuleRing2 = null;
+    this.knotHalo = null;
+    this.portalOuter = null;
+    this.portalInner = null;
+    this.portalBeadGroup = null;
     if (this.labelSprite) {
       this.group.remove(this.labelSprite);
       this.labelSprite = null;
@@ -335,6 +407,130 @@ export class Tile3D {
       outerRing.rotation.y = Math.PI / 6;
       this.decorGroup.add(outerRing);
       this.torusOuterRing = outerRing;
+
+      this.addBillboardLabel(size);
+    } else if (effShape === 'prism_triangle') {
+      const radius = size * 0.54;
+      const h = height * 1.0;
+      const { geo, edges } = getSharedTrianglePrism();
+      const mat = textureManager.getOctahedronMaterial(this.value, this.isBomb);
+      this.innerMesh = new THREE.Mesh(geo, mat.clone());
+      this.innerMesh.scale.set(radius, h, radius);
+      this.group.add(this.innerMesh);
+
+      // Inner glowing core
+      const coreMat = textureManager.getOctahedronCoreMaterial(this.value, this.isBomb);
+      const coreMesh = new THREE.Mesh(geo, coreMat.clone());
+      coreMesh.scale.set(radius * 0.48, h * 0.48, radius * 0.48);
+      this.decorGroup.add(coreMesh);
+
+      // Neon edges
+      const lineMat = textureManager.getOctahedronLineMaterial(this.value, this.isBomb);
+      const lines = new THREE.LineSegments(edges, lineMat.clone());
+      lines.scale.set(radius * 1.002, h * 1.002, radius * 1.002);
+      this.decorGroup.add(lines);
+
+      this.addBillboardLabel(size);
+    } else if (effShape === 'stellar_icosahedron') {
+      const radius = size * 0.54;
+      const { geo, edges } = getSharedIcosahedron();
+      const mat = textureManager.getOctahedronMaterial(this.value, this.isBomb);
+      this.innerMesh = new THREE.Mesh(geo, mat.clone());
+      this.innerMesh.scale.set(radius, radius, radius);
+      this.group.add(this.innerMesh);
+
+      // Inner glowing core
+      const coreMat = textureManager.getOctahedronCoreMaterial(this.value, this.isBomb);
+      const coreMesh = new THREE.Mesh(geo, coreMat.clone());
+      coreMesh.scale.set(radius * 0.46, radius * 0.46, radius * 0.46);
+      this.decorGroup.add(coreMesh);
+
+      // 20-facet wireframe lines
+      const lineMat = textureManager.getOctahedronLineMaterial(this.value, this.isBomb);
+      const lines = new THREE.LineSegments(edges, lineMat.clone());
+      lines.scale.set(radius * 1.002, radius * 1.002, radius * 1.002);
+      this.decorGroup.add(lines);
+
+      this.addBillboardLabel(size);
+    } else if (effShape === 'chrono_capsule') {
+      const radius = size * 0.52;
+      const { geo, ringGeo } = getSharedCapsule();
+      const mat = textureManager.getSphereMaterial(this.value, this.isBomb);
+      this.innerMesh = new THREE.Mesh(geo, mat.clone());
+      this.innerMesh.scale.set(radius, radius, radius);
+      this.group.add(this.innerMesh);
+
+      // Dual tilted stabilizer rings
+      const torusMat = textureManager.getTorusMaterial(this.value, this.isBomb);
+      const ring1 = new THREE.Mesh(ringGeo, torusMat.clone());
+      ring1.scale.set(radius, radius, radius);
+      ring1.rotation.x = Math.PI / 4;
+      ring1.rotation.y = Math.PI / 6;
+      this.decorGroup.add(ring1);
+      this.capsuleRing1 = ring1;
+
+      const ring2 = new THREE.Mesh(ringGeo, torusMat.clone());
+      ring2.scale.set(radius * 0.95, radius * 0.95, radius * 0.95);
+      ring2.rotation.x = -Math.PI / 4;
+      ring2.rotation.y = -Math.PI / 6;
+      this.decorGroup.add(ring2);
+      this.capsuleRing2 = ring2;
+
+      this.addBillboardLabel(size);
+    } else if (effShape === 'quantum_knot') {
+      const radius = size * 0.50;
+      const { geo, haloGeo } = getSharedTorusKnot();
+      const mat = textureManager.getSphereMaterial(this.value, this.isBomb);
+      this.innerMesh = new THREE.Mesh(geo, mat.clone());
+      this.innerMesh.scale.set(radius, radius, radius);
+      this.group.add(this.innerMesh);
+
+      // Outer accent gimbal halo
+      const torusMat = textureManager.getTorusMaterial(this.value, this.isBomb);
+      const halo = new THREE.Mesh(haloGeo, torusMat.clone());
+      halo.scale.set(radius * 0.92, radius * 0.92, radius * 0.92);
+      halo.rotation.x = Math.PI / 3;
+      this.decorGroup.add(halo);
+      this.knotHalo = halo;
+
+      this.addBillboardLabel(size);
+    } else if (effShape === 'portal_nexus') {
+      const radius = size * 0.50;
+      const { outerRing, innerRing, bead } = getSharedPortalNexus();
+      const torusMat = textureManager.getTorusMaterial(this.value, this.isBomb);
+
+      // Outer Portal Ring
+      const rOuter = new THREE.Mesh(outerRing, torusMat.clone());
+      rOuter.scale.set(radius, radius, radius);
+      rOuter.rotation.x = Math.PI / 2;
+      this.decorGroup.add(rOuter);
+      this.portalOuter = rOuter;
+
+      // Inner Counter-Rotating Ring
+      const rInner = new THREE.Mesh(innerRing, torusMat.clone());
+      rInner.scale.set(radius, radius, radius);
+      rInner.rotation.x = Math.PI / 2;
+      this.decorGroup.add(rInner);
+      this.portalInner = rInner;
+
+      // Central Energy Core Sphere
+      const sphereGeo = getSharedSphere();
+      const sphereMat = textureManager.getSphereMaterial(this.value, this.isBomb);
+      this.innerMesh = new THREE.Mesh(sphereGeo, sphereMat.clone());
+      this.innerMesh.scale.set(radius * 0.42, radius * 0.42, radius * 0.42);
+      this.group.add(this.innerMesh);
+
+      // 4 Orbiting Quantum Satellites (beads)
+      this.portalBeadGroup = new THREE.Group();
+      this.decorGroup.add(this.portalBeadGroup);
+      const beadMat = textureManager.getOctahedronCoreMaterial(this.value, this.isBomb);
+      for (let b = 0; b < 4; b++) {
+        const beadMesh = new THREE.Mesh(bead, beadMat.clone());
+        const angle = (b * Math.PI) / 2;
+        const dist = radius * 0.92;
+        beadMesh.position.set(Math.cos(angle) * dist, 0, Math.sin(angle) * dist);
+        this.portalBeadGroup.add(beadMesh);
+      }
 
       this.addBillboardLabel(size);
     }
@@ -739,6 +935,29 @@ export class Tile3D {
     } else if (effShape === 'plasma_torus') {
       if (this.innerMesh) this.innerMesh.rotation.z += delta * 1.2;
       if (this.torusOuterRing) this.torusOuterRing.rotation.z -= delta * 1.6;
+    } else if (effShape === 'prism_triangle' && this.innerMesh) {
+      this.innerMesh.rotation.y += delta * 0.65;
+      this.decorGroup.rotation.y += delta * 0.65;
+    } else if (effShape === 'stellar_icosahedron' && this.innerMesh) {
+      this.innerMesh.rotation.y += delta * 0.7;
+      this.innerMesh.rotation.x += delta * 0.4;
+      this.decorGroup.rotation.y += delta * 0.7;
+      this.decorGroup.rotation.x += delta * 0.4;
+    } else if (effShape === 'chrono_capsule') {
+      if (this.innerMesh) this.innerMesh.rotation.y += delta * 0.5;
+      if (this.capsuleRing1) this.capsuleRing1.rotation.z += delta * 1.8;
+      if (this.capsuleRing2) this.capsuleRing2.rotation.z -= delta * 1.5;
+    } else if (effShape === 'quantum_knot') {
+      if (this.innerMesh) {
+        this.innerMesh.rotation.y += delta * 1.1;
+        this.innerMesh.rotation.x += delta * 0.6;
+      }
+      if (this.knotHalo) this.knotHalo.rotation.z -= delta * 1.4;
+    } else if (effShape === 'portal_nexus') {
+      if (this.portalOuter) this.portalOuter.rotation.z += delta * 1.2;
+      if (this.portalInner) this.portalInner.rotation.z -= delta * 1.6;
+      if (this.portalBeadGroup) this.portalBeadGroup.rotation.y += delta * 2.2;
+      if (this.innerMesh) this.innerMesh.rotation.y += delta * 0.8;
     }
 
     if (this.bombRing) {

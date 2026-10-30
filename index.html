@@ -34,17 +34,17 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./src/style.css?v=6.8.18">
+  <link rel="stylesheet" href="./src/style.css?v=6.8.19">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=6.8.18').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=6.8.19').then(reg => {
           reg.update();
         }).catch(() => {});
       });
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!sessionStorage.getItem('sw_reloaded_6818')) {
-          sessionStorage.setItem('sw_reloaded_6818', '1');
+        if (!sessionStorage.getItem('sw_reloaded_6819')) {
+          sessionStorage.setItem('sw_reloaded_6819', '1');
           window.location.reload();
         }
       });
@@ -109,23 +109,33 @@
           <div id="shape-glass-menu" class="apple-glass-dropdown" role="listbox" style="display:none;">
             <div class="apple-glass-menu-item active" data-value="auto_evolution" data-i18n="shape_auto">Auto</div>
             <div class="apple-glass-menu-item" data-value="rounded_cube" data-i18n="shape_cube">Cube</div>
-            <div class="apple-glass-menu-item" data-value="crystal_octahedron" data-i18n="shape_octahedron">Crystal</div>
-            <div class="apple-glass-menu-item" data-value="core_sphere" data-i18n="shape_sphere">Sphere</div>
+            <div class="apple-glass-menu-item" data-value="prism_triangle" data-i18n="shape_triangle">Prism</div>
             <div class="apple-glass-menu-item" data-value="hex_prism" data-i18n="shape_hex">Hex</div>
             <div class="apple-glass-menu-item" data-value="cyber_pyramid" data-i18n="shape_pyramid">Pyramid</div>
+            <div class="apple-glass-menu-item" data-value="crystal_octahedron" data-i18n="shape_octahedron">Crystal</div>
             <div class="apple-glass-menu-item" data-value="star_dodecahedron" data-i18n="shape_dodecahedron">Gem</div>
+            <div class="apple-glass-menu-item" data-value="stellar_icosahedron" data-i18n="shape_icosahedron">Icosa</div>
+            <div class="apple-glass-menu-item" data-value="chrono_capsule" data-i18n="shape_capsule">Capsule</div>
             <div class="apple-glass-menu-item" data-value="plasma_torus" data-i18n="shape_torus">Ring</div>
+            <div class="apple-glass-menu-item" data-value="quantum_knot" data-i18n="shape_knot">Knot</div>
+            <div class="apple-glass-menu-item" data-value="core_sphere" data-i18n="shape_sphere">Sphere</div>
+            <div class="apple-glass-menu-item" data-value="portal_nexus" data-i18n="shape_portal">Nexus</div>
           </div>
           <!-- Synchronized hidden select for backwards compatibility -->
           <select id="header-select-shape" class="glass-select shape-quick-select" style="display:none;" title="Chọn hình khối 3D">
             <option value="auto_evolution" data-i18n="shape_auto" selected>Auto</option>
             <option value="rounded_cube" data-i18n="shape_cube">Cube</option>
-            <option value="crystal_octahedron" data-i18n="shape_octahedron">Crystal</option>
-            <option value="core_sphere" data-i18n="shape_sphere">Sphere</option>
+            <option value="prism_triangle" data-i18n="shape_triangle">Prism</option>
             <option value="hex_prism" data-i18n="shape_hex">Hex</option>
             <option value="cyber_pyramid" data-i18n="shape_pyramid">Pyramid</option>
+            <option value="crystal_octahedron" data-i18n="shape_octahedron">Crystal</option>
             <option value="star_dodecahedron" data-i18n="shape_dodecahedron">Gem</option>
+            <option value="stellar_icosahedron" data-i18n="shape_icosahedron">Icosa</option>
+            <option value="chrono_capsule" data-i18n="shape_capsule">Capsule</option>
             <option value="plasma_torus" data-i18n="shape_torus">Ring</option>
+            <option value="quantum_knot" data-i18n="shape_knot">Knot</option>
+            <option value="core_sphere" data-i18n="shape_sphere">Sphere</option>
+            <option value="portal_nexus" data-i18n="shape_portal">Nexus</option>
           </select>
         </div>
         <button id="btn-toggle-rush" class="glass-btn rush-btn" data-i18n-title="rush_tooltip" title="Chế độ đếm ngược Time Rush">
@@ -956,12 +966,17 @@
           <select id="select-shape" class="settings-select">
             <option value="auto_evolution" data-i18n="shape_auto" selected>Auto</option>
             <option value="rounded_cube" data-i18n="shape_cube">Cube</option>
-            <option value="crystal_octahedron" data-i18n="shape_octahedron">Crystal</option>
-            <option value="core_sphere" data-i18n="shape_sphere">Sphere</option>
+            <option value="prism_triangle" data-i18n="shape_triangle">Prism</option>
             <option value="hex_prism" data-i18n="shape_hex">Hex</option>
             <option value="cyber_pyramid" data-i18n="shape_pyramid">Pyramid</option>
+            <option value="crystal_octahedron" data-i18n="shape_octahedron">Crystal</option>
             <option value="star_dodecahedron" data-i18n="shape_dodecahedron">Gem</option>
+            <option value="stellar_icosahedron" data-i18n="shape_icosahedron">Icosa</option>
+            <option value="chrono_capsule" data-i18n="shape_capsule">Capsule</option>
             <option value="plasma_torus" data-i18n="shape_torus">Ring</option>
+            <option value="quantum_knot" data-i18n="shape_knot">Knot</option>
+            <option value="core_sphere" data-i18n="shape_sphere">Sphere</option>
+            <option value="portal_nexus" data-i18n="shape_portal">Nexus</option>
           </select>
         </div>
 
@@ -1134,6 +1149,6 @@
   </div>
 
   <!-- Main Game Script -->
-  <script type="module" src="./src/main.js?v=6.8.18"></script>
+  <script type="module" src="./src/main.js?v=6.8.19"></script>
 </body>
 </html>

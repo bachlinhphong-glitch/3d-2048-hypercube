@@ -17,12 +17,17 @@ import { createChampionsTrophyMesh, createBossTrophyMesh } from './trophy.js';
 export const SHAPE_NAMES = {
   auto_evolution: 'Auto',
   rounded_cube: 'Cube',
-  crystal_octahedron: 'Crystal',
-  core_sphere: 'Sphere',
+  prism_triangle: 'Prism',
   hex_prism: 'Hex',
   cyber_pyramid: 'Pyramid',
+  crystal_octahedron: 'Crystal',
   star_dodecahedron: 'Gem',
+  stellar_icosahedron: 'Icosa',
+  chrono_capsule: 'Capsule',
   plasma_torus: 'Ring',
+  quantum_knot: 'Knot',
+  core_sphere: 'Sphere',
+  portal_nexus: 'Nexus',
 };
 
 
@@ -890,12 +895,17 @@ class GameApp {
       const i18nKeyMap = {
         auto_evolution: 'shape_auto',
         rounded_cube: 'shape_cube',
-        crystal_octahedron: 'shape_octahedron',
-        core_sphere: 'shape_sphere',
+        prism_triangle: 'shape_triangle',
         hex_prism: 'shape_hex',
         cyber_pyramid: 'shape_pyramid',
+        crystal_octahedron: 'shape_octahedron',
         star_dodecahedron: 'shape_dodecahedron',
-        plasma_torus: 'shape_torus'
+        stellar_icosahedron: 'shape_icosahedron',
+        chrono_capsule: 'shape_capsule',
+        plasma_torus: 'shape_torus',
+        quantum_knot: 'shape_knot',
+        core_sphere: 'shape_sphere',
+        portal_nexus: 'shape_portal'
       };
       const key = i18nKeyMap[newShape];
       if (key) shapeTriggerLabel.setAttribute('data-i18n', key);

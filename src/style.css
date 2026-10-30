@@ -6755,7 +6755,20 @@ select option:checked,
   display: flex !important;
   flex-direction: column !important;
   gap: 2px !important;
+  max-height: 380px !important;
+  overflow-y: auto !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent !important;
   animation: appleDropdownFadeIn 0.16s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+.apple-glass-dropdown::-webkit-scrollbar {
+  width: 4px !important;
+}
+
+.apple-glass-dropdown::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25) !important;
+  border-radius: 4px !important;
 }
 
 @keyframes appleDropdownFadeIn {

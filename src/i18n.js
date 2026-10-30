@@ -81,12 +81,17 @@ export const DICTIONARY = {
 
     // Shapes
     shape_cube: 'Cube',
-    shape_octahedron: 'Crystal',
-    shape_sphere: 'Sphere',
+    shape_triangle: 'Prism',
     shape_hex: 'Hex',
     shape_pyramid: 'Pyramid',
+    shape_octahedron: 'Crystal',
     shape_dodecahedron: 'Gem',
+    shape_icosahedron: 'Icosa',
+    shape_capsule: 'Capsule',
     shape_torus: 'Ring',
+    shape_knot: 'Knot',
+    shape_sphere: 'Sphere',
+    shape_portal: 'Nexus',
     shape_auto: 'Auto',
 
     // Themes
@@ -379,12 +384,17 @@ export const DICTIONARY = {
 
     // Shapes
     shape_cube: 'Cube',
-    shape_octahedron: 'Crystal',
-    shape_sphere: 'Sphere',
+    shape_triangle: 'Prism',
     shape_hex: 'Hex',
     shape_pyramid: 'Pyramid',
+    shape_octahedron: 'Crystal',
     shape_dodecahedron: 'Gem',
+    shape_icosahedron: 'Icosa',
+    shape_capsule: 'Capsule',
     shape_torus: 'Ring',
+    shape_knot: 'Knot',
+    shape_sphere: 'Sphere',
+    shape_portal: 'Nexus',
     shape_auto: 'Auto',
 
     // Themes
@@ -659,12 +669,17 @@ export const DICTIONARY = {
 
     // Shapes
     shape_cube: 'Cube',
-    shape_octahedron: 'Crystal',
-    shape_sphere: 'Sphere',
+    shape_triangle: 'Prism',
     shape_hex: 'Hex',
     shape_pyramid: 'Pyramid',
+    shape_octahedron: 'Crystal',
     shape_dodecahedron: 'Gem',
+    shape_icosahedron: 'Icosa',
+    shape_capsule: 'Capsule',
     shape_torus: 'Ring',
+    shape_knot: 'Knot',
+    shape_sphere: 'Sphere',
+    shape_portal: 'Nexus',
     shape_auto: 'Auto',
 
     // Themes
@@ -939,12 +954,17 @@ export const DICTIONARY = {
 
     // Shapes
     shape_cube: 'Cube',
-    shape_octahedron: 'Crystal',
-    shape_sphere: 'Sphere',
+    shape_triangle: 'Prism',
     shape_hex: 'Hex',
     shape_pyramid: 'Pyramid',
+    shape_octahedron: 'Crystal',
     shape_dodecahedron: 'Gem',
+    shape_icosahedron: 'Icosa',
+    shape_capsule: 'Capsule',
     shape_torus: 'Ring',
+    shape_knot: 'Knot',
+    shape_sphere: 'Sphere',
+    shape_portal: 'Nexus',
     shape_auto: 'Auto',
 
     // Themes

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'v6.8.18-2048-zero-alloc';
+const CACHE_NAME = 'v6.8.19-2048-new-shapes';
 const CACHE_URLS = [
   './',
   './index.html',
