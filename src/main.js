@@ -901,6 +901,32 @@ class GameApp {
     this.updateSpellUI();
     this.switchTheme(this.currentTheme);
     this.updateTrophyMascot();
+
+    // Universal Escape & Android Back Button (popstate) Handler
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (this.closeTopActiveModal()) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      }
+    });
+
+    window.addEventListener('popstate', () => {
+      if (this.isAnyModalOpen()) {
+        this.closeTopActiveModal();
+      }
+    });
+
+    // Tab Inactivity / Background tab optimization
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        if (soundManager && soundManager.suspend) soundManager.suspend();
+      } else {
+        if (soundManager && soundManager.resume) soundManager.resume();
+        if (this.clock) this.clock.getDelta(); // flush delta to prevent animation jump
+      }
+    });
   }
 
   registerInteraction() {
@@ -2093,6 +2119,94 @@ class GameApp {
     }
   }
 
+
+  isAnyModalOpen() {
+    const modalIds = [
+      'settings-modal',
+      'welcome-modal',
+      'trophy-modal',
+      'mode-confirm-modal',
+      'share-modal',
+      'boss-victory-modal',
+      'modal-overlay'
+    ];
+    return modalIds.some(id => {
+      const el = document.getElementById(id);
+      if (!el) return false;
+      if (el.classList.contains('active')) return true;
+      const display = el.style.display;
+      return display !== 'none' && display !== '';
+    });
+  }
+
+  closeTopActiveModal() {
+    const checkModal = (id) => {
+      const el = document.getElementById(id);
+      return el && (el.classList.contains('active') || (el.style.display !== 'none' && el.style.display !== ''));
+    };
+
+    if (checkModal('settings-modal')) {
+      const closeBtn = document.getElementById('btn-close-settings');
+      if (closeBtn) closeBtn.click();
+      else document.getElementById('settings-modal').classList.remove('active');
+      return true;
+    }
+    if (checkModal('share-modal')) {
+      const closeBtn = document.getElementById('btn-close-share');
+      if (closeBtn) closeBtn.click();
+      else document.getElementById('share-modal').style.display = 'none';
+      return true;
+    }
+    if (checkModal('trophy-modal')) {
+      const closeBtn = document.getElementById('trophy-modal-close');
+      if (closeBtn) closeBtn.click();
+      else document.getElementById('trophy-modal').style.display = 'none';
+      return true;
+    }
+    if (checkModal('mode-confirm-modal')) {
+      const closeBtn = document.getElementById('mode-confirm-close');
+      if (closeBtn) closeBtn.click();
+      else document.getElementById('mode-confirm-modal').style.display = 'none';
+      return true;
+    }
+    if (checkModal('welcome-modal')) {
+      const closeBtn = document.getElementById('welcome-modal-close');
+      if (closeBtn) closeBtn.click();
+      else document.getElementById('welcome-modal').style.display = 'none';
+      return true;
+    }
+    if (checkModal('boss-victory-modal')) {
+      const closeBtn = document.getElementById('boss-victory-btn-restart');
+      if (closeBtn) closeBtn.click();
+      else document.getElementById('boss-victory-modal').style.display = 'none';
+      return true;
+    }
+    if (checkModal('modal-overlay')) {
+      const closeBtn = document.getElementById('modal-btn-secondary');
+      if (closeBtn) closeBtn.click();
+      else document.getElementById('modal-overlay').classList.remove('active');
+      return true;
+    }
+
+    const shapeDropdownWrapper = document.getElementById('shape-dropdown-wrapper');
+    if (shapeDropdownWrapper && shapeDropdownWrapper.classList.contains('open')) {
+      shapeDropdownWrapper.classList.remove('open');
+      const shapeGlassMenu = document.getElementById('shape-glass-menu');
+      if (shapeGlassMenu) {
+        shapeGlassMenu.classList.remove('open');
+        shapeGlassMenu.style.setProperty('display', 'none', 'important');
+      }
+      return true;
+    }
+
+    if (this.isSwapMode) {
+      this.cancelSwapMode();
+      return true;
+    }
+
+    return false;
+  }
+
   saveGameState() {
     try {
       if (this.gameLogic.gameOver) {
@@ -2106,6 +2220,16 @@ class GameApp {
       state.maxTileValue = this.maxTileValue;
       state.mergeCount = this.mergeCount;
       state.mergeTierCounts = this.mergeTierCounts;
+      if (this.isBossRaid && this.bossManager) {
+        state.isBossRaid = true;
+        state.bossState = {
+          phase: this.bossManager.phase,
+          hp: this.bossManager.hp,
+          maxHp: this.bossManager.maxHp,
+          timer: this.bossManager.timer,
+          clearTime: this.bossManager.clearTime
+        };
+      }
       localStorage.setItem(`3d2048_saved_${this.mode}`, JSON.stringify(state));
     } catch {}
   }
@@ -2155,6 +2279,20 @@ class GameApp {
         }
       }
 
+      if (data.isBossRaid && this.bossManager) {
+        this.isBossRaid = true;
+        this.bossManager.isActive = true;
+        if (data.bossState) {
+          this.bossManager.phase = data.bossState.phase || 1;
+          this.bossManager.hp = data.bossState.hp;
+          this.bossManager.maxHp = data.bossState.maxHp;
+          this.bossManager.timer = data.bossState.timer;
+          this.bossManager.clearTime = data.bossState.clearTime || 0;
+        }
+        document.body.classList.add('in-boss-mode');
+        this.bossManager.showHUD();
+        this.bossManager.updateHUD();
+      }
       this.updateScoreUI();
       this.updateSpellUI();
       this.showSpellToast(t('toast_restore_saved'));
@@ -3812,7 +3950,7 @@ class GameApp {
     }
 
     // 3. Update Rush Mode internal countdown (pure math - zero DOM writes in rAF)
-    if (this.isRushMode && !this.gameLogic.gameOver && !this.isAnimating) {
+    if (this.isRushMode && !this.gameLogic.gameOver && !this.isAnimating && !this.isAnyModalOpen()) {
       this.rushTime -= delta;
       if (this.rushTime <= 0) {
         // ⚡ Emergency Spell-to-Time Bonus (Cơ chế cứu nguy bằng phép bổ trợ)

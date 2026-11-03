@@ -1038,8 +1038,14 @@ export class SceneManager {
 
   async captureSnapshotBlob() {
     this.renderer.render(this.scene, this.camera);
-    return new Promise(resolve => {
-      this.renderer.domElement.toBlob(blob => resolve(blob), 'image/png');
-    });
+    try {
+      const dataUrl = this.renderer.domElement.toDataURL('image/png');
+      const res = await fetch(dataUrl);
+      return await res.blob();
+    } catch (e) {
+      return new Promise(resolve => {
+        this.renderer.domElement.toBlob(blob => resolve(blob), 'image/png');
+      });
+    }
   }
 }

@@ -2863,16 +2863,17 @@ body.theme-zen_clay .entrance-toast-sub {
 }
 
 .settings-modal-card {
-  width: min(94vw, 440px);
-  max-height: min(90vh, 680px);
-  overflow-y: auto;
-  overflow-x: hidden;
+  width: min(94vw, 460px) !important;
+  max-height: min(88vh, 660px) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
   -webkit-overflow-scrolling: touch;
   background: var(--glass-bg, rgba(17, 24, 39, 0.95));
   border: 1px solid rgba(0, 240, 255, 0.28);
-  border-radius: 18px;
+  border-radius: 20px;
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.65), 0 0 24px rgba(0, 240, 255, 0.12);
-  padding: 20px 22px;
+  padding: 0 !important;
   color: var(--text-main, #f0f6fc);
   transform: scale(0.94) translateY(8px);
   transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
@@ -2892,12 +2893,13 @@ body.theme-zen_clay .entrance-toast-sub {
 }
 
 .settings-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  flex-shrink: 0 !important;
+  padding: 16px 20px 14px 20px !important;
+  margin-bottom: 0 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
 .settings-title-wrap {
@@ -2941,9 +2943,15 @@ body.theme-zen_clay .entrance-toast-sub {
 }
 
 .settings-body {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  flex: 1 1 auto !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: 14px 20px 20px 20px !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(255, 255, 255, 0.22) transparent !important;
 }
 
 .settings-row {
@@ -6902,4 +6910,72 @@ select option:checked,
 .first-swipe-hand-container,
 #first-swipe-hand {
   pointer-events: none !important;
+}
+
+/* ==========================================================================
+   UNIVERSAL SLEEK APPLE/GLASS SCROLLBAR (Zero native OS scrollbars)
+   ========================================================================== */
+* {
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent !important;
+}
+
+*::-webkit-scrollbar {
+  width: 5px !important;
+  height: 5px !important;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22) !important;
+  border-radius: 999px !important;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.45) !important;
+}
+
+*::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.settings-modal-card {
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.settings-body {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+@media (max-width: 480px) {
+  .settings-modal-card {
+    width: 95vw !important;
+    max-height: 85vh !important;
+    padding: 0 !important;
+  }
+  .settings-header {
+    padding: 12px 14px 10px 14px !important;
+  }
+  .settings-body {
+    padding: 10px 14px 16px 14px !important;
+    gap: 10px !important;
+  }
+  .settings-label {
+    font-size: 12px !important;
+    white-space: normal !important;
+    max-width: 45% !important;
+  }
+  .settings-select {
+    max-width: 55% !important;
+    font-size: 11px !important;
+    padding: 5px 6px !important;
+  }
 }

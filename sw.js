@@ -28,6 +28,8 @@ const CACHE_URLS = [
   './assets/backgrounds/cat_moon.png',
   './assets/backgrounds/elmo_fire.png',
   './assets/backgrounds/patrick_space.png',
+  './assets/icons/icon-192.png',
+  './assets/icons/icon-512.png',
 ];
 
 self.addEventListener('install', (event) => {

@@ -27,6 +27,10 @@
   <meta name="twitter:image" content="https://3d-2048-hypercube-goll.vercel.app/assets/backgrounds/cat_moon.png">
 
   <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+  <link rel="icon" type="image/png" sizes="192x192" href="./assets/icons/icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="./assets/icons/icon-512.png">
+  <link rel="apple-touch-icon" href="./assets/icons/icon-192.png">
+  <link rel="apple-touch-icon" sizes="512x512" href="./assets/icons/icon-512.png">
   <link rel="manifest" href="./manifest.json">
 
   <!-- High Performance Typography with 100% Vietnamese Diacritics Support -->
@@ -34,11 +38,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./src/style.css?v=6.8.24">
+  <link rel="stylesheet" href="./src/style.css?v=6.8.25">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=6.8.24').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=6.8.25').then(reg => {
           reg.update();
         }).catch(() => {});
       });
@@ -207,43 +211,7 @@
       </div>
     </header>
 
-    <!-- Minimalist Visual Demo Switcher Pill -->
-    <div id="demo-theme-switcher" class="demo-theme-switcher" style="display:none !important;">
-      <span class="demo-switcher-label">GIAO DIỆN:</span>
-      <button class="demo-switch-btn active" data-theme="system" title="Tự động đồng bộ theo trình duyệt / hệ máy">
-        <svg class="demo-btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="9"></circle>
-          <path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor"></path>
-        </svg>
-        <span>Tự động</span>
-      </button>
-      <button class="demo-switch-btn" data-theme="gentle_light" title="Chế độ Sáng Hiền Hòa">
-        <svg class="demo-btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="4"></circle>
-          <line x1="12" y1="2" x2="12" y2="4"></line>
-          <line x1="12" y1="20" x2="12" y2="22"></line>
-          <line x1="4.93" y1="4.93" x2="6.34" y2="6.34"></line>
-          <line x1="17.66" y1="17.66" x2="19.07" y2="19.07"></line>
-          <line x1="2" y1="12" x2="4" y2="12"></line>
-          <line x1="20" y1="12" x2="22" y2="12"></line>
-          <line x1="4.93" y1="19.07" x2="6.34" y2="17.66"></line>
-          <line x1="17.66" y1="6.34" x2="19.07" y2="4.93"></line>
-        </svg>
-        <span>Sáng</span>
-      </button>
-      <button class="demo-switch-btn" data-theme="gentle_dark" title="Chế độ Tối Hiền Hòa">
-        <svg class="demo-btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-        </svg>
-        <span>Tối</span>
-      </button>
-      <button class="demo-switch-btn demo-btn-close" id="btn-close-demo" title="Ẩn thanh thử nghiệm">
-        <svg class="demo-btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
-        </svg>
-      </button>
-    </div>
+    
 
     <!-- Clean & Modern 3-Phase Energy Core HUD -->
     <div id="boss-hud" class="boss-hud" style="display: none;">
@@ -1175,6 +1143,6 @@
   </div>
 
   <!-- Main Game Script -->
-  <script type="module" src="./src/main.js?v=6.8.24"></script>
+  <script type="module" src="./src/main.js?v=6.8.25"></script>
 </body>
 </html>

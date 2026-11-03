@@ -1,13 +1,30 @@
 {
-  "name": "3D 2048 Hypercube",
+  "name": "3D 2048 & Hypercube",
   "short_name": "2048 3D",
-  "description": "3D 2048 với không gian Hypercube — WebGL Three.js",
+  "description": "Trải nghiệm đỉnh cao tựa game 2048 không gian 3 chiều & Hypercube 3x3x3 — WebGL Three.js & GSAP",
   "start_url": "./index.html",
   "display": "standalone",
-  "orientation": "portrait-primary",
+  "orientation": "any",
   "background_color": "#07090e",
-  "theme_color": "#00f0ff",
+  "theme_color": "#0d1117",
   "icons": [
-    {"src": "./favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable"}
+    {
+      "src": "./favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
   ]
 }
