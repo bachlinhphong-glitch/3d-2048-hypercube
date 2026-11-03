@@ -166,9 +166,10 @@ export const DICTIONARY = {
     hint_cam: 'Góc nhìn',
     hint_slice: 'Cắt lớp 3D',
     hint_ghost: 'Dự đoán',
-    hint_rotate: 'Xoay 3D',
+    hint_rotate: 'Xoay 360°',
+    hint_rotate_auto: 'Xoay 360° tự động (R)',
     hint_mobile_swipe: 'Vuốt để trượt khối',
-    hint_mobile_rotate: '2 ngón di chuyển bàn cờ',
+    hint_mobile_rotate: '2 ngón xoay 360°',
 
     // Modals
     modal_victory_title: 'CHIẾN THẮNG!',
@@ -754,7 +755,8 @@ export const DICTIONARY = {
     hint_cam: '視点切替',
     hint_slice: '3Dスライス',
     hint_ghost: '予測表示',
-    hint_rotate: '3D回転',
+    hint_rotate: '360°回転',
+    hint_rotate_auto: '360°自動回転 (R)',
     hint_mobile_swipe: 'スワイプで移動',
     hint_mobile_rotate: '2本指で移動 / 回転',
 
@@ -1039,7 +1041,8 @@ export const DICTIONARY = {
     hint_cam: '카메라 뷰',
     hint_slice: '3D 단면',
     hint_ghost: '예측 보기',
-    hint_rotate: '3D 회전',
+    hint_rotate: '360° 회전',
+    hint_rotate_auto: '360° 자동 회전 (R)',
     hint_mobile_swipe: '밀어서 타일 이동',
     hint_mobile_rotate: '두 손가락으로 이동 / 회전',
 

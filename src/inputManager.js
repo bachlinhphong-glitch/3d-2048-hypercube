@@ -61,6 +61,10 @@ export class InputManager {
         if (this.onCameraSnap) this.onCameraSnap(3);
         return;
       }
+      if (e.code === 'KeyR' && !e.ctrlKey && !e.altKey) {
+        if (this.onCameraSnap) this.onCameraSnap('orbit');
+        return;
+      }
 
       // Slice Mode Cycle (V or Tab)
       if (e.code === 'KeyV' && !e.ctrlKey && !e.altKey) {

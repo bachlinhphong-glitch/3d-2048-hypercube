@@ -1336,7 +1336,15 @@ class GameApp {
         cancel: () => this.cancelSwapMode()
       },
       (clientX, clientY) => this.handleCanvasClick(clientX, clientY),
-      (preset) => this.sceneManager.snapCamera(preset),
+      (preset) => {
+        if (preset === 'orbit') {
+          const isRotating = this.sceneManager.toggleAutoRotate();
+          document.getElementById('btn-toggle-orbit')?.classList.toggle('active', isRotating);
+        } else {
+          this.sceneManager.snapCamera(preset);
+          document.getElementById('btn-toggle-orbit')?.classList.remove('active');
+        }
+      },
       () => this.cycleSliceMode()
     );
 
@@ -1489,8 +1497,14 @@ class GameApp {
     bar.querySelectorAll('.cam-btn[data-preset]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        const preset = parseInt(btn.dataset.preset, 10);
-        this.sceneManager.snapCamera(preset);
+        if (btn.dataset.preset === 'orbit') {
+          const isRotating = this.sceneManager.toggleAutoRotate();
+          btn.classList.toggle('active', isRotating);
+        } else {
+          const preset = parseInt(btn.dataset.preset, 10);
+          this.sceneManager.snapCamera(preset);
+          document.getElementById('btn-toggle-orbit')?.classList.remove('active');
+        }
         this.registerInteraction();
       });
     });

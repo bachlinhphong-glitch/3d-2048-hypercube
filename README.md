@@ -1,7 +1,5 @@
 # 🎮 3D 2048 & Hypercube — WebGL Three.js & GSAP
 
-![3D 2048 Gameplay Screenshot](screenshot.png)
-
 Tựa game **3D 2048 & 3x3x3 Hypercube** hoàn chỉnh, chạy thuần WebGL với Three.js và GSAP, đạt hiệu năng cực cao **~300 FPS** trên trình duyệt hiện đại.
 
 ---

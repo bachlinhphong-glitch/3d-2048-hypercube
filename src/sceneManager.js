@@ -683,20 +683,11 @@ export class SceneManager {
 
   updateTouchControls() {
     if (!this.controls) return;
-    const is3D = this.mode === '3x3x3';
-    if (is3D) {
-      // 3D Hypercube: 2 fingers rotate view around the cube
-      this.controls.touches = {
-        ONE: null,
-        TWO: THREE.TOUCH.DOLLY_ROTATE
-      };
-    } else {
-      // 4x4 mode: 2 fingers pan (di chuyển) the board & pinch zoom
-      this.controls.touches = {
-        ONE: null,
-        TWO: THREE.TOUCH.DOLLY_PAN
-      };
-    }
+    // Both 4x4 and 3x3x3 modes: 2 fingers rotate view 360° around the board & pinch to zoom
+    this.controls.touches = {
+      ONE: null,
+      TWO: THREE.TOUCH.DOLLY_ROTATE
+    };
   }
 
   initControls() {
@@ -712,15 +703,15 @@ export class SceneManager {
     this.controls.cursor.copy(defTarget);
     this.controls.maxTargetRadius = 2.0; // Strictly prevent board from being panned off-screen
 
-    this.controls.minPolarAngle = Math.PI / 8;
-    this.controls.maxPolarAngle = Math.PI / 2.15;
+    this.controls.minPolarAngle = Math.PI / 16;
+    this.controls.maxPolarAngle = Math.PI / 2.05;
     this.controls.minDistance = 7;
-    this.controls.maxDistance = 22;
+    this.controls.maxDistance = 24;
 
     this.controls.mouseButtons = {
       LEFT: null,
       MIDDLE: THREE.MOUSE.DOLLY,
-      RIGHT: THREE.MOUSE.PAN
+      RIGHT: THREE.MOUSE.ROTATE
     };
 
     this.updateTouchControls();
@@ -734,7 +725,17 @@ export class SceneManager {
     this.snapCamera(1);
   }
 
+  toggleAutoRotate() {
+    if (!this.controls) return false;
+    this.controls.autoRotate = !this.controls.autoRotate;
+    this.controls.autoRotateSpeed = 2.4;
+    return this.controls.autoRotate;
+  }
+
   snapCamera(preset = 1) {
+    if (this.controls && this.controls.autoRotate) {
+      this.controls.autoRotate = false;
+    }
     this.requestShadowUpdate(55);
     gsap.killTweensOf(this.camera.position);
     gsap.killTweensOf(this.controls.target);

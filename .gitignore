@@ -3,9 +3,9 @@
 __pycache__/
 *.pyc
 
-# Local screenshots
-screenshot_initial.png
-screenshot_4x4_initial.png
+# Local screenshots & recordings
+screenshot*.png
+*.log
 
 # Dependencies & build
 node_modules/
