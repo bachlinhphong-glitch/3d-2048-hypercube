@@ -34,17 +34,17 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./src/style.css?v=6.8.21">
+  <link rel="stylesheet" href="./src/style.css?v=6.8.23">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=6.8.21').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=6.8.23').then(reg => {
           reg.update();
         }).catch(() => {});
       });
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!sessionStorage.getItem('sw_reloaded_6821')) {
-          sessionStorage.setItem('sw_reloaded_6821', '1');
+        if (!sessionStorage.getItem('sw_reloaded_6823')) {
+          sessionStorage.setItem('sw_reloaded_6823', '1');
           window.location.reload();
         }
       });
@@ -1085,8 +1085,9 @@
             <span data-i18n="btn_share">Chia sẻ điểm số</span>
           </button>
         </div>
-</div>
-  </div>
+      </div> <!-- Closes .settings-body -->
+    </div> <!-- Closes .settings-modal-card -->
+  </div> <!-- Closes #settings-modal -->
 
   <!-- Multi-App Social Share Modal -->
   <div id="share-modal" class="share-modal-overlay" style="display:none;">
@@ -1174,6 +1175,6 @@
   </div>
 
   <!-- Main Game Script -->
-  <script type="module" src="./src/main.js?v=6.8.21"></script>
+  <script type="module" src="./src/main.js?v=6.8.23"></script>
 </body>
 </html>

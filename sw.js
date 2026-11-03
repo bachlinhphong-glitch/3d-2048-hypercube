@@ -1,4 +1,4 @@
-const CACHE_NAME = 'v6.8.21-clean-responsive-evolution';
+const CACHE_NAME = 'v6.8.23-pwa-dom-fix';
 const CACHE_URLS = [
   './',
   './index.html',
@@ -68,7 +68,7 @@ self.addEventListener('fetch', (event) => {
         if (event.request.mode === 'navigate') {
           return (await caches.match('./index.html')) || (await caches.match('.'));
         }
-        return null;
+        return new Response('', { status: 408, statusText: 'Offline' });
       })
   );
 });
