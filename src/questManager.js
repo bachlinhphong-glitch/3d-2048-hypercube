@@ -563,10 +563,8 @@ export class QuestManager {
   openModal(tab = 'c1') {
     if (!this.modal) return;
 
+    this.modal.classList.add('active');
     this.modal.style.display = 'flex';
-    requestAnimationFrame(() => {
-      this.modal.classList.add('active');
-    });
 
     const aiLockBanner = document.getElementById('trophy-ai-lock-banner');
     if (aiLockBanner) {

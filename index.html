@@ -14,17 +14,17 @@
 
   <!-- Open Graph / Facebook / Discord Embed -->
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://bachlinhphong-glitch.github.io/3d-2048-hypercube/">
+  <meta property="og:url" content="https://3d-2048-hypercube-goll.vercel.app/">
   <meta property="og:title" content="3D 2048 & Hypercube — Spatial UX & PWA Edition">
   <meta property="og:description" content="Trải nghiệm đỉnh cao tựa game 2048 không gian 3 chiều và Hypercube 3x3x3 đa tầng, đồ họa WebGL Three.js mượt mà >60 FPS, âm thanh đa tầng và AI tự chơi.">
-  <meta property="og:image" content="https://bachlinhphong-glitch.github.io/3d-2048-hypercube/assets/backgrounds/cat_moon.png">
+  <meta property="og:image" content="https://3d-2048-hypercube-goll.vercel.app/assets/backgrounds/cat_moon.png">
 
   <!-- Twitter / X Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:url" content="https://bachlinhphong-glitch.github.io/3d-2048-hypercube/">
+  <meta name="twitter:url" content="https://3d-2048-hypercube-goll.vercel.app/">
   <meta name="twitter:title" content="3D 2048 & Hypercube — Spatial UX & PWA Edition">
   <meta name="twitter:description" content="Trải nghiệm đỉnh cao tựa game 2048 không gian 3 chiều và Hypercube 3x3x3 đa tầng, đồ họa WebGL Three.js mượt mà >60 FPS, âm thanh đa tầng và AI tự chơi.">
-  <meta name="twitter:image" content="https://bachlinhphong-glitch.github.io/3d-2048-hypercube/assets/backgrounds/cat_moon.png">
+  <meta name="twitter:image" content="https://3d-2048-hypercube-goll.vercel.app/assets/backgrounds/cat_moon.png">
 
   <link rel="icon" type="image/svg+xml" href="./favicon.svg">
   <link rel="manifest" href="./manifest.json">
@@ -34,17 +34,17 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./src/style.css?v=6.8.23">
+  <link rel="stylesheet" href="./src/style.css?v=6.8.24">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=6.8.23').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=6.8.24').then(reg => {
           reg.update();
         }).catch(() => {});
       });
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!sessionStorage.getItem('sw_reloaded_6823')) {
-          sessionStorage.setItem('sw_reloaded_6823', '1');
+        if (!sessionStorage.getItem('sw_reloaded_6824')) {
+          sessionStorage.setItem('sw_reloaded_6824', '1');
           window.location.reload();
         }
       });
@@ -1175,6 +1175,6 @@
   </div>
 
   <!-- Main Game Script -->
-  <script type="module" src="./src/main.js?v=6.8.23"></script>
+  <script type="module" src="./src/main.js?v=6.8.24"></script>
 </body>
 </html>

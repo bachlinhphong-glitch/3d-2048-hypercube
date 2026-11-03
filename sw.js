@@ -1,4 +1,4 @@
-const CACHE_NAME = 'v6.8.23-pwa-dom-fix';
+const CACHE_NAME = 'v6.8.24-vercel-runtime-guard';
 const CACHE_URLS = [
   './',
   './index.html',

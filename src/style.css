@@ -6857,3 +6857,49 @@ select option:checked,
 .apple-glass-dropdown::-webkit-scrollbar-track {
   background: transparent !important;
 }
+
+/* ==========================================================================
+   INTERACTION SAFETY: POINTER-EVENTS ISOLATION & MODAL DISPATCHING
+   ========================================================================== */
+.header-bar,
+.spell-bar,
+.dir-pad,
+.camera-snap-bar,
+.slice-controls,
+.glass-btn,
+.settings-modal-card,
+.welcome-modal-card,
+.trophy-modal-card,
+.share-modal-card,
+.mode-confirm-modal-card {
+  pointer-events: auto !important;
+}
+
+/* All modals MUST be completely click-through when closed */
+.welcome-modal-overlay:not(.active),
+.trophy-modal-overlay:not(.active),
+.settings-modal-overlay:not(.active),
+.share-modal-overlay:not(.active),
+.mode-confirm-modal-overlay:not(.active),
+.boss-victory-modal-overlay:not(.active),
+.modal-overlay:not(.active) {
+  display: none !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+}
+
+/* Fullscreen FX & transient animation layers must NEVER capture user clicks */
+#cinematic-flash,
+.cinematic-flash,
+#boss-cutin-banner:not(.active),
+.boss-cutin-banner:not(.active),
+#boss-damage-container,
+.boss-damage-container,
+#floating-score-container,
+.floating-score-container,
+#trophy-confetti-container,
+.trophy-confetti-container,
+.first-swipe-hand-container,
+#first-swipe-hand {
+  pointer-events: none !important;
+}

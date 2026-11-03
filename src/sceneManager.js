@@ -81,32 +81,56 @@ export class SceneManager {
   }
 
   initCamera() {
-    const aspect = this.container.clientWidth / this.container.clientHeight;
+    const width = (this.container && this.container.clientWidth) ? this.container.clientWidth : (window.innerWidth || 800);
+    const height = (this.container && this.container.clientHeight) ? this.container.clientHeight : (window.innerHeight || 600);
+    const aspect = width / Math.max(1, height);
     this.camera = new THREE.PerspectiveCamera(44, aspect, 0.1, 100);
     this.camera.position.copy(this.getDefaultCamPos(1));
     this.camera.lookAt(this.getDefaultTarget());
   }
 
   initRenderer() {
-    this.renderer = new THREE.WebGLRenderer({
-      antialias: true, // Hardware MSAA for razor-sharp, anti-aliased 3D cube edges
+    let renderer = null;
+    const highPerfOptions = {
+      antialias: true, // Hardware MSAA for razor-sharp edges
       powerPreference: 'high-performance',
       stencil: false,
       depth: true,
       alpha: true,
       preserveDrawingBuffer: false,
       failIfMajorPerformanceCaveat: false,
-      precision: 'highp' // Crisp, pristine shader calculation (no color banding or vertex jitter)
-    });
-    this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
+      precision: 'highp'
+    };
+
+    try {
+      renderer = new THREE.WebGLRenderer(highPerfOptions);
+    } catch (e1) {
+      console.warn('⚠️ WebGL high-performance context failed, attempting compatible fallback...', e1);
+      try {
+        renderer = new THREE.WebGLRenderer({
+          antialias: false,
+          powerPreference: 'default',
+          stencil: false,
+          depth: true,
+          alpha: true
+        });
+      } catch (e2) {
+        console.error('❌ WebGL context completely unavailable:', e2);
+        throw new Error('WebGL is not supported or hardware acceleration is disabled in this browser.');
+      }
+    }
+
+    this.renderer = renderer;
+    const width = (this.container && this.container.clientWidth) ? this.container.clientWidth : (window.innerWidth || 800);
+    const height = (this.container && this.container.clientHeight) ? this.container.clientHeight : (window.innerHeight || 600);
+    this.renderer.setSize(width, height);
     
-    // Crisp Retina Display: Clamp DPR to 2.25 on high-DPI screens (iPhone 12/13/14/15/16 Retina)
-    // Delivers native-quality razor-sharp graphics without blurriness, while staying well within GPU bandwidth limits
+    // Crisp Retina Display: Clamp DPR to 2.25 on high-DPI screens
     const maxDPR = 2.25;
     const dpr = Math.min(window.devicePixelRatio || 1, maxDPR);
     this.renderer.setPixelRatio(dpr);
 
-    // Completely disable dynamic shadow maps for ultra-smooth 60+ FPS
+    // Disable dynamic shadow maps for ultra-smooth 60+ FPS
     this.renderer.shadowMap.enabled = false;
 
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -123,7 +147,9 @@ export class SceneManager {
       this.initEnvironmentMap();
     }, false);
 
-    this.container.appendChild(this.renderer.domElement);
+    if (this.container) {
+      this.container.appendChild(this.renderer.domElement);
+    }
   }
 
   getGPUInfo() {

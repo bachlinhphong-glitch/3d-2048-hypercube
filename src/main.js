@@ -56,36 +56,25 @@ class GameApp {
       this.currentTheme = this.themePreference;
     }
 
-    this.sceneManager = new SceneManager(this.container);
-    this.particleSystem = new ParticleSystem(this.sceneManager.scene);
-    this.gameLogic = new Game2048Logic(this.mode);
-    this.board = new Board(this.mode, this.currentTheme);
-    textureManager.setTheme(this.currentTheme);
-    this.sceneManager.scene.add(this.board.group);
-    this.aiBot = new AIBot(this);
-    this.soundManager = soundManager;
-    window.soundManager = soundManager;
-    this.bossManager = new BossManager(this);
-    this.boss3D = this.bossManager.boss3D;
-    window.boss3D = this.boss3D;
-    this.isBossRaid = false;
-    this.trophyMascot = null;
-    this.bossTrophyMascot = null;
-    this.questManager = new QuestManager(this);
-    this.questManager.recordMode(this.mode);
+    // Expose global references EARLY so external callers and UI can always link
     window.gameApp = this;
     window.THREE = THREE;
     window.textureManager = textureManager;
     window.Tile3D = Tile3D;
+    window.soundManager = soundManager;
     window.setLanguage = setLanguage;
     window.i18n = i18n;
     window.t = t;
+    this.soundManager = soundManager;
+
+    this.isBossRaid = false;
+    this.trophyMascot = null;
+    this.bossTrophyMascot = null;
+    this.isAnimating = false;
+    this.clock = (typeof THREE !== 'undefined' && THREE.Clock) ? new THREE.Clock() : null;
 
     // 3D tiles grid: tiles3D[layer][row][col]
     this.tiles3D = this.createEmptyTileGrid();
-
-    this.isAnimating = false;
-    this.clock = new THREE.Clock();
 
     // Rush Mode State
     this.isRushMode = false;
@@ -116,7 +105,7 @@ class GameApp {
     this.lastGhostDir = null;
 
     // Slice View State (for 3x3x3 X-Ray / Exploded View)
-    this.sliceMode = 'all'; // 'all' | 0 | 1 | 2 | 'exploded'
+    this.sliceMode = 'all';
     this._sliceCycleOrder = ['all', 0, 1, 2, 'exploded'];
     this._sliceCycleIdx = 0;
 
@@ -136,9 +125,6 @@ class GameApp {
       (localStorage.getItem('3d2048_target_fps') === '30' ? 'low' : 
        localStorage.getItem('3d2048_target_fps') === '60' ? 'medium' : 'high');
     this.targetFps = this.graphicsQuality === 'low' ? '30' : this.graphicsQuality === 'medium' ? '60' : '120';
-    if (this.sceneManager && this.sceneManager.setGraphicsQuality) {
-      this.sceneManager.setGraphicsQuality(this.graphicsQuality);
-    }
     this.lastRenderTimestamp = performance.now();
     this.lastUserInteraction = performance.now();
     this.lastIdleTimestamp = performance.now();
@@ -154,18 +140,91 @@ class GameApp {
 
     this.detectInAppBrowser();
 
+    // Initialize pure-logic modules (zero WebGL dependencies)
+    this.gameLogic = new Game2048Logic(this.mode);
+    this.questManager = new QuestManager(this);
+    this.questManager.recordMode(this.mode);
+    this.aiBot = new AIBot(this);
+
+    // STEP 1: Always initialize UI listeners FIRST so all modals, buttons & settings are 100% interactive
     this.initUI();
     this.initTelemetryCanvas();
-    this.initInput();
-    this.initGhostPreview();
-    this.initFirstSwipeGuide();
-    this.startNewGame(true);
 
-    // Dedicated timer running fixed 5 times/second (every 200ms) for DOM stats, APM, FPS & Canvas graph
-    // Eliminates Layout Thrashing in requestAnimationFrame
-    this.telemetryInterval = setInterval(() => this.updateTelemetryAndStats(), 200);
+    // STEP 2: Initialize 3D Engine & Scene safely inside try/catch so WebGL hiccups never kill the UI
+    this.init3D();
+  }
 
-    this.animate();
+  init3D() {
+    try {
+      this.sceneManager = new SceneManager(this.container);
+      this.particleSystem = new ParticleSystem(this.sceneManager.scene);
+      this.board = new Board(this.mode, this.currentTheme);
+      textureManager.setTheme(this.currentTheme);
+      this.sceneManager.scene.add(this.board.group);
+
+      this.bossManager = new BossManager(this);
+      this.boss3D = this.bossManager.boss3D;
+      window.boss3D = this.boss3D;
+
+      if (this.sceneManager && this.sceneManager.setGraphicsQuality) {
+        this.sceneManager.setGraphicsQuality(this.graphicsQuality);
+      }
+
+      this.initInput();
+      this.initGhostPreview();
+      this.initFirstSwipeGuide();
+      this.startNewGame(true);
+
+      this.telemetryInterval = setInterval(() => this.updateTelemetryAndStats(), 200);
+      this.animate();
+    } catch (err) {
+      console.error('❌ CRITICAL: 3D WebGL Initialization Error:', err);
+      window.__lastInit3DError = { message: err.message, stack: err.stack };
+      this.showWebGLErrorFallback(err);
+    }
+  }
+
+  showWebGLErrorFallback(err) {
+    if (!this.container) return;
+    const msg = (err && err.message) ? err.message : 'WebGL không phản hồi';
+    this.container.innerHTML = `
+      <div style="
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        background: rgba(13, 17, 23, 0.94);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        border: 1px solid rgba(239, 68, 68, 0.45);
+        border-radius: 18px;
+        padding: 24px 28px;
+        color: #f87171;
+        max-width: 90vw;
+        width: 420px;
+        box-shadow: 0 16px 48px rgba(0,0,0,0.7), 0 0 24px rgba(239, 68, 68, 0.2);
+        font-family: inherit;
+        z-index: 15;
+      ">
+        <div style="font-size: 36px; margin-bottom: 10px;">⚠️</div>
+        <h4 style="font-size: 17px; font-weight: 800; color: #ffffff; margin: 0 0 8px 0;">Đồ họa 3D WebGL Chưa Sẵn Sàng</h4>
+        <p style="font-size: 13px; color: #94a3b8; line-height: 1.5; margin: 0 0 14px 0;">
+          Trình duyệt của bạn có thể đang tắt tính năng Tăng tốc phần cứng (Hardware Acceleration) hoặc chưa cấp quyền WebGL.<br>
+          <small style="color:#ef4444; opacity: 0.85;">(${msg})</small>
+        </p>
+        <button onclick="window.location.reload()" style="
+          background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+          color: #030712;
+          font-weight: 700;
+          border: none;
+          padding: 8px 20px;
+          border-radius: 10px;
+          cursor: pointer;
+          box-shadow: 0 4px 14px rgba(56, 189, 248, 0.4);
+        ">Tải lại trang</button>
+      </div>
+    `;
   }
 
   createEmptyTileGrid() {
@@ -218,7 +277,9 @@ class GameApp {
     const resetCamBtn = document.getElementById('btn-reset-camera');
     if (resetCamBtn) {
       resetCamBtn.addEventListener('click', () => {
-        this.sceneManager.resetCamera();
+        if (this.sceneManager && this.sceneManager.resetCamera) {
+          this.sceneManager.resetCamera();
+        }
       });
     }
 
@@ -518,7 +579,8 @@ class GameApp {
         this.showSpellToast(isRunning ? t('toast_ai_start') : t('toast_ai_stop'));
         this.registerInteraction();
       });
-      this.aiBot.onStatusChange = (running) => {
+      if (this.aiBot) {
+        this.aiBot.onStatusChange = (running) => {
         aiBtn.classList.toggle('active', running);
         const textEl = aiBtn.querySelector('.btn-text');
         if (textEl) textEl.textContent = running ? t('btn_ai_active') : t('btn_ai');
@@ -526,6 +588,7 @@ class GameApp {
           this.bossManager.usedAIBot = true;
         }
       };
+      }
     }
 
     // Dimension Mode Selector
@@ -732,7 +795,7 @@ class GameApp {
 
     // Auto-detect & Display Hardware GPU
     this.gpuBadgeEl = document.getElementById('gpu-badge');
-    this.gpuInfo = this.sceneManager.getGPUInfo();
+    this.gpuInfo = (this.sceneManager && this.sceneManager.getGPUInfo) ? this.sceneManager.getGPUInfo() : null;
     if (this.gpuBadgeEl && this.gpuInfo) {
       this.gpuBadgeEl.textContent = this.gpuInfo.renderer;
       this.gpuBadgeEl.title = `Card đồ họa: ${this.gpuInfo.full}`;
@@ -867,7 +930,7 @@ class GameApp {
     this.mode = newMode;
     localStorage.setItem('3d2048_last_mode', newMode);
     this.board.setMode(newMode);
-    this.sceneManager.setMode(newMode);
+    if (this.sceneManager && this.sceneManager.setMode) this.sceneManager.setMode(newMode);
     this.gameLogic.setMode(newMode);
     if (this.questManager) {
       this.questManager.recordMode(newMode);
@@ -887,7 +950,7 @@ class GameApp {
     this._sliceCycleIdx = 0;
     this.sliceMode = 'all';
 
-    this.sceneManager.requestShadowUpdate(30);
+    if (this.sceneManager && this.sceneManager.requestShadowUpdate) this.sceneManager.requestShadowUpdate(30);
     this.startNewGame(true);
   }
 
@@ -951,7 +1014,7 @@ class GameApp {
         }
       }
     }
-    this.sceneManager.requestShadowUpdate(20);
+    if (this.sceneManager && this.sceneManager.requestShadowUpdate) this.sceneManager.requestShadowUpdate(20);
   }
 
   switchTheme(newTheme) {
@@ -960,7 +1023,7 @@ class GameApp {
     if (this.isBossRaid) {
       document.body.classList.add('in-boss-mode');
     }
-    this.sceneManager.setTheme(newTheme);
+    if (this.sceneManager && this.sceneManager.setTheme) this.sceneManager.setTheme(newTheme);
     if (this.board && this.board.setTheme) {
       this.board.setTheme(newTheme);
     }
@@ -984,8 +1047,12 @@ class GameApp {
     }
 
     const isNeon = newTheme === 'neon';
-    this.particleSystem.setHyperNeon(isNeon);
-    textureManager.setHyperNeon(isNeon);
+    if (this.particleSystem && this.particleSystem.setHyperNeon) {
+      this.particleSystem.setHyperNeon(isNeon);
+    }
+    if (textureManager && textureManager.setHyperNeon) {
+      textureManager.setHyperNeon(isNeon);
+    }
 
     if (this.telemetryPanel) {
       this.telemetryPanel.style.display = newTheme === 'telemetry' ? 'block' : 'none';
@@ -1002,7 +1069,7 @@ class GameApp {
         }
       }
     }
-    this.sceneManager.requestShadowUpdate(25);
+    if (this.sceneManager && this.sceneManager.requestShadowUpdate) this.sceneManager.requestShadowUpdate(25);
   }
 
   setSliceMode(mode) {
@@ -1042,7 +1109,7 @@ class GameApp {
       });
     }
 
-    this.sceneManager.requestShadowUpdate(15);
+    if (this.sceneManager && this.sceneManager.requestShadowUpdate) this.sceneManager.requestShadowUpdate(15);
   }
 
   cycleSliceMode() {
@@ -1680,7 +1747,7 @@ class GameApp {
     });
 
     if (this.sceneManager) {
-      this.sceneManager.requestShadowUpdate(20);
+      if (this.sceneManager && this.sceneManager.requestShadowUpdate) this.sceneManager.requestShadowUpdate(20);
     }
   }
 
@@ -2004,24 +2071,26 @@ class GameApp {
 
     // 2. Safety sweep: sweep the Three.js scene for ANY orphaned Tile3D groups
     const orphanedTileGroups = [];
-    this.sceneManager.scene.children.forEach(child => {
+    if (this.sceneManager && this.sceneManager.scene && this.sceneManager.scene.children) {
+      this.sceneManager.scene.children.forEach(child => {
       if (child.userData && child.userData.isTile3D) {
         orphanedTileGroups.push(child);
       }
     });
 
-    orphanedTileGroups.forEach(grp => {
-      gsap.killTweensOf(grp);
-      gsap.killTweensOf(grp.position);
-      gsap.killTweensOf(grp.scale);
-      gsap.killTweensOf(grp.rotation);
-      if (grp.userData && grp.userData.tileInstance) {
-        grp.userData.tileInstance.dispose(true);
-      }
-      if (grp.parent) {
-        grp.parent.remove(grp);
-      }
-    });
+      orphanedTileGroups.forEach(grp => {
+        gsap.killTweensOf(grp);
+        gsap.killTweensOf(grp.position);
+        gsap.killTweensOf(grp.scale);
+        gsap.killTweensOf(grp.rotation);
+        if (grp.userData && grp.userData.tileInstance) {
+          grp.userData.tileInstance.dispose(true);
+        }
+        if (grp.parent) {
+          grp.parent.remove(grp);
+        }
+      });
+    }
   }
 
   saveGameState() {
@@ -2174,7 +2243,7 @@ class GameApp {
           }
         }
         const modeName = this.mode === '3x3x3' ? '3x3x3 Hypercube' : '4x4 Classic';
-        const shareUrl = window.location.href.split('?')[0].split('#')[0] || 'https://bachlinhphong-glitch.github.io/3d-2048-hypercube/';
+        const shareUrl = window.location.href.split('?')[0].split('#')[0] || 'https://3d-2048-hypercube-goll.vercel.app/';
         
         const challengeText = `⚡ THÁCH ĐẤU 2048 KHÔNG GIAN 3D ⚡\n🏆 Điểm kỷ lục: ${Number(score).toLocaleString()} điểm (${modeName})\n💎 Khối đỉnh cao: ${maxTileVal}\n🎯 Bạn có vượt qua được kỷ lục này không?\n👉 Bấm vào chơi ngay (không cần cài đặt):\n${shareUrl}`;
 
@@ -2251,7 +2320,7 @@ class GameApp {
     const score = this.gameLogic ? this.gameLogic.score : 0;
     const modeName = this.mode === '3x3x3' ? '3x3x3 Hypercube' : '4x4 Classic';
     const shareText = `🎮 Tôi vừa đạt ${Number(score).toLocaleString()} điểm ở chế độ ${modeName} trong tựa game 3D 2048 & Hypercube! Bạn có vượt qua được không?`;
-    const shareUrl = window.location.href.split('?')[0].split('#')[0] || 'https://bachlinhphong-glitch.github.io/3d-2048-hypercube/';
+    const shareUrl = window.location.href.split('?')[0].split('#')[0] || 'https://3d-2048-hypercube-goll.vercel.app/';
 
     let snapshotFile = null;
     try {
@@ -2352,6 +2421,7 @@ class GameApp {
   }
 
   startNewGame(checkSaved = false) {
+    if (!this.gameLogic || !this.sceneManager || !this.board) return;
     if (this.heldTile) this.onTileGrabCancel();
     if (this.aiBot) this.aiBot.stop();
     this.hideModal();
@@ -2413,7 +2483,7 @@ class GameApp {
     if (this.mode === '3x3x3' && typeof this.sliceMode === 'number') {
       tile3D.setSliceDim(l !== this.sliceMode);
     }
-    this.sceneManager.requestShadowUpdate(20);
+    if (this.sceneManager && this.sceneManager.requestShadowUpdate) this.sceneManager.requestShadowUpdate(20);
     if (isBomb) {
       soundManager.playBombTick();
     }
@@ -2824,7 +2894,7 @@ class GameApp {
     this.moveCount++;
     this.comboCount = 0; // Reset combo per move
     this.recentMoves.push(performance.now());
-    this.sceneManager.requestShadowUpdate(25);
+    if (this.sceneManager && this.sceneManager.requestShadowUpdate) this.sceneManager.requestShadowUpdate(25);
 
     if (direction === 'layerUp' || direction === 'layerDown') {
       soundManager.playLayerMove(direction === 'layerUp' ? 'up' : 'down');
