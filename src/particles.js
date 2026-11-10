@@ -65,8 +65,9 @@ export class ParticleSystem {
     if (typeof valueOrHex === 'number' && valueOrHex > 65536) {
       baseColor = new THREE.Color(valueOrHex);
     } else {
-      const style = textureManager.getStyle(valueOrHex);
-      baseColor = new THREE.Color(style ? style.color : 0xffffff);
+      const style = textureManager ? textureManager.getStyle(valueOrHex) : null;
+      const colorVal = style ? (style.emissive && style.emissive !== '#000000' ? style.emissive : (style.bg || style.color || 0xffffff)) : 0xffffff;
+      baseColor = new THREE.Color(colorVal);
     }
     const count = this.isHyperNeon ? 36 : 20;
     const neonPalette = [0xff007f, 0x00f0ff, 0xffd700, 0x7928ca, 0x00ff88];
@@ -99,7 +100,7 @@ export class ParticleSystem {
         if (this.isHyperNeon) {
           this.tempColor.setHex(neonPalette[Math.floor(Math.random() * neonPalette.length)]);
         } else {
-          this.tempColor.set(style.emissive !== '#000000' ? style.emissive : style.bg);
+          this.tempColor.copy(baseColor);
         }
         this.instancedMesh.setColorAt(i, this.tempColor);
 

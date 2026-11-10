@@ -2923,38 +2923,17 @@ class GameApp {
               gsap.killTweensOf(tile.group.rotation);
               gsap.killTweensOf(tile.group.scale);
 
+              tile.group.position.set(pos.x, pos.y, pos.z);
+              tile.group.rotation.set(0, 0, 0);
               tile.group.scale.set(0, 0, 0);
-              tile.group.rotation.y = Math.PI * 2;
-
-              gsap.to(tile.group.rotation, {
-                y: 0,
-                duration: 0.72,
-                delay: delayStep,
-                ease: 'power2.out'
-              });
 
               const currentTile = tile;
-              gsap.fromTo(tile.group.position,
-                { y: pos.y + 3.2 },
-                {
-                  y: pos.y,
-                  duration: 0.70,
-                  delay: delayStep,
-                  ease: 'back.out(2.0)',
-                  onStart: () => {
-                    gsap.to(currentTile.group.scale, {
-                      x: 1, y: 1, z: 1,
-                      duration: 0.62,
-                      ease: 'back.out(2.2)'
-                    });
-                  },
-                  onComplete: () => {
-                    if (this.particleSystem) {
-                      this.particleSystem.burst(pos.x, pos.y + 0.25, pos.z, currentTile.value);
-                    }
-                  }
-                }
-              );
+              gsap.to(currentTile.group.scale, {
+                x: 1, y: 1, z: 1,
+                duration: 0.24,
+                delay: delayStep,
+                ease: 'back.out(1.2)'
+              });
 
               delayStep += isRestoring ? 0.05 : 0.14;
             }
