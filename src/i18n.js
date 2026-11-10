@@ -29,6 +29,7 @@ export const DICTIONARY = {
     btn_new_game: 'Chơi mới',
     new_game_tooltip: 'Bắt đầu ván chơi mới',
     game_ready_callout: 'BẮT ĐẦU VÁN MỚI!',
+    welcome_back: 'CHÀO MỪNG TRỞ LẠI!',
     game_ready_sub: 'Vuốt để gộp khối & phá vỡ kỷ lục',
     settings_tooltip: 'Mở Cài đặt hệ thống',
 
@@ -339,6 +340,7 @@ export const DICTIONARY = {
     btn_new_game: 'New Game',
     new_game_tooltip: 'Start a fresh match',
     game_ready_callout: 'READY • GAME ON!',
+    welcome_back: 'WELCOME BACK!',
     game_ready_sub: 'Swipe to merge & break your record',
     settings_tooltip: 'Open Game Settings',
 
@@ -646,6 +648,7 @@ export const DICTIONARY = {
     btn_new_game: '新規',
     new_game_tooltip: '新しいゲームを開始',
     game_ready_callout: 'スタート • ゲーム開始!',
+    welcome_back: 'おかえりなさい!',
     game_ready_sub: 'スワイプして数字を合体させよう',
     settings_tooltip: 'ゲーム設定を開く',
 
@@ -938,6 +941,7 @@ export const DICTIONARY = {
     btn_new_game: '새 게임',
     new_game_tooltip: '새로운 게임 시작',
     game_ready_callout: '준비 • 게임 시작!',
+    welcome_back: '다시 오신 것을 환영합니다!',
     game_ready_sub: '스와이프하여 타일을 합치세요',
     settings_tooltip: '게임 설정 열기',
 
