@@ -132,7 +132,57 @@ export class InputManager {
       }
     });
 
-    // 2. Mouse Drag & Touch Swipe Controls
+    // 2. Mouse Drag & Touch Swipe Controls (Dual-layer Touch + Pointer for 100% Mobile Reliability)
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchActive = false;
+
+    this.domElement.addEventListener('touchstart', (e) => {
+      if (e.touches.length !== 1) return;
+      if (this.isBlockedByUI()) return;
+      if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .spell-bar, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel, .dpad-btn, .cam-btn, .slice-btn')) {
+        return;
+      }
+      const t = e.touches[0];
+      touchStartX = t.clientX;
+      touchStartY = t.clientY;
+      touchActive = true;
+    }, { passive: true });
+
+    this.domElement.addEventListener('touchmove', (e) => {
+      if (touchActive && e.cancelable) {
+        e.preventDefault(); // Stop mobile pull-to-refresh & browser scroll from canceling swipe!
+      }
+    }, { passive: false });
+
+    this.domElement.addEventListener('touchend', (e) => {
+      if (!touchActive || !this.enabled || this.isBlockedByUI()) {
+        touchActive = false;
+        return;
+      }
+      touchActive = false;
+      if (this.isTileHeld) {
+        this.isTileHeld = false;
+        return;
+      }
+      const t = e.changedTouches[0];
+      if (!t) return;
+      const dx = t.clientX - touchStartX;
+      const dy = t.clientY - touchStartY;
+      const minDistance = 20;
+      if (Math.hypot(dx, dy) >= minDistance) {
+        let direction = null;
+        if (Math.abs(dx) > Math.abs(dy)) {
+          direction = dx > 0 ? 'right' : 'left';
+        } else {
+          direction = dy > 0 ? 'down' : 'up';
+        }
+        if (direction) {
+          this.onMove(direction);
+        }
+      }
+    }, { passive: true });
+
     this.domElement.addEventListener('pointerdown', (e) => {
       // Only process primary pointer (first finger / left mouse button)
       if (!e.isPrimary) {

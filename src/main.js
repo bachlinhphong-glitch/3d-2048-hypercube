@@ -467,13 +467,7 @@ class GameApp {
       }
     });
 
-    // Auto show on first open
-    const hasSeenWelcome = localStorage.getItem('3d2048_welcome_seen');
-    if (!hasSeenWelcome) {
-      setTimeout(() => {
-        openWelcome();
-      }, 400);
-    }
+    // Welcome modal available on demand via '?' button (#btn-help-toggle)
 
     // Language Selector
     const langSelect = document.getElementById('select-lang');
@@ -1595,16 +1589,25 @@ class GameApp {
         if (this.ghostPreview) this.ghostPreview.hideGhost();
       });
 
-      // Click / tap to move
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
+      // Instant tap / pointerdown response with zero 300ms click delay
+      const handleDpadDir = (e) => {
+        if (e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
         if (this.ghostPreview) this.ghostPreview.hideGhost();
-        if (!this.inputManager.enabled) return;
+        if (this.inputManager && !this.inputManager.enabled) return;
         if (dir === 'iso') {
           this.sceneManager.snapCamera(1);
         } else {
           this.handleMove(dir);
         }
+      };
+
+      btn.addEventListener('pointerdown', handleDpadDir);
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
       });
     });
   }
@@ -2886,18 +2889,8 @@ class GameApp {
       ease: 'power3.out'
     });
 
-    gsap.fromTo(this.board.group.position,
-      { y: 4.2 },
-      {
-        y: 0,
-        duration: 0.82,
-        ease: 'elastic.out(1.1, 0.65)',
-        onComplete: () => {
-          this.board.group.position.y = 0;
-          this.board.group.rotation.set(0, 0, 0);
-        }
-      }
-    );
+    this.board.group.position.set(0, 0, 0);
+    this.board.group.rotation.set(0, 0, 0);
 
     // 4. Ground Shockwave Ring on Impact
     setTimeout(() => {
@@ -2925,15 +2918,18 @@ class GameApp {
 
               tile.group.position.set(pos.x, pos.y, pos.z);
               tile.group.rotation.set(0, 0, 0);
-              tile.group.scale.set(0, 0, 0);
+              tile.group.scale.set(1, 1, 1);
 
               const currentTile = tile;
-              gsap.to(currentTile.group.scale, {
-                x: 1, y: 1, z: 1,
-                duration: 0.24,
-                delay: delayStep,
-                ease: 'back.out(1.2)'
-              });
+              gsap.fromTo(currentTile.group.scale,
+                { x: 0.65, y: 0.65, z: 0.65 },
+                {
+                  x: 1, y: 1, z: 1,
+                  duration: 0.24,
+                  delay: delayStep,
+                  ease: 'back.out(1.3)'
+                }
+              );
 
               delayStep += isRestoring ? 0.05 : 0.14;
             }

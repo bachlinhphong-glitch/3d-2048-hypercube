@@ -771,7 +771,7 @@ export class SceneManager {
     const targetPos = this.getDefaultCamPos(preset);
     const targetLook = this.getDefaultTarget();
 
-    if (this.controls) this.controls.enabled = false;
+    if (this.controls) this.controls.enabled = true;
 
     gsap.to(this.camera.position, {
       x: targetPos.x,
@@ -817,7 +817,7 @@ export class SceneManager {
       ? new THREE.Vector3(0, mobile ? 2.2 : 1.85, -1.2)
       : this.getDefaultTarget();
 
-    if (this.controls) this.controls.enabled = false;
+    if (this.controls) this.controls.enabled = true;
 
     gsap.to(this.camera.position, {
       x: targetPos.x,
@@ -856,7 +856,7 @@ export class SceneManager {
     const targetPos = this.getDefaultCamPos(1);
     const targetLook = this.getDefaultTarget();
 
-    if (this.controls) this.controls.enabled = false;
+    if (this.controls) this.controls.enabled = true;
 
     // Start slightly higher and tilted
     this.camera.position.set(
