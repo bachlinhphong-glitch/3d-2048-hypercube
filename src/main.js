@@ -169,6 +169,7 @@ class GameApp {
       if (this.sceneManager && this.sceneManager.setGraphicsQuality) {
         this.sceneManager.setGraphicsQuality(this.graphicsQuality);
       }
+      this.updateGPUInfo();
 
       this.initInput();
       this.initGhostPreview();
@@ -793,13 +794,8 @@ class GameApp {
     // Multi-App Social Sharing Modal Setup
     this.setupShareModal();
 
-    // Auto-detect & Display Hardware GPU
+    // Auto-detect & Display Hardware GPU element reference
     this.gpuBadgeEl = document.getElementById('gpu-badge');
-    this.gpuInfo = (this.sceneManager && this.sceneManager.getGPUInfo) ? this.sceneManager.getGPUInfo() : null;
-    if (this.gpuBadgeEl && this.gpuInfo) {
-      this.gpuBadgeEl.textContent = this.gpuInfo.renderer;
-      this.gpuBadgeEl.title = `Card đồ họa: ${this.gpuInfo.full}`;
-    }
 
     // Track user activity to support Smart Idle Throttling
     const recordActivity = () => {
@@ -918,19 +914,20 @@ class GameApp {
       }
     });
 
-    // Tab Inactivity / Background tab optimization
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) {
-        if (soundManager && soundManager.suspend) soundManager.suspend();
-      } else {
-        if (soundManager && soundManager.resume) soundManager.resume();
-        if (this.clock) this.clock.getDelta(); // flush delta to prevent animation jump
-      }
-    });
+// Tab Inactivity listener consolidated above
   }
 
   registerInteraction() {
     this.lastUserInteraction = performance.now();
+  }
+
+  updateGPUInfo() {
+    this.gpuBadgeEl = document.getElementById('gpu-badge');
+    this.gpuInfo = (this.sceneManager && this.sceneManager.getGPUInfo) ? this.sceneManager.getGPUInfo() : null;
+    if (this.gpuBadgeEl && this.gpuInfo) {
+      this.gpuBadgeEl.textContent = this.gpuInfo.renderer;
+      this.gpuBadgeEl.title = `Card đồ họa: ${this.gpuInfo.full}`;
+    }
   }
 
   initTelemetryCanvas() {
@@ -2284,14 +2281,18 @@ class GameApp {
         this.bossManager.isActive = true;
         if (data.bossState) {
           this.bossManager.phase = data.bossState.phase || 1;
-          this.bossManager.hp = data.bossState.hp;
-          this.bossManager.maxHp = data.bossState.maxHp;
-          this.bossManager.timer = data.bossState.timer;
+          this.bossManager.hp = data.bossState.hp !== undefined ? data.bossState.hp : this.bossManager.maxHp;
+          this.bossManager.maxHp = data.bossState.maxHp || this.bossManager.maxHp;
+          this.bossManager.timer = data.bossState.timer !== undefined ? data.bossState.timer : 120.0;
           this.bossManager.clearTime = data.bossState.clearTime || 0;
+          this.bossManager.loop = data.bossState.loop || 1;
         }
         document.body.classList.add('in-boss-mode');
-        this.bossManager.showHUD();
-        this.bossManager.updateHUD();
+        if (this.bossManager.showHUD) this.bossManager.showHUD();
+        if (this.bossManager.updateHUD) this.bossManager.updateHUD();
+        if (this.boss3D && typeof this.boss3D.setPhase === 'function') {
+          this.boss3D.setPhase(this.bossManager.phase, this.bossManager.loop || 1);
+        }
       }
       this.updateScoreUI();
       this.updateSpellUI();
@@ -3604,7 +3605,7 @@ class GameApp {
       left: 'TRƯỢT SANG TRÁI (A / ←)',
       right: 'TRƯỢT SANG PHẢI (D / →)',
       layerUp: 'LÊN TẦNG TRÊN (E / Space)',
-      layerDown: 'XUỐNG TẦNG DƯỚI (Q / Shift)'
+      layerDown: 'XUỐNG TẦNG DƯỚI (Phím Q)'
     };
     const dirMapTouch = {
       up: 'Vuốt LÊN TRÊN',
@@ -3667,6 +3668,9 @@ class GameApp {
         }
       }
 
+      if (this.mode === '3x3x3' && typeof this.setSliceMode === 'function') {
+        this.setSliceMode(this.sliceMode);
+      }
       this.updateScoreUI();
       this.updateSpellUI();
       this.showSpellToast('ĐÃ HOÀN TÁC NƯỚC ĐI VỪA RỒI!');
@@ -3748,6 +3752,11 @@ class GameApp {
     } else {
       const tileA = this.swapSelectedTile;
       const tileB = clickedTile;
+      if (tileA.value === tileB.value) {
+        soundManager.playTileDrop();
+        this.showSpellToast('Hai ô có cùng giá trị, hãy chọn ô khác để hoán đổi!');
+        return;
+      }
       document.body.classList.remove('in-swap-mode');
       if (this.sceneManager && this.sceneManager.controls) {
         this.sceneManager.controls.enabled = true;

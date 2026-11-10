@@ -20,6 +20,8 @@ export class GhostPreview {
 
     // Track shift key for Shift+direction ghost preview
     this._onKeyDown = (e) => {
+      if (this.gameApp && this.gameApp.isAnyModalOpen && this.gameApp.isAnyModalOpen()) return;
+      if (this.gameApp && this.gameApp.gameLogic && this.gameApp.gameLogic.gameOver) return;
       if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
         this._shiftHeld = true;
       }

@@ -184,7 +184,7 @@ export class AIBot {
     let bestScore = -Infinity;
 
     for (const dir of directions) {
-      const sim = this.fastSimulate2D(flatGrid, dir);
+      const sim = this.fastSimulate2D(flatGrid, dir, bombPos);
       if (!sim.moved) continue;
 
       // Bomb defusal priority bonus in Rush mode
@@ -292,27 +292,35 @@ export class AIBot {
     return emptyIndices.slice(0, maxCount);
   }
 
-  fastSimulate2D(grid, direction) {
+  fastSimulate2D(grid, direction, bombPos = -1) {
     const out = new Int32Array(16);
     let moved = false;
     let scoreAdded = 0;
+    let mergesBomb = false;
 
     if (direction === 'left') {
       for (let r = 0; r < 4; r++) {
         const o = r * 4;
         let target = 0;
         let lastVal = 0;
+        let lastIdx = -1;
         for (let c = 0; c < 4; c++) {
-          const val = grid[o + c];
+          const idx = o + c;
+          const val = grid[idx];
           if (!val) continue;
           if (lastVal === val) {
             out[o + target - 1] = val * 2;
             scoreAdded += val * 2;
+            if (bombPos >= 0 && (lastIdx === bombPos || idx === bombPos)) {
+              mergesBomb = true;
+            }
             lastVal = 0;
+            lastIdx = -1;
             moved = true;
           } else {
             out[o + target] = val;
             lastVal = val;
+            lastIdx = idx;
             if (target !== c) moved = true;
             target++;
           }
@@ -323,17 +331,24 @@ export class AIBot {
         const o = r * 4;
         let target = 3;
         let lastVal = 0;
+        let lastIdx = -1;
         for (let c = 3; c >= 0; c--) {
-          const val = grid[o + c];
+          const idx = o + c;
+          const val = grid[idx];
           if (!val) continue;
           if (lastVal === val) {
             out[o + target + 1] = val * 2;
             scoreAdded += val * 2;
+            if (bombPos >= 0 && (lastIdx === bombPos || idx === bombPos)) {
+              mergesBomb = true;
+            }
             lastVal = 0;
+            lastIdx = -1;
             moved = true;
           } else {
             out[o + target] = val;
             lastVal = val;
+            lastIdx = idx;
             if (target !== c) moved = true;
             target--;
           }
@@ -343,17 +358,24 @@ export class AIBot {
       for (let c = 0; c < 4; c++) {
         let target = 0;
         let lastVal = 0;
+        let lastIdx = -1;
         for (let r = 0; r < 4; r++) {
-          const val = grid[r * 4 + c];
+          const idx = r * 4 + c;
+          const val = grid[idx];
           if (!val) continue;
           if (lastVal === val) {
             out[(target - 1) * 4 + c] = val * 2;
             scoreAdded += val * 2;
+            if (bombPos >= 0 && (lastIdx === bombPos || idx === bombPos)) {
+              mergesBomb = true;
+            }
             lastVal = 0;
+            lastIdx = -1;
             moved = true;
           } else {
             out[target * 4 + c] = val;
             lastVal = val;
+            lastIdx = idx;
             if (target !== r) moved = true;
             target++;
           }
@@ -363,17 +385,24 @@ export class AIBot {
       for (let c = 0; c < 4; c++) {
         let target = 3;
         let lastVal = 0;
+        let lastIdx = -1;
         for (let r = 3; r >= 0; r--) {
-          const val = grid[r * 4 + c];
+          const idx = r * 4 + c;
+          const val = grid[idx];
           if (!val) continue;
           if (lastVal === val) {
             out[(target + 1) * 4 + c] = val * 2;
             scoreAdded += val * 2;
+            if (bombPos >= 0 && (lastIdx === bombPos || idx === bombPos)) {
+              mergesBomb = true;
+            }
             lastVal = 0;
+            lastIdx = -1;
             moved = true;
           } else {
             out[target * 4 + c] = val;
             lastVal = val;
+            lastIdx = idx;
             if (target !== r) moved = true;
             target--;
           }
@@ -381,7 +410,7 @@ export class AIBot {
       }
     }
 
-    return { moved, grid: out, scoreAdded };
+    return { moved, grid: out, scoreAdded, mergesBomb };
   }
 
   /**

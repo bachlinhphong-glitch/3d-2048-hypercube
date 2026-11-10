@@ -182,7 +182,7 @@ export class QuestManager {
 
     // Dynamic Language Synchronization Listener
     window.addEventListener('languageChanged', () => {
-      this.renderQuestsList();
+      this.renderQuestList();
       this.updateStatusPill();
       this.updateBossStatsTexts();
       const celebrateLabel = document.getElementById('trophy-celebrate-label');
@@ -419,7 +419,10 @@ export class QuestManager {
 
     this.updateStatusPill();
     if (this.trophyViewer) {
-      this.trophyViewer.setUnlocked(true);
+      this.trophyViewer.bossUnlocked = true;
+      if (this.currentTab === 'boss') {
+        this.trophyViewer.setUnlocked(true);
+      }
     }
   }
 
@@ -510,6 +513,10 @@ export class QuestManager {
     }
 
     this.openModal('c1');
+  }
+
+  renderQuestsList() {
+    return this.renderQuestList();
   }
 
   renderQuestList() {

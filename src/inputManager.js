@@ -28,7 +28,7 @@ export class InputManager {
   bindEvents() {
     // 1. Keyboard Controls (Arrow keys, WASD, E/Q for 3D Hypercube Layers, Spell Hotkeys)
     window.addEventListener('keydown', (e) => {
-      if (!this.enabled) return;
+      if (!this.enabled || this.isBlockedByUI()) return;
 
       // Summoner Spells Hotkeys
       if (e.code === 'KeyH' && !e.ctrlKey && !e.altKey) {

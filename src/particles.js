@@ -60,8 +60,14 @@ export class ParticleSystem {
     this.isHyperNeon = enabled;
   }
 
-  burst(x, y, z, value = 4) {
-    const style = textureManager.getStyle(value);
+  burst(x, y, z, valueOrHex = 4) {
+    let baseColor = null;
+    if (typeof valueOrHex === 'number' && valueOrHex > 65536) {
+      baseColor = new THREE.Color(valueOrHex);
+    } else {
+      const style = textureManager.getStyle(valueOrHex);
+      baseColor = new THREE.Color(style ? style.color : 0xffffff);
+    }
     const count = this.isHyperNeon ? 36 : 20;
     const neonPalette = [0xff007f, 0x00f0ff, 0xffd700, 0x7928ca, 0x00ff88];
 

@@ -63,7 +63,11 @@ class SoundManager {
     // 1. Mobile Phone / Tablet vibration
     if ('vibrate' in navigator) {
       try {
-        if (type === 'slide') {
+        if (type === 'click') {
+          navigator.vibrate(6);
+        } else if (type === 'combo') {
+          navigator.vibrate([18, 20, 25]);
+        } else if (type === 'slide') {
           navigator.vibrate(12);
         } else if (type === 'grab') {
           navigator.vibrate(16);
@@ -88,7 +92,11 @@ class SoundManager {
         for (const gp of gamepads) {
           if (gp && gp.vibrationActuator && gp.vibrationActuator.playEffect) {
             let duration = 120, weak = 0.25, strong = 0.15;
-            if (type === 'merge_small') {
+            if (type === 'click') {
+              duration = 35; weak = 0.1; strong = 0.05;
+            } else if (type === 'combo') {
+              duration = 180; weak = 0.45; strong = 0.35;
+            } else if (type === 'merge_small') {
               duration = 160; weak = 0.5; strong = 0.3;
             } else if (type === 'merge_big') {
               duration = 300; weak = 0.8; strong = 0.9;

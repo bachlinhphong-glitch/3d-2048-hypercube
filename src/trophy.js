@@ -1348,8 +1348,12 @@ export class TrophyModalViewer {
       this.trophyGroup.traverse((obj) => {
         if (obj.geometry) obj.geometry.dispose();
         if (obj.material) {
-          if (Array.isArray(obj.material)) obj.material.forEach(m => m.dispose());
-          else obj.material.dispose();
+          const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+          mats.forEach(m => {
+            if (m.map) m.map.dispose();
+            if (m.envMap && m.envMap !== this.envMapC1 && m.envMap !== this.envMapBoss) m.envMap.dispose();
+            m.dispose();
+          });
         }
       });
     }
@@ -1514,7 +1518,19 @@ export class TrophyModalViewer {
     if (this._cleanupEvents) this._cleanupEvents();
     if (this.trophyGroup) {
       this.scene.remove(this.trophyGroup);
+      this.trophyGroup.traverse((obj) => {
+        if (obj.geometry) obj.geometry.dispose();
+        if (obj.material) {
+          const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+          mats.forEach(m => {
+            if (m.map) m.map.dispose();
+            m.dispose();
+          });
+        }
+      });
     }
+    if (this.envMapC1) this.envMapC1.dispose();
+    if (this.envMapBoss) this.envMapBoss.dispose();
     if (this.renderer && this.renderer.domElement && this.renderer.domElement.parentNode) {
       this.renderer.domElement.parentNode.removeChild(this.renderer.domElement);
     }

@@ -1,3 +1,4 @@
+import { t } from './i18n.js';
 import * as THREE from 'three';
 import gsap from 'gsap';
 import { getGridPosition } from './board.js';
@@ -170,6 +171,18 @@ export class BossManager {
         this.phaseBadgeEl.textContent = `${loopPrefix}PHASE 4 • OMNIVERSE`;
         this.phaseBadgeEl.className = 'boss-phase-badge p4';
       }
+    }
+  }
+
+  showHUD() {
+    if (this.hud) {
+      this.hud.style.display = 'block';
+    }
+  }
+
+  hideHUD() {
+    if (this.hud) {
+      this.hud.style.display = 'none';
     }
   }
 
@@ -677,6 +690,16 @@ export class BossManager {
         closeVictory();
         if (this.gameApp.questManager) {
           this.gameApp.questManager.openModal('boss');
+        }
+      };
+    }
+
+    const bossShareBtn = document.getElementById('boss-victory-btn-share');
+    if (bossShareBtn) {
+      bossShareBtn.onclick = (e) => {
+        e.stopPropagation();
+        if (this.gameApp && typeof this.gameApp.shareScore === 'function') {
+          this.gameApp.shareScore();
         }
       };
     }

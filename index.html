@@ -38,11 +38,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./src/style.css?v=6.8.25">
+  <link rel="stylesheet" href="./src/style.css?v=6.8.26">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=6.8.25').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=6.8.26').then(reg => {
           reg.update();
         }).catch(() => {});
       });
@@ -502,17 +502,17 @@
       </div>
 
       <div class="modal-actions">
-        <button id="modal-btn-secondary" class="modal-btn secondary" data-i18n="modal_btn_new_game">
+        <button id="modal-btn-secondary" class="modal-btn secondary">
           <svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
-          <span>Ván mới</span>
+          <span data-i18n="modal_btn_new_game">Ván mới</span>
         </button>
-        <button id="modal-btn-share" class="modal-btn" style="background: linear-gradient(135deg, #00f0ff, #7928ca); color: #fff;" data-i18n="modal_btn_share">
+        <button id="modal-btn-share" class="modal-btn" style="background: linear-gradient(135deg, #00f0ff, #7928ca); color: #fff;">
           <svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
-          <span>Chia sẻ điểm</span>
+          <span data-i18n="modal_btn_share">Chia sẻ điểm</span>
         </button>
-        <button id="modal-btn-primary" class="modal-btn primary" data-i18n="modal_btn_continue">
+        <button id="modal-btn-primary" class="modal-btn primary">
           <svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-          <span>Chơi lại ngay</span>
+          <span data-i18n="modal_btn_continue">Chơi lại ngay</span>
         </button>
       </div>
     </div>
@@ -887,8 +887,12 @@
         <!-- Sub-actions Row -->
         <div class="boss-victory-sub-actions">
           <button id="boss-victory-btn-fireworks" class="modal-btn secondary" style="border-color: #f59e0b; color: #fde047;">
-          <span>🎉 Bắn Pháo Hoa</span>
-        </button>
+            <span>🎉 Bắn Pháo Hoa</span>
+          </button>
+          <button id="boss-victory-btn-share" class="modal-btn secondary" style="border-color: #00f0ff; color: #38bdf8;">
+            <svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+            <span data-i18n="modal_btn_share">Chia sẻ thành tích</span>
+          </button>
         <button id="boss-victory-btn-view-trophy" class="modal-btn secondary" style="border-color: #ef4444; color: #fca5a5;">
           <svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
           <span data-i18n="boss_btn_trophy">Chiêm Ngưỡng Cúp Trảm Thần 3D</span>
@@ -1143,6 +1147,6 @@
   </div>
 
   <!-- Main Game Script -->
-  <script type="module" src="./src/main.js?v=6.8.25"></script>
+  <script type="module" src="./src/main.js?v=6.8.26"></script>
 </body>
 </html>

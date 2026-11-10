@@ -93,24 +93,6 @@ export const DICTIONARY = {
     shape_sphere: 'Sphere',
     shape_portal: 'Nexus',
     shape_auto: 'Tiến Hóa',
-    shape_cosmic: '우주 천체',
-    shape_black_hole: '블랙홀',
-    shape_saturn: '토성 고리',
-    shape_pulsar: '펄서 항성',
-    shape_magma: '마그마 행성',
-    shape_asteroid: '소행성',
-    shape_cosmic: '宇宙天体',
-    shape_black_hole: 'ブラックホール',
-    shape_saturn: '土星リング',
-    shape_pulsar: 'パルサー星',
-    shape_magma: 'マグマ惑星',
-    shape_asteroid: '小惑星',
-    shape_cosmic: 'Cosmic',
-    shape_black_hole: 'Black Hole',
-    shape_saturn: 'Saturn',
-    shape_pulsar: 'Pulsar',
-    shape_magma: 'Magma',
-    shape_asteroid: 'Asteroid',
     shape_cosmic: 'Thiên Thể',
     shape_black_hole: 'Hố Đen',
     shape_saturn: 'Sao Thổ',
@@ -205,7 +187,7 @@ export const DICTIONARY = {
     welcome_device_mobile: 'Trên điện thoại & máy tính bảng',
     welcome_pc_tip1: 'Phím W / A / S / D hoặc phím mũi tên: Trượt dồn khối số',
     welcome_pc_tip2: 'Phím Q / E: Đổi tầng lên hoặc xuống (chế độ 3x3x3)',
-    welcome_pc_tip3: 'Giữ chuột trái và kéo: Xoay tự do góc nhìn bàn cờ 3D',
+    welcome_pc_tip3: 'Giữ chuột phải và kéo: Xoay tự do góc nhìn bàn cờ 3D (Chuột trái kéo gộp khối)',
     welcome_pc_tip4: 'Phím H: Gợi ý • Phím Z: Đi lại • Phím X: Đổi vị trí',
     welcome_mobile_tip1: 'Vuốt 1 ngón tay: Trượt dồn các khối số',
     welcome_mobile_tip2: 'Chạm 2 ngón tay: Di chuyển vị trí & đổi góc nhìn 3D',
@@ -421,6 +403,12 @@ export const DICTIONARY = {
     shape_sphere: 'Sphere',
     shape_portal: 'Nexus',
     shape_auto: 'Evolution',
+    shape_cosmic: 'Cosmic',
+    shape_black_hole: 'Black Hole',
+    shape_saturn: 'Saturn Rings',
+    shape_pulsar: 'Pulsar Star',
+    shape_magma: 'Magma Planet',
+    shape_asteroid: 'Asteroid',
 
     // Themes
     theme_group_minimal: 'Gentle & Minimalist Aesthetic',
@@ -706,6 +694,12 @@ export const DICTIONARY = {
     shape_sphere: 'Sphere',
     shape_portal: 'Nexus',
     shape_auto: '形状進化',
+    shape_cosmic: '宇宙天体',
+    shape_black_hole: 'ブラックホール',
+    shape_saturn: '土星リング',
+    shape_pulsar: 'パルサー星',
+    shape_magma: 'マグマ惑星',
+    shape_asteroid: '小惑星',
 
     // Themes
     theme_group_minimal: '優しいミニマリズム様式',
@@ -992,6 +986,12 @@ export const DICTIONARY = {
     shape_sphere: 'Sphere',
     shape_portal: 'Nexus',
     shape_auto: '진화',
+    shape_cosmic: '우주 천체',
+    shape_black_hole: '블랙홀',
+    shape_saturn: '토성 고리',
+    shape_pulsar: '펄서 항성',
+    shape_magma: '마그마 행성',
+    shape_asteroid: '소행성',
 
     // Themes
     theme_group_minimal: '평온한 미니멀리즘 스타일',
@@ -1214,10 +1214,11 @@ export const DICTIONARY = {
 
 class I18nManager {
   constructor() {
-    this.currentLang = localStorage.getItem('3d2048_lang') || 'vi';
-    if (!DICTIONARY[this.currentLang]) {
-      this.currentLang = 'vi';
-    }
+    let savedLang = 'vi';
+    try {
+      savedLang = localStorage.getItem('3d2048_lang') || 'vi';
+    } catch {}
+    this.currentLang = DICTIONARY[savedLang] ? savedLang : 'vi';
   }
 
   getLanguage() {
@@ -1248,12 +1249,30 @@ class I18nManager {
   }
 
   applyToDOM() {
-    // 1. Text elements
+    // 1. Text elements (Preserve SVG icons inside buttons & complex components)
     document.querySelectorAll('[data-i18n]').forEach(el => {
       const key = el.getAttribute('data-i18n');
       const val = this.t(key);
       if (val !== undefined && val !== '') {
-        el.textContent = val;
+        const textSpan = el.querySelector('.btn-text') || el.querySelector('span');
+        if (textSpan) {
+          textSpan.textContent = val;
+        } else if (el.querySelector('svg')) {
+          let updated = false;
+          el.childNodes.forEach(n => {
+            if (n.nodeType === Node.TEXT_NODE && n.textContent.trim().length > 0) {
+              n.textContent = ' ' + val;
+              updated = true;
+            }
+          });
+          if (!updated) {
+            const span = document.createElement('span');
+            span.textContent = ' ' + val;
+            el.appendChild(span);
+          }
+        } else {
+          el.textContent = val;
+        }
       }
     });
 

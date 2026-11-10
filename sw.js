@@ -1,4 +1,4 @@
-const CACHE_NAME = 'v6.8.24-vercel-runtime-guard';
+const CACHE_NAME = '3d-2048-v6.8.26';
 const CACHE_URLS = [
   './',
   './index.html',
@@ -65,7 +65,7 @@ self.addEventListener('fetch', (event) => {
         return networkResponse;
       })
       .catch(async () => {
-        const cached = await caches.match(event.request);
+        const cached = await caches.match(event.request, { ignoreSearch: true });
         if (cached) return cached;
         if (event.request.mode === 'navigate') {
           return (await caches.match('./index.html')) || (await caches.match('.'));

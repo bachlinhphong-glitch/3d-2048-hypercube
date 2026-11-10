@@ -330,7 +330,7 @@ export class Tile3D {
       coreMesh.scale.set(radius * 0.48, radius * 0.48, radius * 0.48);
       this.decorGroup.add(coreMesh);
 
-      const lineMat = textureManager.getOctahedronLineMaterial(this.isBomb);
+      const lineMat = textureManager.getOctahedronLineMaterial(this.value, this.isBomb);
       const lines = new THREE.LineSegments(edges, lineMat.clone());
       lines.scale.set(radius * 1.002, radius * 1.002, radius * 1.002);
       this.decorGroup.add(lines);
@@ -387,7 +387,7 @@ export class Tile3D {
       this.decorGroup.add(coreMesh);
 
       // Wireframe neon edge lines
-      const lineMat = textureManager.getOctahedronLineMaterial(this.isBomb);
+      const lineMat = textureManager.getOctahedronLineMaterial(this.value, this.isBomb);
       const lines = new THREE.LineSegments(edges, lineMat.clone());
       lines.scale.set(radius * 1.002, h * 1.002, radius * 1.002);
       this.decorGroup.add(lines);
@@ -411,7 +411,7 @@ export class Tile3D {
       this.decorGroup.add(coreMesh);
 
       // Wireframe neon edges
-      const lineMat = textureManager.getOctahedronLineMaterial(this.isBomb);
+      const lineMat = textureManager.getOctahedronLineMaterial(this.value, this.isBomb);
       const lines = new THREE.LineSegments(edges, lineMat.clone());
       lines.rotation.y = Math.PI / 4;
       lines.scale.set(radius * 1.002, h * 1.002, radius * 1.002);
@@ -433,7 +433,7 @@ export class Tile3D {
       this.decorGroup.add(coreMesh);
 
       // Faceted glittering wireframe lines
-      const lineMat = textureManager.getOctahedronLineMaterial(this.isBomb);
+      const lineMat = textureManager.getOctahedronLineMaterial(this.value, this.isBomb);
       const lines = new THREE.LineSegments(edges, lineMat.clone());
       lines.scale.set(radius * 1.002, radius * 1.002, radius * 1.002);
       this.decorGroup.add(lines);
@@ -692,7 +692,7 @@ export class Tile3D {
 
   addBillboardLabel(size) {
     const spriteMat = textureManager.getBillboardMaterial(this.value, this.isBomb, this.bombCountdown);
-    this.labelSprite = new THREE.Sprite(spriteMat);
+    this.labelSprite = new THREE.Sprite(spriteMat.clone());
     this.labelSprite.scale.set(size * 0.9, size * 0.9, 1);
     this.labelSprite.position.set(0, 0, 0);
     this.labelSprite.renderOrder = 999;
