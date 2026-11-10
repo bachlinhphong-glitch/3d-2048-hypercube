@@ -16,6 +16,7 @@ import { QuestManager } from './questManager.js';
 import { createChampionsTrophyMesh, createBossTrophyMesh } from './trophy.js';
 export const SHAPE_NAMES = {
   auto_evolution: 'Tiến Hóa',
+  auto: 'Tiến Hóa',
   rounded_cube: 'Cube',
   prism_triangle: 'Prism',
   hex_prism: 'Hex',
@@ -37,11 +38,36 @@ export const SHAPE_NAMES = {
 };
 
 
+export const SHAPE_I18N_KEYS = {
+  auto_evolution: 'shape_auto',
+  auto: 'shape_auto',
+  rounded_cube: 'shape_cube',
+  prism_triangle: 'shape_triangle',
+  hex_prism: 'shape_hex',
+  cyber_pyramid: 'shape_pyramid',
+  crystal_octahedron: 'shape_octahedron',
+  star_dodecahedron: 'shape_dodecahedron',
+  stellar_icosahedron: 'shape_icosahedron',
+  chrono_capsule: 'shape_capsule',
+  plasma_torus: 'shape_torus',
+  quantum_knot: 'shape_knot',
+  core_sphere: 'shape_sphere',
+  portal_nexus: 'shape_portal',
+  cosmic_evolution: 'shape_cosmic',
+  black_hole: 'shape_black_hole',
+  saturn_rings: 'shape_saturn',
+  pulsar_star: 'shape_pulsar',
+  magma_planet: 'shape_magma',
+  asteroid: 'shape_asteroid'
+};
+
 class GameApp {
   constructor() {
     this.container = document.getElementById('canvas-container');
     this.mode = localStorage.getItem('3d2048_last_mode') || '4x4';
-    this.currentShape = localStorage.getItem('3d2048_shape') || 'auto_evolution';
+    let savedShape = localStorage.getItem('3d2048_shape') || 'auto_evolution';
+    if (savedShape === 'auto') savedShape = 'auto_evolution';
+    this.currentShape = savedShape;
     
     // Theme preference: 'system' by default (auto sync with browser/OS), or user choice
     this.themePreference = localStorage.getItem('3d2048_theme_pref') || 'system';
@@ -632,7 +658,9 @@ class GameApp {
     const shapeTriggerLabel = document.getElementById('shape-trigger-label');
 
     if (shapeTriggerLabel) {
-      shapeTriggerLabel.textContent = SHAPE_NAMES[this.currentShape] || 'Auto';
+      const shapeKey = SHAPE_I18N_KEYS[this.currentShape] || 'shape_auto';
+      shapeTriggerLabel.setAttribute('data-i18n', shapeKey);
+      shapeTriggerLabel.textContent = (shapeKey ? t(shapeKey) : null) || SHAPE_NAMES[this.currentShape] || t('shape_auto') || 'Tiến Hóa';
     }
 
     if (shapeTriggerBtn && shapeGlassMenu) {
@@ -1015,9 +1043,9 @@ class GameApp {
         magma_planet: 'shape_magma',
         asteroid: 'shape_asteroid'
       };
-      const key = i18nKeyMap[newShape];
+      const key = SHAPE_I18N_KEYS[newShape] || 'shape_auto';
       if (key) shapeTriggerLabel.setAttribute('data-i18n', key);
-      shapeTriggerLabel.textContent = (key ? t(key) : null) || SHAPE_NAMES[newShape] || 'Auto';
+      shapeTriggerLabel.textContent = (key ? t(key) : null) || SHAPE_NAMES[newShape] || t('shape_auto') || 'Tiến Hóa';
     }
     const shapeGlassMenu = document.getElementById('shape-glass-menu');
     if (shapeGlassMenu) {

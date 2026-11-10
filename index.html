@@ -38,11 +38,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./src/style.css?v=6.8.27">
+  <link rel="stylesheet" href="./src/style.css?v=6.8.28">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=6.8.27').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=6.8.28').then(reg => {
           reg.update();
         }).catch(() => {});
       });
@@ -983,9 +983,9 @@
           <div class="settings-theme-group">
             <select id="select-theme" class="settings-select">
               <optgroup label="Giao Diện Tối Giản & Hiền Hòa" data-i18n-label="theme_group_minimal">
-                <option value="system" data-i18n="theme_system">Tự động theo trình duyệt (Sáng / Tối)</option>
-                <option value="gentle_light" data-i18n="theme_gentle_light">Sáng Hiền Hòa (Warm Linen & Sand)</option>
-                <option value="gentle_dark" data-i18n="theme_gentle_dark">Tối Hiền Hòa (Warm Espresso Velvet)</option>
+                <option value="system" data-i18n="theme_system">Tự động (Sáng / Tối)</option>
+                <option value="gentle_light" data-i18n="theme_gentle_light">Sáng Hiền Hòa (Linen)</option>
+                <option value="gentle_dark" data-i18n="theme_gentle_dark">Tối Hiền Hòa (Espresso)</option>
               </optgroup>
               <optgroup label="Không gian Procedural 3D" data-i18n-label="theme_group_procedural">
                 <option value="galaxy" selected data-i18n="theme_galaxy">Vũ Trụ Tinh Vân</option>
@@ -1013,7 +1013,7 @@
         <div class="settings-row">
           <label class="settings-label" data-i18n="setting_graphics">Chất lượng đồ họa & FPS</label>
           <select id="select-graphics" class="settings-select">
-            <option value="high" data-i18n="graphics_high">Siêu nét (120 FPS / Retina)</option>
+            <option value="high" data-i18n="graphics_high">Siêu nét (120 FPS)</option>
             <option value="medium" selected data-i18n="graphics_medium">Cân bằng (60 FPS / Mượt)</option>
             <option value="low" data-i18n="graphics_low">Tiết kiệm pin (30 FPS)</option>
           </select>
@@ -1043,7 +1043,7 @@
         <div class="settings-row">
           <label class="settings-label" data-i18n="setting_dpad">Phím ảo D-Pad</label>
           <select id="select-dpad" class="settings-select">
-            <option value="auto" selected data-i18n="dpad_auto">Tự động (Theo thiết bị)</option>
+            <option value="auto" selected data-i18n="dpad_auto">Tự động (Thiết bị)</option>
             <option value="visible" data-i18n="dpad_visible">Luôn hiện</option>
             <option value="hidden" data-i18n="dpad_hidden">Luôn ẩn</option>
           </select>
@@ -1147,6 +1147,6 @@
   </div>
 
   <!-- Main Game Script -->
-  <script type="module" src="./src/main.js?v=6.8.27"></script>
+  <script type="module" src="./src/main.js?v=6.8.28"></script>
 </body>
 </html>
