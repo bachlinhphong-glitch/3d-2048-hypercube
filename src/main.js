@@ -999,7 +999,7 @@ class GameApp {
 
     // Reset slice mode
     this._sliceCycleIdx = 0;
-    this.sliceMode = 'all';
+    this.setSliceMode('all');
 
     if (this.sceneManager && this.sceneManager.requestShadowUpdate) this.sceneManager.requestShadowUpdate(30);
     this.startNewGame(true);
@@ -3186,8 +3186,6 @@ class GameApp {
           if (this.particleSystem && this.particleSystem.supernovaBurst) {
             this.particleSystem.supernovaBurst(pos.x, pos.y + 0.25, pos.z, m.newValue, this.sceneManager.camera);
           }
-        } else if (m.newValue >= 64) {
-          this.particleSystem.screenShake(this.sceneManager.camera, 0.12);
         }
         if (this.isBossRaid && this.bossManager) {
           this.bossManager.onTileMerge(m.newValue, { l: m.targetL, r: m.targetR, c: m.targetC });
@@ -3231,8 +3229,6 @@ class GameApp {
           if (this.particleSystem && this.particleSystem.supernovaBurst) {
             this.particleSystem.supernovaBurst(pos.x, pos.y + 0.25, pos.z, m.newValue, this.sceneManager.camera);
           }
-        } else if (m.newValue >= 64) {
-          this.particleSystem.screenShake(this.sceneManager.camera, 0.12);
         }
         if (this.isBossRaid && this.bossManager) {
           this.bossManager.onTileMerge(m.newValue, { l: m.targetL, r: m.targetR, c: m.targetC });
@@ -3604,11 +3600,21 @@ class GameApp {
       return;
     }
 
-    const res = this.gameLogic.getBestMove();
-    if (!res || !res.direction) {
+    let bestDir = null;
+    if (this.aiBot && typeof this.aiBot.findBestMove === 'function') {
+      bestDir = this.aiBot.findBestMove();
+    }
+    if (!bestDir) {
+      const res = this.gameLogic.getBestMove();
+      bestDir = res ? res.direction : null;
+    } else {
+      this.gameLogic.useHint();
+    }
+    if (!bestDir) {
       this.showSpellToast('Không tìm thấy nước đi tối ưu!');
       return;
     }
+    const res = { direction: bestDir };
 
     soundManager.playSpellHint();
     if (this.questManager) {

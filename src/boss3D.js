@@ -1004,6 +1004,7 @@ export class Boss3DController {
     } else if (this.currentPhase === 3) {
       this.setPhase(4, true);
     } else if (this.currentPhase === 4) {
+      this.currentPhase = 1;
       this.playBigBangExplosion(() => {
         this.setPhase(1, true);
       });

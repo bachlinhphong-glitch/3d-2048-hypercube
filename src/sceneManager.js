@@ -28,7 +28,9 @@ export class SceneManager {
     this.initThemeDecorations();
     this.setTheme(this.theme);
     this.initControls();
-    this.setGraphicsQuality(localStorage.getItem('3d2048_graphics_quality') || 'medium');
+    let savedGraphics = 'medium';
+    try { savedGraphics = localStorage.getItem('3d2048_graphics_quality') || 'medium'; } catch {}
+    this.setGraphicsQuality(savedGraphics);
     this.handleResize();
 
     window.addEventListener('resize', () => this.handleResize());
@@ -926,8 +928,8 @@ export class SceneManager {
   }
 
   handleResize() {
-    const width = this.container.clientWidth;
-    const height = this.container.clientHeight;
+    const width = Math.max(1, this.container.clientWidth || window.innerWidth || 1);
+    const height = Math.max(1, this.container.clientHeight || window.innerHeight || 1);
     const aspect = width / height;
     this.camera.aspect = aspect;
 
@@ -956,7 +958,10 @@ export class SceneManager {
     this.camera.updateProjectionMatrix();
 
     // Hardware graphics quality level ('low' = 1.0x, 'medium' = 1.75x, 'high' = 2.25x Retina)
-    const level = this.graphicsQuality || localStorage.getItem('3d2048_graphics_quality') || 'medium';
+    let level = this.graphicsQuality;
+    if (!level) {
+      try { level = localStorage.getItem('3d2048_graphics_quality') || 'medium'; } catch { level = 'medium'; }
+    }
     let targetDPR = 1.5;
     if (level === 'low') targetDPR = 1.0;
     else if (level === 'high') targetDPR = Math.min(window.devicePixelRatio || 1, 2.25);

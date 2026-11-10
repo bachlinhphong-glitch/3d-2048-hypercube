@@ -582,6 +582,10 @@ export class Game2048Logic {
     if (previous.nextRechargeMilestone) {
       this.nextRechargeMilestone = previous.nextRechargeMilestone;
     }
+    if (previous.spells) {
+      if (previous.spells.hint) this.spells.hint = { ...previous.spells.hint };
+      if (previous.spells.swap) this.spells.swap = { ...previous.spells.swap };
+    }
     this.gameOver = false;
     return {
       success: true,
@@ -599,10 +603,11 @@ export class Game2048Logic {
     if (!this.canSwap()) return false;
     if (posA.l === posB.l && posA.r === posB.r && posA.c === posB.c) return false;
 
-    this.saveSnapshot();
+    const tileA = this.grid[posA.l]?.[posA.r]?.[posA.c];
+    const tileB = this.grid[posB.l]?.[posB.r]?.[posB.c];
+    if (!tileA || !tileB) return false;
 
-    const tileA = this.grid[posA.l][posA.r][posA.c];
-    const tileB = this.grid[posB.l][posB.r][posB.c];
+    this.saveSnapshot();
 
     this.grid[posA.l][posA.r][posA.c] = tileB;
     this.grid[posB.l][posB.r][posB.c] = tileA;
@@ -673,10 +678,11 @@ export class Game2048Logic {
             newGrid[nextL][nextR][nextC].value === tile.value &&
             !mergedGrid[nextL][nextR][nextC]
           ) {
+            const prevOrigPos = newGrid[nextL][nextR][nextC]._origPos || { l: nextL, r: nextR, c: nextC };
             const newValue = tile.value * 2;
             scoreAdded += newValue;
             mergedGrid[nextL][nextR][nextC] = true;
-            newGrid[nextL][nextR][nextC] = { ...tile, value: newValue };
+            newGrid[nextL][nextR][nextC] = { ...tile, value: newValue, _origPos: prevOrigPos };
             moved = true;
 
             if (trackMovements) {
@@ -688,7 +694,7 @@ export class Game2048Logic {
               });
 
               merges.push({
-                from1: newGrid[nextL][nextR][nextC]._origPos || { l: nextL, r: nextR, c: nextC },
+                from1: prevOrigPos,
                 from2: { l, r, c },
                 to: { l: nextL, r: nextR, c: nextC },
                 value: newValue

@@ -32,7 +32,7 @@ export function getGridPosition(layer, row, col) {
     const pitch = 2.05;
     const yPitch = 2.05 * layerSpacingMultiplier;
     const x = (col - 1) * pitch;
-    const y = (layer - 1) * yPitch + 2.4;
+    const y = 0.35 + layer * yPitch;
     const z = (row - 1) * pitch;
     return { x, y, z };
   } else {
@@ -252,21 +252,30 @@ export class Board {
       opacity: 0.45,
       linewidth: 2
     });
-    const outerLines = new THREE.LineSegments(outerEdges, outerLineMat);
-    outerLines.position.set(0, 2.4, 0);
-    this.group.add(outerLines);
+    this.outerLines = new THREE.LineSegments(outerEdges, outerLineMat);
+    this.outerLines.position.set(0, 2.4, 0);
+    this.group.add(this.outerLines);
 
-    // 3. Merged 27 Subtle Transparent Cell Cages in 1 single draw call
+    // 3. Layer Cages (3 synchronized groups, 1 per layer, so wireframes follow exploded view)
     const h = 0.8;
-    const vertices = new Float32Array(27 * 72);
-    let vOffset = 0;
+    this.layerCages = [];
+    this.layerPlanes = [];
+    const cellLineMat = new THREE.LineBasicMaterial({
+      color: 0x4f709c,
+      transparent: true,
+      opacity: 0.22
+    });
 
     for (let l = 0; l < 3; l++) {
+      const vertices = new Float32Array(9 * 72);
+      let vOffset = 0;
+
       for (let r = 0; r < 3; r++) {
         for (let c = 0; c < 3; c++) {
-          const { x: cx, y: cy, z: cz } = getGridPosition(l, r, c);
+          const cx = (c - 1) * pitch;
+          const cz = (r - 1) * pitch;
           const x0 = cx - h, x1 = cx + h;
-          const y0 = cy - h, y1 = cy + h;
+          const y0 = -h, y1 = h;
           const z0 = cz - h, z1 = cz + h;
 
           const segs = [
@@ -291,21 +300,16 @@ export class Board {
           vOffset += 72;
         }
       }
-    }
 
-    const mergedCagesGeo = new THREE.BufferGeometry();
-    mergedCagesGeo.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
-    const cellLineMat = new THREE.LineBasicMaterial({
-      color: 0x4f709c,
-      transparent: true,
-      opacity: 0.22
-    });
-    const mergedCages = new THREE.LineSegments(mergedCagesGeo, cellLineMat);
-    this.group.add(mergedCages);
+      const layerCageGeo = new THREE.BufferGeometry();
+      layerCageGeo.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+      const layerCage = new THREE.LineSegments(layerCageGeo, cellLineMat);
+      const layerY = 0.35 + l * (pitch * layerSpacingMultiplier);
+      layerCage.position.set(0, layerY, 0);
+      this.layerCages.push(layerCage);
+      this.group.add(layerCage);
 
-    // 4. Layer Separation Guides (Faint glowing planes)
-    this.layerPlanes = [];
-    for (let l = 0; l < 3; l++) {
+      // 4. Layer Separation Guides (Faint glowing planes)
       const planeGeo = new THREE.PlaneGeometry(cubeSpan - 0.2, cubeSpan - 0.2);
       const planeMat = new THREE.MeshBasicMaterial({
         color: l === 1 ? 0x00f0ff : 0x7928ca,
@@ -315,19 +319,25 @@ export class Board {
       });
       const plane = new THREE.Mesh(planeGeo, planeMat);
       plane.rotation.x = -Math.PI / 2;
-      const y = (l - 1) * pitch * layerSpacingMultiplier + 2.4 - 0.8;
-      plane.position.set(0, y, 0);
+      plane.position.set(0, layerY - 0.8, 0);
       this.layerPlanes.push(plane);
       this.group.add(plane);
     }
   }
 
   updateExplodedPlanes(mult) {
-    if (!this.layerPlanes || this.layerPlanes.length === 0) return;
     const pitch = 2.05;
-    for (let l = 0; l < this.layerPlanes.length; l++) {
-      const y = (l - 1) * pitch * mult + 2.4 - 0.8;
-      this.layerPlanes[l].position.y = y;
+    for (let l = 0; l < 3; l++) {
+      const layerY = 0.35 + l * (pitch * mult);
+      if (this.layerCages && this.layerCages[l]) {
+        this.layerCages[l].position.y = layerY;
+      }
+      if (this.layerPlanes && this.layerPlanes[l]) {
+        this.layerPlanes[l].position.y = layerY - 0.8;
+      }
+    }
+    if (this.outerLines) {
+      this.outerLines.visible = (mult <= 1.1);
     }
   }
 
@@ -342,5 +352,7 @@ export class Board {
       }
     }
     this.layerPlanes = [];
+    this.layerCages = [];
+    this.outerLines = null;
   }
 }

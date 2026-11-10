@@ -132,10 +132,24 @@ export class ParticleSystem {
     }
   }
 
-  // Camera screen shake for impactful big merges
+  // Camera screen shake for impactful big merges with zero camera drift
   screenShake(camera, intensity = 0.22) {
+    if (!camera) return;
+    if (this._shakeTimeline) {
+      this._shakeTimeline.progress(1);
+      this._shakeTimeline.kill();
+      this._shakeTimeline = null;
+    }
     const originalPos = camera.position.clone();
-    const timeline = gsap.timeline();
+    const timeline = gsap.timeline({
+      onComplete: () => {
+        camera.position.copy(originalPos);
+        if (this._shakeTimeline === timeline) {
+          this._shakeTimeline = null;
+        }
+      }
+    });
+    this._shakeTimeline = timeline;
 
     for (let i = 0; i < 4; i++) {
       const offsetX = (Math.random() - 0.5) * intensity;

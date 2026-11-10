@@ -2,6 +2,19 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
+  <!-- Import Map for ES Modules pointing to ./libs/ -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./libs/three.module.js",
+      "three/addons/controls/OrbitControls.js": "./libs/controls/OrbitControls.js",
+      "three/addons/geometries/RoundedBoxGeometry.js": "./libs/geometries/RoundedBoxGeometry.js",
+      "three/addons/": "./libs/",
+      "three/examples/jsm/": "./libs/",
+      "gsap": "./libs/gsap.module.js"
+    }
+  }
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0d1117">
   <meta name="color-scheme" content="dark">
@@ -38,36 +51,26 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./src/style.css?v=6.8.28">
+  <link rel="stylesheet" href="./src/style.css?v=6.8.29">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=6.8.28').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=6.8.29').then(reg => {
           reg.update();
         }).catch(() => {});
       });
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!sessionStorage.getItem('sw_reloaded_6824')) {
-          sessionStorage.setItem('sw_reloaded_6824', '1');
-          window.location.reload();
-        }
+        try {
+          if (!sessionStorage.getItem('sw_reloaded_6828')) {
+            sessionStorage.setItem('sw_reloaded_6828', '1');
+            window.location.reload();
+          }
+        } catch {}
       });
     }
   </script>
 
-  <!-- Import Map for ES Modules pointing to ./libs/ -->
-  <script type="importmap">
-  {
-    "imports": {
-      "three": "./libs/three.module.js",
-      "three/addons/controls/OrbitControls.js": "./libs/controls/OrbitControls.js",
-      "three/addons/geometries/RoundedBoxGeometry.js": "./libs/geometries/RoundedBoxGeometry.js",
-      "three/addons/": "./libs/",
-      "three/examples/jsm/": "./libs/",
-      "gsap": "./libs/gsap.module.js"
-    }
-  }
-  </script>
+
 </head>
 <body class="theme-galaxy">
   <!-- 3D WebGL Canvas Container -->
@@ -1147,6 +1150,6 @@
   </div>
 
   <!-- Main Game Script -->
-  <script type="module" src="./src/main.js?v=6.8.28"></script>
+  <script type="module" src="./src/main.js?v=6.8.29"></script>
 </body>
 </html>
