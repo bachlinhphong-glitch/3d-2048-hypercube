@@ -25,6 +25,25 @@ export class InputManager {
     this.enabled = val;
   }
 
+  isBlockedByUI() {
+    // 1. If user is currently typing in an input, select or textarea
+    const activeEl = document.activeElement;
+    if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'SELECT' || activeEl.tagName === 'TEXTAREA')) {
+      return true;
+    }
+
+    // 2. If any modal is open via GameApp
+    if (window.gameApp && typeof window.gameApp.isAnyModalOpen === 'function') {
+      return window.gameApp.isAnyModalOpen();
+    }
+
+    // 3. Fallback DOM check for active modal overlays
+    const activeModal = document.querySelector(
+      '.settings-modal-overlay.active, .welcome-modal-overlay.active, .trophy-modal-overlay.active, .mode-confirm-modal-overlay.active, .share-modal-overlay.active, .boss-victory-modal-overlay.active, .modal-overlay.active'
+    );
+    return Boolean(activeModal);
+  }
+
   bindEvents() {
     // 1. Keyboard Controls (Arrow keys, WASD, E/Q for 3D Hypercube Layers, Spell Hotkeys)
     window.addEventListener('keydown', (e) => {
