@@ -1,4 +1,4 @@
-const CACHE_NAME = '3d-2048-v6.8.32';
+const CACHE_NAME = '3d-2048-v6.8.33';
 const CACHE_URLS = [
   './',
   './index.html',

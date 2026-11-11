@@ -1444,7 +1444,7 @@ class GameApp {
     }
     if (this.rushToggleBtn) {
       const textEl = this.rushToggleBtn.querySelector('.btn-text');
-      if (textEl) textEl.textContent = t('btn_rush') || 'Đua giờ';
+      if (textEl) textEl.textContent = t('btn_rush') || 'RUSH';
     }
   }
 
@@ -2987,17 +2987,17 @@ class GameApp {
     const isRush = this.isRushMode;
 
     let icon = '⚡';
-    let title = isRestoring ? (t('welcome_back') || 'CHÀO MỪNG TRỞ LẠI!') : (t('game_ready_callout') || 'BẮT ĐẦU VÁN MỚI!');
-    let sub = is3D ? (t('mode_3x3x3') || '3x3x3 Đa Tầng Không Gian') : (t('game_ready_sub') || 'Vuốt để gộp khối & phá vỡ kỷ lục');
+    let title = isRestoring ? (t('welcome_back') || 'TRỞ LẠI') : (t('game_ready_callout') || 'SẴN SÀNG');
+    let sub = is3D ? (t('mode_3x3x3') || '3x3x3 Khối 3D') : (t('game_ready_sub') || 'Vuốt để gộp số');
 
     if (isBoss) {
       icon = '⚔️';
-      title = 'CHIẾN DỊCH HƯ KHÔNG • VOID RAID';
-      sub = 'Thanh trừng 4 Dạng thức Thực Thể Hư Không';
+      title = 'BOSS RAID';
+      sub = '4 Phase';
     } else if (isRush) {
       icon = '⚡';
-      title = 'CHẾ ĐỘ ĐUA GIỜ • TIME RUSH';
-      sub = 'Duy trì nhịp xung kích & bứt phá giới hạn';
+      title = 'TIME RUSH';
+      sub = 'Chạy đua 30s';
     }
 
     toast.innerHTML = `
