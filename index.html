@@ -1012,12 +1012,12 @@
           </div>
         </div>
 
-        <!-- 6. Đồ họa & FPS (Graphics Quality & FPS) -->
+        <!-- 6. Độ mượt & Tốc độ khung hình (Smoothness & Frame Rate) -->
         <div class="settings-row">
-          <label class="settings-label" data-i18n="setting_graphics">Chất lượng đồ họa & FPS</label>
+          <label class="settings-label" data-i18n="setting_graphics">Độ mượt & Tốc độ khung hình</label>
           <select id="select-graphics" class="settings-select">
-            <option value="high" data-i18n="graphics_high">Siêu nét (120 FPS)</option>
-            <option value="medium" selected data-i18n="graphics_medium">Cân bằng (60 FPS / Mượt)</option>
+            <option value="high" data-i18n="graphics_high">Cực mượt (120 FPS)</option>
+            <option value="medium" selected data-i18n="graphics_medium">Cân bằng (60 FPS)</option>
             <option value="low" data-i18n="graphics_low">Tiết kiệm pin (30 FPS)</option>
           </select>
           <select id="select-fps" style="display:none">
@@ -1035,11 +1035,21 @@
               <svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
               <span id="label-sfx" data-i18n="btn_sfx">SFX</span>
             </button>
-            <button id="btn-bgm-toggle" class="glass-btn audio-btn" title="Bật/Tắt Nhạc nền Lofi Ambient">
+            <button id="btn-bgm-toggle" class="glass-btn audio-btn" title="Bật/Tắt Nhạc nền Lofi Chill">
               <svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
               <span id="label-bgm" data-i18n="btn_bgm">Nhạc nền</span>
             </button>
           </div>
+        </div>
+
+        <!-- 8. Giai điệu Chill (BGM Track Selector) -->
+        <div class="settings-row" id="row-bgm-track">
+          <label class="settings-label" data-i18n="setting_bgm_track">Giai điệu Chill</label>
+          <select id="select-bgm-track" class="settings-select">
+            <option value="0" selected data-i18n="bgm_track_0">☕ Midnight Coffee (Lo-Fi Jazz)</option>
+            <option value="1" data-i18n="bgm_track_1">🌌 Cosmic Drift (Ambient Chill)</option>
+            <option value="2" data-i18n="bgm_track_2">🎋 Zen Garden (Mưa & Chuông trúc)</option>
+          </select>
         </div>
 
         <!-- 8. Phím ảo D-Pad (Virtual Controls) -->
@@ -1150,6 +1160,6 @@
   </div>
 
   <!-- Main Game Script -->
-  <script type="module" src="./src/main.js?v=6.8.31"></script>
+  <script type="module" src="./src/main.js?v=6.8.32"></script>
 </body>
 </html>

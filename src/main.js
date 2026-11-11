@@ -521,7 +521,26 @@ class GameApp {
         if (bgmLabel) bgmLabel.textContent = isPlaying ? t('btn_bgm_on') : t('btn_bgm_off');
         bgmBtn.classList.toggle('active', isPlaying);
         localStorage.setItem('3d2048_bgm', isPlaying ? 'true' : 'false');
-        this.showSpellToast(isPlaying ? `🎵 ${t('btn_bgm')}: ON` : `🔇 ${t('btn_bgm')}: OFF`);
+        if (isPlaying) {
+          const track = soundManager.getBGMTrack();
+          const trackKey = `bgm_track_${track.id}`;
+          const trackName = t(trackKey) || track.name;
+          this.showSpellToast(`🎵 ${t('btn_bgm')}: ON (${trackName})`);
+        } else {
+          this.showSpellToast(`🔇 ${t('btn_bgm')}: OFF`);
+        }
+        this.registerInteraction();
+      });
+    }
+
+    const bgmTrackSelect = document.getElementById('select-bgm-track');
+    if (bgmTrackSelect) {
+      bgmTrackSelect.value = soundManager.currentBgmTrack.toString();
+      bgmTrackSelect.addEventListener('change', (e) => {
+        const track = soundManager.setBGMTrack(parseInt(e.target.value, 10));
+        const trackKey = `bgm_track_${track.id}`;
+        const trackName = t(trackKey) || track.name;
+        this.showSpellToast(`🎵 ${t('setting_bgm_track') || 'Giai điệu'}: ${trackName}`);
         this.registerInteraction();
       });
     }

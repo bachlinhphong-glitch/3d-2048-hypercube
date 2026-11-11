@@ -1,4 +1,71 @@
 // Procedural Web Audio API sound generator for 3D 2048 & Hypercube
+export const BGM_TRACKS = [
+  {
+    id: 0,
+    name: '☕ Midnight Coffee',
+    genre: 'Lo-Fi Jazz Rhodes',
+    tempo: 70,
+    stepDuration: 4.6,
+    filterFreq: 850,
+    filterQ: 1.1,
+    hasVinyl: true,
+    chords: [
+      // Dmaj9 (Warm Neo-Soul)
+      { bass: 73.42, notes: [146.83, 185.00, 220.00, 277.18, 329.63], melody: [369.99, 440.00, 554.37, 659.25] },
+      // F#m7(11)
+      { bass: 92.50, notes: [138.59, 185.00, 220.00, 277.18, 329.63, 493.88], melody: [440.00, 554.37, 739.99] },
+      // Bm9
+      { bass: 61.74, notes: [123.47, 146.83, 185.00, 220.00, 277.18], melody: [293.66, 369.99, 440.00, 587.33] },
+      // Gmaj7(9)
+      { bass: 49.00, notes: [98.00, 146.83, 185.00, 220.00, 246.94], melody: [329.63, 369.99, 440.00, 493.88] },
+      // Em9
+      { bass: 82.41, notes: [130.81, 164.81, 196.00, 246.94, 293.66, 369.99], melody: [329.63, 440.00, 493.88] },
+      // A13(sus)
+      { bass: 55.00, notes: [110.00, 164.81, 196.00, 277.18, 369.99], melody: [329.63, 440.00, 554.37] }
+    ]
+  },
+  {
+    id: 1,
+    name: '🌌 Cosmic Drift',
+    genre: 'Ambient Chill Dreamscape',
+    tempo: 56,
+    stepDuration: 5.4,
+    filterFreq: 1150,
+    filterQ: 0.8,
+    hasVinyl: false,
+    chords: [
+      // Asus2
+      { bass: 55.00, notes: [110.00, 164.81, 220.00, 246.94, 329.63], melody: [440.00, 493.88, 659.25, 880.00] },
+      // F#m11
+      { bass: 46.25, notes: [92.50, 138.59, 220.00, 329.63, 493.88], melody: [554.37, 659.25, 739.99] },
+      // Dmaj7(#11)
+      { bass: 73.42, notes: [146.83, 220.00, 277.18, 369.99, 415.30], melody: [554.37, 739.99, 830.61] },
+      // Esus4(add9)
+      { bass: 41.20, notes: [82.41, 123.47, 164.81, 220.00, 369.99], melody: [493.88, 659.25, 987.77] }
+    ]
+  },
+  {
+    id: 2,
+    name: '🎋 Zen Garden',
+    genre: 'Rain & Bamboo Bells',
+    tempo: 62,
+    stepDuration: 4.8,
+    filterFreq: 1300,
+    filterQ: 1.3,
+    hasVinyl: true,
+    chords: [
+      // C Minor Pentatonic Peace
+      { bass: 65.41, notes: [130.81, 196.00, 233.08, 311.13, 392.00], melody: [523.25, 622.25, 783.99, 1046.50] },
+      // Abmaj7
+      { bass: 51.91, notes: [103.83, 155.56, 196.00, 261.63, 311.13], melody: [415.30, 523.25, 622.25] },
+      // Fm9
+      { bass: 43.65, notes: [87.31, 130.81, 155.56, 207.65, 261.63], melody: [349.23, 415.30, 523.25, 698.46] },
+      // Gsus4 / G7(b9)
+      { bass: 49.00, notes: [98.00, 146.83, 174.61, 246.94, 311.13], melody: [392.00, 493.88, 587.33] }
+    ]
+  }
+];
+
 class SoundManager {
   constructor() {
     this.ctx = null;
@@ -6,8 +73,25 @@ class SoundManager {
     this.initialized = false;
     this.bgmPlaying = false;
     this.bgmTimer = null;
+    this.bgmMelodyTimer = null;
     this.bgmMasterGain = null;
     this.bgmFilter = null;
+    this.bgmBassGain = null;
+    this.bgmBassFilter = null;
+    this.bgmLfo = null;
+    this.bgmLfoGain = null;
+    this.bgmNoiseNode = null;
+    this.bgmNoiseGain = null;
+    this.chordIdx = 0;
+    this.currentBgmTrack = 0;
+    try {
+      this.currentBgmTrack = parseInt(localStorage.getItem('3d2048_bgm_track') || '0', 10);
+      if (isNaN(this.currentBgmTrack) || this.currentBgmTrack < 0 || this.currentBgmTrack > 2) {
+        this.currentBgmTrack = 0;
+      }
+    } catch {
+      this.currentBgmTrack = 0;
+    }
   }
 
   init() {
@@ -117,67 +201,270 @@ class SoundManager {
     }
   }
 
-  // Procedural Lofi Ambient Chords BGM (Zero byte asset overhead)
-  startBGM() {
+  // Procedural Chill / Lo-Fi Generative Soundscape Engine (Zero byte asset overhead)
+  createVinylNoiseBuffer() {
+    if (!this.ctx) return null;
+    try {
+      const bufferSize = Math.floor(this.ctx.sampleRate * 2.5); // 2.5s loop
+      const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      let b0 = 0, b1 = 0, b2 = 0;
+      for (let i = 0; i < bufferSize; i++) {
+        const white = Math.random() * 2 - 1;
+        // Pink noise filtering
+        b0 = 0.99886 * b0 + white * 0.0555179;
+        b1 = 0.99332 * b1 + white * 0.0750759;
+        b2 = 0.96900 * b2 + white * 0.1538520;
+        let pink = b0 + b1 + b2 + white * 0.08;
+        // Subtle micro-vinyl pops (0.12% probability)
+        if (Math.random() < 0.0012) {
+          pink += (Math.random() - 0.5) * 0.35;
+        }
+        data[i] = pink * 0.18;
+      }
+      return buffer;
+    } catch {
+      return null;
+    }
+  }
+
+  startVinylNoise() {
+    if (!this.ctx || this.bgmNoiseNode) return;
+    try {
+      const buffer = this.createVinylNoiseBuffer();
+      if (!buffer) return;
+      this.bgmNoiseNode = this.ctx.createBufferSource();
+      this.bgmNoiseNode.buffer = buffer;
+      this.bgmNoiseNode.loop = true;
+
+      const filter = this.ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(1400, this.ctx.currentTime);
+      filter.Q.setValueAtTime(0.75, this.ctx.currentTime);
+
+      this.bgmNoiseGain = this.ctx.createGain();
+      this.bgmNoiseGain.gain.setValueAtTime(0.0001, this.ctx.currentTime);
+      this.bgmNoiseGain.gain.linearRampToValueAtTime(0.006, this.ctx.currentTime + 2.0);
+
+      this.bgmNoiseNode.connect(filter);
+      filter.connect(this.bgmNoiseGain);
+      this.bgmNoiseGain.connect(this.ctx.destination);
+      this.bgmNoiseNode.start();
+    } catch {}
+  }
+
+  stopVinylNoise() {
+    if (this.bgmNoiseNode) {
+      try {
+        if (this.bgmNoiseGain && this.ctx) {
+          this.bgmNoiseGain.gain.linearRampToValueAtTime(0.0001, this.ctx.currentTime + 0.4);
+        }
+        const node = this.bgmNoiseNode;
+        const gain = this.bgmNoiseGain;
+        setTimeout(() => {
+          try { node.stop(); node.disconnect(); } catch {}
+          try { gain.disconnect(); } catch {}
+        }, 450);
+        this.bgmNoiseNode = null;
+        this.bgmNoiseGain = null;
+      } catch {}
+    }
+  }
+
+  getBGMTrack() {
+    return BGM_TRACKS[this.currentBgmTrack] || BGM_TRACKS[0];
+  }
+
+  setBGMTrack(trackIdx) {
+    const idx = parseInt(trackIdx, 10);
+    if (isNaN(idx) || idx < 0 || idx >= BGM_TRACKS.length) return this.getBGMTrack();
+    this.currentBgmTrack = idx;
+    try {
+      localStorage.setItem('3d2048_bgm_track', idx.toString());
+    } catch {}
+
+    if (this.bgmPlaying && this.ctx) {
+      const track = this.getBGMTrack();
+      if (this.bgmFilter) {
+        this.bgmFilter.frequency.linearRampToValueAtTime(track.filterFreq, this.ctx.currentTime + 1.0);
+        this.bgmFilter.Q.setValueAtTime(track.filterQ, this.ctx.currentTime);
+      }
+      if (track.hasVinyl) {
+        this.startVinylNoise();
+      } else {
+        this.stopVinylNoise();
+      }
+      // Re-trigger fresh chord from new track
+      this.chordIdx = 0;
+      if (this.bgmTimer) clearTimeout(this.bgmTimer);
+      if (this.bgmMelodyTimer) clearTimeout(this.bgmMelodyTimer);
+      this.playNextChillChord();
+    }
+    return this.getBGMTrack();
+  }
+
+  startBGM(trackIdx = null) {
     if (this.muted) return;
     this.ensureContext();
     if (!this.ctx) return;
+
+    if (trackIdx !== null && typeof trackIdx === 'number') {
+      this.currentBgmTrack = trackIdx;
+    } else {
+      try {
+        const saved = parseInt(localStorage.getItem('3d2048_bgm_track') || '0', 10);
+        this.currentBgmTrack = (saved >= 0 && saved < BGM_TRACKS.length) ? saved : 0;
+      } catch {
+        this.currentBgmTrack = 0;
+      }
+    }
+
     if (this.bgmPlaying) return;
     this.bgmPlaying = true;
+    const track = this.getBGMTrack();
 
-    // Peaceful chord progression: Cmaj7 -> Am7 -> Fmaj7 -> G7sus
-    const chords = [
-      [130.81, 164.81, 196.00, 246.94], // Cmaj7
-      [110.00, 130.81, 164.81, 196.00], // Am7
-      [87.31, 110.00, 130.81, 164.81],  // Fmaj7
-      [98.00, 123.47, 146.83, 174.61]   // G7sus
-    ];
-
-    let chordIdx = 0;
+    // 1. Master Output Gain with gentle fade-in
     this.bgmMasterGain = this.ctx.createGain();
     this.bgmMasterGain.gain.setValueAtTime(0.001, this.ctx.currentTime);
-    this.bgmMasterGain.gain.exponentialRampToValueAtTime(0.045, this.ctx.currentTime + 1.5);
+    this.bgmMasterGain.gain.exponentialRampToValueAtTime(0.05, this.ctx.currentTime + 1.8);
 
-    // Warm dreamy lofi lowpass filter
+    // 2. Warm analog lowpass filter
     this.bgmFilter = this.ctx.createBiquadFilter();
     this.bgmFilter.type = 'lowpass';
-    this.bgmFilter.frequency.setValueAtTime(480, this.ctx.currentTime);
-    this.bgmFilter.Q.setValueAtTime(1.1, this.ctx.currentTime);
+    this.bgmFilter.frequency.setValueAtTime(track.filterFreq || 850, this.ctx.currentTime);
+    this.bgmFilter.Q.setValueAtTime(track.filterQ || 1.1, this.ctx.currentTime);
+
+    // 3. Gentle Breathing LFO for organic filter warmth (±65Hz sweep at 0.22Hz)
+    try {
+      this.bgmLfo = this.ctx.createOscillator();
+      this.bgmLfoGain = this.ctx.createGain();
+      this.bgmLfo.frequency.setValueAtTime(0.22, this.ctx.currentTime);
+      this.bgmLfoGain.gain.setValueAtTime(65, this.ctx.currentTime);
+      this.bgmLfo.connect(this.bgmLfoGain);
+      this.bgmLfoGain.connect(this.bgmFilter.frequency);
+      this.bgmLfo.start();
+    } catch {}
 
     this.bgmMasterGain.connect(this.bgmFilter);
     this.bgmFilter.connect(this.ctx.destination);
 
-    const playNextChord = () => {
-      if (!this.bgmPlaying || !this.ctx) return;
-      const t = this.ctx.currentTime;
-      const notes = chords[chordIdx];
-      chordIdx = (chordIdx + 1) % chords.length;
+    // 4. Dedicated Sub-Bass Channel (Clean low-end isolation at 155Hz)
+    this.bgmBassGain = this.ctx.createGain();
+    this.bgmBassGain.gain.setValueAtTime(0.001, this.ctx.currentTime);
+    this.bgmBassGain.gain.exponentialRampToValueAtTime(0.08, this.ctx.currentTime + 1.2);
 
-      notes.forEach((freq, idx) => {
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
+    this.bgmBassFilter = this.ctx.createBiquadFilter();
+    this.bgmBassFilter.type = 'lowpass';
+    this.bgmBassFilter.frequency.setValueAtTime(155, this.ctx.currentTime);
+    this.bgmBassFilter.Q.setValueAtTime(1.0, this.ctx.currentTime);
 
-        osc.type = idx % 2 === 0 ? 'sine' : 'triangle';
-        osc.detune.setValueAtTime((Math.random() - 0.5) * 6, t);
-        osc.frequency.setValueAtTime(freq, t);
+    this.bgmBassGain.connect(this.bgmBassFilter);
+    this.bgmBassFilter.connect(this.ctx.destination);
 
-        const chordDuration = 3.8;
-        gain.gain.setValueAtTime(0.0001, t);
-        gain.gain.linearRampToValueAtTime(0.06, t + 0.8);
-        gain.gain.linearRampToValueAtTime(0.04, t + chordDuration - 0.6);
-        gain.gain.exponentialRampToValueAtTime(0.0001, t + chordDuration);
+    // 5. Ambient Vinyl warmth / Coffee rain if enabled
+    if (track.hasVinyl) {
+      this.startVinylNoise();
+    }
 
-        osc.connect(gain);
-        gain.connect(this.bgmMasterGain);
+    this.chordIdx = 0;
+    this.playNextChillChord();
+  }
 
-        osc.start(t);
-        osc.stop(t + chordDuration);
-      });
+  playNextChillChord() {
+    if (!this.bgmPlaying || !this.ctx) return;
+    const track = this.getBGMTrack();
+    const chords = track.chords;
+    const chord = chords[this.chordIdx % chords.length];
+    this.chordIdx++;
+    const t = this.ctx.currentTime;
+    const duration = track.stepDuration || 4.6;
 
-      this.bgmTimer = setTimeout(playNextChord, 3500);
-    };
+    // 1. Polyphonic Rhodes / Ambient Chords
+    chord.notes.forEach((freq, idx) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
 
-    playNextChord();
+      osc.type = track.genre.includes('Ambient') ? 'triangle' : 'sine';
+      osc.frequency.setValueAtTime(freq, t);
+      // Subtle micro-detuning for lush warm chorus
+      osc.detune.setValueAtTime((Math.random() - 0.5) * 6, t);
+
+      gain.gain.setValueAtTime(0.0001, t);
+      if (track.genre.includes('Ambient')) {
+        gain.gain.linearRampToValueAtTime(0.035, t + 1.2);
+      } else {
+        gain.gain.linearRampToValueAtTime(0.045, t + 0.06);
+      }
+      gain.gain.linearRampToValueAtTime(0.02, t + duration - 0.6);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
+
+      osc.connect(gain);
+      gain.connect(this.bgmMasterGain);
+      osc.start(t);
+      osc.stop(t + duration);
+
+      // Glassy Rhodes Tine Bell (High overtone chime with rapid physical decay)
+      if (!track.genre.includes('Ambient')) {
+        const tineOsc = this.ctx.createOscillator();
+        const tineGain = this.ctx.createGain();
+        tineOsc.type = 'sine';
+        tineOsc.frequency.setValueAtTime(freq * 3.5, t);
+
+        tineGain.gain.setValueAtTime(0.0001, t);
+        tineGain.gain.linearRampToValueAtTime(0.012, t + 0.004);
+        tineGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
+
+        tineOsc.connect(tineGain);
+        tineGain.connect(this.bgmMasterGain);
+        tineOsc.start(t);
+        tineOsc.stop(t + 0.2);
+      }
+    });
+
+    // 2. Warm Walking Sub-Bass
+    if (chord.bass && this.bgmBassGain) {
+      const bassOsc = this.ctx.createOscillator();
+      const bassGain = this.ctx.createGain();
+      bassOsc.type = 'sine';
+      bassOsc.frequency.setValueAtTime(chord.bass, t);
+
+      bassGain.gain.setValueAtTime(0.0001, t);
+      bassGain.gain.linearRampToValueAtTime(0.075, t + 0.08);
+      bassGain.gain.linearRampToValueAtTime(0.04, t + duration - 0.5);
+      bassGain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
+
+      bassOsc.connect(bassGain);
+      bassGain.connect(this.bgmBassGain);
+      bassOsc.start(t);
+      bassOsc.stop(t + duration);
+    }
+
+    // 3. Generative Floating Melody (Improvised chimes between chords)
+    if (chord.melody && chord.melody.length > 0 && Math.random() < 0.75) {
+      const delay = 1.0 + Math.random() * (duration - 2.2);
+      this.bgmMelodyTimer = setTimeout(() => {
+        if (!this.bgmPlaying || !this.ctx) return;
+        const mt = this.ctx.currentTime;
+        const melFreq = chord.melody[Math.floor(Math.random() * chord.melody.length)];
+
+        const mOsc = this.ctx.createOscillator();
+        const mGain = this.ctx.createGain();
+        mOsc.type = track.genre.includes('Zen') ? 'triangle' : 'sine';
+        mOsc.frequency.setValueAtTime(melFreq, mt);
+
+        mGain.gain.setValueAtTime(0.0001, mt);
+        mGain.gain.linearRampToValueAtTime(0.03, mt + 0.03);
+        mGain.gain.exponentialRampToValueAtTime(0.0001, mt + 1.6);
+
+        mOsc.connect(mGain);
+        mGain.connect(this.bgmMasterGain);
+        mOsc.start(mt);
+        mOsc.stop(mt + 1.65);
+      }, delay * 1000);
+    }
+
+    const nextInterval = (duration * 1000) - 250;
+    this.bgmTimer = setTimeout(() => this.playNextChillChord(), nextInterval);
   }
 
   stopBGM() {
@@ -186,10 +473,27 @@ class SoundManager {
       clearTimeout(this.bgmTimer);
       this.bgmTimer = null;
     }
+    if (this.bgmMelodyTimer) {
+      clearTimeout(this.bgmMelodyTimer);
+      this.bgmMelodyTimer = null;
+    }
     if (this.bgmMasterGain && this.ctx) {
       const t = this.ctx.currentTime;
-      this.bgmMasterGain.gain.linearRampToValueAtTime(0.0001, t + 0.5);
+      this.bgmMasterGain.gain.linearRampToValueAtTime(0.0001, t + 0.4);
     }
+    if (this.bgmBassGain && this.ctx) {
+      const t = this.ctx.currentTime;
+      this.bgmBassGain.gain.linearRampToValueAtTime(0.0001, t + 0.4);
+    }
+    if (this.bgmLfo) {
+      try { this.bgmLfo.stop(); this.bgmLfo.disconnect(); } catch {}
+      this.bgmLfo = null;
+    }
+    if (this.bgmLfoGain) {
+      try { this.bgmLfoGain.disconnect(); } catch {}
+      this.bgmLfoGain = null;
+    }
+    this.stopVinylNoise();
   }
 
   toggleBGM() {
