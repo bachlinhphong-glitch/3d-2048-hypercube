@@ -10,7 +10,6 @@ export class InputManager {
     this.pointerStartX = 0;
     this.pointerStartY = 0;
     this.isPointerDown = false;
-    this.isTileHeld = false;
     this.pointerStartTime = 0;
 
     this.enabled = true;
@@ -157,7 +156,6 @@ export class InputManager {
         e.preventDefault(); // Stop mobile pull-to-refresh & browser scroll from canceling swipe!
       }
       if (touchGestureTriggered || !this.enabled || this.isBlockedByUI()) return;
-      if (this.isTileHeld) return;
       if (window.gameApp && window.gameApp.isSwapMode) return;
 
       const t = e.touches[0];
@@ -186,11 +184,6 @@ export class InputManager {
       const wasTriggered = touchGestureTriggered;
       touchActive = false;
       touchGestureTriggered = false;
-
-      if (this.isTileHeld) {
-        this.isTileHeld = false;
-        return;
-      }
 
       // If finger lifted without triggering touchmove (e.g. ultra-fast flick or tap)
       if (!wasTriggered && this.enabled && !this.isBlockedByUI()) {
@@ -223,7 +216,6 @@ export class InputManager {
       touchActive = false;
       touchGestureTriggered = false;
       this.isPointerDown = false;
-      this.isTileHeld = false;
     }, { passive: true });
 
     let pointerGestureTriggered = false;
@@ -250,7 +242,6 @@ export class InputManager {
     window.addEventListener('pointermove', (e) => {
       if (e.pointerType === 'touch') return;
       if (!this.isPointerDown || pointerGestureTriggered || !this.enabled || this.isBlockedByUI()) return;
-      if (this.isTileHeld) return;
       if (window.gameApp && window.gameApp.isSwapMode) return;
 
       const dx = e.clientX - this.pointerStartX;
@@ -278,10 +269,6 @@ export class InputManager {
       const wasTriggered = pointerGestureTriggered;
       pointerGestureTriggered = false;
 
-      if (this.isTileHeld) {
-        this.isTileHeld = false;
-        return;
-      }
       if (!this.enabled) return;
 
       // Do not process swipes if released on interactive control elements
@@ -323,20 +310,17 @@ export class InputManager {
     this.domElement.addEventListener('pointercancel', () => {
       this.isPointerDown = false;
       pointerGestureTriggered = false;
-      this.isTileHeld = false;
     });
 
     window.addEventListener('blur', () => {
       touchActive = false;
       this.isPointerDown = false;
-      this.isTileHeld = false;
     });
 
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) {
         touchActive = false;
         this.isPointerDown = false;
-        this.isTileHeld = false;
       }
     });
 
