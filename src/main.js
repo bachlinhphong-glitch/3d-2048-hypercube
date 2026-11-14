@@ -61,6 +61,77 @@ export const SHAPE_I18N_KEYS = {
   asteroid: 'shape_asteroid'
 };
 
+export const GAME_OVER_MEMES = {
+  tier1: [
+    {
+      img: './assets/memes/pikachu_shocked.jpg',
+      badge: '⚡ ỦA ALO?',
+      roast: 'Bấm nhanh hơn não đúng không? Mới nhấp vài cái đã kẹt cứng =))',
+      title: 'HẾT CỨU! 💀'
+    },
+    {
+      img: './assets/memes/clown_makeup.jpg',
+      badge: '🤡 CHÚ HỀ BẤM PHÍM',
+      roast: 'Tưởng trình gánh team, ai ngờ gánh còng lưng không nổi 128 =))',
+      title: 'ẢO TƯỞNG SỨC MẠNH 🤡'
+    },
+    {
+      img: './assets/memes/patrick_lost.png',
+      badge: '🌟 TAY NHANH HƠN NÃO',
+      roast: 'Trượt vu vơ không nhìn bàn cờ và cái kết đắng nghét!',
+      title: 'BẤM LOẠN XẠ =))'
+    }
+  ],
+  tier2: [
+    {
+      img: './assets/memes/cheems_crying.png',
+      badge: '🥺 TRẦM CẢM NHẸ',
+      roast: '128 thôi à sếp? Đang tính xem biểu diễn combo mà toang rồi =))',
+      title: 'XONG CON ONG! 🐝'
+    },
+    {
+      img: './assets/memes/elmo_burn.png',
+      badge: '🔥 BỐC HỎA TỰ HỦY',
+      roast: 'Bàn cờ bốc cháy ngùn ngụt, không còn một kẽ hở để thở!',
+      title: 'CHÁY MÁY RỒI ÔNG GIÁO! 🔥'
+    },
+    {
+      img: './assets/memes/cat_crying.png',
+      badge: '💔 ĐAU Ở ĐÂY NÀY',
+      roast: 'Nhìn thì tưởng sắp ra 512, chớp mắt một cái game over luôn :(',
+      title: 'THẾ LÀ HẾT! 😿'
+    }
+  ],
+  tier3: [
+    {
+      img: './assets/memes/sad_escobar.jpg',
+      badge: '🚬 TRẦM TƯ NGẪM ĐỜI',
+      roast: 'Cách vinh quang 2048 đúng một bước trượt định mệnh... Cayyy =))',
+      title: 'CÁI KẾT ĐẮNG LÒNG 🥀'
+    },
+    {
+      img: './assets/memes/cheems_crying.png',
+      badge: '🌶️ CAY MŨI LUÔN',
+      roast: 'Người tính không bằng tay trượt nhầm. Tiếc hùi hụi!',
+      title: 'SUÝT THÀNH THẦN! 😭'
+    },
+    {
+      img: './assets/memes/elmo_burn.png',
+      badge: '💥 NỔ TUNG NÃO',
+      roast: 'Bàn cờ chật như xe buýt giờ cao điểm, không cứu nổi nữa rồi!',
+      title: 'NÚT THẮT TỬ THẦN 💣'
+    }
+  ],
+  victory: [
+    {
+      img: './assets/memes/disaster_girl.jpg',
+      badge: '🗿 GIGACHAD THẦN THÁNH',
+      roast: 'Đỉnh nóc kịch trần bay phấp phới! Bái phục tay trượt thần sầu! 👑',
+      title: 'CHIẾN THẮNG 2048! 🎉'
+    }
+  ]
+};
+
 class GameApp {
   constructor() {
     this.container = document.getElementById('canvas-container');
@@ -282,6 +353,17 @@ class GameApp {
     this.modalMessage = document.getElementById('modal-message');
     this.modalBtnPrimary = document.getElementById('modal-btn-primary');
     this.modalBtnSecondary = document.getElementById('modal-btn-secondary');
+    this.modalMemeWrap = document.getElementById('modal-meme-wrap');
+    this.modalMemeImg = document.getElementById('modal-meme-img');
+    this.modalMemeBadge = document.getElementById('modal-meme-badge');
+    this.modalMemeQuote = document.getElementById('modal-meme-quote');
+    this._isLastModalVictory = false;
+
+    if (this.modalMemeWrap) {
+      this.modalMemeWrap.addEventListener('click', () => {
+        this.rollMemeReaction(this._isLastModalVictory);
+      });
+    }
 
     if (this.modalOverlay) {
       this.modalOverlay.style.display = 'none';
@@ -3112,10 +3194,11 @@ class GameApp {
       soundManager.playWin();
       this.saveGameState();
       this.showModal({
-        title: `🎉 ${t('modal_victory_title')}`,
+        title: `👑 CHIẾN THẮNG 2048!`,
         message: t('modal_victory_msg'),
         primaryText: t('modal_btn_continue'),
         secondaryText: t('modal_btn_new_game'),
+        isVictory: true,
         onPrimary: () => {
           this.gameLogic.keepPlaying = true;
           this.hideModal();
@@ -3201,6 +3284,32 @@ class GameApp {
     }
   }
 
+  rollMemeReaction(isVictory = false) {
+    if (!this.modalMemeWrap) return;
+
+    let pool = GAME_OVER_MEMES.tier2;
+    if (isVictory || this.maxTileValue >= 2048) {
+      pool = GAME_OVER_MEMES.victory;
+    } else if (this.maxTileValue < 128) {
+      pool = GAME_OVER_MEMES.tier1;
+    } else if (this.maxTileValue >= 512) {
+      pool = GAME_OVER_MEMES.tier3;
+    }
+
+    const item = pool[Math.floor(Math.random() * pool.length)];
+    if (!item) return;
+
+    if (this.modalMemeImg) this.modalMemeImg.src = item.img;
+    if (this.modalMemeBadge) this.modalMemeBadge.textContent = item.badge;
+    if (this.modalMemeQuote) this.modalMemeQuote.textContent = `"${item.roast}"`;
+    if (this.modalTitle) this.modalTitle.textContent = item.title;
+
+    const frame = document.getElementById('modal-meme-frame');
+    if (frame && typeof gsap !== 'undefined') {
+      gsap.fromTo(frame, { scale: 0.82, rotate: -6 }, { scale: 1, rotate: 0, duration: 0.35, ease: 'back.out(2)' });
+    }
+  }
+
   triggerGameOverModal(customMessage) {
     this.gameLogic.gameOver = true;
     this.isAnimating = false; // UNFREEZE IMMEDIATELY
@@ -3211,12 +3320,14 @@ class GameApp {
     soundManager.playGameOver();
     this.clearSavedGameState();
 
+    this._isLastModalVictory = false;
     const msg = customMessage || `${t('modal_gameover_msg')}\n${t('score')}: ${this.gameLogic.score.toLocaleString()}`;
     this.showModal({
-      title: t('modal_gameover_title') || 'THẤT BẠI (GAME OVER)',
+      title: 'HẾT CỨU! 💀',
       message: msg,
-      primaryText: t('modal_btn_continue') || 'Chơi lại ngay',
-      secondaryText: t('modal_btn_new_game') || 'Ván mới',
+      primaryText: '🔥 Làm Ván Nữa Gỡ Gạc',
+      secondaryText: 'Ván Mới',
+      isVictory: false,
       onPrimary: () => {
         this.hideModal();
         this.isAnimating = false;
@@ -3233,8 +3344,13 @@ class GameApp {
     });
   }
 
-  showModal({ title, message, primaryText, secondaryText, onPrimary, onSecondary }) {
-    this.modalTitle.textContent = title;
+  showModal({ title, message, primaryText, secondaryText, isVictory = false, onPrimary, onSecondary }) {
+    this._isLastModalVictory = isVictory;
+    this.rollMemeReaction(isVictory);
+
+    if (title && !this.modalTitle.textContent) {
+      this.modalTitle.textContent = title;
+    }
     this.modalMessage.textContent = message;
 
     // Update Match Analytics UI in Modal

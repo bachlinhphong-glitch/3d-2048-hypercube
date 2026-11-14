@@ -51,18 +51,18 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./src/style.css?v=6.8.39">
+  <link rel="stylesheet" href="./src/style.css?v=6.8.40">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=6.8.39').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=6.8.40').then(reg => {
           reg.update();
         }).catch(() => {});
       });
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         try {
-          if (!sessionStorage.getItem('sw_reloaded_6839')) {
-            sessionStorage.setItem('sw_reloaded_6839', '1');
+          if (!sessionStorage.getItem('sw_reloaded_6840')) {
+            sessionStorage.setItem('sw_reloaded_6840', '1');
             window.location.reload();
           }
         } catch {}
@@ -460,6 +460,15 @@
   <!-- Game Over / Victory Modal -->
   <div id="modal-overlay" class="modal-overlay">
     <div class="modal-card">
+      <!-- Gamer Meme Reaction Box -->
+      <div id="modal-meme-wrap" class="modal-meme-wrap" title="Bấm vào meme để đổi câu khịa khác!">
+        <div class="modal-meme-frame" id="modal-meme-frame">
+          <img id="modal-meme-img" class="modal-meme-img" src="./assets/memes/cheems_crying.png" alt="Meme Reaction">
+          <div id="modal-meme-badge" class="modal-meme-badge">🐔 NON VÀ XANH</div>
+        </div>
+        <div id="modal-meme-quote" class="modal-meme-quote">"128 thôi à sếp? Đang tính xem biểu diễn combo mà toang rồi =))"</div>
+      </div>
+
       <h2 id="modal-title" class="modal-title" data-i18n="modal_victory_title">CHIẾN THẮNG!</h2>
       <p id="modal-message" class="modal-message" data-i18n="modal_victory_msg">Chúc mừng bạn đã đạt khối 2048!</p>
 
@@ -1166,6 +1175,6 @@
   </div>
 
   <!-- Main Game Script -->
-  <script type="module" src="./src/main.js?v=6.8.39"></script>
+  <script type="module" src="./src/main.js?v=6.8.40"></script>
 </body>
 </html>

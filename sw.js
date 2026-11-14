@@ -1,4 +1,4 @@
-const CACHE_NAME = '3d-2048-v6.8.39';
+const CACHE_NAME = '3d-2048-v6.8.40';
 const CACHE_URLS = [
   './',
   './index.html',
@@ -30,6 +30,14 @@ const CACHE_URLS = [
   './assets/backgrounds/patrick_space.png',
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png',
+  './assets/memes/cat_crying.png',
+  './assets/memes/cheems_crying.png',
+  './assets/memes/clown_makeup.jpg',
+  './assets/memes/disaster_girl.jpg',
+  './assets/memes/elmo_burn.png',
+  './assets/memes/patrick_lost.png',
+  './assets/memes/pikachu_shocked.jpg',
+  './assets/memes/sad_escobar.jpg'
 ];
 
 self.addEventListener('install', (event) => {
