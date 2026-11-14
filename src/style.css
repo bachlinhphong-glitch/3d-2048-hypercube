@@ -222,6 +222,7 @@ body.theme-telemetry .glass-select {
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
+  background-color: #0b0f19;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

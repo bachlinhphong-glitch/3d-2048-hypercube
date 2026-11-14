@@ -481,15 +481,17 @@ export class SceneManager {
       this.container.style.backgroundPosition = 'center';
       this.container.style.backgroundRepeat = 'no-repeat';
     } else if (imageThemes[themeName]) {
-      this.scene.background = null;
-      this.renderer.setClearColor(0x000000, 0);
+      this.scene.background = this.getBackgroundTexture('galaxy');
+      this.renderer.setClearColor(0x060814, 1);
+      this.container.style.backgroundColor = '#060814';
       this.container.style.backgroundImage = `url("${imageThemes[themeName]}")`;
       this.container.style.backgroundSize = 'cover';
       this.container.style.backgroundPosition = 'center';
       this.container.style.backgroundRepeat = 'no-repeat';
     } else {
       this.container.style.backgroundImage = 'none';
-      this.renderer.setClearColor(0x000000, 1);
+      this.container.style.backgroundColor = '#060814';
+      this.renderer.setClearColor(0x060814, 1);
       this.scene.background = this.getBackgroundTexture(themeName);
     }
 
@@ -779,7 +781,7 @@ export class SceneManager {
     const targetPos = this.getDefaultCamPos(preset);
     const targetLook = this.getDefaultTarget();
 
-    if (this.controls) this.controls.enabled = true;
+    if (this.controls) this.controls.enabled = false;
 
     gsap.to(this.camera.position, {
       x: targetPos.x,
@@ -794,7 +796,7 @@ export class SceneManager {
       onComplete: () => {
         if (this.controls) {
           this.controls.target.copy(targetLook);
-          this.controls.cursor.copy(targetLook);
+          if (this.controls.cursor) this.controls.cursor.copy(targetLook);
           this.controls.enabled = true;
           this.controls.update();
         }
@@ -825,7 +827,7 @@ export class SceneManager {
       ? new THREE.Vector3(0, mobile ? 2.2 : 1.85, -1.2)
       : this.getDefaultTarget();
 
-    if (this.controls) this.controls.enabled = true;
+    if (this.controls) this.controls.enabled = false;
 
     gsap.to(this.camera.position, {
       x: targetPos.x,
@@ -840,7 +842,7 @@ export class SceneManager {
       onComplete: () => {
         if (this.controls) {
           this.controls.target.copy(targetLook);
-          this.controls.cursor.copy(targetLook);
+          if (this.controls.cursor) this.controls.cursor.copy(targetLook);
           this.controls.enabled = true;
           this.controls.update();
         }
@@ -864,22 +866,24 @@ export class SceneManager {
     const targetPos = this.getDefaultCamPos(1);
     const targetLook = this.getDefaultTarget();
 
-    if (this.controls) this.controls.enabled = true;
+    if (this.controls) this.controls.enabled = false;
 
-    // Start slightly higher and tilted
+    // Start slightly higher and tilted (gentle descent - never throw into the void)
     this.camera.position.set(
       targetPos.x,
-      targetPos.y + (this.mode === '3x3x3' ? 4.5 : 3.6),
-      targetPos.z + (this.mode === '3x3x3' ? 5.2 : 4.2)
+      targetPos.y + 1.2,
+      targetPos.z + 1.5
     );
     this.camera.lookAt(targetLook);
+    this.controls.target.copy(targetLook);
+    if (this.controls.cursor) this.controls.cursor.copy(targetLook);
 
     gsap.to(this.camera.position, {
       x: targetPos.x,
       y: targetPos.y,
       z: targetPos.z,
       duration: duration,
-      ease: 'power3.out',
+      ease: 'power2.out',
       onUpdate: () => {
         this.camera.lookAt(targetLook);
         this.requestShadowUpdate(2);
@@ -887,7 +891,7 @@ export class SceneManager {
       onComplete: () => {
         if (this.controls) {
           this.controls.target.copy(targetLook);
-          this.controls.cursor.copy(targetLook);
+          if (this.controls.cursor) this.controls.cursor.copy(targetLook);
           this.controls.enabled = true;
           this.controls.update();
         }
@@ -899,7 +903,7 @@ export class SceneManager {
       y: targetLook.y,
       z: targetLook.z,
       duration: duration,
-      ease: 'power3.out'
+      ease: 'power2.out'
     });
   }
 
@@ -1042,15 +1046,22 @@ export class SceneManager {
     // Safeguard: Ensure camera target never drifts away from the board into the void
     if (this.controls && this.controls.enabled) {
       const expectedTarget = this.getDefaultTarget();
-      this.controls.cursor.copy(expectedTarget);
-      const dist = this.controls.target.distanceTo(expectedTarget);
-      if (dist > 2.0) {
-        this._scratchVec.copy(this.controls.target).sub(expectedTarget).clampLength(0, 2.0);
-        this.controls.target.copy(expectedTarget).add(this._scratchVec);
+      if (this.controls.cursor) {
+        this.controls.cursor.copy(expectedTarget);
       }
+      const dist = this.controls.target.distanceTo(expectedTarget);
+      if (dist > 2.0 || isNaN(dist)) {
+        this.controls.target.copy(expectedTarget);
+      }
+      this.controls.update();
     }
 
-    this.controls.update();
+    // Safety: Ensure camera position never flies into NaN or extreme void
+    if (isNaN(this.camera.position.x) || this.camera.position.length() > 35) {
+      this.camera.position.copy(this.getDefaultCamPos(1));
+      this.camera.lookAt(this.getDefaultTarget());
+    }
+
     this.renderer.render(this.scene, this.camera);
   }
 

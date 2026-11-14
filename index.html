@@ -51,18 +51,18 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./src/style.css?v=6.8.36">
+  <link rel="stylesheet" href="./src/style.css?v=6.8.37">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=6.8.36').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=6.8.37').then(reg => {
           reg.update();
         }).catch(() => {});
       });
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         try {
-          if (!sessionStorage.getItem('sw_reloaded_6836')) {
-            sessionStorage.setItem('sw_reloaded_6836', '1');
+          if (!sessionStorage.getItem('sw_reloaded_6837')) {
+            sessionStorage.setItem('sw_reloaded_6837', '1');
             window.location.reload();
           }
         } catch {}
@@ -1012,13 +1012,13 @@
           </div>
         </div>
 
-        <!-- 6. Độ mượt & Tốc độ khung hình (Smoothness & Frame Rate) -->
+        <!-- 6. Chất lượng hiển thị 3D (3D Visual Quality) -->
         <div class="settings-row">
-          <label class="settings-label" data-i18n="setting_graphics">Độ mượt & Tốc độ khung hình</label>
+          <label class="settings-label" data-i18n="setting_graphics">Chất lượng hiển thị 3D</label>
           <select id="select-graphics" class="settings-select">
-            <option value="high" data-i18n="graphics_high">Cực mượt (120 FPS)</option>
-            <option value="medium" selected data-i18n="graphics_medium">Tiêu chuẩn (60 FPS)</option>
-            <option value="low" data-i18n="graphics_low">Tiết kiệm pin (30 FPS)</option>
+            <option value="high" data-i18n="graphics_high">Sắc nét cao (Retina / PC)</option>
+            <option value="medium" selected data-i18n="graphics_medium">Cân bằng mượt (Khuyên dùng)</option>
+            <option value="low" data-i18n="graphics_low">Tiết kiệm pin (Tối ưu máy nhẹ)</option>
           </select>
           <select id="select-fps" style="display:none">
             <option value="max">Tối đa (165Hz/300Hz)</option>
@@ -1160,6 +1160,6 @@
   </div>
 
   <!-- Main Game Script -->
-  <script type="module" src="./src/main.js?v=6.8.36"></script>
+  <script type="module" src="./src/main.js?v=6.8.37"></script>
 </body>
 </html>

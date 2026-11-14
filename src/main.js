@@ -202,6 +202,11 @@ class GameApp {
       this.initFirstSwipeGuide();
       this.startNewGame(true);
 
+      // Render 1 immediate synchronous frame so canvas is NEVER blank or black on startup
+      if (this.sceneManager && this.sceneManager.render) {
+        this.sceneManager.render(0);
+      }
+
       this.telemetryInterval = setInterval(() => this.updateTelemetryAndStats(), 200);
       this.animate();
     } catch (err) {
@@ -2061,7 +2066,7 @@ class GameApp {
 
     const labelKey = quality === 'high' ? 'graphics_high' : quality === 'medium' ? 'graphics_medium' : 'graphics_low';
     const labelText = t(labelKey) || quality.toUpperCase();
-    this.showSpellToast(`🎮 ${t('setting_graphics') || 'Đồ họa & FPS'}: ${labelText}`);
+    this.showSpellToast(`🎮 ${t('setting_graphics') || 'Chất lượng hiển thị 3D'}: ${labelText}`);
     this.registerInteraction();
   }
 
@@ -2564,8 +2569,8 @@ class GameApp {
   playBoardEntrance(isRestoring = false) {
     if (!this.board || !this.board.group) return;
 
-    // 1. Futuristic Intro Audio Chime & Sub-bass Impact
-    if (soundManager && soundManager.playGameStartEntrance) {
+    // 1. Futuristic Intro Audio Chime & Sub-bass Impact (guarded against autoplay restrictions)
+    if (this.hasInteracted && soundManager && soundManager.playGameStartEntrance) {
       soundManager.playGameStartEntrance();
     }
 
@@ -2578,27 +2583,22 @@ class GameApp {
     gsap.killTweensOf(this.board.group.position);
     gsap.killTweensOf(this.board.group.rotation);
 
-    this.board.group.rotation.x = -0.12;
-    this.board.group.rotation.y = 0.15;
+    this.board.group.position.set(0, 0, 0);
+    this.board.group.rotation.set(-0.08, 0.08, 0);
 
     gsap.to(this.board.group.rotation, {
       x: 0,
       y: 0,
+      z: 0,
       duration: 0.85,
       ease: 'power3.out'
     });
 
-    this.board.group.position.set(0, 0, 0);
-    this.board.group.rotation.set(0, 0, 0);
-
-    // 4. Ground Shockwave Ring on Impact
+    // 4. Ground Shockwave Ring on Impact (Zero screenShake here to protect camera alignment)
     setTimeout(() => {
       if (this.sceneManager && this.sceneManager.emitEntranceShockwave) {
         const waveColor = this.mode === '3x3x3' ? 0xa855f7 : 0x00f0ff;
         this.sceneManager.emitEntranceShockwave(waveColor);
-      }
-      if (this.particleSystem && this.sceneManager) {
-        this.particleSystem.screenShake(this.sceneManager.camera, 0.18);
       }
     }, 320);
 
