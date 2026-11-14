@@ -183,14 +183,21 @@ export class InputManager {
       }
     }, { passive: true });
 
+    this.domElement.addEventListener('touchcancel', () => {
+      touchActive = false;
+      this.isPointerDown = false;
+      this.isTileHeld = false;
+    }, { passive: true });
+
     this.domElement.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'touch') return; // Touch is handled by touchstart/touchend to avoid duplicate events
       // Only process primary pointer (first finger / left mouse button)
       if (!e.isPrimary) {
         this.isPointerDown = false;
         return;
       }
       if (e.button !== 0 && e.pointerType === 'mouse') return;
-      if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .spell-bar, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel')) {
+      if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .spell-bar, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel, .dpad-btn, .cam-btn, .slice-btn')) {
         return;
       }
 
@@ -201,6 +208,7 @@ export class InputManager {
     });
 
     window.addEventListener('pointerup', (e) => {
+      if (e.pointerType === 'touch') return; // Dedicated touch listener handles touch
       if (!this.isPointerDown) return;
       this.isPointerDown = false;
       if (this.isTileHeld) {
@@ -249,6 +257,20 @@ export class InputManager {
     this.domElement.addEventListener('pointercancel', () => {
       this.isPointerDown = false;
       this.isTileHeld = false;
+    });
+
+    window.addEventListener('blur', () => {
+      touchActive = false;
+      this.isPointerDown = false;
+      this.isTileHeld = false;
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        touchActive = false;
+        this.isPointerDown = false;
+        this.isTileHeld = false;
+      }
     });
 
     // 3. UI Buttons for movement are handled by main.js via #dir-pad

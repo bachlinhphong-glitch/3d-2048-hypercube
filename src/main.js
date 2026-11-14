@@ -2360,6 +2360,29 @@ class GameApp {
     }
   }
 
+  handleContextRestored() {
+    console.log('♻️ Rebuilding all tile textures & 3D meshes after WebGL recovery...');
+    if (this.textureManager) {
+      this.textureManager.disposeAll();
+    }
+    for (let l = 0; l < this.tiles3D.length; l++) {
+      for (let r = 0; r < this.tiles3D[l].length; r++) {
+        for (let c = 0; c < this.tiles3D[l][r].length; c++) {
+          const tile = this.tiles3D[l][r][c];
+          if (tile) tile.buildGeometry();
+        }
+      }
+    }
+    if (this.board && this.board.buildBoard) {
+      this.board.buildBoard();
+    }
+    if (this.sceneManager) {
+      this.sceneManager.resetCamera();
+    }
+    this.isAnimating = false;
+    this.showSpellToast('⚡ Đã khôi phục đồ họa WebGL!');
+  }
+
   setGraphicsQuality(quality) {
     this.graphicsQuality = quality;
     this.targetFps = quality === 'low' ? '30' : quality === 'medium' ? '60' : '120';
@@ -3052,7 +3075,18 @@ class GameApp {
     }
 
     this.isAnimating = true;
-    this.moveCount++;
+
+    // Hard Watchdog: Guarantee isAnimating NEVER stays stuck on mobile/tablet under any condition
+    if (this._animWatchdog) clearTimeout(this._animWatchdog);
+    this._animWatchdog = setTimeout(() => {
+      if (this.isAnimating) {
+        console.warn('⚠️ Animation watchdog auto-unfreezing isAnimating!');
+        this.isAnimating = false;
+      }
+    }, 380);
+
+    try {
+      this.moveCount++;
     this.comboCount = 0; // Reset combo per move
     this.recentMoves.push(performance.now());
     if (this.sceneManager && this.sceneManager.requestShadowUpdate) this.sceneManager.requestShadowUpdate(25);
@@ -3401,13 +3435,21 @@ class GameApp {
       });
     }
 
-    if (isGameOver) {
-      this.triggerGameOverModal();
-      return;
-    }
+      if (isGameOver) {
+        this.triggerGameOverModal();
+        return;
+      }
 
-    this.saveGameState();
-    this.isAnimating = false;
+      this.saveGameState();
+    } catch (err) {
+      console.error('Error during move processing:', err);
+    } finally {
+      if (this._animWatchdog) {
+        clearTimeout(this._animWatchdog);
+        this._animWatchdog = null;
+      }
+      this.isAnimating = false;
+    }
   }
 
   triggerGameOverModal(customMessage) {

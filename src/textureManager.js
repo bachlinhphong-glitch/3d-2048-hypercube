@@ -517,14 +517,14 @@ export class TextureManager {
       emissiveIntensity: finalEmissiveIntensity * 0.45
     });
 
-    // ONLY the top face (+Y, index 2) has the number!
-    // All 4 vertical lateral faces (+X, -X, +Z, -Z) and bottom (-Y) are solid, smooth, and clean.
+    // The top face (+Y, index 2) and front face (+Z, index 4) both display the number!
+    // This allows comfortable natural 3D viewing angles (~35 deg tilt) with instant number recognition!
     const materials = [
       solidSideMat,    // +X (Right vertical face)
       solidSideMat,    // -X (Left vertical face)
-      faceMatWithText, // +Y (Top face - ONLY top has number!)
+      faceMatWithText, // +Y (Top face)
       solidSideMat,    // -Y (Bottom face)
-      solidSideMat,    // +Z (Front vertical face)
+      faceMatWithText, // +Z (Front vertical face - visible from ergonomic 3D angles!)
       solidSideMat     // -Z (Back vertical face)
     ];
 

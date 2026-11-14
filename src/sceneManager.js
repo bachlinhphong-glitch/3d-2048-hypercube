@@ -9,15 +9,18 @@ export class SceneManager {
     this.theme = 'cat_moon'; // 'cat_moon', 'elmo_fire', 'patrick_space', 'galaxy', etc.
     this.backgroundCache = new Map();
 
-    this.defaultCamPos4x4 = new THREE.Vector3(0, 11.5, 9.8);
-    this.defaultTarget4x4 = new THREE.Vector3(0, 1.6, -0.6);
+    this.defaultCamPos4x4 = new THREE.Vector3(0, 9.2, 11.8);
+    this.defaultTarget4x4 = new THREE.Vector3(0, 0.4, 0.2);
 
-    this.defaultCamPos3x3 = new THREE.Vector3(0, 13.8, 11.2);
-    this.defaultTarget3x3 = new THREE.Vector3(0, 2.6, -0.5);
+    this.defaultCamPos3x3 = new THREE.Vector3(6.2, 9.2, 12.0);
+    this.defaultTarget3x3 = new THREE.Vector3(0, 1.8, 0.2);
 
     // Pre-allocated mobile targets & zero-allocation scratch vector for render loop
-    this.defaultTargetMobile4x4 = new THREE.Vector3(0, 1.7, 0.65);
-    this.defaultTargetMobile3x3 = new THREE.Vector3(0, 2.7, 0.45);
+    this.defaultTargetMobile4x4 = new THREE.Vector3(0, 0.6, 0.85);
+    this.defaultCamPosMobile4x4 = new THREE.Vector3(0, 9.8, 13.2);
+
+    this.defaultTargetMobile3x3 = new THREE.Vector3(0, 2.0, 0.7);
+    this.defaultCamPosMobile3x3 = new THREE.Vector3(5.4, 9.8, 13.2);
     this._scratchVec = new THREE.Vector3();
 
     this.initScene();
@@ -65,15 +68,11 @@ export class SceneManager {
         ? new THREE.Vector3(0, 4.0, mobile ? 13.5 : 12.5)
         : new THREE.Vector3(0, 2.5, mobile ? 11.5 : 10.5);
     } else {
-      // 1. Isometric diagonal view
+      // 1. Natural Ergonomic 3D Isometric View (~35 deg tilt, zero steep top-down fatigue)
       if (mobile) {
-        return is3D
-          ? new THREE.Vector3(0, 12.2, 10.2)
-          : new THREE.Vector3(0, 11.8, 10.4);
+        return is3D ? this.defaultCamPosMobile3x3.clone() : this.defaultCamPosMobile4x4.clone();
       }
-      return is3D
-        ? new THREE.Vector3(0, 11.5, 9.2)
-        : new THREE.Vector3(0, 11.5, 9.8);
+      return is3D ? this.defaultCamPos3x3.clone() : this.defaultCamPos4x4.clone();
     }
   }
 
@@ -138,15 +137,23 @@ export class SceneManager {
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.15;
 
-    // WebGL Context Restoration for dual-GPU laptops (NVIDIA Optimus / Iris Xe switching)
+    this.isContextLost = false;
+
+    // WebGL Context Restoration for mobile OOM recovery & dual-GPU switching
     this.renderer.domElement.addEventListener('webglcontextlost', (e) => {
       e.preventDefault();
-      console.warn('⚠️ WebGL Context Lost! Switching GPU or display mode...');
+      console.warn('⚠️ WebGL Context Lost! Pausing rendering and preparing recovery...');
+      this.isContextLost = true;
     }, false);
 
     this.renderer.domElement.addEventListener('webglcontextrestored', () => {
-      console.log('✅ WebGL Context Restored! Reinitializing 3D pipeline...');
+      console.log('✅ WebGL Context Restored! Rebuilding 3D pipeline & textures...');
+      this.isContextLost = false;
       this.initEnvironmentMap();
+      this.initLights();
+      if (window.gameApp && typeof window.gameApp.handleContextRestored === 'function') {
+        window.gameApp.handleContextRestored();
+      }
     }, false);
 
     if (this.container) {
@@ -957,15 +964,17 @@ export class SceneManager {
     }
     this.camera.updateProjectionMatrix();
 
-    // Hardware graphics quality level ('low' = 1.0x, 'medium' = 1.75x, 'high' = 2.25x Retina)
+    // Hardware graphics quality level ('low' = 1.0x, 'medium' = 1.35x, 'high' = 1.75x mobile / 2.0x desktop)
     let level = this.graphicsQuality;
     if (!level) {
       try { level = localStorage.getItem('3d2048_graphics_quality') || 'medium'; } catch { level = 'medium'; }
     }
-    let targetDPR = 1.5;
+    const isMobileDevice = this.isMobilePortrait() || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1);
+    const maxDPR = window.devicePixelRatio || 1;
+    let targetDPR = 1.35;
     if (level === 'low') targetDPR = 1.0;
-    else if (level === 'high') targetDPR = Math.min(window.devicePixelRatio || 1, 2.25);
-    else targetDPR = Math.min(window.devicePixelRatio || 1, 1.75);
+    else if (level === 'high') targetDPR = isMobileDevice ? Math.min(maxDPR, 1.75) : Math.min(maxDPR, 2.0);
+    else targetDPR = isMobileDevice ? Math.min(maxDPR, 1.35) : Math.min(maxDPR, 1.6);
     this.renderer.setPixelRatio(targetDPR);
 
     this.renderer.setSize(width, height);
@@ -977,19 +986,21 @@ export class SceneManager {
       localStorage.setItem('3d2048_graphics_quality', level);
     } catch {}
 
+    const isMobileDevice = this.isMobilePortrait() || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1);
     const maxDPR = window.devicePixelRatio || 1;
-    let targetDPR = 1.5;
+    let targetDPR = 1.35;
     let toneExposure = 1.15;
 
     if (level === 'low') {
       targetDPR = 1.0;
       toneExposure = 1.05;
     } else if (level === 'high') {
-      targetDPR = Math.min(maxDPR, 2.25);
+      // Safe high-DPI: Cap to 1.75 on mobile/tablets to prevent WebGL VRAM blowout and context loss
+      targetDPR = isMobileDevice ? Math.min(maxDPR, 1.75) : Math.min(maxDPR, 2.0);
       toneExposure = 1.2;
     } else {
       // 'medium' (balanced default)
-      targetDPR = Math.min(maxDPR, 1.75);
+      targetDPR = isMobileDevice ? Math.min(maxDPR, 1.35) : Math.min(maxDPR, 1.6);
       toneExposure = 1.15;
     }
 
@@ -1009,6 +1020,7 @@ export class SceneManager {
   }
 
   render(time = 0) {
+    if (this.isContextLost) return;
     if (this.theme === 'neon' || this.theme === 'sunset') {
       const t = time * 0.8;
       this.pointLight1.position.x = Math.cos(t) * 7;
