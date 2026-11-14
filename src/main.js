@@ -645,10 +645,7 @@ class GameApp {
       });
     }
 
-    const dpadDepth = document.querySelector('.dpad-depth-row');
-    if (dpadDepth) {
-      dpadDepth.style.display = this.mode === '3x3x3' ? 'flex' : 'none';
-    }
+    this.updateDpadLayerDock();
     const sliceControls = document.getElementById('slice-controls');
     if (sliceControls) {
       sliceControls.style.display = this.mode === '3x3x3' ? 'flex' : 'none';
@@ -792,16 +789,15 @@ class GameApp {
     const savedDpadMode = localStorage.getItem('3d2048_dpad_mode') || 'auto';
 
     const isTouchDevice = () => {
-      return ('ontouchstart' in window) || 
-             (navigator.maxTouchPoints > 0) || 
-             (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) ||
-             (window.innerWidth <= 768) ||
-             (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+      const isMobileUA = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      const isCoarsePointer = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+      const isSmallScreen = (window.innerWidth || 800) <= 768;
+      return isMobileUA || isCoarsePointer || isSmallScreen;
     };
 
     const applyDpadMode = (mode) => {
       if (!dirPad) return;
-      dirPad.classList.remove('hide-dpad', 'force-show', 'device-touch-adapted');
+      dirPad.classList.remove('hide-dpad', 'force-show', 'device-touch-adapted', 'auto-hide-desktop');
       if (mode === 'hidden') {
         dirPad.classList.add('hide-dpad');
       } else if (mode === 'visible') {
@@ -810,9 +806,11 @@ class GameApp {
           dirPad.classList.add('device-touch-adapted');
         }
       } else {
-        // 'auto' mode: automatically adapt to device
+        // 'auto' mode: automatically adapt to device (shown on touch/mobile, cleanly hidden on PC desktop)
         if (isTouchDevice()) {
           dirPad.classList.add('force-show', 'device-touch-adapted');
+        } else {
+          dirPad.classList.add('auto-hide-desktop');
         }
       }
     };
@@ -1010,10 +1008,7 @@ class GameApp {
       sliceControls.style.display = newMode === '3x3x3' ? 'flex' : 'none';
     }
 
-    const dpadDepth = document.querySelector('.dpad-depth-row');
-    if (dpadDepth) {
-      dpadDepth.style.display = newMode === '3x3x3' ? 'flex' : 'none';
-    }
+    this.updateDpadLayerDock();
 
     // Reset slice mode
     this._sliceCycleIdx = 0;
@@ -1595,62 +1590,150 @@ class GameApp {
 
   setupDirPad() {
     const dirPad = document.getElementById('dir-pad');
-    if (!dirPad) return;
+    const disc = document.getElementById('dpad-disc');
+    if (!dirPad || !disc) return;
 
-    dirPad.querySelectorAll('.dpad-btn[data-dir]').forEach(btn => {
-      const dir = btn.dataset.dir;
+    let activePointerId = null;
+    let lastTriggeredDir = null;
+    let lastTriggerTime = 0;
 
-      // Ghost preview on hover & pointer
-      btn.addEventListener('pointerenter', () => {
-        if (dir !== 'iso' && this.ghostPreview) {
-          this.ghostPreview.showGhost(dir);
-        }
+    const petals = {
+      up: disc.querySelector('.dpad-petal-up'),
+      right: disc.querySelector('.dpad-petal-right'),
+      down: disc.querySelector('.dpad-petal-down'),
+      left: disc.querySelector('.dpad-petal-left')
+    };
+
+    const clearActivePetals = () => {
+      Object.values(petals).forEach(p => p && p.classList.remove('active'));
+      disc.style.transform = '';
+      if (this.ghostPreview) this.ghostPreview.hideGhost();
+      lastTriggeredDir = null;
+    };
+
+    const triggerDir = (dir) => {
+      if (!dir) return;
+      const now = performance.now();
+      if (dir === lastTriggeredDir && now - lastTriggerTime < 160) {
+        return;
+      }
+      lastTriggeredDir = dir;
+      lastTriggerTime = now;
+
+      // Visual highlight on petal
+      Object.entries(petals).forEach(([d, p]) => {
+        if (!p) return;
+        if (d === dir) p.classList.add('active');
+        else p.classList.remove('active');
       });
-      btn.addEventListener('pointerleave', () => {
-        if (this.ghostPreview) this.ghostPreview.hideGhost();
-      });
-      btn.addEventListener('pointercancel', () => {
-        if (this.ghostPreview) this.ghostPreview.hideGhost();
-      });
 
-      // Instant touch & pointer response with haptics & tactile visual feedback
-      const handleDpadDir = (e) => {
-        if (e) {
-          e.preventDefault();
-          e.stopPropagation();
-        }
-        if (navigator.vibrate) {
-          try { navigator.vibrate(10); } catch {}
-        }
-        btn.classList.add('touch-active');
-        setTimeout(() => btn.classList.remove('touch-active'), 120);
-
-        if (this.ghostPreview) this.ghostPreview.hideGhost();
-        if (this.inputManager && !this.inputManager.enabled) return;
-        if (dir === 'iso') {
-          this.sceneManager.snapCamera(1);
-        } else {
-          this.handleMove(dir);
-        }
+      // 3D tactile tilt on the unified disc
+      const tilts = {
+        up: 'perspective(360px) rotateX(7deg) translateY(-2px)',
+        down: 'perspective(360px) rotateX(-7deg) translateY(2px)',
+        left: 'perspective(360px) rotateY(-7deg) translateX(-2px)',
+        right: 'perspective(360px) rotateY(7deg) translateX(2px)'
       };
+      disc.style.transform = tilts[dir] || '';
 
-      btn.addEventListener('touchstart', handleDpadDir, { passive: false });
-      btn.addEventListener('pointerdown', (e) => {
-        if (e.pointerType === 'touch') return; // Handled directly by touchstart
-        handleDpadDir(e);
-      });
-      btn.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        btn.classList.remove('touch-active');
-      }, { passive: false });
-      btn.addEventListener('touchcancel', () => {
-        btn.classList.remove('touch-active');
-      }, { passive: true });
-      btn.addEventListener('click', (e) => {
+      // Ghost preview
+      if (this.ghostPreview) this.ghostPreview.showGhost(dir);
+
+      // Tactile haptic feedback
+      if (navigator.vibrate) {
+        try { navigator.vibrate(10); } catch {}
+      }
+
+      // Execute move immediately
+      if (this.inputManager && !this.inputManager.enabled) return;
+      this.handleMove(dir);
+    };
+
+    const getDirFromCoords = (clientX, clientY) => {
+      const rect = disc.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const dx = clientX - cx;
+      const dy = clientY - cy;
+      const dist = Math.hypot(dx, dy);
+
+      // Deadzone around center hub (14px)
+      if (dist < 14) return null;
+
+      const angleDeg = Math.atan2(dy, dx) * (180 / Math.PI);
+      if (angleDeg >= -135 && angleDeg < -45) return 'up';
+      if (angleDeg >= -45 && angleDeg < 45) return 'right';
+      if (angleDeg >= 45 && angleDeg < 135) return 'down';
+      return 'left';
+    };
+
+    // Full 360-degree pointer drag & continuous glide across petals
+    disc.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      activePointerId = e.pointerId;
+      try { disc.setPointerCapture(e.pointerId); } catch {}
+      const dir = getDirFromCoords(e.clientX, e.clientY);
+      if (dir) triggerDir(dir);
+    });
+
+    disc.addEventListener('pointermove', (e) => {
+      if (activePointerId !== e.pointerId) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const dir = getDirFromCoords(e.clientX, e.clientY);
+      if (dir && dir !== lastTriggeredDir) {
+        triggerDir(dir);
+      }
+    });
+
+    const onPointerRelease = (e) => {
+      if (activePointerId === e.pointerId) {
+        activePointerId = null;
+        try { disc.releasePointerCapture(e.pointerId); } catch {}
+      }
+      setTimeout(clearActivePetals, 90);
+    };
+
+    disc.addEventListener('pointerup', onPointerRelease);
+    disc.addEventListener('pointercancel', onPointerRelease);
+
+    // Support discrete tapping on individual petals
+    disc.querySelectorAll('.dpad-petal[data-dir]').forEach(petal => {
+      petal.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
+        triggerDir(petal.dataset.dir);
+        setTimeout(clearActivePetals, 100);
       });
     });
+
+    // Layer up / down buttons in 3D mode
+    const layerUp = document.getElementById('btn-layer-up');
+    const layerDown = document.getElementById('btn-layer-down');
+    [layerUp, layerDown].forEach(btn => {
+      if (!btn) return;
+      const onLayerTrigger = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const dir = btn.dataset.dir;
+        btn.classList.add('active');
+        if (navigator.vibrate) { try { navigator.vibrate(10); } catch {} }
+        if (this.inputManager && !this.inputManager.enabled) return;
+        this.handleMove(dir);
+        setTimeout(() => btn.classList.remove('active'), 120);
+      };
+      btn.addEventListener('pointerdown', onLayerTrigger);
+      btn.addEventListener('click', onLayerTrigger);
+    });
+
+    this.updateDpadLayerDock();
+  }
+
+  updateDpadLayerDock() {
+    const dock = document.getElementById('dpad-layer-dock');
+    if (!dock) return;
+    dock.style.display = this.mode === '3x3x3' ? 'flex' : 'none';
   }
 
   setupCameraSnapBar() {

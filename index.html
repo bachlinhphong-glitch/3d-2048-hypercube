@@ -51,18 +51,18 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./src/style.css?v=6.8.37">
+  <link rel="stylesheet" href="./src/style.css?v=6.8.38">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=6.8.37').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=6.8.38').then(reg => {
           reg.update();
         }).catch(() => {});
       });
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         try {
-          if (!sessionStorage.getItem('sw_reloaded_6837')) {
-            sessionStorage.setItem('sw_reloaded_6837', '1');
+          if (!sessionStorage.getItem('sw_reloaded_6838')) {
+            sessionStorage.setItem('sw_reloaded_6838', '1');
             window.location.reload();
           }
         } catch {}
@@ -382,34 +382,40 @@
       </button>
     </div>
 
-    <!-- D-Pad Direction Controls (right side) -->
-    <div id="dir-pad" class="dir-pad">
-      <button class="dpad-btn" data-dir="up" title="Lên (W/↑)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5m0 0l-7 7m7-7 7 7"/></svg>
-      </button>
-      <div class="dpad-middle-row">
-        <button class="dpad-btn" data-dir="left" title="Trái (A/←)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5m0 0l7 7m-7-7 7-7"/></svg>
+    <!-- 🕹️ Arcade Directional Pad (Redesigned Unified Cross Disk) -->
+    <div id="dir-pad" class="dir-pad-container" role="group" aria-label="Bộ điều hướng 2048">
+      <!-- 3D Layer Wings (Tầng Trên / Tầng Dưới - tự động ẩn ở chế độ 4x4) -->
+      <div class="dpad-layer-dock" id="dpad-layer-dock">
+        <button class="dpad-layer-btn" id="btn-layer-up" data-dir="layerUp" title="Lên tầng trên (E / PageUp)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m18 15-6-6-6 6"/></svg>
+          <span>TẦNG TRÊN (E)</span>
         </button>
-        <button class="dpad-btn dpad-center" data-dir="iso" title="Reset Camera">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-        </button>
-        <button class="dpad-btn" data-dir="right" title="Phải (D/→)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14m0 0-7-7m7 7-7 7"/></svg>
+        <button class="dpad-layer-btn" id="btn-layer-down" data-dir="layerDown" title="Xuống tầng dưới (Q / PageDown)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+          <span>TẦNG DƯỚI (Q)</span>
         </button>
       </div>
-      <button class="dpad-btn" data-dir="down" title="Xuống (S/↓)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14m0 0 7-7m-7 7-7-7"/></svg>
-      </button>
-      <div class="dpad-depth-row">
-        <button class="dpad-btn dpad-layer" id="btn-layer-up" data-dir="layerUp" title="Lên tầng (E)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 15 7-7 7 7"/><path d="M5 19h14" opacity=".4"/></svg>
-          <span>E</span>
+
+      <!-- Unified 4-Way Arcade Disc (Đĩa điều hướng nguyên khối chống kẹt) -->
+      <div class="dpad-disc" id="dpad-disc">
+        <!-- 4 Directional Petals with generous touch zones -->
+        <button class="dpad-petal dpad-petal-up" data-dir="up" title="Lên (W / ↑)" aria-label="Lên">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
         </button>
-        <button class="dpad-btn dpad-layer" id="btn-layer-down" data-dir="layerDown" title="Xuống tầng (Q)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 9 7 7 7-7"/><path d="M5 5h14" opacity=".4"/></svg>
-          <span>Q</span>
+        <button class="dpad-petal dpad-petal-right" data-dir="right" title="Phải (D / →)" aria-label="Phải">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
         </button>
+        <button class="dpad-petal dpad-petal-down" data-dir="down" title="Xuống (S / ↓)" aria-label="Xuống">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <button class="dpad-petal dpad-petal-left" data-dir="left" title="Trái (A / ←)" aria-label="Trái">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+
+        <!-- Tactile Metallic Center Core (Không có nút reset cam gây bấm nhầm!) -->
+        <div class="dpad-center-hub" aria-hidden="true">
+          <div class="dpad-center-ring"></div>
+        </div>
       </div>
     </div>
 
@@ -1160,6 +1166,6 @@
   </div>
 
   <!-- Main Game Script -->
-  <script type="module" src="./src/main.js?v=6.8.37"></script>
+  <script type="module" src="./src/main.js?v=6.8.38"></script>
 </body>
 </html>

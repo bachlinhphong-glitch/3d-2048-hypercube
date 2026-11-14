@@ -140,7 +140,7 @@ export class InputManager {
     this.domElement.addEventListener('touchstart', (e) => {
       if (e.touches.length !== 1) return;
       if (this.isBlockedByUI()) return;
-      if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .spell-bar, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel, .dpad-btn, .cam-btn, .slice-btn, .banner-container, .inapp-challenge-card, .trophy-tab-btn, .custom-bg-input')) {
+      if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .spell-bar, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel, .dir-pad-container, .dpad-disc, .dpad-petal, .dpad-layer-btn, .dpad-btn, .cam-btn, .slice-btn, .banner-container, .inapp-challenge-card, .trophy-tab-btn, .custom-bg-input')) {
         return;
       }
       const t = e.touches[0];
@@ -228,7 +228,7 @@ export class InputManager {
         return;
       }
       if (e.button !== 0 && e.pointerType === 'mouse') return;
-      if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .spell-bar, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel, .dpad-btn, .cam-btn, .slice-btn, .banner-container, .inapp-challenge-card, .trophy-tab-btn, .custom-bg-input')) {
+      if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .spell-bar, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel, .dir-pad-container, .dpad-disc, .dpad-petal, .dpad-layer-btn, .dpad-btn, .cam-btn, .slice-btn, .banner-container, .inapp-challenge-card, .trophy-tab-btn, .custom-bg-input')) {
         return;
       }
 
@@ -272,7 +272,7 @@ export class InputManager {
       if (!this.enabled) return;
 
       // Do not process swipes if released on interactive control elements
-      if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .spell-bar, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel, .dpad-btn, .cam-btn, .slice-btn')) {
+      if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .spell-bar, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel, .dir-pad-container, .dpad-disc, .dpad-petal, .dpad-layer-btn, .dpad-btn, .cam-btn, .slice-btn')) {
         return;
       }
 

@@ -3293,29 +3293,29 @@ body.theme-zen_clay .share-x .share-app-svg {
 }
 
 /* Device Touch Adapted D-Pad Layout */
-.dir-pad.device-touch-adapted {
+.dir-pad-container.device-touch-adapted {
   display: flex !important;
   position: fixed !important;
-  right: 12px !important;
-  bottom: 104px !important;
+  right: 14px !important;
+  bottom: calc(max(16px, env(safe-area-inset-bottom, 16px)) + 112px) !important;
   z-index: 35 !important;
-  transform: scale(0.82) !important;
+  transform: scale(0.86) !important;
   transform-origin: bottom right !important;
   pointer-events: auto !important;
   opacity: 0.92;
   transition: opacity 0.2s, transform 0.2s;
 }
 
-.dir-pad.device-touch-adapted:hover,
-.dir-pad.device-touch-adapted:focus-within {
+.dir-pad-container.device-touch-adapted:hover,
+.dir-pad-container.device-touch-adapted:focus-within {
   opacity: 1;
 }
 
 @media (max-width: 380px) {
-  .dir-pad.device-touch-adapted {
-    right: 6px !important;
-    bottom: 96px !important;
-    transform: scale(0.74) !important;
+  .dir-pad-container.device-touch-adapted {
+    right: 8px !important;
+    bottom: calc(max(14px, env(safe-area-inset-bottom, 14px)) + 70px) !important;
+    transform: scale(0.82) !important;
   }
 }
 
@@ -4298,16 +4298,17 @@ body.in-boss-mode #demo-theme-switcher {
     margin-bottom: calc(max(16px, env(safe-area-inset-bottom, 16px)) + 84px) !important; /* Clean breathing space above spell buttons */
   }
 
-  /* D-Pad on mobile viewports: hidden by default to prevent overlapping summoner spells */
-  .dir-pad {
+  /* D-Pad on mobile viewports */
+  .dir-pad-container {
     display: none !important;
   }
 
-  .dir-pad.force-show {
+  .dir-pad-container.force-show,
+  .dir-pad-container.device-touch-adapted {
     display: flex !important;
-    right: 8px;
-    bottom: 120px;
-    transform: scale(0.85);
+    right: 14px;
+    bottom: calc(max(16px, env(safe-area-inset-bottom, 16px)) + 112px);
+    transform: scale(0.86);
     transform-origin: bottom right;
   }
 
@@ -4785,12 +4786,32 @@ body.theme-zen_clay .cam-btn {
   box-shadow: 0 4px 12px rgba(187, 173, 160, 0.16);
 }
 
-body.theme-gentle_light .dpad-btn,
-body.theme-zen_clay .dpad-btn {
-  background: rgba(255, 255, 255, 0.94);
-  border: 1px solid rgba(187, 173, 160, 0.35);
+body.theme-gentle_light .dpad-disc,
+body.theme-zen_clay .dpad-disc {
+  background: radial-gradient(circle at 45% 40%, rgba(255, 255, 255, 0.98) 0%, rgba(240, 235, 225, 0.96) 100%);
+  border: 1.5px solid rgba(187, 173, 160, 0.45);
+  box-shadow: 0 10px 28px rgba(187, 173, 160, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.8);
+}
+body.theme-gentle_light .dpad-petal,
+body.theme-zen_clay .dpad-petal {
   color: #776e65;
-  box-shadow: 0 4px 14px rgba(187, 173, 160, 0.2);
+}
+body.theme-gentle_light .dpad-petal:hover svg,
+body.theme-gentle_light .dpad-petal.active svg,
+body.theme-zen_clay .dpad-petal:hover svg,
+body.theme-zen_clay .dpad-petal.active svg {
+  color: #f59e0b;
+  filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.6));
+}
+body.theme-gentle_light .dpad-center-hub,
+body.theme-zen_clay .dpad-center-hub {
+  background: radial-gradient(circle at 35% 35%, #f4f0e6 0%, #e2dac9 100%);
+  border-color: rgba(187, 173, 160, 0.4);
+}
+body.theme-gentle_light .dpad-center-ring,
+body.theme-zen_clay .dpad-center-ring {
+  border-color: rgba(245, 158, 11, 0.6);
+  background: rgba(245, 158, 11, 0.15);
 }
 
 body.theme-gentle_light .modal-card,
@@ -4930,12 +4951,22 @@ body.theme-modern_slate .cam-btn {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
-body.theme-gentle_dark .dpad-btn,
-body.theme-modern_slate .dpad-btn {
-  background: rgba(36, 33, 29, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+body.theme-gentle_dark .dpad-disc,
+body.theme-modern_slate .dpad-disc {
+  background: radial-gradient(circle at 45% 40%, rgba(42, 38, 33, 0.98) 0%, rgba(22, 20, 17, 0.98) 100%);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), inset 0 2px 4px rgba(255, 255, 255, 0.15);
+}
+body.theme-gentle_dark .dpad-petal,
+body.theme-modern_slate .dpad-petal {
   color: #e8ded4;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+}
+body.theme-gentle_dark .dpad-petal:hover svg,
+body.theme-gentle_dark .dpad-petal.active svg,
+body.theme-modern_slate .dpad-petal:hover svg,
+body.theme-modern_slate .dpad-petal.active svg {
+  color: #f59e0b;
+  filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.7));
 }
 
 body.theme-gentle_dark .modal-card,
@@ -5223,138 +5254,250 @@ body.theme-zen_clay .rush-progress-track {
   box-shadow: 0 0 8px rgba(0, 240, 255, 0.25);
 }
 
-/* --- D-Pad Direction Controls --- */
-.dir-pad {
+/* ==========================================================================
+   🕹️ REDESIGNED CYBERPUNK ARCADE D-PAD (UNIFIED PRECISION CROSS DISC)
+   - Zero clunky square buttons
+   - Zero camera reset button in the center
+   - Continuous 360° touch glide engine with tactile 3D depression & neon glow
+   - Ergonomic positioning for both Mobile (thumb comfort) & Desktop (docked HUD)
+   ========================================================================== */
+
+.dir-pad-container {
   position: fixed;
-  right: 14px;
-  bottom: 90px;
-  z-index: 30;
+  right: 28px;
+  bottom: 24px;
+  z-index: 35;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  pointer-events: auto;
+  gap: 8px;
+  pointer-events: auto !important;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.dir-pad.hide-dpad {
+.dir-pad-container.hide-dpad {
   display: none !important;
 }
 
-.dpad-middle-row,
-.dpad-depth-row {
-  display: flex;
+/* 3D Mode Layer Triggers (Lên tầng / Xuống tầng) */
+.dpad-layer-dock {
+  display: none; /* Controlled dynamically in JS for 3x3x3 mode */
   flex-direction: row;
-  gap: 4px;
+  gap: 8px;
   align-items: center;
+  justify-content: center;
 }
 
-.dpad-depth-row {
-  margin-top: 4px;
-  gap: 6px;
+.dpad-layer-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  background: rgba(18, 22, 35, 0.92);
+  border: 1px solid rgba(168, 85, 247, 0.45);
+  border-radius: 18px;
+  color: #e9d5ff;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45), 0 0 10px rgba(168, 85, 247, 0.2);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  touch-action: none;
+  transition: all 0.12s ease;
 }
 
-.dpad-btn {
-  min-width: 48px;
-  min-height: 48px;
+.dpad-layer-btn svg {
+  width: 14px;
+  height: 14px;
+  color: #c084fc;
+}
+
+.dpad-layer-btn:hover,
+.dpad-layer-btn.active {
+  background: rgba(168, 85, 247, 0.25);
+  border-color: #c084fc;
+  color: #ffffff;
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 0 16px rgba(192, 132, 252, 0.5);
+}
+
+.dpad-layer-btn:active {
+  transform: translateY(1px) scale(0.96);
+}
+
+/* The Unified Circular Controller Disc */
+.dpad-disc {
+  position: relative;
+  width: 126px;
+  height: 126px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 45% 40%, rgba(30, 41, 64, 0.96) 0%, rgba(13, 17, 26, 0.98) 100%);
+  border: 1.5px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 
+    0 12px 32px rgba(0, 0, 0, 0.65),
+    inset 0 2px 4px rgba(255, 255, 255, 0.18),
+    inset 0 -2px 6px rgba(0, 0, 0, 0.6),
+    0 0 18px rgba(56, 189, 248, 0.15);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #141824;
-  border: 1px solid #283144;
-  border-bottom: 2px solid #0c0f17;
-  border-radius: 10px;
-  color: #c5d1e8;
-  cursor: pointer;
-  transition: all 0.1s ease;
-  padding: 8px;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.4);
-  flex-direction: column;
-  gap: 2px;
   touch-action: none;
-  position: relative;
-  -webkit-user-select: none;
-  user-select: none;
+  cursor: pointer;
+  transform-style: preserve-3d;
+  perspective: 400px;
+  transition: transform 0.12s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-/* Touch hit-slop expansion (+6px all sides = 60px effective target area) */
-.dpad-btn::before {
-  content: '';
+.dpad-disc:hover {
+  border-color: rgba(56, 189, 248, 0.4);
+  box-shadow: 
+    0 14px 36px rgba(0, 0, 0, 0.7),
+    inset 0 2px 4px rgba(255, 255, 255, 0.25),
+    0 0 22px rgba(56, 189, 248, 0.28);
+}
+
+/* 4 Sculpted Directional Petals with Generous Touch Hitboxes */
+.dpad-petal {
   position: absolute;
-  inset: -6px;
-  border-radius: 12px;
-  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  touch-action: none;
+  color: rgba(255, 255, 255, 0.72);
+  transition: color 0.1s ease, transform 0.1s ease;
+  z-index: 2;
 }
 
-.dpad-btn svg {
-  width: 22px;
-  height: 22px;
+.dpad-petal svg {
   display: block;
-  flex-shrink: 0;
   pointer-events: none;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+  transition: all 0.12s ease;
 }
 
-.dpad-btn:hover {
-  background: #1e2436;
-  border-color: #ffbe0b;
-  color: #ffbe0b;
-  box-shadow: 0 0 12px rgba(255, 190, 11, 0.25);
+/* Individual Petal Geometries (Seamless Cross inside Disc) */
+.dpad-petal-up {
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 48px;
+  height: 40px;
+  border-radius: 18px 18px 8px 8px;
+}
+.dpad-petal-up svg {
+  width: 24px;
+  height: 24px;
+  margin-top: -2px;
 }
 
-.dpad-btn:active,
-.dpad-btn.touch-active {
-  transform: scale(0.92) translateY(1.5px);
-  border-bottom-width: 1px;
-  border-color: #38bdf8;
-  background: #1e293b;
+.dpad-petal-right {
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 48px;
+  border-radius: 8px 18px 18px 8px;
+}
+.dpad-petal-right svg {
+  width: 24px;
+  height: 24px;
+  margin-right: -2px;
+}
+
+.dpad-petal-down {
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 48px;
+  height: 40px;
+  border-radius: 8px 8px 18px 18px;
+}
+.dpad-petal-down svg {
+  width: 24px;
+  height: 24px;
+  margin-bottom: -2px;
+}
+
+.dpad-petal-left {
+  left: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 48px;
+  border-radius: 18px 8px 8px 18px;
+}
+.dpad-petal-left svg {
+  width: 24px;
+  height: 24px;
+  margin-left: -2px;
+}
+
+/* Luminous Glow & Tactile Response when a petal is active */
+.dpad-petal:hover svg,
+.dpad-petal.active svg {
   color: #38bdf8;
-  box-shadow: 0 0 16px rgba(56, 189, 248, 0.45);
+  filter: drop-shadow(0 0 10px #38bdf8) drop-shadow(0 0 16px rgba(56, 189, 248, 0.8));
+  transform: scale(1.16);
 }
 
-.dpad-btn.dpad-center {
-  background: rgba(0, 240, 255, 0.08);
-  border-color: rgba(0, 240, 255, 0.2);
-  min-width: 44px;
-  min-height: 44px;
+.dpad-petal.active {
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.35) 0%, transparent 80%);
 }
 
-.dpad-btn.dpad-center:hover {
-  background: rgba(0, 240, 255, 0.2);
+.dpad-petal-up.active svg { transform: scale(1.18) translateY(-2px); }
+.dpad-petal-right.active svg { transform: scale(1.18) translateX(2px); }
+.dpad-petal-down.active svg { transform: scale(1.18) translateY(2px); }
+.dpad-petal-left.active svg { transform: scale(1.18) translateX(-2px); }
+
+/* Tactile Metallic Center Core (Solid Anchor Hub - NO accidental click!) */
+.dpad-center-hub {
+  position: absolute;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #2a3854 0%, #101625 100%);
+  border: 1.5px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 
+    inset 0 2px 4px rgba(255, 255, 255, 0.22),
+    0 4px 10px rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 3;
 }
 
-.dpad-layer {
-  min-width: 40px;
-  min-height: 40px;
-  font-size: 10px;
-  font-weight: 700;
-  padding: 5px 8px;
-  border-radius: 10px;
-  color: rgba(255, 255, 255, 0.7);
+.dpad-center-ring {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(56, 189, 248, 0.5);
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.3) 0%, transparent 80%);
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.4);
 }
 
-.dpad-layer span {
-  font-size: 9px;
-  font-weight: 800;
-  font-family: ui-monospace, monospace;
-  color: var(--accent-blue, #38bdf8);
-  line-height: 1;
-}
-
-.dpad-layer svg {
-  width: 16px;
-  height: 16px;
-}
-
-/* --- Responsive: hide D-pad on small screens or adjust if forced --- */
+/* --- Responsive: adjust D-pad on small screens --- */
 @media (max-width: 380px) {
-  .dir-pad.force-show {
+  .dir-pad-container.force-show,
+  .dir-pad-container.device-touch-adapted {
     right: 8px;
-    bottom: calc(max(14px, env(safe-area-inset-bottom, 14px)) + 92px);
-    transform: none;
-  }
-  .dpad-btn {
-    min-width: 44px;
-    min-height: 44px;
-    padding: 6px;
+    bottom: calc(max(14px, env(safe-area-inset-bottom, 14px)) + 70px);
+    transform: scale(0.82);
+    transform-origin: bottom right;
   }
   .camera-snap-bar {
     right: 8px;
@@ -5387,26 +5530,19 @@ body.theme-zen_clay .rush-progress-track {
   }
 
   /* Floating D-pad on mobile viewports: hidden when 'hide-dpad', adapted when 'device-touch-adapted' */
-  .dir-pad {
+  .dir-pad-container {
     display: none !important;
   }
 
-  .dir-pad.force-show {
-    display: flex !important;
-    right: 8px;
-    bottom: 120px;
-    transform: scale(0.85);
-    transform-origin: bottom right;
-  }
-
-  .dir-pad.device-touch-adapted,
-  .dir-pad.force-show.device-touch-adapted {
+  .dir-pad-container.force-show,
+  .dir-pad-container.device-touch-adapted {
     display: flex !important;
     position: fixed !important;
-    right: 12px !important;
-    bottom: calc(max(14px, env(safe-area-inset-bottom, 14px)) + 124px) !important;
+    right: 14px !important;
+    bottom: calc(max(16px, env(safe-area-inset-bottom, 16px)) + 112px) !important;
     z-index: 35 !important;
-    transform: none !important;
+    transform: scale(0.86) !important;
+    transform-origin: bottom right !important;
     pointer-events: auto !important;
   }
 
@@ -6939,7 +7075,7 @@ select option:checked,
    ========================================================================== */
 .header-bar,
 .spell-bar,
-.dir-pad,
+.dir-pad-container,
 .camera-snap-bar,
 .slice-controls,
 .glass-btn,
