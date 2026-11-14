@@ -26,6 +26,20 @@
   box-sizing: border-box;
   user-select: none;
   -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent !important;
+  -webkit-touch-callout: none !important;
+}
+
+button, a, input, select, [role="button"] {
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+button:focus,
+button:focus-visible,
+button:active {
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent !important;
 }
 
 html, body {
@@ -4248,18 +4262,31 @@ body.in-boss-mode #demo-theme-switcher {
   }
 
   .shape-quick-wrapper {
-    flex: 2.2 1 0;
-    min-width: 130px;
-    max-width: 165px;
+    flex: 1.3 1 0 !important;
+    min-width: 90px !important;
+    max-width: 120px !important;
+    height: 30px !important;
     position: relative;
     display: flex;
     align-items: center;
+    padding: 0 4px !important;
   }
 
   .shape-quick-wrapper .shape-prefix-icon {
-    left: 6px;
+    left: 4px;
     width: 13px;
     height: 13px;
+  }
+
+  .shape-trigger-btn {
+    font-size: 11px !important;
+    gap: 4px !important;
+    padding: 0 2px !important;
+  }
+
+  .shape-trigger-btn #shape-trigger-label {
+    font-size: 11px !important;
+    font-weight: 700 !important;
   }
 
   .shape-quick-select {
@@ -4277,15 +4304,15 @@ body.in-boss-mode #demo-theme-switcher {
   }
 
   .header-modes-cluster .glass-btn {
-    flex: 1 1 0;
-    min-width: 0;
-    height: 30px;
-    min-height: 30px;
-    padding: 3px 6px;
-    font-size: 10px;
-    font-weight: 600;
+    flex: 1 1 0 !important;
+    min-width: 54px !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    padding: 3px 6px !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
     justify-content: center;
-    gap: 3px;
+    gap: 3px !important;
     overflow: hidden;
   }
 
@@ -4297,11 +4324,11 @@ body.in-boss-mode #demo-theme-switcher {
 
   .header-modes-cluster .btn-text {
     display: inline-block;
-    font-size: 10px;
-    font-weight: 600;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
   }
 
   /* Compact Quest Button: Trophy icon + badge on mobile screens (zero clipping) */
@@ -4474,7 +4501,13 @@ body.in-boss-mode #demo-theme-switcher {
   }
 
   .shape-quick-wrapper {
-    min-width: 126px;
+    min-width: 85px !important;
+    max-width: 110px !important;
+    padding: 0 4px !important;
+  }
+
+  .shape-trigger-btn #shape-trigger-label {
+    font-size: 10px !important;
   }
 
   .shape-quick-select {
@@ -4486,12 +4519,15 @@ body.in-boss-mode #demo-theme-switcher {
   }
 
   .header-modes-cluster .glass-btn {
-    padding: 2px 4px;
-    font-size: 9px;
+    padding: 2px 5px !important;
+    font-size: 10px !important;
+    min-width: 50px !important;
   }
 
   .header-modes-cluster .btn-text {
-    font-size: 9px;
+    font-size: 10px !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
   }
 }
 
@@ -5452,6 +5488,10 @@ body.theme-zen_clay .rush-progress-track {
   justify-content: center;
   touch-action: none;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent !important;
+  -webkit-touch-callout: none !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
   transform-style: preserve-3d;
   perspective: 400px;
   transition: transform 0.12s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.2s ease, border-color 0.2s ease;
@@ -5481,6 +5521,17 @@ body.theme-zen_clay .rush-progress-track {
   color: rgba(255, 255, 255, 0.72);
   transition: color 0.1s ease, transform 0.1s ease;
   z-index: 2;
+  -webkit-tap-highlight-color: transparent !important;
+  -webkit-touch-callout: none !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+
+.dpad-petal:focus,
+.dpad-petal:focus-visible,
+.dpad-petal:active {
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent !important;
 }
 
 .dpad-petal svg {
@@ -6791,6 +6842,62 @@ body.theme-gentle_light .settings-label {
   color: #1c1c1e !important;
 }
 
+/* High Contrast Light Theme Support for Header & D-Pad */
+body.theme-gentle_light .shape-trigger-btn #shape-trigger-label,
+body.theme-zen_clay .shape-trigger-btn #shape-trigger-label {
+  color: #1c1c1e !important;
+}
+
+body.theme-gentle_light .shape-chevron-icon,
+body.theme-zen_clay .shape-chevron-icon {
+  stroke: #776e65 !important;
+}
+
+body.theme-gentle_light .shape-prefix-icon,
+body.theme-zen_clay .shape-prefix-icon {
+  stroke: #0284c7 !important;
+}
+
+body.theme-gentle_light .header-modes-cluster .glass-btn,
+body.theme-zen_clay .header-modes-cluster .glass-btn,
+body.theme-gentle_light .header-modes-cluster .shape-quick-wrapper,
+body.theme-zen_clay .header-modes-cluster .shape-quick-wrapper {
+  background: rgba(0, 0, 0, 0.05) !important;
+  border-color: rgba(187, 173, 160, 0.45) !important;
+  color: #1c1c1e !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06) !important;
+}
+
+body.theme-gentle_light .stat-pill.best .stat-value,
+body.theme-zen_clay .stat-pill.best .stat-value {
+  color: #b45309 !important;
+  text-shadow: none !important;
+  font-weight: 800 !important;
+}
+
+body.theme-gentle_light #btn-toggle-rush .btn-text,
+body.theme-zen_clay #btn-toggle-rush .btn-text {
+  color: #c2410c !important;
+}
+
+body.theme-gentle_light #btn-toggle-boss .btn-text,
+body.theme-zen_clay #btn-toggle-boss .btn-text {
+  color: #b91c1c !important;
+}
+
+body.theme-gentle_light .header-modes-cluster .quest-badge,
+body.theme-zen_clay .header-modes-cluster .quest-badge {
+  background: #fef08a !important;
+  color: #854d0e !important;
+  border: 1px solid rgba(180, 83, 9, 0.3) !important;
+  box-shadow: none !important;
+}
+
+body.theme-gentle_light .dpad-petal.active,
+body.theme-zen_clay .dpad-petal.active {
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.25) 0%, transparent 80%) !important;
+}
+
 
 /* ==========================================================================
    ENHANCED HEADER BUTTONS: CRYSTAL-CLEAR VISIBILITY & HIGH-CONTRAST ACCENTS
@@ -6856,10 +6963,10 @@ body.theme-gentle_light .settings-label {
 .header-modes-cluster .shape-quick-wrapper {
   background: rgba(255, 255, 255, 0.14) !important;
   border: 1.5px solid rgba(255, 255, 255, 0.24) !important;
-  color: #ffffff !important;
+  color: #ffffff;
   font-weight: 600 !important;
   border-radius: 9999px !important;
-  padding: 6px 13px !important;
+  padding: 6px 12px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
   transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1) !important;
 }

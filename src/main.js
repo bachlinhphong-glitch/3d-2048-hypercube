@@ -1616,13 +1616,13 @@ class GameApp {
     if (pref === 'system') {
       const isDark = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
       targetTheme = isDark ? 'gentle_dark' : 'gentle_light';
-      this.showSpellToast(`THEO MÁY: ${isDark ? 'Tối Hiền Hòa' : 'Sáng Hiền Hòa'}`);
+      this.showSpellToast(`THEO MÁY: ${isDark ? 'Tối Hiện Đại' : 'Sáng Thanh Lịch'}`);
     } else if (pref === 'gentle_light' || pref === 'zen_clay') {
       targetTheme = 'gentle_light';
-      this.showSpellToast('GIAO DIỆN: Sáng Hiền Hòa');
+      this.showSpellToast('GIAO DIỆN: Sáng Thanh Lịch');
     } else if (pref === 'gentle_dark' || pref === 'modern_slate') {
       targetTheme = 'gentle_dark';
-      this.showSpellToast('GIAO DIỆN: Tối Hiền Hòa');
+      this.showSpellToast('GIAO DIỆN: Tối Hiện Đại');
     } else {
       const themeSelect = document.getElementById('select-theme');
       const label = themeSelect && themeSelect.selectedOptions && themeSelect.selectedOptions[0] ? themeSelect.selectedOptions[0].text : pref;
