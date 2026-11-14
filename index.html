@@ -55,14 +55,14 @@
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=6.8.40').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=6.8.41').then(reg => {
           reg.update();
         }).catch(() => {});
       });
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         try {
-          if (!sessionStorage.getItem('sw_reloaded_6840')) {
-            sessionStorage.setItem('sw_reloaded_6840', '1');
+          if (!sessionStorage.getItem('sw_reloaded_6841')) {
+            sessionStorage.setItem('sw_reloaded_6841', '1');
             window.location.reload();
           }
         } catch {}

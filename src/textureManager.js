@@ -139,6 +139,8 @@ export class TextureManager {
 
     if (value === 2048 && !isBomb) {
       this.drawGrand2048Face(ctx, size, isMinimalist, isLight);
+    } else if (value === 1024 && !isBomb) {
+      this.drawGrand1024Face(ctx, size, isMinimalist, isLight);
     } else if (isMinimalist) {
       // ===== PURE MINIMALIST TEXTURE (HIỀN HÒA, NO NEON, TACTILE SATIN FINISH) =====
       const grad = ctx.createLinearGradient(0, 0, size, size);
@@ -344,6 +346,17 @@ export class TextureManager {
       texture.needsUpdate = true;
       this.spriteTextureCache.set(cacheKey, texture);
       return texture;
+    } else if (value === 1024 && !isBomb) {
+      this.drawGrand1024Sprite(ctx, size, isLight);
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.colorSpace = THREE.SRGBColorSpace;
+      texture.generateMipmaps = true;
+      texture.minFilter = THREE.LinearMipmapLinearFilter;
+      texture.magFilter = THREE.LinearFilter;
+      texture.anisotropy = 16;
+      texture.needsUpdate = true;
+      this.spriteTextureCache.set(cacheKey, texture);
+      return texture;
     }
 
     // Clear transparent background
@@ -493,12 +506,30 @@ export class TextureManager {
     const emissiveIntensity = isMinimalist ? 0 : ((isBomb ? 0.7 : style.intensity) * multiplier);
 
     const isGrand2048 = value >= 2048 && !isBomb;
-    // Apple-grade satin 24K gold finish: smooth, warm specular highlights
-    const roughness = isGrand2048 ? 0.24 : (isLight ? 0.55 : (isDark ? 0.48 : 0.18));
-    const metalness = isGrand2048 ? 0.38 : (isLight ? 0.02 : (isDark ? 0.08 : 0.22));
+    const isGrand1024 = value === 1024 && !isBomb;
 
-    const finalEmissiveColor = new THREE.Color(isBomb ? 0xff2222 : (isGrand2048 ? 0xffaa00 : (isMinimalist ? 0x000000 : style.emissive)));
-    const finalEmissiveIntensity = isGrand2048 ? 0.32 : (isMinimalist ? 0 : ((isBomb ? 0.7 : style.intensity) * multiplier));
+    let roughness = isLight ? 0.55 : (isDark ? 0.48 : 0.18);
+    let metalness = isLight ? 0.02 : (isDark ? 0.08 : 0.22);
+    let finalEmissiveColor = new THREE.Color(isBomb ? 0xff2222 : (isMinimalist ? 0x000000 : style.emissive));
+    let finalEmissiveIntensity = isMinimalist ? 0 : ((isBomb ? 0.7 : style.intensity) * multiplier);
+
+    if (isGrand2048) {
+      // Sovereign 24K Imperial Mirror Gold
+      roughness = 0.10;
+      metalness = 0.95;
+      finalEmissiveColor = new THREE.Color(0xf59e0b);
+      finalEmissiveIntensity = 0.42;
+    } else if (isGrand1024) {
+      // Platinum Diamond Sovereign
+      roughness = 0.14;
+      metalness = 0.88;
+      finalEmissiveColor = new THREE.Color(0x38bdf8);
+      finalEmissiveIntensity = 0.35;
+    }
+
+    const sideColor = isBomb 
+      ? 0xcc1111 
+      : (isGrand2048 ? 0xb45309 : (isGrand1024 ? 0x1e293b : style.bg));
 
     // High-performance tactile standard material
     const faceMatWithText = new THREE.MeshStandardMaterial({
@@ -510,7 +541,7 @@ export class TextureManager {
     });
 
     const solidSideMat = new THREE.MeshStandardMaterial({
-      color: new THREE.Color(isBomb ? 0xcc1111 : (isGrand2048 ? 0xf59e0b : style.bg)),
+      color: new THREE.Color(sideColor),
       roughness: roughness,
       metalness: metalness,
       emissive: finalEmissiveColor,
@@ -668,94 +699,585 @@ export class TextureManager {
     this.materialCache.set(key, bombMat);
     return bombMat;
   }
-  // ================= THE ICONIC 2048 MASTERPIECE DRAWING METHODS =================
-  drawGrand2048Face(ctx, size, isMinimalist = false, isLight = false) {
-    // 1. Radiant 24K Imperial Gold Satin Foundation
+  // ================= THE ICONIC 1024 & 2048 SOVEREIGN MASTERPIECE DRAWING METHODS =================
+  drawDiamondStar(ctx, cx, cy, rOuter, rInner, color1 = '#ffffff', color2 = '#38bdf8') {
+    ctx.save();
+    // 8-point faceted diamond star
+    ctx.beginPath();
+    for (let i = 0; i < 8; i++) {
+      const angle = (i * Math.PI) / 4 - Math.PI / 2;
+      const r = (i % 2 === 0) ? rOuter : rInner;
+      const x = cx + Math.cos(angle) * r;
+      const y = cy + Math.sin(angle) * r;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+
+    const starGrad = ctx.createRadialGradient(cx, cy, 2, cx, cy, rOuter);
+    starGrad.addColorStop(0, color1);
+    starGrad.addColorStop(0.55, color2);
+    starGrad.addColorStop(1, '#0284c7');
+    ctx.fillStyle = starGrad;
+    ctx.shadowColor = 'rgba(56, 189, 248, 0.85)';
+    ctx.shadowBlur = 14;
+    ctx.fill();
+
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    // Central brilliant diamond sparkle
+    ctx.beginPath();
+    ctx.arc(cx, cy, rInner * 0.45, 0, Math.PI * 2);
+    ctx.fillStyle = '#ffffff';
+    ctx.shadowColor = '#ffffff';
+    ctx.shadowBlur = 8;
+    ctx.fill();
+
+    // Horizontal satellite spark dots
+    [-rOuter * 1.6, rOuter * 1.6].forEach(dx => {
+      ctx.beginPath();
+      ctx.arc(cx + dx, cy, 3.5, 0, Math.PI * 2);
+      ctx.fillStyle = '#e0f2fe';
+      ctx.fill();
+    });
+
+    ctx.restore();
+  }
+
+  drawCornerDiamond(ctx, x, y, dSize) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(Math.PI / 4);
+
+    // Outer platinum bezel
+    ctx.beginPath();
+    ctx.rect(-dSize / 2 - 2, -dSize / 2 - 2, dSize + 4, dSize + 4);
+    ctx.fillStyle = '#cbd5e1';
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
+    ctx.shadowBlur = 4;
+    ctx.fill();
+
+    // Brilliant Cut Diamond Core
+    ctx.beginPath();
+    ctx.rect(-dSize / 2, -dSize / 2, dSize, dSize);
+    const diaGrad = ctx.createRadialGradient(0, 0, 1, 0, 0, dSize * 0.7);
+    diaGrad.addColorStop(0, '#ffffff');
+    diaGrad.addColorStop(0.35, '#e0f2fe');
+    diaGrad.addColorStop(0.8, '#38bdf8');
+    diaGrad.addColorStop(1, '#0284c7');
+    ctx.fillStyle = diaGrad;
+    ctx.shadowColor = 'transparent';
+    ctx.fill();
+
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Specular lens sparkle
+    ctx.beginPath();
+    ctx.arc(-dSize * 0.22, -dSize * 0.22, dSize * 0.16, 0, Math.PI * 2);
+    ctx.fillStyle = '#ffffff';
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  drawGrand1024Face(ctx, size, isMinimalist = false, isLight = false) {
+    const cx = size / 2;
+    const cy = size / 2;
+
+    // 1. Radiant Platinum Diamond Metallic Foundation
     const grad = ctx.createLinearGradient(0, 0, size, size);
     if (isLight) {
-      grad.addColorStop(0, '#fffbeb');   // Brilliant sunlight crown
-      grad.addColorStop(0.25, '#fde047'); // Pure sparkling gold
-      grad.addColorStop(0.65, '#eab308'); // Warm golden amber
-      grad.addColorStop(1, '#ca8a04');    // Deep gold chamfer
+      grad.addColorStop(0, '#ffffff');
+      grad.addColorStop(0.2, '#f1f5f9');
+      grad.addColorStop(0.55, '#e2e8f0');
+      grad.addColorStop(0.85, '#cbd5e1');
+      grad.addColorStop(1, '#94a3b8');
     } else {
-      grad.addColorStop(0, '#fff6a3');   // Incandescent solar highlight
-      grad.addColorStop(0.22, '#ffd700'); // Pure 24K Radiant Gold
-      grad.addColorStop(0.62, '#f59e0b'); // Rich Honey Gold Core
-      grad.addColorStop(1, '#d97706');    // Deep Warm Gold Bevel
+      grad.addColorStop(0, '#f8fafc');
+      grad.addColorStop(0.18, '#e2e8f0');
+      grad.addColorStop(0.52, '#cbd5e1');
+      grad.addColorStop(0.82, '#94a3b8');
+      grad.addColorStop(1, '#64748b');
     }
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, size, size);
 
-    // 2. Precision Diamond-Cut Apple Chamfer Inset
+    // 2. Iridescent Prismatic Diamond Glaze (45-degree rainbow sheen)
     ctx.save();
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.65)';
+    const prismGrad = ctx.createLinearGradient(0, size, size, 0);
+    prismGrad.addColorStop(0, 'rgba(255, 255, 255, 0.45)');
+    prismGrad.addColorStop(0.25, 'rgba(56, 189, 248, 0.16)'); // Cyan
+    prismGrad.addColorStop(0.50, 'rgba(168, 85, 247, 0.12)'); // Violet
+    prismGrad.addColorStop(0.75, 'rgba(244, 114, 182, 0.08)'); // Rose
+    prismGrad.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
+    ctx.fillStyle = prismGrad;
+    ctx.fillRect(0, 0, size, size);
+
+    // 3. Precision Diamond-Lattice Guilloché Pattern
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
+    ctx.lineWidth = 1.2;
+    for (let d = -size; d < size * 2; d += 36) {
+      ctx.beginPath();
+      ctx.moveTo(d, 0);
+      ctx.lineTo(d + size, size);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(d, size);
+      ctx.lineTo(d + size, 0);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // 4. Double Beveled Platinum Chamfer Inset Frame
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
     ctx.lineWidth = 5;
     ctx.strokeRect(10, 10, size - 20, size - 20);
 
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.45)';
     ctx.lineWidth = 2;
     ctx.strokeRect(18, 18, size - 36, size - 36);
-
-    // 3. Apple Satin Specular Sheen (Refined Top Light Luster)
-    const sheen = ctx.createLinearGradient(0, 0, 0, size * 0.45);
-    sheen.addColorStop(0, 'rgba(255, 255, 255, 0.32)');
-    sheen.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
-    ctx.fillStyle = sheen;
-    ctx.fillRect(10, 10, size - 20, size * 0.45);
     ctx.restore();
 
-    // 4. Apple-Grade Pristine Centered Typography
+    // 5. 4 Corner Diamond Inset Jewels
+    const cornerOffset = 30;
+    this.drawCornerDiamond(ctx, cornerOffset, cornerOffset, 16);
+    this.drawCornerDiamond(ctx, size - cornerOffset, cornerOffset, 16);
+    this.drawCornerDiamond(ctx, cornerOffset, size - cornerOffset, 16);
+    this.drawCornerDiamond(ctx, size - cornerOffset, size - cornerOffset, 16);
+
+    // 6. Celestial 8-Point Diamond Star Emblem
+    this.drawDiamondStar(ctx, cx, 118, 48, 22, '#ffffff', '#38bdf8');
+
+    // 7. 3D Chiseled Platinum Typography ('1024')
     ctx.save();
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.font = '800 142px "Clear Sans", -apple-system, BlinkMacSystemFont, "SF Pro Display", "Plus Jakarta Sans", sans-serif';
+    ctx.font = '900 132px "Outfit", "Clear Sans", -apple-system, BlinkMacSystemFont, "SF Pro Display", "Montserrat", sans-serif';
 
-    const textY = size / 2 + 6;
+    const textY = 292;
 
-    // Soft organic ambient occlusion beneath the numerals
-    ctx.shadowColor = 'rgba(120, 53, 15, 0.55)';
+    // Deep dark contrast dropshadow
+    ctx.shadowColor = 'rgba(15, 23, 42, 0.95)';
+    ctx.shadowBlur = 18;
+    ctx.shadowOffsetY = 7;
+
+    // Chiseled deep slate border
+    ctx.strokeStyle = '#0f172a';
+    ctx.lineWidth = 11;
+    ctx.lineJoin = 'round';
+    ctx.strokeText('1024', cx, textY);
+
+    // Pure brilliant diamond white fill
+    ctx.fillStyle = '#ffffff';
+    ctx.shadowColor = 'transparent';
+    ctx.fillText('1024', cx, textY);
+    ctx.restore();
+
+    // 8. Engraved Platinum Title Banner (Deep Velvet Navy Pill)
+    ctx.save();
+    const bannerY = 412;
+    const bannerW = 310;
+    const bannerH = 38;
+
+    ctx.beginPath();
+    if (ctx.roundRect) {
+      ctx.roundRect(cx - bannerW / 2, bannerY - bannerH / 2, bannerW, bannerH, 19);
+    } else {
+      ctx.rect(cx - bannerW / 2, bannerY - bannerH / 2, bannerW, bannerH);
+    }
+    ctx.fillStyle = '#0f172a';
+    ctx.fill();
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = '900 20px "Outfit", "Clear Sans", -apple-system, BlinkMacSystemFont, sans-serif';
+    ctx.fillStyle = '#ffffff';
+    ctx.shadowColor = '#38bdf8';
+    ctx.shadowBlur = 8;
+    ctx.shadowOffsetY = 0;
+    ctx.fillText('◆ PLATINUM DIAMOND ◆', cx, bannerY + 1);
+    ctx.restore();
+  }
+
+  drawGrand1024Sprite(ctx, size, isLight = false) {
+    const cx = size / 2;
+    const cy = size / 2;
+    ctx.clearRect(0, 0, size, size);
+
+    // Platinum Radial Medallion
+    const radGrad = ctx.createRadialGradient(cx, cy, 20, cx, cy, size * 0.46);
+    radGrad.addColorStop(0, '#ffffff');
+    radGrad.addColorStop(0.35, '#e2e8f0');
+    radGrad.addColorStop(0.85, '#94a3b8');
+    radGrad.addColorStop(1, 'rgba(100, 116, 139, 0)');
+    ctx.fillStyle = radGrad;
+    ctx.beginPath();
+    ctx.arc(cx, cy, size * 0.46, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Concentric Diamond Rim
+    ctx.beginPath();
+    ctx.arc(cx, cy, size * 0.43, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
+    ctx.lineWidth = 4;
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, size * 0.40, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.55)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Emblem
+    this.drawDiamondStar(ctx, cx, 140, 36, 16, '#ffffff', '#38bdf8');
+
+    // Typography
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = '900 120px "Outfit", "Clear Sans", -apple-system, BlinkMacSystemFont, sans-serif';
+
+    const textY = 300;
+    ctx.shadowColor = 'rgba(15, 23, 42, 0.85)';
+    ctx.shadowBlur = 14;
+    ctx.shadowOffsetY = 5;
+
+    ctx.strokeStyle = 'rgba(30, 41, 59, 0.95)';
+    ctx.lineWidth = 7;
+    ctx.strokeText('1024', cx, textY);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.shadowColor = 'transparent';
+    ctx.fillText('1024', cx, textY);
+    ctx.restore();
+  }
+
+  drawCornerJewel(ctx, x, y, radius, jewelColor = '#dc2626') {
+    ctx.save();
+    // Gold Bezel Setting
+    ctx.beginPath();
+    ctx.arc(x, y, radius + 3, 0, Math.PI * 2);
+    const goldBezel = ctx.createLinearGradient(x - radius, y - radius, x + radius, y + radius);
+    goldBezel.addColorStop(0, '#ffffff');
+    goldBezel.addColorStop(0.35, '#fde047');
+    goldBezel.addColorStop(1, '#854d0e');
+    ctx.fillStyle = goldBezel;
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.55)';
+    ctx.shadowBlur = 4;
+    ctx.fill();
+
+    // Brilliant Faceted Gemstone
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    const gemGrad = ctx.createRadialGradient(x - radius * 0.35, y - radius * 0.35, 1, x, y, radius);
+    gemGrad.addColorStop(0, '#fca5a5');
+    gemGrad.addColorStop(0.35, jewelColor);
+    gemGrad.addColorStop(0.85, '#7f1d1d');
+    gemGrad.addColorStop(1, '#450a0a');
+    ctx.fillStyle = gemGrad;
+    ctx.shadowColor = 'transparent';
+    ctx.fill();
+
+    // Specular highlight sparkle
+    ctx.beginPath();
+    ctx.arc(x - radius * 0.35, y - radius * 0.35, radius * 0.28, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+    ctx.fill();
+    ctx.restore();
+  }
+
+  drawRoyalCrown(ctx, cx, cy, width, height) {
+    ctx.save();
+    // Halo glow behind crown
+    const halo = ctx.createRadialGradient(cx, cy, 10, cx, cy, width * 0.85);
+    halo.addColorStop(0, 'rgba(254, 240, 138, 0.75)');
+    halo.addColorStop(0.5, 'rgba(245, 158, 11, 0.40)');
+    halo.addColorStop(1, 'rgba(245, 158, 11, 0)');
+    ctx.fillStyle = halo;
+    ctx.beginPath();
+    ctx.arc(cx, cy, width * 0.85, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Base Crown Band
+    const bandY = cy + height * 0.36;
+    const bandH = height * 0.24;
+    const bandW = width * 0.86;
+
+    // Golden 5-Peak Crown Silhouette
+    ctx.beginPath();
+    ctx.moveTo(cx - bandW / 2, bandY + bandH);
+    ctx.lineTo(cx + bandW / 2, bandY + bandH);
+    ctx.lineTo(cx + bandW / 2 + 5, bandY);
+    ctx.lineTo(cx + width * 0.44, cy - height * 0.18);
+    ctx.lineTo(cx + width * 0.26, cy + height * 0.08);
+    ctx.lineTo(cx + width * 0.20, cy - height * 0.42);
+    ctx.lineTo(cx + width * 0.10, cy + height * 0.05);
+    ctx.lineTo(cx, cy - height * 0.65); // Center majestic peak
+    ctx.lineTo(cx - width * 0.10, cy + height * 0.05);
+    ctx.lineTo(cx - width * 0.20, cy - height * 0.42);
+    ctx.lineTo(cx - width * 0.26, cy + height * 0.08);
+    ctx.lineTo(cx - width * 0.44, cy - height * 0.18);
+    ctx.lineTo(cx - bandW / 2, bandY);
+    ctx.closePath();
+
+    const crownGrad = ctx.createLinearGradient(cx - bandW / 2, cy - height * 0.65, cx + bandW / 2, bandY + bandH);
+    crownGrad.addColorStop(0, '#fffbeb');
+    crownGrad.addColorStop(0.28, '#fde047');
+    crownGrad.addColorStop(0.70, '#eab308');
+    crownGrad.addColorStop(1, '#ca8a04');
+    ctx.fillStyle = crownGrad;
+    ctx.shadowColor = 'rgba(120, 53, 15, 0.75)';
     ctx.shadowBlur = 12;
     ctx.shadowOffsetY = 4;
+    ctx.fill();
 
-    // Pure brilliant diamond white text
+    // Outline
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    // Crown Band Inset
+    ctx.beginPath();
+    ctx.rect(cx - bandW / 2 + 4, bandY + 4, bandW - 8, bandH - 6);
+    ctx.fillStyle = '#b45309';
+    ctx.shadowColor = 'transparent';
+    ctx.fill();
+    ctx.strokeStyle = '#fef08a';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // 5 Jewels on Crown Band
+    const jewelCols = ['#10b981', '#ef4444', '#3b82f6', '#ef4444', '#10b981']; // Emerald, Ruby, Sapphire, Ruby, Emerald
+    const step = (bandW - 24) / 4;
+    for (let j = 0; j < 5; j++) {
+      const jx = (cx - bandW / 2 + 12) + j * step;
+      const jy = bandY + bandH / 2 + 1;
+      // Gold bezel
+      ctx.beginPath();
+      ctx.arc(jx, jy, 6, 0, Math.PI * 2);
+      ctx.fillStyle = '#fde047';
+      ctx.fill();
+      // Jewel
+      ctx.beginPath();
+      ctx.arc(jx, jy, 4.5, 0, Math.PI * 2);
+      ctx.fillStyle = jewelCols[j];
+      ctx.fill();
+      // Sparkle
+      ctx.beginPath();
+      ctx.arc(jx - 1.5, jy - 1.5, 1.2, 0, Math.PI * 2);
+      ctx.fillStyle = '#ffffff';
+      ctx.fill();
+    }
+
+    // Orb & Cross on Center Peak
+    const orbY = cy - height * 0.65;
+    ctx.beginPath();
+    ctx.arc(cx, orbY - 4, 6, 0, Math.PI * 2);
+    ctx.fillStyle = '#fef08a';
+    ctx.fill();
+    ctx.strokeStyle = '#ca8a04';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Ruby on mid-peaks
+    [cx - width * 0.20, cx + width * 0.20].forEach(px => {
+      ctx.beginPath();
+      ctx.arc(px, cy - height * 0.42, 5, 0, Math.PI * 2);
+      ctx.fillStyle = '#ef4444';
+      ctx.fill();
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    });
+
+    // Pearls on outer peaks
+    [cx - width * 0.44, cx + width * 0.44].forEach(px => {
+      ctx.beginPath();
+      ctx.arc(px, cy - height * 0.18, 4.5, 0, Math.PI * 2);
+      ctx.fillStyle = '#ffffff';
+      ctx.fill();
+      ctx.strokeStyle = '#eab308';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    });
+
+    ctx.restore();
+  }
+
+  drawGrand2048Face(ctx, size, isMinimalist = false, isLight = false) {
+    const cx = size / 2;
+    const cy = size / 2;
+
+    // 1. Radiant 24K Imperial Gold Satin Foundation
+    const grad = ctx.createLinearGradient(0, 0, size, size);
+    if (isLight) {
+      grad.addColorStop(0, '#fffbeb');   // Brilliant sunlight crown
+      grad.addColorStop(0.22, '#fde047'); // Pure sparkling gold
+      grad.addColorStop(0.60, '#eab308'); // Warm golden amber
+      grad.addColorStop(1, '#ca8a04');    // Deep gold chamfer
+    } else {
+      grad.addColorStop(0, '#fff6a3');   // Incandescent solar highlight
+      grad.addColorStop(0.20, '#ffd700'); // Pure 24K Radiant Gold
+      grad.addColorStop(0.58, '#f59e0b'); // Rich Honey Gold Core
+      grad.addColorStop(0.85, '#d97706'); // Deep Warm Gold Bevel
+      grad.addColorStop(1, '#854d0e');    // Antique Gold Ingot Rim
+    }
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, size, size);
+
+    // 2. Imperial Guilloché Sunburst Engraving
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.14)';
+    ctx.lineWidth = 1.5;
+    for (let a = 0; a < 36; a++) {
+      const angle = (a * Math.PI * 2) / 36;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + Math.cos(angle) * size, cy + Math.sin(angle) * size);
+      ctx.stroke();
+    }
+    ctx.strokeStyle = 'rgba(180, 83, 9, 0.18)';
+    ctx.lineWidth = 1.2;
+    for (let r = 50; r < size * 0.7; r += 28) {
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // 3. Double Beveled Imperial Gold Chamfer Frame
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
+    ctx.lineWidth = 6;
+    ctx.strokeRect(10, 10, size - 20, size - 20);
+
+    ctx.strokeStyle = 'rgba(254, 240, 138, 0.65)';
+    ctx.lineWidth = 2.5;
+    ctx.strokeRect(18, 18, size - 36, size - 36);
+    ctx.restore();
+
+    // 4. 4 Corner Inset Imperial Ruby Gemstones
+    const cornerOffset = 30;
+    this.drawCornerJewel(ctx, cornerOffset, cornerOffset, 9, '#ef4444');
+    this.drawCornerJewel(ctx, size - cornerOffset, cornerOffset, 9, '#ef4444');
+    this.drawCornerJewel(ctx, cornerOffset, size - cornerOffset, 9, '#ef4444');
+    this.drawCornerJewel(ctx, size - cornerOffset, size - cornerOffset, 9, '#ef4444');
+
+    // 5. Majestic Royal Imperial Crown (👑)
+    this.drawRoyalCrown(ctx, cx, 118, 148, 88);
+
+    // 6. 3D Chiseled Imperial Gold Typography ('2048')
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = '900 138px "Outfit", "Clear Sans", -apple-system, BlinkMacSystemFont, "SF Pro Display", "Montserrat", sans-serif';
+
+    const textY = 292;
+
+    // Heavy warm bronze dropshadow
+    ctx.shadowColor = 'rgba(69, 26, 3, 0.95)';
+    ctx.shadowBlur = 20;
+    ctx.shadowOffsetY = 7;
+
+    // Chiseled deep bronze bevel
+    ctx.strokeStyle = '#451a03';
+    ctx.lineWidth = 11;
+    ctx.lineJoin = 'round';
+    ctx.strokeText('2048', cx, textY);
+
+    // Pure brilliant diamond white fill
     ctx.fillStyle = '#ffffff';
-    ctx.fillText('2048', size / 2, textY);
+    ctx.shadowColor = 'transparent';
+    ctx.fillText('2048', cx, textY);
+    ctx.restore();
+
+    // 7. Imperial Sovereign Title Banner (Deep Imperial Velvet Pill)
+    ctx.save();
+    const bannerY = 412;
+    const bannerW = 310;
+    const bannerH = 38;
+
+    ctx.beginPath();
+    if (ctx.roundRect) {
+      ctx.roundRect(cx - bannerW / 2, bannerY - bannerH / 2, bannerW, bannerH, 19);
+    } else {
+      ctx.rect(cx - bannerW / 2, bannerY - bannerH / 2, bannerW, bannerH);
+    }
+    ctx.fillStyle = '#451a03';
+    ctx.fill();
+    ctx.strokeStyle = '#fde047';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = '900 20px "Outfit", "Clear Sans", -apple-system, BlinkMacSystemFont, sans-serif';
+    ctx.fillStyle = '#ffffff';
+    ctx.shadowColor = '#f59e0b';
+    ctx.shadowBlur = 8;
+    ctx.shadowOffsetY = 0;
+    ctx.fillText('★ SOVEREIGN 2048 ★', cx, bannerY + 1);
     ctx.restore();
   }
 
   drawGrand2048Sprite(ctx, size, isLight = false) {
+    const cx = size / 2;
+    const cy = size / 2;
     ctx.clearRect(0, 0, size, size);
 
     // Radiant Gold Circular Disc with Soft Feathered Edge
-    const radGrad = ctx.createRadialGradient(size / 2, size / 2, 20, size / 2, size / 2, size * 0.46);
+    const radGrad = ctx.createRadialGradient(cx, cy, 20, cx, cy, size * 0.46);
     radGrad.addColorStop(0, '#fef08a');
     radGrad.addColorStop(0.35, '#f59e0b');
     radGrad.addColorStop(0.85, '#d97706');
     radGrad.addColorStop(1, 'rgba(180, 83, 9, 0)');
     ctx.fillStyle = radGrad;
     ctx.beginPath();
-    ctx.arc(size / 2, size / 2, size * 0.46, 0, Math.PI * 2);
+    ctx.arc(cx, cy, size * 0.46, 0, Math.PI * 2);
     ctx.fill();
 
     // Subtle Apple Glass Outer Ring
     ctx.beginPath();
-    ctx.arc(size / 2, size / 2, size * 0.43, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.55)';
+    ctx.arc(cx, cy, size * 0.43, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
     ctx.lineWidth = 4;
     ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, size * 0.40, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(254, 240, 138, 0.65)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Crown
+    this.drawRoyalCrown(ctx, cx, 140, 110, 68);
 
     // Pristine Centered Typography
     ctx.save();
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.font = '800 136px "Clear Sans", -apple-system, BlinkMacSystemFont, "SF Pro Display", "Plus Jakarta Sans", sans-serif';
+    ctx.font = '900 126px "Outfit", "Clear Sans", -apple-system, BlinkMacSystemFont, sans-serif';
 
-    const textY = size / 2 + 6;
-    ctx.shadowColor = 'rgba(67, 20, 7, 0.55)';
-    ctx.shadowBlur = 12;
-    ctx.shadowOffsetY = 4;
+    const textY = 300;
+    ctx.shadowColor = 'rgba(67, 20, 7, 0.85)';
+    ctx.shadowBlur = 16;
+    ctx.shadowOffsetY = 5;
+
+    ctx.strokeStyle = 'rgba(120, 53, 15, 0.95)';
+    ctx.lineWidth = 7;
+    ctx.strokeText('2048', cx, textY);
+
     ctx.fillStyle = '#ffffff';
-    ctx.fillText('2048', size / 2, textY);
+    ctx.shadowColor = 'transparent';
+    ctx.fillText('2048', cx, textY);
     ctx.restore();
   }
 

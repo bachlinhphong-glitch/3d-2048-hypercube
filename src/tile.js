@@ -40,8 +40,49 @@ const sharedGeos = {
   saturnRing: null,
   pulsarRing: null,
   blackHoleDisk: null,
-  einsteinRing: null
+  einsteinRing: null,
+  // Prestige Masterpiece Geometries (1024 Platinum & 2048 Imperial Gold)
+  prestigeRing1024: null,
+  prestigeRing2048_1: null,
+  prestigeRing2048_2: null,
+  prestigeBeadDiamond: null,
+  prestigeBeadRuby: null
 };
+
+function getSharedPrestigeRing1024(size) {
+  if (!sharedGeos.prestigeRing1024) {
+    sharedGeos.prestigeRing1024 = new THREE.TorusGeometry(size * 0.58, size * 0.024, 12, 36);
+  }
+  return sharedGeos.prestigeRing1024;
+}
+
+function getSharedPrestigeRing2048_1(size) {
+  if (!sharedGeos.prestigeRing2048_1) {
+    sharedGeos.prestigeRing2048_1 = new THREE.TorusGeometry(size * 0.59, size * 0.026, 12, 40);
+  }
+  return sharedGeos.prestigeRing2048_1;
+}
+
+function getSharedPrestigeRing2048_2(size) {
+  if (!sharedGeos.prestigeRing2048_2) {
+    sharedGeos.prestigeRing2048_2 = new THREE.TorusGeometry(size * 0.63, size * 0.020, 12, 40);
+  }
+  return sharedGeos.prestigeRing2048_2;
+}
+
+function getSharedPrestigeDiamondBead(size) {
+  if (!sharedGeos.prestigeBeadDiamond) {
+    sharedGeos.prestigeBeadDiamond = new THREE.OctahedronGeometry(size * 0.044, 0);
+  }
+  return sharedGeos.prestigeBeadDiamond;
+}
+
+function getSharedPrestigeRubyBead(size) {
+  if (!sharedGeos.prestigeBeadRuby) {
+    sharedGeos.prestigeBeadRuby = new THREE.SphereGeometry(size * 0.040, 12, 12);
+  }
+  return sharedGeos.prestigeBeadRuby;
+}
 
 function getSharedRoundedBox(size, height) {
   const radius = Math.min(size, height) * 0.18;
@@ -316,6 +357,13 @@ export class Tile3D {
       const mats = textureManager.getTileMaterials(this.value, this.isBomb, this.bombCountdown);
       this.innerMesh = new THREE.Mesh(geo, mats.map(m => m.clone()));
       this.group.add(this.innerMesh);
+
+      // 3D Prestige Aura for 1024 (Platinum Diamond) & 2048 (Imperial 24K Gold)
+      if (this.value === 1024 && !this.isBomb) {
+        this.buildPrestige1024Aura(size);
+      } else if (this.value >= 2048 && !this.isBomb) {
+        this.buildPrestige2048Aura(size);
+      }
     } else if (effShape === 'crystal_octahedron') {
       const radius = size * 0.58;
       const { geo, edges } = getSharedOctahedron();
@@ -690,6 +738,90 @@ export class Tile3D {
     }
   }
 
+  buildPrestige1024Aura(size) {
+    const ringGeo = getSharedPrestigeRing1024(size);
+    const ringMat = new THREE.MeshStandardMaterial({
+      color: 0xf1f5f9,
+      metalness: 0.94,
+      roughness: 0.12,
+      emissive: 0x38bdf8,
+      emissiveIntensity: 0.45
+    });
+    const ring = new THREE.Mesh(ringGeo, ringMat);
+    ring.rotation.x = Math.PI / 3;
+    ring.rotation.y = Math.PI / 6;
+    this.decorGroup.add(ring);
+    this.ring1 = ring;
+
+    const beadGeo = getSharedPrestigeDiamondBead(size);
+    const beadMat = new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      emissive: 0x00f0ff,
+      emissiveIntensity: 0.85,
+      metalness: 0.96,
+      roughness: 0.06
+    });
+
+    for (let i = 0; i < 4; i++) {
+      const theta = (i * Math.PI) / 2;
+      const bx = Math.cos(theta) * size * 0.58;
+      const by = Math.sin(theta) * size * 0.58;
+      const bead = new THREE.Mesh(beadGeo, beadMat);
+      bead.position.set(bx, by, 0);
+      ring.add(bead);
+    }
+  }
+
+  buildPrestige2048Aura(size) {
+    // Ring 1 (Inner Imperial Gold Ring with Rubies)
+    const ring1Geo = getSharedPrestigeRing2048_1(size);
+    const goldMat1 = new THREE.MeshStandardMaterial({
+      color: 0xffd700,
+      metalness: 0.96,
+      roughness: 0.10,
+      emissive: 0xf59e0b,
+      emissiveIntensity: 0.55
+    });
+    const r1 = new THREE.Mesh(ring1Geo, goldMat1);
+    r1.rotation.x = Math.PI / 3.2;
+    r1.rotation.y = Math.PI / 5;
+    this.decorGroup.add(r1);
+    this.ring1 = r1;
+
+    // 4 Imperial Ruby Beads on Ring 1
+    const rubyGeo = getSharedPrestigeRubyBead(size);
+    const rubyMat = new THREE.MeshStandardMaterial({
+      color: 0xef4444,
+      emissive: 0xdc2626,
+      emissiveIntensity: 0.90,
+      roughness: 0.15,
+      metalness: 0.35
+    });
+    for (let i = 0; i < 4; i++) {
+      const theta = (i * Math.PI) / 2;
+      const rx = Math.cos(theta) * size * 0.59;
+      const ry = Math.sin(theta) * size * 0.59;
+      const ruby = new THREE.Mesh(rubyGeo, rubyMat);
+      ruby.position.set(rx, ry, 0);
+      r1.add(ruby);
+    }
+
+    // Ring 2 (Outer Radiant Gold Gimbal Ring)
+    const ring2Geo = getSharedPrestigeRing2048_2(size);
+    const goldMat2 = new THREE.MeshStandardMaterial({
+      color: 0xfef08a,
+      metalness: 0.92,
+      roughness: 0.12,
+      emissive: 0xd97706,
+      emissiveIntensity: 0.45
+    });
+    const r2 = new THREE.Mesh(ring2Geo, goldMat2);
+    r2.rotation.x = -Math.PI / 3.5;
+    r2.rotation.z = Math.PI / 4;
+    this.decorGroup.add(r2);
+    this.ring2 = r2;
+  }
+
   addBillboardLabel(size) {
     const spriteMat = textureManager.getBillboardMaterial(this.value, this.isBomb, this.bombCountdown);
     this.labelSprite = new THREE.Sprite(spriteMat.clone());
@@ -1033,7 +1165,14 @@ export class Tile3D {
 
   update(delta) {
     const effShape = this.getEffectiveShape();
-    if (effShape === 'crystal_octahedron' && this.innerMesh) {
+    if (effShape === 'rounded_cube') {
+      if (this.value === 1024 && this.ring1) {
+        this.ring1.rotation.z += delta * 1.2;
+      } else if (this.value >= 2048) {
+        if (this.ring1) this.ring1.rotation.z += delta * 1.5;
+        if (this.ring2) this.ring2.rotation.z -= delta * 1.2;
+      }
+    } else if (effShape === 'crystal_octahedron' && this.innerMesh) {
       this.innerMesh.rotation.y += delta * 0.7;
       this.decorGroup.rotation.y += delta * 0.7;
     } else if (effShape === 'core_sphere') {
