@@ -132,45 +132,43 @@ export class InputManager {
       }
     });
 
-    // 2. Mouse Drag & Touch Swipe Controls (Dual-layer Touch + Pointer for 100% Mobile Reliability)
+    // 2. Mouse Drag & Touch Swipe Controls (Real-time gesture triggering on move for instant arcade responsiveness)
     let touchStartX = 0;
     let touchStartY = 0;
     let touchActive = false;
+    let touchGestureTriggered = false;
 
     this.domElement.addEventListener('touchstart', (e) => {
       if (e.touches.length !== 1) return;
       if (this.isBlockedByUI()) return;
-      if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .spell-bar, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel, .dpad-btn, .cam-btn, .slice-btn')) {
+      if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .spell-bar, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel, .dpad-btn, .cam-btn, .slice-btn, .banner-container, .inapp-challenge-card, .trophy-tab-btn, .custom-bg-input')) {
         return;
       }
       const t = e.touches[0];
       touchStartX = t.clientX;
       touchStartY = t.clientY;
       touchActive = true;
+      touchGestureTriggered = false;
     }, { passive: true });
 
     this.domElement.addEventListener('touchmove', (e) => {
-      if (touchActive && e.cancelable) {
+      if (!touchActive) return;
+      if (e.cancelable) {
         e.preventDefault(); // Stop mobile pull-to-refresh & browser scroll from canceling swipe!
       }
-    }, { passive: false });
+      if (touchGestureTriggered || !this.enabled || this.isBlockedByUI()) return;
+      if (this.isTileHeld) return;
+      if (window.gameApp && window.gameApp.isSwapMode) return;
 
-    this.domElement.addEventListener('touchend', (e) => {
-      if (!touchActive || !this.enabled || this.isBlockedByUI()) {
-        touchActive = false;
-        return;
-      }
-      touchActive = false;
-      if (this.isTileHeld) {
-        this.isTileHeld = false;
-        return;
-      }
-      const t = e.changedTouches[0];
+      const t = e.touches[0];
       if (!t) return;
       const dx = t.clientX - touchStartX;
       const dy = t.clientY - touchStartY;
-      const minDistance = 20;
-      if (Math.hypot(dx, dy) >= minDistance) {
+      const distance = Math.hypot(dx, dy);
+
+      // Instant 16px threshold: triggers DURING finger motion without waiting for touchend!
+      if (distance >= 16) {
+        touchGestureTriggered = true;
         let direction = null;
         if (Math.abs(dx) > Math.abs(dy)) {
           direction = dx > 0 ? 'right' : 'left';
@@ -181,23 +179,64 @@ export class InputManager {
           this.onMove(direction);
         }
       }
+    }, { passive: false });
+
+    this.domElement.addEventListener('touchend', (e) => {
+      if (!touchActive) return;
+      const wasTriggered = touchGestureTriggered;
+      touchActive = false;
+      touchGestureTriggered = false;
+
+      if (this.isTileHeld) {
+        this.isTileHeld = false;
+        return;
+      }
+
+      // If finger lifted without triggering touchmove (e.g. ultra-fast flick or tap)
+      if (!wasTriggered && this.enabled && !this.isBlockedByUI()) {
+        const t = e.changedTouches[0];
+        if (t) {
+          const dx = t.clientX - touchStartX;
+          const dy = t.clientY - touchStartY;
+          const distance = Math.hypot(dx, dy);
+          if (distance >= 12) {
+            let direction = null;
+            if (Math.abs(dx) > Math.abs(dy)) {
+              direction = dx > 0 ? 'right' : 'left';
+            } else {
+              direction = dy > 0 ? 'down' : 'up';
+            }
+            if (direction) {
+              this.onMove(direction);
+              return;
+            }
+          }
+          // Tap on canvas (e.g. for Swap selection)
+          if (distance < 12 && this.onCanvasClick) {
+            this.onCanvasClick(t.clientX, t.clientY);
+          }
+        }
+      }
     }, { passive: true });
 
     this.domElement.addEventListener('touchcancel', () => {
       touchActive = false;
+      touchGestureTriggered = false;
       this.isPointerDown = false;
       this.isTileHeld = false;
     }, { passive: true });
 
+    let pointerGestureTriggered = false;
+
     this.domElement.addEventListener('pointerdown', (e) => {
-      if (e.pointerType === 'touch') return; // Touch is handled by touchstart/touchend to avoid duplicate events
+      if (e.pointerType === 'touch') return; // Touch is handled by real-time touchstart/touchmove
       // Only process primary pointer (first finger / left mouse button)
       if (!e.isPrimary) {
         this.isPointerDown = false;
         return;
       }
       if (e.button !== 0 && e.pointerType === 'mouse') return;
-      if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .spell-bar, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel, .dpad-btn, .cam-btn, .slice-btn')) {
+      if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .spell-bar, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel, .dpad-btn, .cam-btn, .slice-btn, .banner-container, .inapp-challenge-card, .trophy-tab-btn, .custom-bg-input')) {
         return;
       }
 
@@ -205,12 +244,40 @@ export class InputManager {
       this.pointerStartX = e.clientX;
       this.pointerStartY = e.clientY;
       this.pointerStartTime = Date.now();
+      pointerGestureTriggered = false;
+    });
+
+    window.addEventListener('pointermove', (e) => {
+      if (e.pointerType === 'touch') return;
+      if (!this.isPointerDown || pointerGestureTriggered || !this.enabled || this.isBlockedByUI()) return;
+      if (this.isTileHeld) return;
+      if (window.gameApp && window.gameApp.isSwapMode) return;
+
+      const dx = e.clientX - this.pointerStartX;
+      const dy = e.clientY - this.pointerStartY;
+      const distance = Math.hypot(dx, dy);
+
+      if (distance >= 20) {
+        pointerGestureTriggered = true;
+        let direction = null;
+        if (Math.abs(dx) > Math.abs(dy)) {
+          direction = dx > 0 ? 'right' : 'left';
+        } else {
+          direction = dy > 0 ? 'down' : 'up';
+        }
+        if (direction) {
+          this.onMove(direction);
+        }
+      }
     });
 
     window.addEventListener('pointerup', (e) => {
       if (e.pointerType === 'touch') return; // Dedicated touch listener handles touch
       if (!this.isPointerDown) return;
       this.isPointerDown = false;
+      const wasTriggered = pointerGestureTriggered;
+      pointerGestureTriggered = false;
+
       if (this.isTileHeld) {
         this.isTileHeld = false;
         return;
@@ -218,7 +285,7 @@ export class InputManager {
       if (!this.enabled) return;
 
       // Do not process swipes if released on interactive control elements
-      if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .spell-bar, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel')) {
+      if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .spell-bar, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel, .dpad-btn, .cam-btn, .slice-btn')) {
         return;
       }
 
@@ -232,30 +299,30 @@ export class InputManager {
 
       const dx = e.clientX - this.pointerStartX;
       const dy = e.clientY - this.pointerStartY;
-      const minDistance = 22; // Responsive swipe threshold for mobile touch & mouse
       const distance = Math.hypot(dx, dy);
 
-      if (distance < minDistance) {
-        if (this.onCanvasClick) {
-          // Registered as a clean tap/click on the 3D canvas
-          this.onCanvasClick(e.clientX, e.clientY);
-        }
-      } else {
-        let direction = null;
-        if (Math.abs(dx) > Math.abs(dy)) {
-          direction = dx > 0 ? 'right' : 'left';
+      if (!wasTriggered) {
+        if (distance < 16) {
+          if (this.onCanvasClick) {
+            this.onCanvasClick(e.clientX, e.clientY);
+          }
         } else {
-          direction = dy > 0 ? 'down' : 'up';
-        }
-
-        if (direction) {
-          this.onMove(direction);
+          let direction = null;
+          if (Math.abs(dx) > Math.abs(dy)) {
+            direction = dx > 0 ? 'right' : 'left';
+          } else {
+            direction = dy > 0 ? 'down' : 'up';
+          }
+          if (direction) {
+            this.onMove(direction);
+          }
         }
       }
     });
 
     this.domElement.addEventListener('pointercancel', () => {
       this.isPointerDown = false;
+      pointerGestureTriggered = false;
       this.isTileHeld = false;
     });
 

@@ -517,14 +517,15 @@ export class TextureManager {
       emissiveIntensity: finalEmissiveIntensity * 0.45
     });
 
-    // The top face (+Y, index 2) and front face (+Z, index 4) both display the number!
-    // This allows comfortable natural 3D viewing angles (~35 deg tilt) with instant number recognition!
+    // ONLY the top face (+Y, index 2) displays the number and emblem!
+    // All side faces (+X, -X, +Z, -Z) and bottom (-Y) use sleek solid materials
+    // to keep the 3D isometric look clean, crisp, and prevent duplicate numbers.
     const materials = [
       solidSideMat,    // +X (Right vertical face)
       solidSideMat,    // -X (Left vertical face)
-      faceMatWithText, // +Y (Top face)
+      faceMatWithText, // +Y (Top face - ONLY primary face has number!)
       solidSideMat,    // -Y (Bottom face)
-      faceMatWithText, // +Z (Front vertical face - visible from ergonomic 3D angles!)
+      solidSideMat,    // +Z (Front vertical face - sleek solid accent)
       solidSideMat     // -Z (Back vertical face)
     ];
 

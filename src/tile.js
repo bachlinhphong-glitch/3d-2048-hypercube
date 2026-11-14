@@ -894,13 +894,13 @@ export class Tile3D {
       x: 1.0,
       y: 1.0,
       z: 1.0,
-      duration: 0.14,
+      duration: 0.10,
       delay: delay,
       ease: 'power2.out'
     });
   }
 
-  slideTo(targetLayer, targetRow, targetCol, duration = 0.16) {
+  slideTo(targetLayer, targetRow, targetCol, duration = 0.11) {
     const dl = targetLayer - this.layer;
     const dr = targetRow - this.row;
     const dc = targetCol - this.col;

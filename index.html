@@ -51,18 +51,18 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./src/style.css?v=6.8.31">
+  <link rel="stylesheet" href="./src/style.css?v=6.8.35">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=6.8.31').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=6.8.35').then(reg => {
           reg.update();
         }).catch(() => {});
       });
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         try {
-          if (!sessionStorage.getItem('sw_reloaded_6831')) {
-            sessionStorage.setItem('sw_reloaded_6831', '1');
+          if (!sessionStorage.getItem('sw_reloaded_6835')) {
+            sessionStorage.setItem('sw_reloaded_6835', '1');
             window.location.reload();
           }
         } catch {}
@@ -1017,7 +1017,7 @@
           <label class="settings-label" data-i18n="setting_graphics">Độ mượt & Tốc độ khung hình</label>
           <select id="select-graphics" class="settings-select">
             <option value="high" data-i18n="graphics_high">Cực mượt (120 FPS)</option>
-            <option value="medium" selected data-i18n="graphics_medium">Cân bằng (60 FPS)</option>
+            <option value="medium" selected data-i18n="graphics_medium">Tiêu chuẩn (60 FPS)</option>
             <option value="low" data-i18n="graphics_low">Tiết kiệm pin (30 FPS)</option>
           </select>
           <select id="select-fps" style="display:none">
@@ -1160,6 +1160,6 @@
   </div>
 
   <!-- Main Game Script -->
-  <script type="module" src="./src/main.js?v=6.8.34"></script>
+  <script type="module" src="./src/main.js?v=6.8.35"></script>
 </body>
 </html>

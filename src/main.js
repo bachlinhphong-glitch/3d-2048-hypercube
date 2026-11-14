@@ -1608,12 +1608,18 @@ class GameApp {
         if (this.ghostPreview) this.ghostPreview.hideGhost();
       });
 
-      // Instant tap / pointerdown response with zero 300ms click delay
+      // Instant touch & pointer response with haptics & tactile visual feedback
       const handleDpadDir = (e) => {
         if (e) {
           e.preventDefault();
           e.stopPropagation();
         }
+        if (navigator.vibrate) {
+          try { navigator.vibrate(10); } catch {}
+        }
+        btn.classList.add('touch-active');
+        setTimeout(() => btn.classList.remove('touch-active'), 120);
+
         if (this.ghostPreview) this.ghostPreview.hideGhost();
         if (this.inputManager && !this.inputManager.enabled) return;
         if (dir === 'iso') {
@@ -1623,7 +1629,18 @@ class GameApp {
         }
       };
 
-      btn.addEventListener('pointerdown', handleDpadDir);
+      btn.addEventListener('touchstart', handleDpadDir, { passive: false });
+      btn.addEventListener('pointerdown', (e) => {
+        if (e.pointerType === 'touch') return; // Handled directly by touchstart
+        handleDpadDir(e);
+      });
+      btn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        btn.classList.remove('touch-active');
+      }, { passive: false });
+      btn.addEventListener('touchcancel', () => {
+        btn.classList.remove('touch-active');
+      }, { passive: true });
       btn.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -3056,7 +3073,10 @@ class GameApp {
     this.registerInteraction();
     this.dismissFirstSwipeGuide();
     if (this.ghostPreview) this.ghostPreview.hideGhost();
-    if (this.isAnimating) return;
+    if (this.isAnimating) {
+      this.queuedMove = direction;
+      return;
+    }
     if (this.isSwapMode) {
       this.cancelSwapMode();
     }
@@ -3097,7 +3117,7 @@ class GameApp {
       soundManager.playSlide();
     }
 
-    const slideDuration = 0.16;
+    const slideDuration = 0.11;
     const animations = [];
     const mergesToProcess = [];
 
@@ -3358,7 +3378,6 @@ class GameApp {
     if (result.spellRecharged) {
       this.triggerSpellRecharge(result.milestoneAchieved);
     }
-    await new Promise(r => setTimeout(r, 60));
 
     this.spawnTile();
 
@@ -3449,6 +3468,13 @@ class GameApp {
         this._animWatchdog = null;
       }
       this.isAnimating = false;
+
+      // Move Buffering Queue: Immediately execute the queued move on the next frame so rapid swipes are never lost
+      if (this.queuedMove && !this.gameLogic.gameOver) {
+        const nextMove = this.queuedMove;
+        this.queuedMove = null;
+        requestAnimationFrame(() => this.handleMove(nextMove));
+      }
     }
   }
 

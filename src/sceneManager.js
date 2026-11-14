@@ -9,18 +9,19 @@ export class SceneManager {
     this.theme = 'cat_moon'; // 'cat_moon', 'elmo_fire', 'patrick_space', 'galaxy', etc.
     this.backgroundCache = new Map();
 
-    this.defaultCamPos4x4 = new THREE.Vector3(0, 9.2, 11.8);
-    this.defaultTarget4x4 = new THREE.Vector3(0, 0.4, 0.2);
+    // Balanced isometric perspective (~46-48 deg tilt) ensuring 100% crystal-clear top face readability
+    this.defaultCamPos4x4 = new THREE.Vector3(0, 11.6, 10.4);
+    this.defaultTarget4x4 = new THREE.Vector3(0, 0.4, 0.1);
 
-    this.defaultCamPos3x3 = new THREE.Vector3(6.2, 9.2, 12.0);
+    this.defaultCamPos3x3 = new THREE.Vector3(6.0, 11.2, 11.0);
     this.defaultTarget3x3 = new THREE.Vector3(0, 1.8, 0.2);
 
     // Pre-allocated mobile targets & zero-allocation scratch vector for render loop
-    this.defaultTargetMobile4x4 = new THREE.Vector3(0, 0.6, 0.85);
-    this.defaultCamPosMobile4x4 = new THREE.Vector3(0, 9.8, 13.2);
+    this.defaultTargetMobile4x4 = new THREE.Vector3(0, 0.6, 0.6);
+    this.defaultCamPosMobile4x4 = new THREE.Vector3(0, 12.8, 11.8);
 
-    this.defaultTargetMobile3x3 = new THREE.Vector3(0, 2.0, 0.7);
-    this.defaultCamPosMobile3x3 = new THREE.Vector3(5.4, 9.8, 13.2);
+    this.defaultTargetMobile3x3 = new THREE.Vector3(0, 2.0, 0.6);
+    this.defaultCamPosMobile3x3 = new THREE.Vector3(5.6, 12.0, 12.4);
     this._scratchVec = new THREE.Vector3();
 
     this.initScene();
