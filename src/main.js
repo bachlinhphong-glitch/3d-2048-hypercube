@@ -1616,13 +1616,13 @@ class GameApp {
     if (pref === 'system') {
       const isDark = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
       targetTheme = isDark ? 'gentle_dark' : 'gentle_light';
-      this.showSpellToast(`THEO MÁY: ${isDark ? 'Tối Hiện Đại' : 'Sáng Thanh Lịch'}`);
+      this.showSpellToast(`THEO MÁY: ${isDark ? 'Giao diện tối' : 'Giao diện sáng'}`);
     } else if (pref === 'gentle_light' || pref === 'zen_clay') {
       targetTheme = 'gentle_light';
-      this.showSpellToast('GIAO DIỆN: Sáng Thanh Lịch');
+      this.showSpellToast('GIAO DIỆN: Giao diện sáng');
     } else if (pref === 'gentle_dark' || pref === 'modern_slate') {
       targetTheme = 'gentle_dark';
-      this.showSpellToast('GIAO DIỆN: Tối Hiện Đại');
+      this.showSpellToast('GIAO DIỆN: Giao diện tối');
     } else {
       const themeSelect = document.getElementById('select-theme');
       const label = themeSelect && themeSelect.selectedOptions && themeSelect.selectedOptions[0] ? themeSelect.selectedOptions[0].text : pref;
@@ -2231,7 +2231,7 @@ class GameApp {
 
     const labelKey = quality === 'high' ? 'graphics_high' : quality === 'medium' ? 'graphics_medium' : 'graphics_low';
     const labelText = t(labelKey) || quality.toUpperCase();
-    this.showSpellToast(`🎮 ${t('setting_graphics') || 'Chất lượng hiển thị 3D'}: ${labelText}`);
+    this.showSpellToast(`🎮 ${labelText}`);
     this.registerInteraction();
   }
 

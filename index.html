@@ -51,18 +51,18 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./src/style.css?v=6.8.42">
+  <link rel="stylesheet" href="./src/style.css?v=6.8.43">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=6.8.42').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=6.8.43').then(reg => {
           reg.update();
         }).catch(() => {});
       });
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         try {
-          if (!sessionStorage.getItem('sw_reloaded_6841')) {
-            sessionStorage.setItem('sw_reloaded_6841', '1');
+          if (!sessionStorage.getItem('sw_reloaded_6843')) {
+            sessionStorage.setItem('sw_reloaded_6843', '1');
             window.location.reload();
           }
         } catch {}
@@ -997,18 +997,18 @@
 
         <!-- 5. Giao diện & Ảnh nền -->
         <div class="settings-row">
-          <label class="settings-label" data-i18n="setting_theme">Gam màu giao diện</label>
+          <label class="settings-label" data-i18n="setting_theme">Giao diện</label>
           <div class="settings-theme-group">
             <select id="select-theme" class="settings-select">
-              <optgroup label="Phong Cách Tối Giản" data-i18n-label="theme_group_minimal">
+              <optgroup label="Giao Diện Cơ Bản" data-i18n-label="theme_group_minimal">
                 <option value="system" data-i18n="theme_system">Tự động (Theo thiết bị)</option>
-                <option value="gentle_light" data-i18n="theme_gentle_light">Sáng Thanh Lịch (Light Mode)</option>
-                <option value="gentle_dark" data-i18n="theme_gentle_dark">Tối Hiện Đại (Dark Mode)</option>
+                <option value="gentle_light" data-i18n="theme_gentle_light">Giao diện sáng</option>
+                <option value="gentle_dark" data-i18n="theme_gentle_dark">Giao diện tối</option>
               </optgroup>
               <optgroup label="Không Gian 3D Vũ Trụ" data-i18n-label="theme_group_procedural">
-                <option value="galaxy" selected data-i18n="theme_galaxy">Ngân Hà Sâu Thẳm (Galaxy)</option>
-                <option value="sunset" data-i18n="theme_sunset">Hoàng Hôn Tím (Sunset)</option>
-                <option value="aurora" data-i18n="theme_aurora">Cực Quang Phương Bắc (Aurora)</option>
+                <option value="galaxy" selected data-i18n="theme_galaxy">Ngân Hà Sâu Thẳm</option>
+                <option value="sunset" data-i18n="theme_sunset">Hoàng Hôn Tím</option>
+                <option value="aurora" data-i18n="theme_aurora">Cực Quang Phương Bắc</option>
                 <option value="neon" data-i18n="theme_neon">Cyber Neon Dạ Quang</option>
                 <option value="studio" data-i18n="theme_studio">Studio Ánh Sáng</option>
                 <option value="classic" data-i18n="theme_classic">Obsidian Bóng Đêm</option>
@@ -1027,13 +1027,13 @@
           </div>
         </div>
 
-        <!-- 6. Chất lượng hiển thị 3D (3D Visual Quality) -->
+        <!-- 6. Chế độ hiệu năng & đồ họa (Performance & Graphics) -->
         <div class="settings-row">
-          <label class="settings-label" data-i18n="setting_graphics">Chất lượng hiển thị 3D</label>
+          <label class="settings-label" data-i18n="setting_graphics">Chế độ hiệu năng</label>
           <select id="select-graphics" class="settings-select">
-            <option value="high" data-i18n="graphics_high">Sắc nét cao (Retina / PC)</option>
-            <option value="medium" selected data-i18n="graphics_medium">Cân bằng mượt (Khuyên dùng)</option>
-            <option value="low" data-i18n="graphics_low">Tiết kiệm pin (Tối ưu máy nhẹ)</option>
+            <option value="high" data-i18n="graphics_high">Chế độ hiệu năng cao</option>
+            <option value="medium" selected data-i18n="graphics_medium">Chế độ cân bằng</option>
+            <option value="low" data-i18n="graphics_low">Chế độ tiết kiệm pin</option>
           </select>
           <select id="select-fps" style="display:none">
             <option value="max">Tối đa (165Hz/300Hz)</option>
@@ -1175,6 +1175,6 @@
   </div>
 
   <!-- Main Game Script -->
-  <script type="module" src="./src/main.js?v=6.8.42"></script>
+  <script type="module" src="./src/main.js?v=6.8.43"></script>
 </body>
 </html>
