@@ -186,9 +186,10 @@ class GameApp {
     this.fpsHistory = new Array(40).fill(60);
     this.msHistory = new Array(40).fill(16);
 
-    // Summoner Spells State (Gợi ý, Đi lại, Đổi vị trí)
+    // Summoner Spells State (Lùi lại, Gợi ý, Đổi chỗ)
     this.isSwapMode = false;
-    this.swapSelectedTile = null;
+    this.swapSelectedTileA = null;
+    this.swapSelectedTileB = null;
     this.hoveredTile = null;
     this.toastTimeout = null;
 
@@ -965,6 +966,25 @@ class GameApp {
     this.badgeSpellUndo = document.getElementById('badge-spell-undo');
     this.badgeSpellSwap = document.getElementById('badge-spell-swap');
     this.spellToastEl = document.getElementById('spell-toast');
+    this.swapActionHud = document.getElementById('swap-action-hud');
+    this.swapHudText = document.getElementById('swap-hud-text');
+    this.btnSwapHudConfirm = document.getElementById('btn-swap-hud-confirm');
+    this.btnSwapHudCancel = document.getElementById('btn-swap-hud-cancel');
+
+    if (this.btnSwapHudConfirm) {
+      this.btnSwapHudConfirm.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.confirmExecuteSwap();
+      });
+    }
+    if (this.btnSwapHudCancel) {
+      this.btnSwapHudCancel.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.cancelSwapMode();
+      });
+    }
 
     // Helper to reliably trigger spell taps across iOS Safari (WebKit touch quirks), in-app browsers, and desktop
     const bindSpellTap = (btn, handler) => {
@@ -1570,7 +1590,7 @@ class GameApp {
 
     this.container.addEventListener('pointerleave', () => {
       if (this.hoveredTile) {
-        if (this.hoveredTile !== this.swapSelectedTile) {
+        if (!this.isTileSwapSelected(this.hoveredTile)) {
           this.hoveredTile.setHovered(false);
         }
         this.hoveredTile = null;
@@ -1914,14 +1934,18 @@ class GameApp {
     const hitTile = this.findTileFromPoint(clientX, clientY);
 
     if (hitTile !== this.hoveredTile) {
-      if (this.hoveredTile && this.hoveredTile !== this.swapSelectedTile) {
+      if (this.hoveredTile && !this.isTileSwapSelected(this.hoveredTile)) {
         this.hoveredTile.setHovered(false);
       }
       this.hoveredTile = hitTile;
-      if (hitTile && hitTile !== this.swapSelectedTile) {
+      if (hitTile && !this.isTileSwapSelected(hitTile)) {
         hitTile.setHovered(true);
       }
     }
+  }
+
+  isTileSwapSelected(tile) {
+    return Boolean(tile && (tile === this.swapSelectedTileA || tile === this.swapSelectedTileB));
   }
 
   initTileGrabControls() {
@@ -3433,6 +3457,13 @@ class GameApp {
         btn.classList.toggle('ready', status === 'ready');
         if (type === 'swap') {
           btn.classList.toggle('active-swap', this.isSwapMode);
+          const nameSpan = btn.querySelector('.spell-name');
+          if (nameSpan) {
+            nameSpan.textContent = this.isSwapMode ? 'Hủy' : (t('spell_swap') || 'Đổi chỗ');
+          }
+          if (this.isSwapMode) {
+            btn.title = 'Bấm để hủy chế độ đổi chỗ';
+          }
         }
 
         if (status === 'depleted') {
@@ -3623,7 +3654,7 @@ class GameApp {
 
     const status = this.gameLogic.getSpellStatus('swap');
     if (status === 'depleted') {
-      this.showSpellToast('HẾT LƯỢT: Bạn đã dùng tối đa 2 lần Đổi vị trí trong ván này!');
+      this.showSpellToast('HẾT LƯỢT: Bạn đã dùng tối đa 2 lần Đổi chỗ trong ván này!');
       return;
     }
     if (status === 'cooldown') {
@@ -3632,17 +3663,19 @@ class GameApp {
     }
 
     this.isSwapMode = true;
-    this.swapSelectedTile = null;
+    this.swapSelectedTileA = null;
+    this.swapSelectedTileB = null;
     this.container.style.cursor = 'pointer';
     document.body.classList.add('in-swap-mode');
     if (this.sceneManager && this.sceneManager.controls) {
       this.sceneManager.controls.enabled = false;
     }
     this.updateSpellUI();
-    this.showSpellToast('CHỌN KHỐI THỨ NHẤT TRÊN BÀN CỜ ĐỂ ĐỔI VỊ TRÍ...');
+    this.showSwapHud('Chạm khối thứ nhất để đổi chỗ...', false);
+    this.showSpellToast('CHẾ ĐỘ ĐỔI CHỖ: Chạm 2 khối để hoán đổi (hoặc vuốt / chạm ngoài để hủy)');
   }
 
-  cancelSwapMode() {
+  cancelSwapMode(toastMsg = 'Đã hủy chế độ Đổi chỗ.') {
     if (!this.isSwapMode) return;
     this.isSwapMode = false;
     document.body.classList.remove('in-swap-mode');
@@ -3650,99 +3683,159 @@ class GameApp {
       this.sceneManager.controls.enabled = true;
     }
     if (this.hoveredTile) {
-      if (this.hoveredTile !== this.swapSelectedTile) {
+      if (!this.isTileSwapSelected(this.hoveredTile)) {
         this.hoveredTile.setHovered(false);
       }
       this.hoveredTile = null;
     }
-    if (this.swapSelectedTile) {
-      this.swapSelectedTile.setSelected(false);
-      this.swapSelectedTile = null;
+    if (this.swapSelectedTileA) {
+      this.swapSelectedTileA.setSelected(false);
+      this.swapSelectedTileA = null;
     }
+    if (this.swapSelectedTileB) {
+      this.swapSelectedTileB.setSelected(false);
+      this.swapSelectedTileB = null;
+    }
+    this.hideSwapHud();
     this.container.style.cursor = 'default';
     this.updateSpellUI();
-    this.showSpellToast('Đã hủy chế độ Đổi vị trí.');
+    if (toastMsg) {
+      this.showSpellToast(toastMsg);
+    }
   }
 
-  async handleCanvasClick(clientX, clientY) {
+  showSwapHud(text, showConfirm = false) {
+    if (!this.swapActionHud) return;
+    this.swapActionHud.style.display = 'flex';
+    if (this.swapHudText) {
+      this.swapHudText.textContent = text;
+    }
+    if (this.btnSwapHudConfirm) {
+      this.btnSwapHudConfirm.style.display = showConfirm ? 'inline-flex' : 'none';
+    }
+  }
+
+  hideSwapHud() {
+    if (!this.swapActionHud) return;
+    this.swapActionHud.style.display = 'none';
+    if (this.btnSwapHudConfirm) {
+      this.btnSwapHudConfirm.style.display = 'none';
+    }
+  }
+
+  handleCanvasClick(clientX, clientY) {
     this.registerInteraction();
     if (!this.isSwapMode || this.isAnimating || this.gameLogic.gameOver) return;
 
     const clickedTile = this.findTileFromPoint(clientX, clientY);
     if (!clickedTile) {
-      this.showSpellToast('HÃY BẤM VÀO MỘT KHỐI SỐ TRÊN BÀN CỜ ĐỂ ĐỔI VỊ TRÍ!');
+      // User clicked outside/empty space -> Safely cancel swap mode so they don't get trapped!
+      this.cancelSwapMode('Đã hủy chế độ Đổi chỗ.');
       return;
     }
 
-    if (!this.swapSelectedTile) {
-      this.swapSelectedTile = clickedTile;
+    if (!this.swapSelectedTileA) {
+      // First tile selection
+      this.swapSelectedTileA = clickedTile;
       if (clickedTile.isHovered) clickedTile.setHovered(false);
       clickedTile.setSelected(true);
       soundManager.playSlide();
+      this.showSwapHud(`Đã chọn [${clickedTile.value}]. Chạm khối thứ hai...`, false);
       this.showSpellToast(`ĐÃ CHỌN Ô [${clickedTile.value}]. CHỌN TIẾP Ô THỨ HAI...`);
-    } else if (this.swapSelectedTile === clickedTile) {
+    } else if (this.swapSelectedTileA === clickedTile) {
+      // Tapped tile A again -> deselect
       clickedTile.setSelected(false);
-      this.swapSelectedTile = null;
-      this.showSpellToast('Đã bỏ chọn. Hãy chọn lại ô thứ nhất.');
+      this.swapSelectedTileA = null;
+      if (this.swapSelectedTileB) {
+        this.swapSelectedTileB.setSelected(false);
+        this.swapSelectedTileB = null;
+      }
+      soundManager.playSlide();
+      this.showSwapHud('Chạm khối thứ nhất để đổi chỗ...', false);
+      this.showSpellToast('Đã bỏ chọn. Hãy chọn lại khối thứ nhất.');
+    } else if (this.swapSelectedTileB === clickedTile) {
+      // Tapped tile B again -> deselect B
+      clickedTile.setSelected(false);
+      this.swapSelectedTileB = null;
+      soundManager.playSlide();
+      this.showSwapHud(`Đã chọn [${this.swapSelectedTileA.value}]. Chạm khối thứ hai...`, false);
     } else {
-      const tileA = this.swapSelectedTile;
-      const tileB = clickedTile;
-      if (tileA.value === tileB.value) {
+      // Selected tile B
+      if (clickedTile.value === this.swapSelectedTileA.value) {
         soundManager.playTileDrop();
-        this.showSpellToast('Hai ô có cùng giá trị, hãy chọn ô khác để hoán đổi!');
-        return;
-      }
-      document.body.classList.remove('in-swap-mode');
-      if (this.sceneManager && this.sceneManager.controls) {
-        this.sceneManager.controls.enabled = true;
-      }
-      if (this.hoveredTile) {
-        if (this.hoveredTile !== tileA && this.hoveredTile !== tileB) {
-          this.hoveredTile.setHovered(false);
-        }
-        this.hoveredTile = null;
-      }
-      tileA.setSelected(false);
-      tileB.setHovered(false);
-      this.swapSelectedTile = null;
-      this.isSwapMode = false;
-      this.container.style.cursor = 'default';
-      this.isAnimating = true;
-
-      const posA = { l: tileA.layer, r: tileA.row, c: tileA.col };
-      const posB = { l: tileB.layer, r: tileB.row, c: tileB.col };
-
-      const swapResult = this.gameLogic.swapTiles(posA, posB);
-      if (!swapResult || !swapResult.success) {
-        this.isAnimating = false;
-        this.updateSpellUI();
-        this.showSpellToast('Không thể đổi vị trí hai ô này!');
+        this.showSpellToast(`Hai ô cùng có giá trị [${clickedTile.value}], hãy chọn ô khác!`);
         return;
       }
 
-      this.tiles3D[posA.l][posA.r][posA.c] = tileB;
-      this.tiles3D[posB.l][posB.r][posB.c] = tileA;
-
-      soundManager.playSpellSwap();
-      if (this.questManager) {
-        this.questManager.recordSpell('swap');
+      if (this.swapSelectedTileB) {
+        this.swapSelectedTileB.setSelected(false);
       }
+      this.swapSelectedTileB = clickedTile;
+      clickedTile.setSelected(true);
+      soundManager.playSlide();
 
-      const pA = getGridPosition(posA.l, posA.r, posA.c);
-      const pB = getGridPosition(posB.l, posB.r, posB.c);
-      this.particleSystem.burst(pA.x, pA.y, pA.z, tileB.value);
-      this.particleSystem.burst(pB.x, pB.y, pB.z, tileA.value);
+      // Show confirmation prompt in floating HUD
+      this.showSwapHud(`Đổi [${this.swapSelectedTileA.value}] ⇄ [${this.swapSelectedTileB.value}]?`, true);
+      this.showSpellToast('BẤM "✓ ĐỔI NGAY" ĐỂ XÁC NHẬN HOÁN ĐỔI!');
+    }
+  }
 
-      await Promise.all([
-        tileA.slideTo(posB.l, posB.r, posB.c, 0.24),
-        tileB.slideTo(posA.l, posA.r, posA.c, 0.24)
-      ]);
+  async confirmExecuteSwap() {
+    if (!this.isSwapMode || !this.swapSelectedTileA || !this.swapSelectedTileB || this.isAnimating || this.gameLogic.gameOver) return;
 
+    const tileA = this.swapSelectedTileA;
+    const tileB = this.swapSelectedTileB;
+
+    document.body.classList.remove('in-swap-mode');
+    if (this.sceneManager && this.sceneManager.controls) {
+      this.sceneManager.controls.enabled = true;
+    }
+    if (this.hoveredTile) {
+      this.hoveredTile.setHovered(false);
+      this.hoveredTile = null;
+    }
+    tileA.setSelected(false);
+    tileB.setSelected(false);
+    this.swapSelectedTileA = null;
+    this.swapSelectedTileB = null;
+    this.isSwapMode = false;
+    this.hideSwapHud();
+    this.container.style.cursor = 'default';
+    this.isAnimating = true;
+
+    const posA = { l: tileA.layer, r: tileA.row, c: tileA.col };
+    const posB = { l: tileB.layer, r: tileB.row, c: tileB.col };
+
+    const swapResult = this.gameLogic.swapTiles(posA, posB);
+    if (!swapResult || !swapResult.success) {
       this.isAnimating = false;
       this.updateSpellUI();
-      this.showSpellToast(`ĐÃ ĐỔI VỊ TRÍ [${tileA.value}] ⇄ [${tileB.value}] THÀNH CÔNG!`);
-      this.saveGameState();
+      this.showSpellToast('Không thể đổi vị trí hai ô này!');
+      return;
     }
+
+    this.tiles3D[posA.l][posA.r][posA.c] = tileB;
+    this.tiles3D[posB.l][posB.r][posB.c] = tileA;
+
+    soundManager.playSpellSwap();
+    if (this.questManager) {
+      this.questManager.recordSpell('swap');
+    }
+
+    const pA = getGridPosition(posA.l, posA.r, posA.c);
+    const pB = getGridPosition(posB.l, posB.r, posB.c);
+    this.particleSystem.burst(pA.x, pA.y, pA.z, tileB.value);
+    this.particleSystem.burst(pB.x, pB.y, pB.z, tileA.value);
+
+    await Promise.all([
+      tileA.slideTo(posB.l, posB.r, posB.c, 0.24),
+      tileB.slideTo(posA.l, posA.r, posA.c, 0.24)
+    ]);
+
+    this.isAnimating = false;
+    this.updateSpellUI();
+    this.showSpellToast(`ĐÃ ĐỔI VỊ TRÍ [${tileA.value}] ⇄ [${tileB.value}] THÀNH CÔNG!`);
+    this.saveGameState();
   }
 
   updateTelemetryAndStats() {

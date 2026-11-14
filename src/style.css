@@ -4624,26 +4624,223 @@ body.in-boss-mode #demo-theme-switcher {
   color: #a1a1aa;
 }
 
-.spell-btn.active-swap {
-  transform: translateY(-2px);
+/* Distinct Color Identities for Spells */
+.spell-btn-undo .spell-svg {
+  color: #38bdf8 !important;
+  filter: drop-shadow(0 0 4px rgba(56, 189, 248, 0.45));
+}
+.spell-btn-hint .spell-svg {
+  color: #f59e0b !important;
+  filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.45));
+}
+.spell-btn-swap .spell-svg {
+  color: #c084fc !important;
+  filter: drop-shadow(0 0 4px rgba(192, 132, 252, 0.45));
+}
+
+.spell-btn-undo:hover:not(.depleted):not(.in-cooldown) {
+  border-color: #38bdf8 !important;
+  box-shadow: 0 8px 20px rgba(56, 189, 248, 0.25) !important;
+}
+.spell-btn-hint:hover:not(.depleted):not(.in-cooldown) {
   border-color: #f59e0b !important;
-  box-shadow: 0 0 24px rgba(245, 158, 11, 0.7), inset 0 0 8px rgba(245, 158, 11, 0.3);
-  animation: spellGlowPulse 1.2s ease-in-out infinite alternate;
+  box-shadow: 0 8px 20px rgba(245, 158, 11, 0.25) !important;
+}
+.spell-btn-swap:hover:not(.depleted):not(.in-cooldown):not(.active-swap) {
+  border-color: #c084fc !important;
+  box-shadow: 0 8px 20px rgba(192, 132, 252, 0.25) !important;
+}
+
+.spell-btn.active-swap {
+  transform: translateY(-2px) !important;
+  border-color: #ef4444 !important;
+  background: rgba(239, 68, 68, 0.18) !important;
+  box-shadow: 0 0 24px rgba(239, 68, 68, 0.75), inset 0 0 10px rgba(239, 68, 68, 0.35) !important;
+  animation: swapCancelPulse 1s ease-in-out infinite alternate !important;
 }
 
 .spell-btn.active-swap .spell-svg {
-  color: #f59e0b;
-  filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.8));
+  color: #ef4444 !important;
+  filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.85)) !important;
 }
 
-@keyframes spellGlowPulse {
+.spell-btn.active-swap .spell-name {
+  color: #fca5a5 !important;
+  font-weight: 800 !important;
+}
+
+@keyframes swapCancelPulse {
   0% {
-    box-shadow: 0 0 12px rgba(245, 158, 11, 0.45), inset 0 0 4px rgba(245, 158, 11, 0.2);
-    border-color: #f59e0b;
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.45), inset 0 0 4px rgba(239, 68, 68, 0.2);
+    border-color: #ef4444;
   }
   100% {
-    box-shadow: 0 0 28px rgba(245, 158, 11, 0.95), inset 0 0 12px rgba(245, 158, 11, 0.5);
-    border-color: #fbbf24;
+    box-shadow: 0 0 26px rgba(239, 68, 68, 0.9), inset 0 0 12px rgba(239, 68, 68, 0.45);
+    border-color: #f87171;
+  }
+}
+
+/* ==========================================================================
+   Swap Mode Floating Action HUD (Safe Multi-step Confirmation)
+   ========================================================================== */
+.swap-action-hud {
+  position: absolute;
+  bottom: 146px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 120 !important;
+  pointer-events: auto !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: swapHudPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (max-width: 768px) {
+  .swap-action-hud {
+    bottom: calc(max(16px, env(safe-area-inset-bottom, 16px)) + 92px) !important;
+    width: calc(100% - 32px);
+    max-width: 360px;
+  }
+}
+
+.swap-hud-pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 14px;
+  background: rgba(24, 24, 27, 0.94);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1.5px solid rgba(192, 132, 252, 0.4);
+  border-radius: 9999px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 20px rgba(192, 132, 252, 0.2);
+}
+
+body.theme-gentle_light .swap-hud-pill,
+body.theme-zen_clay .swap-hud-pill {
+  background: rgba(255, 255, 255, 0.96);
+  border-color: rgba(168, 85, 247, 0.4);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12), 0 0 16px rgba(168, 85, 247, 0.25);
+}
+
+.swap-hud-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.swap-hud-icon {
+  font-size: 16px;
+  color: #c084fc;
+  font-weight: 800;
+  display: inline-block;
+  line-height: 1;
+}
+
+body.theme-gentle_light .swap-hud-icon,
+body.theme-zen_clay .swap-hud-icon {
+  color: #9333ea;
+}
+
+.swap-hud-text {
+  font-size: 13px;
+  font-weight: 700;
+  color: #f4f4f5;
+  white-space: nowrap;
+}
+
+body.theme-gentle_light .swap-hud-text,
+body.theme-zen_clay .swap-hud-text {
+  color: #18181b;
+}
+
+.swap-hud-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.swap-hud-btn {
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: transform 0.15s ease, filter 0.15s ease, background-color 0.15s ease;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.swap-hud-btn:active {
+  transform: scale(0.94);
+}
+
+.swap-hud-btn.confirm-btn {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.45);
+  animation: confirmBtnPulse 1.2s ease-in-out infinite alternate;
+}
+
+.swap-hud-btn.confirm-btn:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.65);
+}
+
+.swap-hud-btn.cancel-btn {
+  background: rgba(255, 255, 255, 0.12);
+  color: #e4e4e7;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.swap-hud-btn.cancel-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+body.theme-gentle_light .swap-hud-btn.cancel-btn,
+body.theme-zen_clay .swap-hud-btn.cancel-btn {
+  background: rgba(0, 0, 0, 0.08);
+  color: #27272a;
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+body.theme-gentle_light .swap-hud-btn.cancel-btn:hover,
+body.theme-zen_clay .swap-hud-btn.cancel-btn:hover {
+  background: rgba(239, 68, 68, 0.12);
+  color: #dc2626;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+@keyframes swapHudPop {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 10px) scale(0.94);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+
+@keyframes confirmBtnPulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.45);
+  }
+  100% {
+    transform: scale(1.04);
+    box-shadow: 0 6px 18px rgba(16, 185, 129, 0.75);
   }
 }
 
@@ -7283,6 +7480,7 @@ select option:checked,
    ========================================================================== */
 .header-bar,
 .spell-bar,
+.swap-action-hud,
 .dir-pad-container,
 .camera-snap-bar,
 .slice-controls,

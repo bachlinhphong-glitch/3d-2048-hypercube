@@ -156,7 +156,23 @@ export class InputManager {
         e.preventDefault(); // Stop mobile pull-to-refresh & browser scroll from canceling swipe!
       }
       if (touchGestureTriggered || !this.enabled || this.isBlockedByUI()) return;
-      if (window.gameApp && window.gameApp.isSwapMode) return;
+      if (window.gameApp && window.gameApp.isSwapMode) {
+        const t = e.touches[0];
+        if (!t) return;
+        const dx = t.clientX - touchStartX;
+        const dy = t.clientY - touchStartY;
+        const distance = Math.hypot(dx, dy);
+        if (distance >= 20) {
+          // Player swiped: cancel Swap mode and perform the slide move!
+          window.gameApp.cancelSwapMode();
+          touchGestureTriggered = true;
+          let direction = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up');
+          if (direction) {
+            this.onMove(direction);
+          }
+        }
+        return;
+      }
 
       const t = e.touches[0];
       if (!t) return;
@@ -207,6 +223,8 @@ export class InputManager {
           // Tap on canvas (e.g. for Swap selection)
           if (distance < 12 && this.onCanvasClick) {
             this.onCanvasClick(t.clientX, t.clientY);
+          } else if (window.gameApp && window.gameApp.isSwapMode && distance >= 12) {
+            window.gameApp.cancelSwapMode();
           }
         }
       }
@@ -242,7 +260,20 @@ export class InputManager {
     window.addEventListener('pointermove', (e) => {
       if (e.pointerType === 'touch') return;
       if (!this.isPointerDown || pointerGestureTriggered || !this.enabled || this.isBlockedByUI()) return;
-      if (window.gameApp && window.gameApp.isSwapMode) return;
+      if (window.gameApp && window.gameApp.isSwapMode) {
+        const dx = e.clientX - this.pointerStartX;
+        const dy = e.clientY - this.pointerStartY;
+        const distance = Math.hypot(dx, dy);
+        if (distance >= 22) {
+          window.gameApp.cancelSwapMode();
+          pointerGestureTriggered = true;
+          let direction = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up');
+          if (direction) {
+            this.onMove(direction);
+          }
+        }
+        return;
+      }
 
       const dx = e.clientX - this.pointerStartX;
       const dy = e.clientY - this.pointerStartY;
@@ -276,10 +307,17 @@ export class InputManager {
         return;
       }
 
-      // In Swap mode, prioritize clicking the tile rather than swiping
+      // In Swap mode, prioritize clicking the tile only if it was a real stationary tap
       if (window.gameApp && window.gameApp.isSwapMode) {
-        if (this.onCanvasClick) {
-          this.onCanvasClick(this.pointerStartX, this.pointerStartY);
+        const dx = e.clientX - this.pointerStartX;
+        const dy = e.clientY - this.pointerStartY;
+        const distance = Math.hypot(dx, dy);
+        if (distance < 14) {
+          if (this.onCanvasClick) {
+            this.onCanvasClick(this.pointerStartX, this.pointerStartY);
+          }
+        } else {
+          window.gameApp.cancelSwapMode();
         }
         return;
       }
