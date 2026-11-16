@@ -3356,7 +3356,6 @@ class GameApp {
       Promise.resolve().then(() => this.handleMove(nextMove));
     }
   }
-  }
 
   rollMemeReaction(isVictory = false) {
     if (!this.modalMemeWrap) return;
