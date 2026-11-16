@@ -1078,42 +1078,24 @@ export class Tile3D {
 
     this.group.rotation.set(0, 0, 0);
 
-    // Subtle, elegant aerodynamic lean & stretch (nhẹ nhàng, tinh tế, vừa vặn)
+    // Subtle aerodynamic squash & stretch along movement axis (NO rotation)
     if (Math.abs(dc) > 0) {
-      if (isHigh) {
-        const tiltZ = dc > 0 ? -0.04 : 0.04;
-        gsap.to(this.group.rotation, { z: tiltZ, duration: actualDuration * 0.45, yoyo: true, repeat: 1, ease: 'sine.inOut' });
-      }
       gsap.to(this.group.scale, { x: 1.05, y: 0.97, z: 0.97, duration: actualDuration * 0.5, yoyo: true, repeat: 1, ease: 'sine.inOut' });
     } else if (Math.abs(dr) > 0) {
-      if (isHigh) {
-        const tiltX = dr > 0 ? 0.04 : -0.04;
-        gsap.to(this.group.rotation, { x: tiltX, duration: actualDuration * 0.45, yoyo: true, repeat: 1, ease: 'sine.inOut' });
-      }
       gsap.to(this.group.scale, { x: 0.97, y: 0.97, z: 1.05, duration: actualDuration * 0.5, yoyo: true, repeat: 1, ease: 'sine.inOut' });
     } else if (Math.abs(dl) > 0) {
       gsap.to(this.group.scale, { x: 0.96, y: 1.06, z: 0.96, duration: actualDuration * 0.5, yoyo: true, repeat: 1, ease: 'sine.inOut' });
     }
 
-    // Micro-hop in High Mode: nhấc nhẹ +0.025 (không nhảy bổng quá mức)
-    if (isHigh) {
-      gsap.to(this.group.position, {
-        y: targetPos.y + 0.025,
-        duration: actualDuration * 0.5,
-        yoyo: true,
-        repeat: 1,
-        ease: 'sine.out'
-      });
-    }
-
     return gsap.to(this.group.position, {
       x: targetPos.x,
+      y: targetPos.y,
       z: targetPos.z,
       duration: actualDuration,
       ease: 'power2.out',
       onComplete: () => {
         gsap.to(this.group.scale, { x: 1.0, y: 1.0, z: 1.0, duration: 0.04, ease: 'power1.out' });
-        gsap.to(this.group.rotation, { x: 0, y: 0, z: 0, duration: 0.04, ease: 'power1.out' });
+        this.group.rotation.set(0, 0, 0);
       }
     });
   }
@@ -1134,31 +1116,35 @@ export class Tile3D {
       soundManager.playPop();
     }
 
-    // Tactile, crisp spring pop (nhẹ nhàng, vừa phải, nảy đanh dứt khoát)
+    // Lock rotation firmly to 0 - absolute zero rotation/spinning on merge
+    gsap.killTweensOf(this.group.rotation);
+    this.group.rotation.set(0, 0, 0);
+
+    // Tactile, crisp vertical spring pop (hoàn toàn không xoay, nảy đanh dứt khoát)
     const tl = gsap.timeline();
     tl.to(this.group.position, {
-      y: basePos.y + 0.14,
+      y: basePos.y + 0.12,
       duration: 0.065,
       ease: 'power2.out'
     }, 0);
     tl.to(this.group.scale, {
-      x: 1.20,
-      y: 1.20,
-      z: 1.20,
+      x: 1.18,
+      y: 1.18,
+      z: 1.18,
       duration: 0.065,
       ease: 'power2.out'
     }, 0);
 
     tl.to(this.group.position, {
       y: basePos.y,
-      duration: 0.08,
+      duration: 0.075,
       ease: 'power2.in'
     });
     tl.to(this.group.scale, {
       x: 1.0,
       y: 1.0,
       z: 1.0,
-      duration: 0.08,
+      duration: 0.075,
       ease: 'back.out(2.0)'
     }, '<');
 
