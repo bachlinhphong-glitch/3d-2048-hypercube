@@ -51,11 +51,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./src/style.css?v=6.8.44">
+  <link rel="stylesheet" href="./src/style.css?v=6.8.45">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=6.8.44').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=6.8.45').then(reg => {
           reg.update();
         }).catch(() => {});
       });
@@ -357,16 +357,29 @@
       </button>
     </div>
 
-    <!-- Swap Mode Floating Action HUD -->
+    <!-- Swap Mode Floating Action HUD (Sleek Apple Glassmorphism Guided Workflow) -->
     <div id="swap-action-hud" class="swap-action-hud" style="display: none;">
-      <div class="swap-hud-pill">
-        <div class="swap-hud-info">
-          <span class="swap-hud-icon">⇄</span>
-          <span id="swap-hud-text" class="swap-hud-text">Chạm 2 khối để đổi chỗ</span>
+      <div class="swap-hud-card">
+        <div class="swap-hud-header">
+          <div class="swap-hud-title-wrap">
+            <span class="swap-hud-badge">PHÉP BỔ TRỢ</span>
+            <span class="swap-hud-title">⇄ HOÁN ĐỔI VỊ TRÍ</span>
+          </div>
+          <button id="btn-swap-hud-cancel" class="swap-hud-btn cancel-btn" type="button" title="Hủy đổi chỗ (Esc)">✕ Hủy</button>
         </div>
-        <div class="swap-hud-actions">
-          <button id="btn-swap-hud-confirm" class="swap-hud-btn confirm-btn" style="display: none;">✓ Đổi ngay</button>
-          <button id="btn-swap-hud-cancel" class="swap-hud-btn cancel-btn">✕ Hủy</button>
+        <div class="swap-hud-body">
+          <div id="swap-hud-text" class="swap-hud-text">Chạm khối thứ nhất trên bàn cờ...</div>
+          <div id="swap-hud-preview" class="swap-hud-preview" style="display: none;">
+            <div id="swap-tile-a-tag" class="swap-tile-tag slot-a">--</div>
+            <span class="swap-arrow">⇄</span>
+            <div id="swap-tile-b-tag" class="swap-tile-tag slot-b">--</div>
+          </div>
+        </div>
+        <div id="swap-hud-actions-confirm" class="swap-hud-actions-confirm" style="display: none;">
+          <button id="btn-swap-hud-confirm" class="swap-hud-btn confirm-btn" type="button">
+            <span class="confirm-icon">✓</span>
+            <span>XÁC NHẬN HOÁN ĐỔI</span>
+          </button>
         </div>
       </div>
     </div>
@@ -1192,6 +1205,6 @@
   </div>
 
   <!-- Main Game Script -->
-  <script type="module" src="./src/main.js?v=6.8.44"></script>
+  <script type="module" src="./src/main.js?v=6.8.45"></script>
 </body>
 </html>

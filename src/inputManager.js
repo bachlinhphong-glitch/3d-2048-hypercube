@@ -140,7 +140,7 @@ export class InputManager {
     this.domElement.addEventListener('touchstart', (e) => {
       if (e.touches.length !== 1) return;
       if (this.isBlockedByUI()) return;
-      if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .spell-bar, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel, .dir-pad-container, .dpad-disc, .dpad-petal, .dpad-layer-btn, .dpad-btn, .cam-btn, .slice-btn, .banner-container, .inapp-challenge-card, .trophy-tab-btn, .custom-bg-input')) {
+      if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .spell-bar, .swap-action-hud, .swap-hud-card, .swap-hud-btn, #swap-action-hud, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel, .dir-pad-container, .dpad-disc, .dpad-petal, .dpad-layer-btn, .dpad-btn, .cam-btn, .slice-btn, .banner-container, .inapp-challenge-card, .trophy-tab-btn, .custom-bg-input')) {
         return;
       }
       const t = e.touches[0];
@@ -162,8 +162,8 @@ export class InputManager {
         const dx = t.clientX - touchStartX;
         const dy = t.clientY - touchStartY;
         const distance = Math.hypot(dx, dy);
-        if (distance >= 20) {
-          // Player swiped: cancel Swap mode and perform the slide move!
+        // Generous threshold: only cancel Swap mode if user makes a deliberate 45px+ swipe to slide the board
+        if (distance >= 45) {
           window.gameApp.cancelSwapMode();
           touchGestureTriggered = true;
           let direction = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up');
@@ -208,6 +208,15 @@ export class InputManager {
           const dx = t.clientX - touchStartX;
           const dy = t.clientY - touchStartY;
           const distance = Math.hypot(dx, dy);
+
+          // In Swap mode: Stationary tap (< 28px) selects a tile. NEVER cancel Swap Mode here!
+          if (window.gameApp && window.gameApp.isSwapMode) {
+            if (distance < 28 && this.onCanvasClick) {
+              this.onCanvasClick(t.clientX, t.clientY);
+            }
+            return;
+          }
+
           if (distance >= 12) {
             let direction = null;
             if (Math.abs(dx) > Math.abs(dy)) {
@@ -220,11 +229,9 @@ export class InputManager {
               return;
             }
           }
-          // Tap on canvas (e.g. for Swap selection)
+          // Tap on canvas for normal game click (e.g. tile inspect)
           if (distance < 12 && this.onCanvasClick) {
             this.onCanvasClick(t.clientX, t.clientY);
-          } else if (window.gameApp && window.gameApp.isSwapMode && distance >= 12) {
-            window.gameApp.cancelSwapMode();
           }
         }
       }
@@ -246,7 +253,7 @@ export class InputManager {
         return;
       }
       if (e.button !== 0 && e.pointerType === 'mouse') return;
-      if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .spell-bar, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel, .dir-pad-container, .dpad-disc, .dpad-petal, .dpad-layer-btn, .dpad-btn, .cam-btn, .slice-btn, .banner-container, .inapp-challenge-card, .trophy-tab-btn, .custom-bg-input')) {
+      if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .spell-bar, .swap-action-hud, .swap-hud-card, .swap-hud-btn, #swap-action-hud, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel, .dir-pad-container, .dpad-disc, .dpad-petal, .dpad-layer-btn, .dpad-btn, .cam-btn, .slice-btn, .banner-container, .inapp-challenge-card, .trophy-tab-btn, .custom-bg-input')) {
         return;
       }
 
@@ -264,7 +271,8 @@ export class InputManager {
         const dx = e.clientX - this.pointerStartX;
         const dy = e.clientY - this.pointerStartY;
         const distance = Math.hypot(dx, dy);
-        if (distance >= 22) {
+        // Only cancel Swap mode if user makes a deliberate mouse drag >= 45px
+        if (distance >= 45) {
           window.gameApp.cancelSwapMode();
           pointerGestureTriggered = true;
           let direction = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up');
@@ -303,21 +311,19 @@ export class InputManager {
       if (!this.enabled) return;
 
       // Do not process swipes if released on interactive control elements
-      if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .spell-bar, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel, .dir-pad-container, .dpad-disc, .dpad-petal, .dpad-layer-btn, .dpad-btn, .cam-btn, .slice-btn')) {
+      if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .spell-bar, .swap-action-hud, .swap-hud-card, .swap-hud-btn, #swap-action-hud, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel, .dir-pad-container, .dpad-disc, .dpad-petal, .dpad-layer-btn, .dpad-btn, .cam-btn, .slice-btn')) {
         return;
       }
 
-      // In Swap mode, prioritize clicking the tile only if it was a real stationary tap
+      // In Swap mode, prioritize clicking the tile with a generous tap allowance (< 28px)
       if (window.gameApp && window.gameApp.isSwapMode) {
         const dx = e.clientX - this.pointerStartX;
         const dy = e.clientY - this.pointerStartY;
         const distance = Math.hypot(dx, dy);
-        if (distance < 14) {
+        if (distance < 28) {
           if (this.onCanvasClick) {
             this.onCanvasClick(this.pointerStartX, this.pointerStartY);
           }
-        } else {
-          window.gameApp.cancelSwapMode();
         }
         return;
       }

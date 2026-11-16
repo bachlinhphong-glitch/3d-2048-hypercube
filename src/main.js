@@ -958,7 +958,7 @@ class GameApp {
     });
 
 
-    // Summoner Spells Elements (Gợi ý, Đi lại, Đổi vị trí)
+    // Summoner Spells Elements (Lùi lại, Gợi ý, Đổi chỗ)
     this.btnSpellHint = document.getElementById('btn-spell-hint');
     this.btnSpellUndo = document.getElementById('btn-spell-undo');
     this.btnSpellSwap = document.getElementById('btn-spell-swap');
@@ -968,44 +968,35 @@ class GameApp {
     this.spellToastEl = document.getElementById('spell-toast');
     this.swapActionHud = document.getElementById('swap-action-hud');
     this.swapHudText = document.getElementById('swap-hud-text');
+    this.swapHudPreview = document.getElementById('swap-hud-preview');
+    this.swapTileATag = document.getElementById('swap-tile-a-tag');
+    this.swapTileBTag = document.getElementById('swap-tile-b-tag');
+    this.swapHudActionsConfirm = document.getElementById('swap-hud-actions-confirm');
     this.btnSwapHudConfirm = document.getElementById('btn-swap-hud-confirm');
     this.btnSwapHudCancel = document.getElementById('btn-swap-hud-cancel');
 
-    if (this.btnSwapHudConfirm) {
-      this.btnSwapHudConfirm.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        this.confirmExecuteSwap();
-      });
-    }
-    if (this.btnSwapHudCancel) {
-      this.btnSwapHudCancel.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        this.cancelSwapMode();
-      });
-    }
-
-    // Helper to reliably trigger spell taps across iOS Safari (WebKit touch quirks), in-app browsers, and desktop
+    // Helper to reliably trigger spell taps without ghost double-clicks or touch cancellation
     const bindSpellTap = (btn, handler) => {
       if (!btn) return;
       let lastTrigger = 0;
       let touchStartX = 0;
       let touchStartY = 0;
       let touchStartTime = 0;
+      let touchHandled = false;
 
       const trigger = (e) => {
         const now = performance.now();
-        if (now - lastTrigger < 320) return;
+        if (now - lastTrigger < 450) return;
         lastTrigger = now;
         if (e) {
-          if (e.cancelable && e.type !== 'click') e.preventDefault();
+          if (e.cancelable) e.preventDefault();
           e.stopPropagation();
         }
         handler();
       };
 
       btn.addEventListener('touchstart', (e) => {
+        touchHandled = false;
         if (e.touches && e.touches[0]) {
           touchStartX = e.touches[0].clientX;
           touchStartY = e.touches[0].clientY;
@@ -1018,22 +1009,36 @@ class GameApp {
           const dx = Math.abs(e.changedTouches[0].clientX - touchStartX);
           const dy = Math.abs(e.changedTouches[0].clientY - touchStartY);
           const dt = performance.now() - touchStartTime;
-          if (dx < 16 && dy < 16 && dt < 500) {
+          if (dx < 18 && dy < 18 && dt < 600) {
+            touchHandled = true;
             trigger(e);
           }
         }
       }, { passive: false });
 
       btn.addEventListener('pointerup', (e) => {
-        if (e.pointerType === 'mouse') {
+        if (e.pointerType === 'mouse' && e.button === 0) {
           trigger(e);
         }
       });
 
       btn.addEventListener('click', (e) => {
+        if (touchHandled) {
+          touchHandled = false;
+          if (e.cancelable) e.preventDefault();
+          e.stopPropagation();
+          return;
+        }
         trigger(e);
       });
     };
+
+    if (this.btnSwapHudConfirm) {
+      bindSpellTap(this.btnSwapHudConfirm, () => this.confirmExecuteSwap());
+    }
+    if (this.btnSwapHudCancel) {
+      bindSpellTap(this.btnSwapHudCancel, () => this.cancelSwapMode());
+    }
 
     bindSpellTap(this.btnSpellHint, () => this.handleSpellHint());
     bindSpellTap(this.btnSpellUndo, () => this.handleSpellUndo());
@@ -3671,8 +3676,8 @@ class GameApp {
       this.sceneManager.controls.enabled = false;
     }
     this.updateSpellUI();
-    this.showSwapHud('Chạm khối thứ nhất để đổi chỗ...', false);
-    this.showSpellToast('CHẾ ĐỘ ĐỔI CHỖ: Chạm 2 khối để hoán đổi (hoặc vuốt / chạm ngoài để hủy)');
+    this.showSwapHud('Chạm khối thứ nhất trên bàn cờ...');
+    this.showSpellToast('CHẾ ĐỘ ĐỔI CHỖ: Chạm 2 khối để hoán đổi vị trí');
   }
 
   cancelSwapMode(toastMsg = 'Đã hủy chế độ Đổi chỗ.') {
@@ -3704,22 +3709,46 @@ class GameApp {
     }
   }
 
-  showSwapHud(text, showConfirm = false) {
+  showSwapHud(stepText, tileAValue = null, tileBValue = null) {
     if (!this.swapActionHud) return;
     this.swapActionHud.style.display = 'flex';
+
     if (this.swapHudText) {
-      this.swapHudText.textContent = text;
+      this.swapHudText.textContent = stepText;
     }
-    if (this.btnSwapHudConfirm) {
-      this.btnSwapHudConfirm.style.display = showConfirm ? 'inline-flex' : 'none';
+
+    if (this.swapHudPreview && this.swapTileATag && this.swapTileBTag) {
+      if (tileAValue !== null) {
+        this.swapHudPreview.style.display = 'flex';
+        this.swapTileATag.textContent = tileAValue;
+        this.swapTileATag.classList.add('selected');
+        if (tileBValue !== null) {
+          this.swapTileBTag.textContent = tileBValue;
+          this.swapTileBTag.classList.add('selected');
+        } else {
+          this.swapTileBTag.textContent = '?';
+          this.swapTileBTag.classList.remove('selected');
+        }
+      } else {
+        this.swapHudPreview.style.display = 'none';
+        this.swapTileATag.textContent = '--';
+        this.swapTileBTag.textContent = '--';
+      }
+    }
+
+    if (this.swapHudActionsConfirm) {
+      this.swapHudActionsConfirm.style.display = (tileAValue !== null && tileBValue !== null) ? 'block' : 'none';
     }
   }
 
   hideSwapHud() {
     if (!this.swapActionHud) return;
     this.swapActionHud.style.display = 'none';
-    if (this.btnSwapHudConfirm) {
-      this.btnSwapHudConfirm.style.display = 'none';
+    if (this.swapHudActionsConfirm) {
+      this.swapHudActionsConfirm.style.display = 'none';
+    }
+    if (this.swapHudPreview) {
+      this.swapHudPreview.style.display = 'none';
     }
   }
 
@@ -3729,19 +3758,23 @@ class GameApp {
 
     const clickedTile = this.findTileFromPoint(clientX, clientY);
     if (!clickedTile) {
-      // User clicked outside/empty space -> Safely cancel swap mode so they don't get trapped!
-      this.cancelSwapMode('Đã hủy chế độ Đổi chỗ.');
+      // Gentle reminder if user tapped empty space or missed a tile — NEVER cancel!
+      if (!this.swapSelectedTileA) {
+        this.showSwapHud('Hãy chạm trực tiếp vào một khối số trên bàn cờ...');
+      } else if (!this.swapSelectedTileB) {
+        this.showSwapHud(`Đã chọn [${this.swapSelectedTileA.value}]. Chạm tiếp khối thứ 2...`, this.swapSelectedTileA.value);
+      }
       return;
     }
 
     if (!this.swapSelectedTileA) {
-      // First tile selection
+      // Step 1: Select first tile
       this.swapSelectedTileA = clickedTile;
       if (clickedTile.isHovered) clickedTile.setHovered(false);
       clickedTile.setSelected(true);
       soundManager.playSlide();
-      this.showSwapHud(`Đã chọn [${clickedTile.value}]. Chạm khối thứ hai...`, false);
-      this.showSpellToast(`ĐÃ CHỌN Ô [${clickedTile.value}]. CHỌN TIẾP Ô THỨ HAI...`);
+      this.showSwapHud(`Đã chọn [${clickedTile.value}]. Chạm khối thứ hai để đổi chỗ...`, clickedTile.value);
+      this.showSpellToast(`ĐÃ CHỌN KHỐI [${clickedTile.value}]. CHỌN TIẾP KHỐI THỨ HAI...`);
     } else if (this.swapSelectedTileA === clickedTile) {
       // Tapped tile A again -> deselect
       clickedTile.setSelected(false);
@@ -3751,19 +3784,19 @@ class GameApp {
         this.swapSelectedTileB = null;
       }
       soundManager.playSlide();
-      this.showSwapHud('Chạm khối thứ nhất để đổi chỗ...', false);
+      this.showSwapHud('Chạm khối thứ nhất trên bàn cờ...');
       this.showSpellToast('Đã bỏ chọn. Hãy chọn lại khối thứ nhất.');
     } else if (this.swapSelectedTileB === clickedTile) {
       // Tapped tile B again -> deselect B
       clickedTile.setSelected(false);
       this.swapSelectedTileB = null;
       soundManager.playSlide();
-      this.showSwapHud(`Đã chọn [${this.swapSelectedTileA.value}]. Chạm khối thứ hai...`, false);
+      this.showSwapHud(`Đã chọn [${this.swapSelectedTileA.value}]. Chạm khối thứ hai để đổi...`, this.swapSelectedTileA.value);
     } else {
-      // Selected tile B
+      // Selected tile B (or re-selecting a different tile B)
       if (clickedTile.value === this.swapSelectedTileA.value) {
         soundManager.playTileDrop();
-        this.showSpellToast(`Hai ô cùng có giá trị [${clickedTile.value}], hãy chọn ô khác!`);
+        this.showSpellToast(`2 khối cùng giá trị [${clickedTile.value}], hãy chọn khối khác!`);
         return;
       }
 
@@ -3774,9 +3807,9 @@ class GameApp {
       clickedTile.setSelected(true);
       soundManager.playSlide();
 
-      // Show confirmation prompt in floating HUD
-      this.showSwapHud(`Đổi [${this.swapSelectedTileA.value}] ⇄ [${this.swapSelectedTileB.value}]?`, true);
-      this.showSpellToast('BẤM "✓ ĐỔI NGAY" ĐỂ XÁC NHẬN HOÁN ĐỔI!');
+      // Show full preview + Confirm button
+      this.showSwapHud(`Đổi [${this.swapSelectedTileA.value}] ⇄ [${clickedTile.value}]? Bấm Xác nhận`, this.swapSelectedTileA.value, clickedTile.value);
+      this.showSpellToast(`BẤM "✓ XÁC NHẬN HOÁN ĐỔI" ĐỂ THỰC HIỆN!`);
     }
   }
 
