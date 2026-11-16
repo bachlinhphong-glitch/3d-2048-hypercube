@@ -1078,29 +1078,30 @@ export class SceneManager {
     if (!this.camImpulseOffset) this.camImpulseOffset = new THREE.Vector3();
     gsap.killTweensOf(this.camImpulseOffset);
 
-    const s = Math.min(2.0, strength);
+    // Tasteful, subtle micro-haptic camera nudge (nhẹ nhàng, đầm chắc, 0% say xe)
+    const s = Math.min(1.2, strength) * 0.022;
     if (direction === 'left') {
-      this.camImpulseOffset.set(-0.22 * s, -0.04 * s, 0);
+      this.camImpulseOffset.set(-s, 0, 0);
     } else if (direction === 'right') {
-      this.camImpulseOffset.set(0.22 * s, -0.04 * s, 0);
+      this.camImpulseOffset.set(s, 0, 0);
     } else if (direction === 'up') {
-      this.camImpulseOffset.set(0, -0.06 * s, -0.20 * s);
+      this.camImpulseOffset.set(0, 0, -s);
     } else if (direction === 'down') {
-      this.camImpulseOffset.set(0, 0.06 * s, 0.20 * s);
+      this.camImpulseOffset.set(0, 0, s);
     } else if (direction === 'layerUp') {
-      this.camImpulseOffset.set(0, 0.25 * s, 0);
+      this.camImpulseOffset.set(0, s * 1.2, 0);
     } else if (direction === 'layerDown') {
-      this.camImpulseOffset.set(0, -0.25 * s, 0);
+      this.camImpulseOffset.set(0, -s * 1.2, 0);
     } else if (direction === 'merge') {
-      this.camImpulseOffset.set((Math.random() - 0.5) * 0.12 * s, -0.16 * s, (Math.random() - 0.5) * 0.12 * s);
+      this.camImpulseOffset.set(0, -s * 1.3, 0);
     }
 
     gsap.to(this.camImpulseOffset, {
       x: 0,
       y: 0,
       z: 0,
-      duration: 0.32,
-      ease: 'elastic.out(1.15, 0.35)'
+      duration: 0.12,
+      ease: 'power2.out'
     });
   }
 

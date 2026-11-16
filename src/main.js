@@ -2299,29 +2299,30 @@ class GameApp {
 
     let tiltX = 0;
     let tiltZ = 0;
+    // Classy micro-tilt: barely ~0.35 deg, provides tactile weight without dizziness
     if (direction === 'left') {
-      tiltZ = -0.035;
+      tiltZ = -0.007;
     } else if (direction === 'right') {
-      tiltZ = 0.035;
+      tiltZ = 0.007;
     } else if (direction === 'up') {
-      tiltX = -0.035;
+      tiltX = -0.007;
     } else if (direction === 'down') {
-      tiltX = 0.035;
+      tiltX = 0.007;
     }
 
     if (tiltX !== 0 || tiltZ !== 0) {
       gsap.to(this.board.group.rotation, {
         x: tiltX,
         z: tiltZ,
-        duration: 0.08,
+        duration: 0.05,
         ease: 'power2.out',
         onComplete: () => {
           gsap.to(this.board.group.rotation, {
             x: 0,
             y: 0,
             z: 0,
-            duration: 0.32,
-            ease: 'elastic.out(1.15, 0.35)'
+            duration: 0.12,
+            ease: 'power2.out'
           });
         }
       });
@@ -3066,7 +3067,7 @@ class GameApp {
         }
       }
 
-      const slideDuration = this.graphicsQuality === 'high' ? 0.118 : 0.088;
+      const slideDuration = this.graphicsQuality === 'high' ? 0.092 : 0.088;
       const animations = [];
       const mergesToProcess = [];
       this._activeSlideTweens = [];
@@ -3184,7 +3185,7 @@ class GameApp {
           }
           if (this.board && this.board.group) {
             gsap.killTweensOf(this.board.group.position);
-            gsap.to(this.board.group.position, { y: -0.06, duration: 0.07, yoyo: true, repeat: 1, ease: 'power2.out' });
+            gsap.to(this.board.group.position, { y: -0.015, duration: 0.04, yoyo: true, repeat: 1, ease: 'power2.out' });
           }
         }
         // No fine dust particles on regular merges - clean tactile brick slam instead
@@ -3237,7 +3238,7 @@ class GameApp {
           }
           if (this.board && this.board.group) {
             gsap.killTweensOf(this.board.group.position);
-            gsap.to(this.board.group.position, { y: -0.06, duration: 0.07, yoyo: true, repeat: 1, ease: 'power2.out' });
+            gsap.to(this.board.group.position, { y: -0.015, duration: 0.04, yoyo: true, repeat: 1, ease: 'power2.out' });
           }
         }
         // No fine dust particles on regular merges - clean tactile brick slam instead
