@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import gsap from 'gsap';
 import { SceneManager } from './sceneManager.js';
 import { Board, getGridPosition, setLayerSpacingMultiplier } from './board.js';
-import { Tile3D } from './tile.js';
+import { Tile3D, setTileGraphicsQuality } from './tile.js';
 import { ParticleSystem } from './particles.js';
 import { Game2048Logic } from './gameLogic.js';
 import { InputManager } from './inputManager.js';
@@ -223,6 +223,7 @@ class GameApp {
       (localStorage.getItem('3d2048_target_fps') === '30' ? 'low' : 
        localStorage.getItem('3d2048_target_fps') === '60' ? 'medium' : 'high');
     this.targetFps = this.graphicsQuality === 'low' ? '30' : this.graphicsQuality === 'medium' ? '60' : '120';
+    setTileGraphicsQuality(this.graphicsQuality);
     this.lastRenderTimestamp = performance.now();
     this.lastUserInteraction = performance.now();
     this.lastIdleTimestamp = performance.now();
@@ -2266,6 +2267,7 @@ class GameApp {
 
   setGraphicsQuality(quality) {
     this.graphicsQuality = quality;
+    setTileGraphicsQuality(quality);
     this.targetFps = quality === 'low' ? '30' : quality === 'medium' ? '60' : '120';
     try {
       localStorage.setItem('3d2048_graphics_quality', quality);
@@ -2287,6 +2289,43 @@ class GameApp {
     const labelText = t(labelKey) || quality.toUpperCase();
     this.showSpellToast(`🎮 ${labelText}`);
     this.registerInteraction();
+  }
+
+  reactBoardToMove(direction) {
+    if (this.graphicsQuality !== 'high') return;
+    if (!this.board || !this.board.group) return;
+
+    gsap.killTweensOf(this.board.group.rotation);
+
+    let tiltX = 0;
+    let tiltZ = 0;
+    if (direction === 'left') {
+      tiltZ = -0.035;
+    } else if (direction === 'right') {
+      tiltZ = 0.035;
+    } else if (direction === 'up') {
+      tiltX = -0.035;
+    } else if (direction === 'down') {
+      tiltX = 0.035;
+    }
+
+    if (tiltX !== 0 || tiltZ !== 0) {
+      gsap.to(this.board.group.rotation, {
+        x: tiltX,
+        z: tiltZ,
+        duration: 0.08,
+        ease: 'power2.out',
+        onComplete: () => {
+          gsap.to(this.board.group.rotation, {
+            x: 0,
+            y: 0,
+            z: 0,
+            duration: 0.32,
+            ease: 'elastic.out(1.15, 0.35)'
+          });
+        }
+      });
+    }
   }
 
   setupShareModal() {
@@ -3020,7 +3059,14 @@ class GameApp {
         soundManager.playSlide();
       }
 
-      const slideDuration = 0.088;
+      if (this.graphicsQuality === 'high') {
+        this.reactBoardToMove(direction);
+        if (this.sceneManager && this.sceneManager.impulseCamera) {
+          this.sceneManager.impulseCamera(direction, 1.0);
+        }
+      }
+
+      const slideDuration = this.graphicsQuality === 'high' ? 0.118 : 0.088;
       const animations = [];
       const mergesToProcess = [];
       this._activeSlideTweens = [];
@@ -3131,6 +3177,16 @@ class GameApp {
 
         this.comboCount++;
         const pos = getGridPosition(m.targetL, m.targetR, m.targetC);
+        // High Performance Kinematics: 3D Camera Impulse & Board Impact Dip on Merge
+        if (this.graphicsQuality === 'high') {
+          if (this.sceneManager && this.sceneManager.impulseCamera) {
+            this.sceneManager.impulseCamera('merge', Math.min(2.0, m.newValue / 128));
+          }
+          if (this.board && this.board.group) {
+            gsap.killTweensOf(this.board.group.position);
+            gsap.to(this.board.group.position, { y: -0.06, duration: 0.07, yoyo: true, repeat: 1, ease: 'power2.out' });
+          }
+        }
         // No fine dust particles on regular merges - clean tactile brick slam instead
         soundManager.playMerge(m.newValue, this.comboCount);
         if (m.newValue >= 128) {
@@ -3174,6 +3230,16 @@ class GameApp {
 
         this.comboCount++;
         const pos = getGridPosition(m.targetL, m.targetR, m.targetC);
+        // High Performance Kinematics: 3D Camera Impulse & Board Impact Dip on Merge
+        if (this.graphicsQuality === 'high') {
+          if (this.sceneManager && this.sceneManager.impulseCamera) {
+            this.sceneManager.impulseCamera('merge', Math.min(2.0, m.newValue / 128));
+          }
+          if (this.board && this.board.group) {
+            gsap.killTweensOf(this.board.group.position);
+            gsap.to(this.board.group.position, { y: -0.06, duration: 0.07, yoyo: true, repeat: 1, ease: 'power2.out' });
+          }
+        }
         // No fine dust particles on regular merges - clean tactile brick slam instead
         soundManager.playMerge(m.newValue, this.comboCount);
         if (m.newValue >= 128) {

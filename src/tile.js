@@ -228,6 +228,11 @@ function getSharedBlackHoleDisk() {
   return { disk: sharedGeos.blackHoleDisk, einstein: sharedGeos.einsteinRing };
 }
 
+export let tileGraphicsQuality = 'medium';
+export function setTileGraphicsQuality(quality) {
+  tileGraphicsQuality = quality;
+}
+
 export class Tile3D {
   constructor(layer, row, col, value, scene, shape = 'auto_evolution', isBomb = false, bombCountdown = 5) {
     this.id = nextTileId++;
@@ -1015,24 +1020,79 @@ export class Tile3D {
     const basePos = getGridPosition(this.layer, this.row, this.col);
     gsap.killTweensOf(this.group.position);
     gsap.killTweensOf(this.group.scale);
+    gsap.killTweensOf(this.group.rotation);
 
-    // Set position solidly at resting grid slot (NO falling from sky, no jarring screen bounce)
-    this.group.position.set(basePos.x, basePos.y, basePos.z);
-    this.group.rotation.set(0, 0, 0);
-    this.group.scale.set(0, 0, 0);
+    const isHigh = (tileGraphicsQuality === 'high' || window.gameApp?.graphicsQuality === 'high');
 
-    // Crisp spring pop-in (instant, responsive 120Hz feel)
-    return gsap.to(this.group.scale, {
+    if (!isHigh) {
+      // Crisp spring pop-in (instant, responsive 120Hz feel)
+      this.group.position.set(basePos.x, basePos.y, basePos.z);
+      this.group.rotation.set(0, 0, 0);
+      this.group.scale.set(0, 0, 0);
+
+      return gsap.to(this.group.scale, {
+        x: 1.0,
+        y: 1.0,
+        z: 1.0,
+        duration: 0.085,
+        delay: delay,
+        ease: 'back.out(1.8)'
+      });
+    }
+
+    // HIGH QUALITY KINEMATICS: 3D Gravity Drop with Impact Squash & Spring Rebound
+    this.group.position.set(basePos.x, basePos.y + 0.85, basePos.z);
+    this.group.rotation.set(0.18, 0.25, 0.12);
+    this.group.scale.set(0.35, 0.35, 0.35);
+
+    const tl = gsap.timeline({ delay });
+
+    // Step 1: Accelerated Fall down under simulated gravity (0.13s)
+    tl.to(this.group.position, {
+      y: basePos.y,
+      duration: 0.13,
+      ease: 'power2.in'
+    }, 0);
+    tl.to(this.group.scale, {
       x: 1.0,
       y: 1.0,
       z: 1.0,
-      duration: 0.085,
-      delay: delay,
-      ease: 'back.out(1.8)'
+      duration: 0.13,
+      ease: 'power1.in'
+    }, 0);
+    tl.to(this.group.rotation, {
+      x: 0,
+      y: 0,
+      z: 0,
+      duration: 0.13,
+      ease: 'power1.in'
+    }, 0);
+
+    // Step 2: Impact Squash onto Board (0.06s)
+    tl.to(this.group.scale, {
+      x: 1.16,
+      y: 0.78,
+      z: 1.16,
+      duration: 0.06,
+      ease: 'power2.out'
     });
+
+    // Step 3: Rebound Spring settle (0.14s)
+    tl.to(this.group.scale, {
+      x: 1.0,
+      y: 1.0,
+      z: 1.0,
+      duration: 0.14,
+      ease: 'elastic.out(1.2, 0.38)'
+    });
+
+    return tl;
   }
 
-  slideTo(targetLayer, targetRow, targetCol, duration = 0.088) {
+  slideTo(targetLayer, targetRow, targetCol, duration = null) {
+    const isHigh = (tileGraphicsQuality === 'high' || window.gameApp?.graphicsQuality === 'high');
+    const actualDuration = duration !== null ? duration : (isHigh ? 0.118 : 0.088);
+
     const dl = targetLayer - this.layer;
     const dr = targetRow - this.row;
     const dc = targetCol - this.col;
@@ -1068,32 +1128,150 @@ export class Tile3D {
     gsap.killTweensOf(this.group.rotation);
     gsap.killTweensOf(this.group.scale);
 
-    this.group.rotation.set(0, 0, 0);
+    if (!isHigh) {
+      this.group.rotation.set(0, 0, 0);
 
-    // Aerodynamic directional squash & stretch during slide
-    if (Math.abs(dc) > 0) {
-      gsap.to(this.group.scale, { x: 1.06, y: 0.96, z: 0.96, duration: duration * 0.5, yoyo: true, repeat: 1, ease: 'sine.inOut' });
-    } else if (Math.abs(dr) > 0) {
-      gsap.to(this.group.scale, { x: 0.96, y: 0.96, z: 1.06, duration: duration * 0.5, yoyo: true, repeat: 1, ease: 'sine.inOut' });
-    } else if (Math.abs(dl) > 0) {
-      gsap.to(this.group.scale, { x: 0.96, y: 1.08, z: 0.96, duration: duration * 0.5, yoyo: true, repeat: 1, ease: 'sine.inOut' });
+      // Balanced/Low: Quick aerodynamic squash & stretch
+      if (Math.abs(dc) > 0) {
+        gsap.to(this.group.scale, { x: 1.06, y: 0.96, z: 0.96, duration: actualDuration * 0.5, yoyo: true, repeat: 1, ease: 'sine.inOut' });
+      } else if (Math.abs(dr) > 0) {
+        gsap.to(this.group.scale, { x: 0.96, y: 0.96, z: 1.06, duration: actualDuration * 0.5, yoyo: true, repeat: 1, ease: 'sine.inOut' });
+      } else if (Math.abs(dl) > 0) {
+        gsap.to(this.group.scale, { x: 0.96, y: 1.08, z: 0.96, duration: actualDuration * 0.5, yoyo: true, repeat: 1, ease: 'sine.inOut' });
+      }
+
+      return gsap.to(this.group.position, {
+        x: targetPos.x,
+        y: targetPos.y,
+        z: targetPos.z,
+        duration: actualDuration,
+        ease: 'power2.out',
+        onComplete: () => {
+          gsap.to(this.group.scale, { x: 1.0, y: 1.0, z: 1.0, duration: 0.04, ease: 'power1.out' });
+        }
+      });
     }
 
+    // HIGH QUALITY KINEMATICS: 3D Aerodynamic Lean, Parabolic Hop & Tactile Impact
+    // 1. 3D Lean / Tilt into direction of movement (quán tính vật lý nghiêng người theo gia tốc)
+    if (Math.abs(dc) > 0) {
+      const tiltZ = dc > 0 ? -0.16 : 0.16;
+      gsap.to(this.group.rotation, {
+        z: tiltZ,
+        duration: actualDuration * 0.45,
+        yoyo: true,
+        repeat: 1,
+        ease: 'sine.inOut'
+      });
+      // Aerodynamic stretch along X
+      gsap.to(this.group.scale, {
+        x: 1.16,
+        y: 0.90,
+        z: 0.90,
+        duration: actualDuration * 0.45,
+        yoyo: true,
+        repeat: 1,
+        ease: 'sine.inOut'
+      });
+    } else if (Math.abs(dr) > 0) {
+      const tiltX = dr > 0 ? 0.16 : -0.16;
+      gsap.to(this.group.rotation, {
+        x: tiltX,
+        duration: actualDuration * 0.45,
+        yoyo: true,
+        repeat: 1,
+        ease: 'sine.inOut'
+      });
+      // Aerodynamic stretch along Z
+      gsap.to(this.group.scale, {
+        x: 0.90,
+        y: 0.90,
+        z: 1.16,
+        duration: actualDuration * 0.45,
+        yoyo: true,
+        repeat: 1,
+        ease: 'sine.inOut'
+      });
+    } else if (Math.abs(dl) > 0) {
+      gsap.to(this.group.scale, {
+        x: 0.88,
+        y: 1.20,
+        z: 0.88,
+        duration: actualDuration * 0.45,
+        yoyo: true,
+        repeat: 1,
+        ease: 'sine.inOut'
+      });
+    }
+
+    // 2. Parabolic Arc / Hop: Nhấc bổng khối lên không trung khi bay (+0.12)
+    gsap.to(this.group.position, {
+      y: targetPos.y + 0.12,
+      duration: actualDuration * 0.5,
+      yoyo: true,
+      repeat: 1,
+      ease: 'sine.out'
+    });
+
+    // 3. Main slide tween with Landing Impact Squash & Elastic settle
     return gsap.to(this.group.position, {
       x: targetPos.x,
-      y: targetPos.y,
       z: targetPos.z,
-      duration: duration,
+      duration: actualDuration,
       ease: 'power2.out',
       onComplete: () => {
-        gsap.to(this.group.scale, { x: 1.0, y: 1.0, z: 1.0, duration: 0.04, ease: 'power1.out' });
+        gsap.to(this.group.scale, {
+          x: 1.10,
+          y: 0.84,
+          z: 1.10,
+          duration: 0.05,
+          ease: 'power2.out',
+          onComplete: () => {
+            gsap.to(this.group.scale, {
+              x: 1.0,
+              y: 1.0,
+              z: 1.0,
+              duration: 0.12,
+              ease: 'elastic.out(1.2, 0.35)'
+            });
+          }
+        });
+        gsap.to(this.group.rotation, {
+          x: 0,
+          y: 0,
+          z: 0,
+          duration: 0.09,
+          ease: 'power2.out'
+        });
       }
     });
   }
 
   triggerJellyImpact(dc = 0, dr = 0, dl = 0) {
-    // Lightweight snap settle ensuring clean rest without lingering elastic oscillations
-    gsap.to(this.group.scale, { x: 1.0, y: 1.0, z: 1.0, duration: 0.04, ease: 'power1.out' });
+    const isHigh = (tileGraphicsQuality === 'high' || window.gameApp?.graphicsQuality === 'high');
+    if (!isHigh) {
+      gsap.to(this.group.scale, { x: 1.0, y: 1.0, z: 1.0, duration: 0.04, ease: 'power1.out' });
+      return;
+    }
+    // High Quality: Juicy Wall Collision Ripple
+    const squashX = Math.abs(dc) > 0 ? 0.84 : 1.12;
+    const squashZ = Math.abs(dr) > 0 ? 0.84 : 1.12;
+    gsap.to(this.group.scale, {
+      x: squashX,
+      y: 1.08,
+      z: squashZ,
+      duration: 0.06,
+      ease: 'power2.out',
+      onComplete: () => {
+        gsap.to(this.group.scale, {
+          x: 1.0,
+          y: 1.0,
+          z: 1.0,
+          duration: 0.14,
+          ease: 'elastic.out(1.2, 0.35)'
+        });
+      }
+    });
   }
 
   upgradeTo(newValue) {
@@ -1101,39 +1279,98 @@ export class Tile3D {
     this.buildGeometry();
 
     const basePos = getGridPosition(this.layer, this.row, this.col);
-    const tl = gsap.timeline();
+    const isHigh = (tileGraphicsQuality === 'high' || window.gameApp?.graphicsQuality === 'high');
 
     // Sound: Bubbly crystal pop
     if (soundManager && soundManager.playPop) {
       soundManager.playPop();
     }
 
-    // Phase 1: Crisp spring pop expansion + micro-lift (0.065s)
+    if (!isHigh) {
+      // Balanced/Low: 2-phase crisp 155ms spring pop
+      const tl = gsap.timeline();
+      tl.to(this.group.position, {
+        y: basePos.y + 0.16,
+        duration: 0.065,
+        ease: 'power2.out'
+      }, 0);
+      tl.to(this.group.scale, {
+        x: 1.22,
+        y: 1.22,
+        z: 1.22,
+        duration: 0.065,
+        ease: 'power2.out'
+      }, 0);
+
+      tl.to(this.group.position, {
+        y: basePos.y,
+        duration: 0.09,
+        ease: 'power2.in'
+      });
+      tl.to(this.group.scale, {
+        x: 1.0,
+        y: 1.0,
+        z: 1.0,
+        duration: 0.09,
+        ease: 'back.out(2.2)'
+      }, '<');
+
+      return tl;
+    }
+
+    // HIGH QUALITY KINEMATICS: Luxurious 3D Corkscrew Leap, Heavy Slam & Elastic Jelly Rebound
+    const tl = gsap.timeline();
+
+    // Phase 1: Energetic Leap into air with 3D Corkscrew Spin (0.13s)
     tl.to(this.group.position, {
-      y: basePos.y + 0.16,
-      duration: 0.065,
+      y: basePos.y + 0.38,
+      duration: 0.13,
       ease: 'power2.out'
     }, 0);
     tl.to(this.group.scale, {
-      x: 1.22,
-      y: 1.22,
-      z: 1.22,
-      duration: 0.065,
+      x: 1.36,
+      y: 1.36,
+      z: 1.36,
+      duration: 0.13,
+      ease: 'back.out(2.0)'
+    }, 0);
+    tl.to(this.group.rotation, {
+      y: '+=3.14159',
+      z: (Math.random() - 0.5) * 0.35,
+      duration: 0.18,
       ease: 'power2.out'
     }, 0);
 
-    // Phase 2: Snap back into slot with punchy spring settle (0.09s)
+    // Phase 2: Heavy Tactile Slam down onto slot (0.09s)
     tl.to(this.group.position, {
       y: basePos.y,
       duration: 0.09,
-      ease: 'power2.in'
+      ease: 'power3.in'
     });
+
+    // Phase 3: Heavy Impact Squash (0.06s)
+    tl.to(this.group.scale, {
+      x: 1.22,
+      y: 0.78,
+      z: 1.22,
+      duration: 0.06,
+      ease: 'power2.out'
+    }, '-=0.02');
+
+    // Phase 4: Decadent Jelly Spring Rebound back to 1.0 (0.18s)
     tl.to(this.group.scale, {
       x: 1.0,
       y: 1.0,
       z: 1.0,
-      duration: 0.09,
-      ease: 'back.out(2.2)'
+      duration: 0.18,
+      ease: 'elastic.out(1.25, 0.35)'
+    });
+    tl.to(this.group.rotation, {
+      x: 0,
+      y: 0,
+      z: 0,
+      duration: 0.14,
+      ease: 'power2.out'
     }, '<');
 
     return tl;
@@ -1216,6 +1453,20 @@ export class Tile3D {
 
     if (this.bombRing) {
       this.bombRing.rotation.z += delta * 3.0;
+    }
+
+    // High Quality Kinematics: Ethereal Levitation & Breathing for High-Tier Tiles (>= 256)
+    const isHigh = (tileGraphicsQuality === 'high' || window.gameApp?.graphicsQuality === 'high');
+    if (isHigh && this.value >= 256 && !this.isHeld && !this.isSelected) {
+      const basePos = getGridPosition(this.layer, this.row, this.col);
+      // Only apply idle floating when tile has rested near its slot
+      const dy = Math.abs(this.group.position.y - basePos.y);
+      if (dy < 0.22) {
+        const t = performance.now() * 0.003;
+        this.group.position.y = basePos.y + Math.sin(t + this.id * 1.6) * 0.04;
+        this.group.rotation.x = Math.sin(t * 0.7 + this.id) * 0.025;
+        this.group.rotation.z = Math.cos(t * 0.8 + this.id) * 0.025;
+      }
     }
   }
 

@@ -23,6 +23,7 @@ export class SceneManager {
     this.defaultTargetMobile3x3 = new THREE.Vector3(0, 2.0, 0.6);
     this.defaultCamPosMobile3x3 = new THREE.Vector3(5.6, 12.0, 12.4);
     this._scratchVec = new THREE.Vector3();
+    this.camImpulseOffset = new THREE.Vector3();
 
     this.initScene();
     this.initCamera();
@@ -1062,7 +1063,45 @@ export class SceneManager {
       this.camera.lookAt(this.getDefaultTarget());
     }
 
-    this.renderer.render(this.scene, this.camera);
+    // High Performance Kinematics: 3D Camera Impulse & Screen Recoil
+    if (this.camImpulseOffset && this.camImpulseOffset.lengthSq() > 0.00001) {
+      this.camera.position.add(this.camImpulseOffset);
+      this.renderer.render(this.scene, this.camera);
+      this.camera.position.sub(this.camImpulseOffset);
+    } else {
+      this.renderer.render(this.scene, this.camera);
+    }
+  }
+
+  impulseCamera(direction, strength = 1.0) {
+    if (this.graphicsQuality !== 'high') return;
+    if (!this.camImpulseOffset) this.camImpulseOffset = new THREE.Vector3();
+    gsap.killTweensOf(this.camImpulseOffset);
+
+    const s = Math.min(2.0, strength);
+    if (direction === 'left') {
+      this.camImpulseOffset.set(-0.22 * s, -0.04 * s, 0);
+    } else if (direction === 'right') {
+      this.camImpulseOffset.set(0.22 * s, -0.04 * s, 0);
+    } else if (direction === 'up') {
+      this.camImpulseOffset.set(0, -0.06 * s, -0.20 * s);
+    } else if (direction === 'down') {
+      this.camImpulseOffset.set(0, 0.06 * s, 0.20 * s);
+    } else if (direction === 'layerUp') {
+      this.camImpulseOffset.set(0, 0.25 * s, 0);
+    } else if (direction === 'layerDown') {
+      this.camImpulseOffset.set(0, -0.25 * s, 0);
+    } else if (direction === 'merge') {
+      this.camImpulseOffset.set((Math.random() - 0.5) * 0.12 * s, -0.16 * s, (Math.random() - 0.5) * 0.12 * s);
+    }
+
+    gsap.to(this.camImpulseOffset, {
+      x: 0,
+      y: 0,
+      z: 0,
+      duration: 0.32,
+      ease: 'elastic.out(1.15, 0.35)'
+    });
   }
 
   async captureSnapshotBlob() {
