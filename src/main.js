@@ -3355,6 +3355,7 @@ class GameApp {
       const nextMove = this.moveQueue.shift();
       Promise.resolve().then(() => this.handleMove(nextMove));
     }
+  } // end finally
   } // end handleMove
 
   rollMemeReaction(isVictory = false) {
