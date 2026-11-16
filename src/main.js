@@ -1579,7 +1579,7 @@ class GameApp {
         swap: () => this.handleSpellSwap(),
         cancel: () => this.cancelSwapMode()
       },
-      (clientX, clientY) => this.handleCanvasClick(clientX, clientY),
+      (clientX, clientY, altX, altY) => this.handleCanvasClick(clientX, clientY, altX, altY),
       (preset) => {
         if (preset === 'orbit') {
           const isRotating = this.sceneManager.toggleAutoRotate();
@@ -1936,6 +1936,38 @@ class GameApp {
       hit = probe(clientX + offsets[i][0], clientY + offsets[i][1]);
       if (hit) return hit;
     }
+
+    // 2D Screen-space Proximity Projection (Guarantees 100% mobile touch reliability)
+    let closestTile = null;
+    let minDistance = 75; // 75px touch radius allowance for human fingers
+    const worldPos = new THREE.Vector3();
+
+    for (let l = 0; l < this.tiles3D.length; l++) {
+      for (let r = 0; r < this.tiles3D[l].length; r++) {
+        for (let c = 0; c < this.tiles3D[l][r].length; c++) {
+          const tile = this.tiles3D[l][r][c];
+          if (!tile || !tile.group) continue;
+
+          tile.group.getWorldPosition(worldPos);
+          worldPos.y += 0.25;
+          worldPos.project(this.sceneManager.camera);
+
+          // Only consider tiles in front of the camera (z < 1)
+          if (worldPos.z >= 1) continue;
+
+          const screenX = rect.left + (worldPos.x * 0.5 + 0.5) * rect.width;
+          const screenY = rect.top + (-(worldPos.y * 0.5) + 0.5) * rect.height;
+          const dist = Math.hypot(clientX - screenX, clientY - screenY);
+
+          if (dist < minDistance) {
+            minDistance = dist;
+            closestTile = tile;
+          }
+        }
+      }
+    }
+    if (closestTile) return closestTile;
+
     return null;
   }
 
@@ -3864,11 +3896,15 @@ class GameApp {
     }
   }
 
-  handleCanvasClick(clientX, clientY) {
+  handleCanvasClick(clientX, clientY, altX = null, altY = null) {
     this.registerInteraction();
     if (!this.isSwapMode || this.isAnimating || this.gameLogic.gameOver) return;
 
-    const clickedTile = this.findTileFromPoint(clientX, clientY);
+    let clickedTile = this.findTileFromPoint(clientX, clientY);
+    if (!clickedTile && altX !== null && altY !== null) {
+      clickedTile = this.findTileFromPoint(altX, altY);
+    }
+
     if (!clickedTile) {
       // Gentle reminder if user tapped empty space or missed a tile — NEVER cancel!
       if (!this.swapSelectedTileA) {
@@ -3899,11 +3935,8 @@ class GameApp {
       this.showSwapHud('Chạm khối thứ nhất trên bàn cờ...');
       this.showSpellToast('Đã bỏ chọn. Hãy chọn lại khối thứ nhất.');
     } else if (this.swapSelectedTileB === clickedTile) {
-      // Tapped tile B again -> deselect B
-      clickedTile.setSelected(false);
-      this.swapSelectedTileB = null;
-      soundManager.playSlide();
-      this.showSwapHud(`Đã chọn [${this.swapSelectedTileA.value}]. Chạm khối thứ hai để đổi...`, this.swapSelectedTileA.value);
+      // Tapped tile B again when both A and B are selected -> EXECUTE SWAP IMMEDIATELY!
+      this.confirmExecuteSwap();
     } else {
       // Selected tile B (or re-selecting a different tile B)
       if (clickedTile.value === this.swapSelectedTileA.value) {
@@ -3920,8 +3953,8 @@ class GameApp {
       soundManager.playSlide();
 
       // Show full preview + Confirm button
-      this.showSwapHud(`Đổi [${this.swapSelectedTileA.value}] ⇄ [${clickedTile.value}]? Bấm Xác nhận`, this.swapSelectedTileA.value, clickedTile.value);
-      this.showSpellToast(`BẤM "✓ XÁC NHẬN HOÁN ĐỔI" ĐỂ THỰC HIỆN!`);
+      this.showSwapHud(`Đổi [${this.swapSelectedTileA.value}] ⇄ [${clickedTile.value}]? Chạm lại [${clickedTile.value}] hoặc bấm Xác nhận`, this.swapSelectedTileA.value, clickedTile.value);
+      this.showSpellToast(`CHẠM LẠI KHỐI [${clickedTile.value}] HOẶC BẤM "XÁC NHẬN" ĐỂ ĐỔI!`);
     }
   }
 

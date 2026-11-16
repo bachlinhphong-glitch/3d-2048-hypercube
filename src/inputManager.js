@@ -157,20 +157,7 @@ export class InputManager {
       }
       if (touchGestureTriggered || !this.enabled || this.isBlockedByUI()) return;
       if (window.gameApp && window.gameApp.isSwapMode) {
-        const t = e.touches[0];
-        if (!t) return;
-        const dx = t.clientX - touchStartX;
-        const dy = t.clientY - touchStartY;
-        const distance = Math.hypot(dx, dy);
-        // Generous threshold: only cancel Swap mode if user makes a deliberate 45px+ swipe to slide the board
-        if (distance >= 45) {
-          window.gameApp.cancelSwapMode();
-          touchGestureTriggered = true;
-          let direction = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up');
-          if (direction) {
-            this.onMove(direction);
-          }
-        }
+        // In Swap Mode, prevent board swipes so user never accidentally moves the board or cancels swap!
         return;
       }
 
@@ -201,6 +188,17 @@ export class InputManager {
       touchActive = false;
       touchGestureTriggered = false;
 
+      // In Swap mode: ALWAYS forward canvas touch release to onCanvasClick with generous proximity & dual coords
+      if (window.gameApp && window.gameApp.isSwapMode && !this.isBlockedByUI()) {
+        const t = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0] : null;
+        const endX = t ? t.clientX : touchStartX;
+        const endY = t ? t.clientY : touchStartY;
+        if (this.onCanvasClick) {
+          this.onCanvasClick(endX, endY, touchStartX, touchStartY);
+        }
+        return;
+      }
+
       // If finger lifted without triggering touchmove (e.g. ultra-fast flick or tap)
       if (!wasTriggered && this.enabled && !this.isBlockedByUI()) {
         const t = e.changedTouches[0];
@@ -208,14 +206,6 @@ export class InputManager {
           const dx = t.clientX - touchStartX;
           const dy = t.clientY - touchStartY;
           const distance = Math.hypot(dx, dy);
-
-          // In Swap mode: Stationary tap (< 28px) selects a tile. NEVER cancel Swap Mode here!
-          if (window.gameApp && window.gameApp.isSwapMode) {
-            if (distance < 28 && this.onCanvasClick) {
-              this.onCanvasClick(t.clientX, t.clientY);
-            }
-            return;
-          }
 
           if (distance >= 12) {
             let direction = null;
@@ -268,18 +258,7 @@ export class InputManager {
       if (e.pointerType === 'touch') return;
       if (!this.isPointerDown || pointerGestureTriggered || !this.enabled || this.isBlockedByUI()) return;
       if (window.gameApp && window.gameApp.isSwapMode) {
-        const dx = e.clientX - this.pointerStartX;
-        const dy = e.clientY - this.pointerStartY;
-        const distance = Math.hypot(dx, dy);
-        // Only cancel Swap mode if user makes a deliberate mouse drag >= 45px
-        if (distance >= 45) {
-          window.gameApp.cancelSwapMode();
-          pointerGestureTriggered = true;
-          let direction = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up');
-          if (direction) {
-            this.onMove(direction);
-          }
-        }
+        // In swap mode, mouse drag does not move the board
         return;
       }
 
@@ -315,15 +294,10 @@ export class InputManager {
         return;
       }
 
-      // In Swap mode, prioritize clicking the tile with a generous tap allowance (< 28px)
+      // In Swap mode, prioritize clicking the tile with generous tolerance and pass dual coords
       if (window.gameApp && window.gameApp.isSwapMode) {
-        const dx = e.clientX - this.pointerStartX;
-        const dy = e.clientY - this.pointerStartY;
-        const distance = Math.hypot(dx, dy);
-        if (distance < 28) {
-          if (this.onCanvasClick) {
-            this.onCanvasClick(this.pointerStartX, this.pointerStartY);
-          }
+        if (this.onCanvasClick) {
+          this.onCanvasClick(e.clientX, e.clientY, this.pointerStartX, this.pointerStartY);
         }
         return;
       }

@@ -4685,7 +4685,8 @@ body.in-boss-mode #demo-theme-switcher {
    ========================================================================== */
 .swap-action-hud {
   position: absolute;
-  bottom: 148px;
+  top: 76px;
+  bottom: auto;
   left: 50%;
   transform: translateX(-50%);
   z-index: 120 !important;
@@ -4701,9 +4702,11 @@ body.in-boss-mode #demo-theme-switcher {
 
 @media (max-width: 768px) {
   .swap-action-hud {
-    bottom: calc(max(16px, env(safe-area-inset-bottom, 16px)) + 92px) !important;
-    width: calc(100% - 32px);
-    max-width: 370px;
+    top: calc(max(8px, env(safe-area-inset-top, 8px)) + 62px) !important;
+    bottom: auto !important;
+    width: calc(100% - 24px);
+    min-width: 0 !important;
+    max-width: 380px;
   }
 }
 
