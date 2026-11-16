@@ -942,6 +942,7 @@ class GameApp {
     // Battery & Performance: Page Visibility API for background power saving (5h away / tab switch)
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) {
+        this.saveGameState(true);
         this.hiddenTimestamp = Date.now();
         soundManager.suspend();
       } else {
@@ -955,6 +956,10 @@ class GameApp {
           this.clock.getDelta(); // Flush delta so no sudden physics jump occurs
         }
       }
+    });
+
+    window.addEventListener('beforeunload', () => {
+      this.saveGameState(true);
     });
 
 
@@ -2110,7 +2115,23 @@ class GameApp {
     return false;
   }
 
-  saveGameState() {
+  saveGameState(immediate = false) {
+    if (immediate) {
+      if (this._saveGameDebounceTimer) {
+        clearTimeout(this._saveGameDebounceTimer);
+        this._saveGameDebounceTimer = null;
+      }
+      this._flushSaveGameState();
+      return;
+    }
+    if (this._saveGameDebounceTimer) clearTimeout(this._saveGameDebounceTimer);
+    this._saveGameDebounceTimer = setTimeout(() => {
+      this._saveGameDebounceTimer = null;
+      this._flushSaveGameState();
+    }, 250);
+  }
+
+  _flushSaveGameState() {
     try {
       if (this.gameLogic.gameOver) {
         this.clearSavedGameState();
@@ -2138,6 +2159,10 @@ class GameApp {
   }
 
   clearSavedGameState() {
+    if (this._saveGameDebounceTimer) {
+      clearTimeout(this._saveGameDebounceTimer);
+      this._saveGameDebounceTimer = null;
+    }
     try {
       localStorage.removeItem(`3d2048_saved_${this.mode}`);
     } catch {}
@@ -2900,6 +2925,34 @@ class GameApp {
     }, 1500);
   }
 
+  settleInFlightAnimations() {
+    if (this._activeSlideTweens && this._activeSlideTweens.length > 0) {
+      this._activeSlideTweens.forEach(t => {
+        try {
+          if (t && typeof t.totalProgress === 'function') t.totalProgress(1);
+        } catch {}
+      });
+      this._activeSlideTweens = [];
+    }
+    if (!this.tiles3D) return;
+    for (let l = 0; l < this.tiles3D.length; l++) {
+      for (let r = 0; r < this.tiles3D[l].length; r++) {
+        for (let c = 0; c < this.tiles3D[l][r].length; c++) {
+          const tile = this.tiles3D[l][r][c];
+          if (tile && tile.group) {
+            gsap.killTweensOf(tile.group.position);
+            gsap.killTweensOf(tile.group.scale);
+            gsap.killTweensOf(tile.group.rotation);
+            const targetPos = getGridPosition(l, r, c);
+            tile.group.position.set(targetPos.x, targetPos.y, targetPos.z);
+            tile.group.scale.set(1, 1, 1);
+            tile.group.rotation.set(0, 0, 0);
+          }
+        }
+      }
+    }
+  }
+
   async handleMove(direction) {
     if (this.heldTile) {
       this.onTileGrabCancel();
@@ -2907,8 +2960,20 @@ class GameApp {
     this.registerInteraction();
     this.dismissFirstSwipeGuide();
     if (this.ghostPreview) this.ghostPreview.hideGhost();
+
+    // Instant Move Chaining: fast-forward active slide so subsequent swipes are NEVER dropped
     if (this.isAnimating) {
-      this.queuedMove = direction;
+      if (!this.moveQueue) this.moveQueue = [];
+      if (this.moveQueue.length < 2) {
+        this.moveQueue.push(direction);
+      }
+      if (this._activeSlideTweens && this._activeSlideTweens.length > 0) {
+        this._activeSlideTweens.forEach(t => {
+          try {
+            if (t && typeof t.totalProgress === 'function') t.totalProgress(1);
+          } catch {}
+        });
+      }
       return;
     }
     if (this.isSwapMode) {
@@ -2936,115 +3001,119 @@ class GameApp {
       if (this.isAnimating) {
         console.warn('⚠️ Animation watchdog auto-unfreezing isAnimating!');
         this.isAnimating = false;
+        if (this.moveQueue && this.moveQueue.length > 0) {
+          const next = this.moveQueue.shift();
+          this.handleMove(next);
+        }
       }
-    }, 380);
+    }, 280);
 
     try {
       this.moveCount++;
-    this.comboCount = 0; // Reset combo per move
-    this.recentMoves.push(performance.now());
-    if (this.sceneManager && this.sceneManager.requestShadowUpdate) this.sceneManager.requestShadowUpdate(25);
+      this.comboCount = 0; // Reset combo per move
+      this.recentMoves.push(performance.now());
+      if (this.sceneManager && this.sceneManager.requestShadowUpdate) this.sceneManager.requestShadowUpdate(25);
 
-    if (direction === 'layerUp' || direction === 'layerDown') {
-      soundManager.playLayerMove(direction === 'layerUp' ? 'up' : 'down');
-    } else {
-      soundManager.playSlide();
-    }
-
-    const slideDuration = 0.11;
-    const animations = [];
-    const mergesToProcess = [];
-
-    // Clone old tiles3D
-    const oldTiles3D = this.tiles3D.map(layer => layer.map(row => [...row]));
-    this.tiles3D = this.createEmptyTileGrid();
-
-    result.movements.forEach(m => {
-      const tile3D = oldTiles3D[m.from.l][m.from.r][m.from.c];
-      if (!tile3D) return;
-
-      if (!m.mergedInto) {
-        this.tiles3D[m.to.l][m.to.r][m.to.c] = tile3D;
-        animations.push(tile3D.slideTo(m.to.l, m.to.r, m.to.c, slideDuration));
+      if (direction === 'layerUp' || direction === 'layerDown') {
+        soundManager.playLayerMove(direction === 'layerUp' ? 'up' : 'down');
       } else {
-        animations.push(tile3D.slideTo(m.to.l, m.to.r, m.to.c, slideDuration));
-        mergesToProcess.push({
-          sourceTile: tile3D,
-          targetL: m.to.l,
-          targetR: m.to.r,
-          targetC: m.to.c,
-          newValue: m.newValue
-        });
+        soundManager.playSlide();
       }
-    });
 
-    // Place unmoved tiles
-    for (let l = 0; l < this.gameLogic.layers; l++) {
-      for (let r = 0; r < this.gameLogic.rows; r++) {
-        for (let c = 0; c < this.gameLogic.cols; c++) {
-          const logicTile = this.gameLogic.grid[l][r][c];
-          if (logicTile && !this.tiles3D[l][r][c]) {
-            const unchanged = oldTiles3D[l][r][c];
-            if (unchanged && unchanged.id === logicTile.id) {
-              this.tiles3D[l][r][c] = unchanged;
-            } else if (unchanged && unchanged.value === logicTile.value) {
-              // Self-healing fallback: sync ID
-              logicTile.id = unchanged.id;
-              this.tiles3D[l][r][c] = unchanged;
-            } else if (logicTile) {
-              // Resilient spawn if tile was somehow missing
-              const freshTile = new Tile3D(l, r, c, logicTile.value, this.sceneManager.scene, this.currentShape, logicTile.isBomb, logicTile.bombCountdown);
-              freshTile.group.scale.set(1, 1, 1);
-              this.tiles3D[l][r][c] = freshTile;
-              logicTile.id = freshTile.id;
-            }
+      const slideDuration = 0.088;
+      const animations = [];
+      const mergesToProcess = [];
+      this._activeSlideTweens = [];
 
-            // Guarantee unmoved tile is seated exactly at its slot coordinates
-            const placedTile = this.tiles3D[l][r][c];
-            if (placedTile && placedTile.group) {
-              const expectedPos = getGridPosition(l, r, c);
-              const curPos = placedTile.group.position;
-              const dist = Math.hypot(curPos.x - expectedPos.x, curPos.y - expectedPos.y, curPos.z - expectedPos.z);
-              if (dist > 0.04) {
-                gsap.to(placedTile.group.position, {
-                  x: expectedPos.x,
-                  y: expectedPos.y,
-                  z: expectedPos.z,
-                  duration: slideDuration,
-                  ease: 'power2.out'
-                });
-                gsap.to(placedTile.group.rotation, { x: 0, y: 0, z: 0, duration: slideDuration });
-                gsap.to(placedTile.group.scale, { x: 1, y: 1, z: 1, duration: slideDuration });
+      // Clone old tiles3D
+      const oldTiles3D = this.tiles3D.map(layer => layer.map(row => [...row]));
+      this.tiles3D = this.createEmptyTileGrid();
+
+      result.movements.forEach(m => {
+        const tile3D = oldTiles3D[m.from.l][m.from.r][m.from.c];
+        if (!tile3D) return;
+
+        if (!m.mergedInto) {
+          this.tiles3D[m.to.l][m.to.r][m.to.c] = tile3D;
+          const tween = tile3D.slideTo(m.to.l, m.to.r, m.to.c, slideDuration);
+          animations.push(tween);
+          this._activeSlideTweens.push(tween);
+        } else {
+          const tween = tile3D.slideTo(m.to.l, m.to.r, m.to.c, slideDuration);
+          animations.push(tween);
+          this._activeSlideTweens.push(tween);
+          mergesToProcess.push({
+            sourceTile: tile3D,
+            targetL: m.to.l,
+            targetR: m.to.r,
+            targetC: m.to.c,
+            newValue: m.newValue
+          });
+        }
+      });
+
+      // Place unmoved tiles
+      for (let l = 0; l < this.gameLogic.layers; l++) {
+        for (let r = 0; r < this.gameLogic.rows; r++) {
+          for (let c = 0; c < this.gameLogic.cols; c++) {
+            const logicTile = this.gameLogic.grid[l][r][c];
+            if (logicTile && !this.tiles3D[l][r][c]) {
+              const unchanged = oldTiles3D[l][r][c];
+              if (unchanged && unchanged.id === logicTile.id) {
+                this.tiles3D[l][r][c] = unchanged;
+              } else if (unchanged && unchanged.value === logicTile.value) {
+                // Self-healing fallback: sync ID
+                logicTile.id = unchanged.id;
+                this.tiles3D[l][r][c] = unchanged;
+              } else if (logicTile) {
+                // Resilient spawn if tile was somehow missing
+                const freshTile = new Tile3D(l, r, c, logicTile.value, this.sceneManager.scene, this.currentShape, logicTile.isBomb, logicTile.bombCountdown);
+                freshTile.group.scale.set(1, 1, 1);
+                this.tiles3D[l][r][c] = freshTile;
+                logicTile.id = freshTile.id;
+              }
+
+              // Guarantee unmoved tile is seated exactly at its slot coordinates
+              const placedTile = this.tiles3D[l][r][c];
+              if (placedTile && placedTile.group) {
+                const expectedPos = getGridPosition(l, r, c);
+                const curPos = placedTile.group.position;
+                const dist = Math.hypot(curPos.x - expectedPos.x, curPos.y - expectedPos.y, curPos.z - expectedPos.z);
+                if (dist > 0.04) {
+                  placedTile.group.position.set(expectedPos.x, expectedPos.y, expectedPos.z);
+                  placedTile.group.rotation.set(0, 0, 0);
+                  placedTile.group.scale.set(1, 1, 1);
+                }
               }
             }
           }
         }
       }
-    }
 
-    // Safety sweep: ensure any tile from oldTiles3D not preserved or merged is explicitly disposed
-    const activeTileSet = new Set();
-    for (let l = 0; l < this.gameLogic.layers; l++) {
-      for (let r = 0; r < this.gameLogic.rows; r++) {
-        for (let c = 0; c < this.gameLogic.cols; c++) {
-          if (this.tiles3D[l][r][c]) activeTileSet.add(this.tiles3D[l][r][c]);
-        }
-      }
-    }
-    mergesToProcess.forEach(m => activeTileSet.add(m.sourceTile));
-
-    for (let l = 0; l < oldTiles3D.length; l++) {
-      for (let r = 0; r < oldTiles3D[l].length; r++) {
-        for (let c = 0; c < oldTiles3D[l][r].length; c++) {
-          const oldT = oldTiles3D[l][r][c];
-          if (oldT && !activeTileSet.has(oldT)) {
-            oldT.dispose(true);
+      // Safety sweep: ensure any tile from oldTiles3D not preserved or merged is explicitly disposed
+      const activeTileSet = new Set();
+      for (let l = 0; l < this.gameLogic.layers; l++) {
+        for (let r = 0; r < this.gameLogic.rows; r++) {
+          for (let c = 0; c < this.gameLogic.cols; c++) {
+            if (this.tiles3D[l][r][c]) activeTileSet.add(this.tiles3D[l][r][c]);
           }
         }
       }
-    }
+      mergesToProcess.forEach(m => activeTileSet.add(m.sourceTile));
 
-    await Promise.all(animations);
+      for (let l = 0; l < oldTiles3D.length; l++) {
+        for (let r = 0; r < oldTiles3D[l].length; r++) {
+          for (let c = 0; c < oldTiles3D[l][r].length; c++) {
+            const oldT = oldTiles3D[l][r][c];
+            if (oldT && !activeTileSet.has(oldT)) {
+              oldT.dispose(true);
+            }
+          }
+        }
+      }
+
+      await Promise.all(animations);
+      this._activeSlideTweens = [];
 
     // Process merges
     let maxMergedVal = 0;
@@ -3240,15 +3309,13 @@ class GameApp {
       return;
     }
 
-    // Safety Grid Reconciliation & Orphan Mesh Collector:
-    // Guarantees all active tiles are perfectly aligned with zero visual drifting or orphaned meshes
-    const finalActiveTiles = new Set();
+    // Safety Grid Reconciliation:
+    // Guarantees all active tiles are seated exactly at their grid coordinates with zero drift
     for (let l = 0; l < this.gameLogic.layers; l++) {
       for (let r = 0; r < this.gameLogic.rows; r++) {
         for (let c = 0; c < this.gameLogic.cols; c++) {
           const tile = this.tiles3D[l]?.[r]?.[c];
           if (tile && tile.group) {
-            finalActiveTiles.add(tile);
             tile.setHeld(false);
             tile.isSelected = false;
             tile.isHovered = false;
@@ -3258,59 +3325,37 @@ class GameApp {
               tile.group.position.y - targetPos.y,
               tile.group.position.z - targetPos.z
             );
-            if (dist > 0.05) {
-              gsap.to(tile.group.position, {
-                x: targetPos.x,
-                y: targetPos.y,
-                z: targetPos.z,
-                duration: 0.15,
-                ease: 'power2.out'
-              });
-              gsap.to(tile.group.rotation, { x: 0, y: 0, z: 0, duration: 0.15 });
-              gsap.to(tile.group.scale, { x: 1, y: 1, z: 1, duration: 0.15 });
+            if (dist > 0.04) {
+              tile.group.position.set(targetPos.x, targetPos.y, targetPos.z);
+              tile.group.rotation.set(0, 0, 0);
+              tile.group.scale.set(1, 1, 1);
             }
           }
         }
       }
     }
 
-    if (this.sceneManager && this.sceneManager.scene) {
-      const orphans = new Set();
-      this.sceneManager.scene.traverse((obj) => {
-        if (obj.userData && obj.userData.isTile3D) {
-          const inst = obj.userData.tileInstance;
-          if (inst && !finalActiveTiles.has(inst)) {
-            orphans.add(inst);
-          }
-        }
-      });
-      orphans.forEach(inst => {
-        try { inst.dispose(true); } catch {}
-      });
+    if (isGameOver) {
+      this.triggerGameOverModal();
+      return;
     }
 
-      if (isGameOver) {
-        this.triggerGameOverModal();
-        return;
-      }
-
-      this.saveGameState();
-    } catch (err) {
-      console.error('Error during move processing:', err);
-    } finally {
-      if (this._animWatchdog) {
-        clearTimeout(this._animWatchdog);
-        this._animWatchdog = null;
-      }
-      this.isAnimating = false;
-
-      // Move Buffering Queue: Immediately execute the queued move on the next frame so rapid swipes are never lost
-      if (this.queuedMove && !this.gameLogic.gameOver) {
-        const nextMove = this.queuedMove;
-        this.queuedMove = null;
-        requestAnimationFrame(() => this.handleMove(nextMove));
-      }
+    this.saveGameState();
+  } catch (err) {
+    console.error('Error during move processing:', err);
+  } finally {
+    if (this._animWatchdog) {
+      clearTimeout(this._animWatchdog);
+      this._animWatchdog = null;
     }
+    this.isAnimating = false;
+
+    // Move Buffering Queue: Instantly execute chained move
+    if (this.moveQueue && this.moveQueue.length > 0 && !this.gameLogic.gameOver) {
+      const nextMove = this.moveQueue.shift();
+      Promise.resolve().then(() => this.handleMove(nextMove));
+    }
+  }
   }
 
   rollMemeReaction(isVictory = false) {
@@ -3991,24 +4036,23 @@ class GameApp {
     const isMobileDevice = isIOSDevice || /Android/i.test(navigator.userAgent) || 
                            (navigator.maxTouchPoints && navigator.maxTouchPoints > 1);
 
-    // On iOS and mobile WebKit, rAF is natively hardware VSync locked (60Hz / 120Hz ProMotion).
-    // Artificially skipping frames with micro-thresholds causes WebKit to drop alternate frames down to 20-30 FPS!
+    // Dynamic Frame Pacing & High-Refresh VSync (60Hz / 120Hz ProMotion / 144Hz / 165Hz)
     if (this.targetFps === '30') {
       const targetInterval = 1000 / 30;
       const elapsed = timestamp - this.lastRenderTimestamp;
-      if (elapsed < targetInterval - 1.5) {
+      if (elapsed < targetInterval - 2.0) {
         return; // Battery saver mode (30 FPS)
       }
       this.lastRenderTimestamp = timestamp - (elapsed % targetInterval);
-    } else if (!isMobileDevice && this.targetFps !== 'max') {
-      const targetFpsNum = parseInt(this.targetFps, 10) || 120;
-      const targetInterval = 1000 / targetFpsNum;
+    } else if (!isMobileDevice && this.targetFps === '60') {
+      const targetInterval = 1000 / 60;
       const elapsed = timestamp - this.lastRenderTimestamp;
-      if (elapsed < targetInterval - 0.75) {
-        return; // Bỏ qua render frame để giảm nhiệt độ máy trên desktop
+      if (elapsed < targetInterval * 0.8) {
+        return; // Target 60 FPS on high-refresh desktop monitors without micro-stutter
       }
       this.lastRenderTimestamp = timestamp - (elapsed % targetInterval);
     } else {
+      // 120Hz, 144Hz, 165Hz, Max, and Mobile: native hardware VSync with zero artificial skips
       this.lastRenderTimestamp = timestamp;
     }
 

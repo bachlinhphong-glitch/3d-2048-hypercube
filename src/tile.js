@@ -1021,18 +1021,18 @@ export class Tile3D {
     this.group.rotation.set(0, 0, 0);
     this.group.scale.set(0, 0, 0);
 
-    // Smooth, instant, pleasant scale-in (zero eye fatigue, 60+ FPS responsive)
+    // Crisp spring pop-in (instant, responsive 120Hz feel)
     return gsap.to(this.group.scale, {
       x: 1.0,
       y: 1.0,
       z: 1.0,
-      duration: 0.10,
+      duration: 0.085,
       delay: delay,
-      ease: 'power2.out'
+      ease: 'back.out(1.8)'
     });
   }
 
-  slideTo(targetLayer, targetRow, targetCol, duration = 0.11) {
+  slideTo(targetLayer, targetRow, targetCol, duration = 0.088) {
     const dl = targetLayer - this.layer;
     const dr = targetRow - this.row;
     const dc = targetCol - this.col;
@@ -1068,15 +1068,15 @@ export class Tile3D {
     gsap.killTweensOf(this.group.rotation);
     gsap.killTweensOf(this.group.scale);
 
-    gsap.to(this.group.rotation, { x: 0, y: 0, z: 0, duration: duration, ease: 'power2.out' });
+    this.group.rotation.set(0, 0, 0);
 
-    // Jelly in-flight dynamic squash & stretch
+    // Aerodynamic directional squash & stretch during slide
     if (Math.abs(dc) > 0) {
-      gsap.to(this.group.scale, { x: 1.15, y: 0.9, z: 0.9, duration: duration * 0.5, yoyo: true, repeat: 1, ease: 'power1.inOut' });
+      gsap.to(this.group.scale, { x: 1.06, y: 0.96, z: 0.96, duration: duration * 0.5, yoyo: true, repeat: 1, ease: 'sine.inOut' });
     } else if (Math.abs(dr) > 0) {
-      gsap.to(this.group.scale, { x: 0.9, y: 0.9, z: 1.15, duration: duration * 0.5, yoyo: true, repeat: 1, ease: 'power1.inOut' });
+      gsap.to(this.group.scale, { x: 0.96, y: 0.96, z: 1.06, duration: duration * 0.5, yoyo: true, repeat: 1, ease: 'sine.inOut' });
     } else if (Math.abs(dl) > 0) {
-      gsap.to(this.group.scale, { x: 0.9, y: 1.18, z: 0.9, duration: duration * 0.5, yoyo: true, repeat: 1, ease: 'power1.inOut' });
+      gsap.to(this.group.scale, { x: 0.96, y: 1.08, z: 0.96, duration: duration * 0.5, yoyo: true, repeat: 1, ease: 'sine.inOut' });
     }
 
     return gsap.to(this.group.position, {
@@ -1086,22 +1086,14 @@ export class Tile3D {
       duration: duration,
       ease: 'power2.out',
       onComplete: () => {
-        this.triggerJellyImpact(dc, dr, dl);
+        gsap.to(this.group.scale, { x: 1.0, y: 1.0, z: 1.0, duration: 0.04, ease: 'power1.out' });
       }
     });
   }
 
   triggerJellyImpact(dc = 0, dr = 0, dl = 0) {
-    if (dc === 0 && dr === 0 && dl === 0) return;
-    const tl = gsap.timeline();
-    if (Math.abs(dc) > 0) {
-      tl.to(this.group.scale, { x: 0.78, y: 1.16, z: 1.16, duration: 0.06, ease: 'power2.out' });
-    } else if (Math.abs(dr) > 0) {
-      tl.to(this.group.scale, { x: 1.16, y: 1.16, z: 0.78, duration: 0.06, ease: 'power2.out' });
-    } else if (Math.abs(dl) > 0) {
-      tl.to(this.group.scale, { x: 1.16, y: 0.76, z: 1.16, duration: 0.06, ease: 'power2.out' });
-    }
-    tl.to(this.group.scale, { x: 1.0, y: 1.0, z: 1.0, duration: 0.24, ease: 'elastic.out(1.5, 0.42)' });
+    // Lightweight snap settle ensuring clean rest without lingering elastic oscillations
+    gsap.to(this.group.scale, { x: 1.0, y: 1.0, z: 1.0, duration: 0.04, ease: 'power1.out' });
   }
 
   upgradeTo(newValue) {
@@ -1116,49 +1108,33 @@ export class Tile3D {
       soundManager.playPop();
     }
 
-    // Phase 1: Fluid collision surge & upward fusion swell
+    // Phase 1: Crisp spring pop expansion + micro-lift (0.065s)
     tl.to(this.group.position, {
-      y: basePos.y + 0.38,
-      duration: 0.08,
+      y: basePos.y + 0.16,
+      duration: 0.065,
       ease: 'power2.out'
-    });
-    tl.to(this.group.scale, {
-      x: 1.34,
-      y: 1.34,
-      z: 1.34,
-      duration: 0.08,
-      ease: 'power2.out'
-    }, '<');
-
-    // Phase 2: Heavy impact slam back down into the slot
-    tl.to(this.group.position, {
-      y: basePos.y,
-      duration: 0.10,
-      ease: 'power3.in',
-      onComplete: () => {
-        if (soundManager && soundManager.playTileDrop) {
-          soundManager.playTileDrop();
-        }
-      }
-    });
-
-    // Phase 3: Physical jelly squash on impact
+    }, 0);
     tl.to(this.group.scale, {
       x: 1.22,
-      y: 0.76,
+      y: 1.22,
       z: 1.22,
-      duration: 0.06,
+      duration: 0.065,
       ease: 'power2.out'
-    });
+    }, 0);
 
-    // Phase 4: Bouncy jelly elastic spring settle
+    // Phase 2: Snap back into slot with punchy spring settle (0.09s)
+    tl.to(this.group.position, {
+      y: basePos.y,
+      duration: 0.09,
+      ease: 'power2.in'
+    });
     tl.to(this.group.scale, {
       x: 1.0,
       y: 1.0,
       z: 1.0,
-      duration: 0.22,
-      ease: 'elastic.out(1.4, 0.4)'
-    });
+      duration: 0.09,
+      ease: 'back.out(2.2)'
+    }, '<');
 
     return tl;
   }
