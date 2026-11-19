@@ -1575,7 +1575,9 @@ class GameApp {
     const tile3D = new Tile3D(l, r, c, value, this.sceneManager.scene, this.currentShape, false, 0);
     this.tiles3D[l][r][c] = tile3D;
     this.gameLogic.setTile(l, r, c, { value, id: tile3D.id, isBomb: false, bombCountdown: 0 });
-    tile3D.spawnAnimation(delay);
+    const spawnTween = tile3D.spawnAnimation(delay);
+    if (!this._activeSpawnTweens) this._activeSpawnTweens = [];
+    if (spawnTween) this._activeSpawnTweens.push(spawnTween);
     return tile3D;
   }
 
@@ -2088,9 +2090,7 @@ class GameApp {
     return modalIds.some(id => {
       const el = document.getElementById(id);
       if (!el) return false;
-      if (el.classList.contains('active')) return true;
-      const display = el.style.display;
-      return display !== 'none' && display !== '';
+      return el.classList.contains('active');
     });
   }
 
@@ -2663,7 +2663,9 @@ class GameApp {
     this.tiles3D[l][r][c] = tile3D;
     this.gameLogic.setTile(l, r, c, { value, id: tile3D.id, isBomb, bombCountdown });
 
-    tile3D.spawnAnimation(delay);
+    const spawnTween = tile3D.spawnAnimation(delay);
+    if (!this._activeSpawnTweens) this._activeSpawnTweens = [];
+    if (spawnTween) this._activeSpawnTweens.push(spawnTween);
     if (this.mode === '3x3x3' && typeof this.sliceMode === 'number') {
       tile3D.setSliceDim(l !== this.sliceMode);
     }
@@ -3055,7 +3057,7 @@ class GameApp {
     // Instant Move Chaining: fast-forward active slide so subsequent swipes are NEVER dropped
     if (this.isAnimating) {
       if (!this.moveQueue) this.moveQueue = [];
-      if (this.moveQueue.length < 2) {
+      if (this.moveQueue.length < 1) {
         this.moveQueue.push(direction);
       }
       if (this._activeSlideTweens && this._activeSlideTweens.length > 0) {
@@ -3064,6 +3066,15 @@ class GameApp {
             if (t && typeof t.totalProgress === 'function') t.totalProgress(1);
           } catch {}
         });
+        this._activeSlideTweens = [];
+      }
+      if (this._activeSpawnTweens && this._activeSpawnTweens.length > 0) {
+        this._activeSpawnTweens.forEach(t => {
+          try {
+            if (t && typeof t.totalProgress === 'function') t.totalProgress(1);
+          } catch {}
+        });
+        this._activeSpawnTweens = [];
       }
       return;
     }
@@ -3089,6 +3100,21 @@ class GameApp {
 
     this.isAnimating = true;
 
+    // Fast Reconcile: Guarantee all active tiles on board have healthy scale and upright rotation before move starts
+    for (let l = 0; l < this.tiles3D.length; l++) {
+      for (let r = 0; r < this.tiles3D[l].length; r++) {
+        for (let c = 0; c < this.tiles3D[l][r].length; c++) {
+          const t = this.tiles3D[l][r][c];
+          if (t && t.group) {
+            gsap.killTweensOf(t.group.scale);
+            gsap.killTweensOf(t.group.rotation);
+            t.group.scale.set(1, 1, 1);
+            t.group.rotation.set(0, 0, 0);
+          }
+        }
+      }
+    }
+
     // Hard Watchdog: Guarantee isAnimating NEVER stays stuck on mobile/tablet under any condition
     if (this._animWatchdog) clearTimeout(this._animWatchdog);
     this._animWatchdog = setTimeout(() => {
@@ -3100,7 +3126,7 @@ class GameApp {
           this.handleMove(next);
         }
       }
-    }, 280);
+    }, 180);
 
     try {
       this.moveCount++;
@@ -3121,7 +3147,7 @@ class GameApp {
         }
       }
 
-      const slideDuration = this.graphicsQuality === 'high' ? 0.092 : 0.088;
+      const slideDuration = this.graphicsQuality === 'high' ? 0.082 : 0.076;
       const animations = [];
       const mergesToProcess = [];
       this._activeSlideTweens = [];
@@ -3448,7 +3474,9 @@ class GameApp {
             );
             if (dist > 0.04) {
               tile.group.position.set(targetPos.x, targetPos.y, targetPos.z);
-              tile.group.rotation.set(0, 0, 0);
+            }
+            tile.group.rotation.set(0, 0, 0);
+            if (tile.group.scale.x < 0.8 || tile.group.scale.y < 0.8 || tile.group.scale.z < 0.8) {
               tile.group.scale.set(1, 1, 1);
             }
           }

@@ -1025,21 +1025,24 @@ export class Tile3D {
     // Clean, crisp spring pop-in (dứt khoát, không rơi giật từ trên trời)
     this.group.position.set(basePos.x, basePos.y, basePos.z);
     this.group.rotation.set(0, 0, 0);
-    this.group.scale.set(0, 0, 0);
+    this.group.scale.set(0.1, 0.1, 0.1);
 
     return gsap.to(this.group.scale, {
       x: 1.0,
       y: 1.0,
       z: 1.0,
-      duration: 0.09,
+      duration: 0.08,
       delay: delay,
-      ease: 'back.out(1.6)'
+      ease: 'back.out(1.5)',
+      onComplete: () => {
+        this.group.scale.set(1, 1, 1);
+      }
     });
   }
 
   slideTo(targetLayer, targetRow, targetCol, duration = null) {
     const isHigh = (tileGraphicsQuality === 'high' || window.gameApp?.graphicsQuality === 'high');
-    const actualDuration = duration !== null ? duration : (isHigh ? 0.092 : 0.088);
+    const actualDuration = duration !== null ? duration : (isHigh ? 0.082 : 0.076);
 
     const dl = targetLayer - this.layer;
     const dr = targetRow - this.row;
@@ -1076,6 +1079,7 @@ export class Tile3D {
     gsap.killTweensOf(this.group.rotation);
     gsap.killTweensOf(this.group.scale);
 
+    this.group.scale.set(1, 1, 1);
     this.group.rotation.set(0, 0, 0);
 
     // Subtle aerodynamic squash & stretch along movement axis (NO rotation)
@@ -1094,7 +1098,7 @@ export class Tile3D {
       duration: actualDuration,
       ease: 'power2.out',
       onComplete: () => {
-        gsap.to(this.group.scale, { x: 1.0, y: 1.0, z: 1.0, duration: 0.04, ease: 'power1.out' });
+        this.group.scale.set(1, 1, 1);
         this.group.rotation.set(0, 0, 0);
       }
     });
@@ -1123,29 +1127,29 @@ export class Tile3D {
     // Tactile, crisp vertical spring pop (hoàn toàn không xoay, nảy đanh dứt khoát)
     const tl = gsap.timeline();
     tl.to(this.group.position, {
-      y: basePos.y + 0.12,
-      duration: 0.065,
+      y: basePos.y + 0.10,
+      duration: 0.05,
       ease: 'power2.out'
     }, 0);
     tl.to(this.group.scale, {
-      x: 1.18,
-      y: 1.18,
-      z: 1.18,
-      duration: 0.065,
+      x: 1.15,
+      y: 1.15,
+      z: 1.15,
+      duration: 0.05,
       ease: 'power2.out'
     }, 0);
 
     tl.to(this.group.position, {
       y: basePos.y,
-      duration: 0.075,
+      duration: 0.06,
       ease: 'power2.in'
     });
     tl.to(this.group.scale, {
       x: 1.0,
       y: 1.0,
       z: 1.0,
-      duration: 0.075,
-      ease: 'back.out(2.0)'
+      duration: 0.06,
+      ease: 'back.out(1.8)'
     }, '<');
 
     return tl;

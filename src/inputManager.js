@@ -140,6 +140,12 @@ export class InputManager {
     let touchStartY = 0;
     let touchActive = false;
     let touchGestureTriggered = false;
+    let lastSwipeDir = null;
+    let lastSwipeTime = 0;
+
+    let pointerGestureTriggered = false;
+    let lastPointerDir = null;
+    let lastPointerTime = 0;
 
     this.domElement.addEventListener('touchstart', (e) => {
       if (e.touches.length !== 1) return;
@@ -152,6 +158,8 @@ export class InputManager {
       touchStartY = t.clientY;
       touchActive = true;
       touchGestureTriggered = false;
+      lastSwipeDir = null;
+      lastSwipeTime = performance.now();
     }, { passive: true });
 
     this.domElement.addEventListener('touchmove', (e) => {
@@ -159,7 +167,7 @@ export class InputManager {
       if (e.cancelable) {
         e.preventDefault(); // Stop mobile pull-to-refresh & browser scroll from canceling swipe!
       }
-      if (touchGestureTriggered || !this.enabled || this.isBlockedByUI()) return;
+      if (!this.enabled || this.isBlockedByUI()) return;
       if (window.gameApp && (window.gameApp.isSwapMode || window.gameApp.isDestroyMode)) {
         // In Swap/Destroy Mode, prevent board swipes so user never accidentally moves the board or cancels spell!
         return;
@@ -171,16 +179,24 @@ export class InputManager {
       const dy = t.clientY - touchStartY;
       const distance = Math.hypot(dx, dy);
 
-      // Instant 16px threshold: triggers DURING finger motion without waiting for touchend!
-      if (distance >= 16) {
-        touchGestureTriggered = true;
+      // Instant 14px threshold: triggers DURING finger motion without waiting for touchend!
+      if (distance >= 14) {
         let direction = null;
-        if (Math.abs(dx) > Math.abs(dy)) {
+        if (Math.abs(dx) > Math.abs(dy) * 1.12) {
           direction = dx > 0 ? 'right' : 'left';
-        } else {
+        } else if (Math.abs(dy) > Math.abs(dx) * 1.12) {
           direction = dy > 0 ? 'down' : 'up';
+        } else {
+          direction = Math.abs(dx) >= Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up');
         }
-        if (direction) {
+
+        const now = performance.now();
+        if (direction && (!touchGestureTriggered || (direction !== lastSwipeDir && (now - lastSwipeTime) > 75))) {
+          touchGestureTriggered = true;
+          lastSwipeDir = direction;
+          lastSwipeTime = now;
+          touchStartX = t.clientX;
+          touchStartY = t.clientY;
           this.onMove(direction);
         }
       }
@@ -191,6 +207,7 @@ export class InputManager {
       const wasTriggered = touchGestureTriggered;
       touchActive = false;
       touchGestureTriggered = false;
+      lastSwipeDir = null;
 
       // In Swap/Destroy mode: ALWAYS forward canvas touch release to onCanvasClick with generous proximity & dual coords
       if (window.gameApp && (window.gameApp.isSwapMode || window.gameApp.isDestroyMode) && !this.isBlockedByUI()) {
@@ -205,18 +222,20 @@ export class InputManager {
 
       // If finger lifted without triggering touchmove (e.g. ultra-fast flick or tap)
       if (!wasTriggered && this.enabled && !this.isBlockedByUI()) {
-        const t = e.changedTouches[0];
+        const t = e.changedTouches && e.changedTouches[0];
         if (t) {
           const dx = t.clientX - touchStartX;
           const dy = t.clientY - touchStartY;
           const distance = Math.hypot(dx, dy);
 
-          if (distance >= 12) {
+          if (distance >= 10) {
             let direction = null;
-            if (Math.abs(dx) > Math.abs(dy)) {
+            if (Math.abs(dx) > Math.abs(dy) * 1.12) {
               direction = dx > 0 ? 'right' : 'left';
-            } else {
+            } else if (Math.abs(dy) > Math.abs(dx) * 1.12) {
               direction = dy > 0 ? 'down' : 'up';
+            } else {
+              direction = Math.abs(dx) >= Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up');
             }
             if (direction) {
               this.onMove(direction);
@@ -224,7 +243,7 @@ export class InputManager {
             }
           }
           // Tap on canvas for normal game click (e.g. tile inspect)
-          if (distance < 12 && this.onCanvasClick) {
+          if (distance < 10 && this.onCanvasClick) {
             this.onCanvasClick(t.clientX, t.clientY);
           }
         }
@@ -234,10 +253,9 @@ export class InputManager {
     this.domElement.addEventListener('touchcancel', () => {
       touchActive = false;
       touchGestureTriggered = false;
+      lastSwipeDir = null;
       this.isPointerDown = false;
     }, { passive: true });
-
-    let pointerGestureTriggered = false;
 
     this.domElement.addEventListener('pointerdown', (e) => {
       if (e.pointerType === 'touch') return; // Touch is handled by real-time touchstart/touchmove
@@ -256,11 +274,13 @@ export class InputManager {
       this.pointerStartY = e.clientY;
       this.pointerStartTime = Date.now();
       pointerGestureTriggered = false;
+      lastPointerDir = null;
+      lastPointerTime = performance.now();
     });
 
     window.addEventListener('pointermove', (e) => {
       if (e.pointerType === 'touch') return;
-      if (!this.isPointerDown || pointerGestureTriggered || !this.enabled || this.isBlockedByUI()) return;
+      if (!this.isPointerDown || !this.enabled || this.isBlockedByUI()) return;
       if (window.gameApp && (window.gameApp.isSwapMode || window.gameApp.isDestroyMode)) {
         // In swap/destroy mode, mouse drag does not move the board
         return;
@@ -270,15 +290,23 @@ export class InputManager {
       const dy = e.clientY - this.pointerStartY;
       const distance = Math.hypot(dx, dy);
 
-      if (distance >= 20) {
-        pointerGestureTriggered = true;
+      if (distance >= 16) {
         let direction = null;
-        if (Math.abs(dx) > Math.abs(dy)) {
+        if (Math.abs(dx) > Math.abs(dy) * 1.12) {
           direction = dx > 0 ? 'right' : 'left';
-        } else {
+        } else if (Math.abs(dy) > Math.abs(dx) * 1.12) {
           direction = dy > 0 ? 'down' : 'up';
+        } else {
+          direction = Math.abs(dx) >= Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up');
         }
-        if (direction) {
+
+        const now = performance.now();
+        if (direction && (!pointerGestureTriggered || (direction !== lastPointerDir && (now - lastPointerTime) > 75))) {
+          pointerGestureTriggered = true;
+          lastPointerDir = direction;
+          lastPointerTime = now;
+          this.pointerStartX = e.clientX;
+          this.pointerStartY = e.clientY;
           this.onMove(direction);
         }
       }
@@ -290,6 +318,7 @@ export class InputManager {
       this.isPointerDown = false;
       const wasTriggered = pointerGestureTriggered;
       pointerGestureTriggered = false;
+      lastPointerDir = null;
 
       if (!this.enabled) return;
 
@@ -311,16 +340,18 @@ export class InputManager {
       const distance = Math.hypot(dx, dy);
 
       if (!wasTriggered) {
-        if (distance < 16) {
+        if (distance < 14) {
           if (this.onCanvasClick) {
             this.onCanvasClick(e.clientX, e.clientY);
           }
         } else {
           let direction = null;
-          if (Math.abs(dx) > Math.abs(dy)) {
+          if (Math.abs(dx) > Math.abs(dy) * 1.12) {
             direction = dx > 0 ? 'right' : 'left';
-          } else {
+          } else if (Math.abs(dy) > Math.abs(dx) * 1.12) {
             direction = dy > 0 ? 'down' : 'up';
+          } else {
+            direction = Math.abs(dx) >= Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up');
           }
           if (direction) {
             this.onMove(direction);

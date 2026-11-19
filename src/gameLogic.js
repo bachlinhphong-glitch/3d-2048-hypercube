@@ -186,7 +186,16 @@ export class Game2048Logic {
     this.gameOver = !!data.gameOver;
     this.isRushMode = !!data.isRushMode;
     this.nextRechargeMilestone = data.nextRechargeMilestone || 256;
-    if (data.spells) this.spells = data.spells;
+    if (data.spells) {
+      this.spells = {
+        hint: (data.spells && data.spells.hint) ? data.spells.hint : { used: 0, ready: true },
+        undo: (data.spells && data.spells.undo) ? data.spells.undo : { used: 0, ready: true },
+        swap: (data.spells && data.spells.swap) ? data.spells.swap : { used: 0, ready: true },
+        destroy: (data.spells && data.spells.destroy) ? data.spells.destroy : { used: 0, ready: true }
+      };
+    } else {
+      this.initSpells();
+    }
     if (data.history) this.history = data.history;
     return true;
   }
@@ -639,6 +648,7 @@ export class Game2048Logic {
 
     this.grid[pos.l][pos.r][pos.c] = null;
 
+    if (!this.spells.destroy) this.spells.destroy = { used: 0, ready: true };
     this.spells.destroy.used++;
     this.spells.destroy.ready = false;
     this.gameOver = !this.hasValidMoves();
