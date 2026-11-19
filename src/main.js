@@ -625,7 +625,7 @@ class GameApp {
 
     const sfxProfileSelect = document.getElementById('select-sfx-profile');
     if (sfxProfileSelect) {
-      sfxProfileSelect.value = soundManager.sfxProfile || 'wood';
+      sfxProfileSelect.value = soundManager.sfxProfile || 'water';
       sfxProfileSelect.addEventListener('change', (e) => {
         soundManager.setSFXProfile(e.target.value);
         const profileName = sfxProfileSelect.options[sfxProfileSelect.selectedIndex].text;
