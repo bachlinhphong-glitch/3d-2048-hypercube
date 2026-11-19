@@ -190,6 +190,7 @@ class GameApp {
     this.isSwapMode = false;
     this.swapSelectedTileA = null;
     this.swapSelectedTileB = null;
+    this.isDestroyMode = false;
     this.hoveredTile = null;
     this.toastTimeout = null;
 
@@ -980,6 +981,11 @@ class GameApp {
     this.swapHudActionsConfirm = document.getElementById('swap-hud-actions-confirm');
     this.btnSwapHudConfirm = document.getElementById('btn-swap-hud-confirm');
     this.btnSwapHudCancel = document.getElementById('btn-swap-hud-cancel');
+    this.btnSpellDestroy = document.getElementById('btn-spell-destroy');
+    this.badgeSpellDestroy = document.getElementById('badge-spell-destroy');
+    this.destroyActionHud = document.getElementById('destroy-action-hud');
+    this.destroyHudText = document.getElementById('destroy-hud-text');
+    this.btnDestroyHudCancel = document.getElementById('btn-destroy-hud-cancel');
 
     // Helper to reliably trigger spell taps without ghost double-clicks or touch cancellation
     const bindSpellTap = (btn, handler) => {
@@ -1045,10 +1051,14 @@ class GameApp {
     if (this.btnSwapHudCancel) {
       bindSpellTap(this.btnSwapHudCancel, () => this.cancelSwapMode());
     }
+    if (this.btnDestroyHudCancel) {
+      bindSpellTap(this.btnDestroyHudCancel, () => this.cancelDestroyMode());
+    }
 
     bindSpellTap(this.btnSpellHint, () => this.handleSpellHint());
     bindSpellTap(this.btnSpellUndo, () => this.handleSpellUndo());
     bindSpellTap(this.btnSpellSwap, () => this.handleSpellSwap());
+    bindSpellTap(this.btnSpellDestroy, () => this.handleSpellDestroy());
 
     this.updateScoreUI();
     this.updateSpellUI();
@@ -1577,7 +1587,11 @@ class GameApp {
         hint: () => this.handleSpellHint(),
         undo: () => this.handleSpellUndo(),
         swap: () => this.handleSpellSwap(),
-        cancel: () => this.cancelSwapMode()
+        destroy: () => this.handleSpellDestroy(),
+        cancel: () => {
+          if (this.isSwapMode) this.cancelSwapMode();
+          if (this.isDestroyMode) this.cancelDestroyMode();
+        }
       },
       (clientX, clientY, altX, altY) => this.handleCanvasClick(clientX, clientY, altX, altY),
       (preset) => {
@@ -2144,6 +2158,10 @@ class GameApp {
       this.cancelSwapMode();
       return true;
     }
+    if (this.isDestroyMode) {
+      this.cancelDestroyMode();
+      return true;
+    }
 
     return false;
   }
@@ -2591,6 +2609,7 @@ class GameApp {
     if (this.aiBot) this.aiBot.stop();
     this.hideModal();
     this.cancelSwapMode();
+    this.cancelDestroyMode();
     this.isAnimating = false;
 
     if (checkSaved && this.restoreSavedGame()) {
@@ -3050,6 +3069,9 @@ class GameApp {
     }
     if (this.isSwapMode) {
       this.cancelSwapMode();
+    }
+    if (this.isDestroyMode) {
+      this.cancelDestroyMode();
     }
 
     if (this.gameLogic.gameOver || !this.gameLogic.hasValidMoves()) {
@@ -3590,8 +3612,8 @@ class GameApp {
   }
 
   updateSpellUI() {
-    const spellTypes = ['hint', 'undo', 'swap'];
-    const spellNames = { hint: 'Hint', undo: 'Undo', swap: 'Swap' };
+    const spellTypes = ['undo', 'hint', 'swap', 'destroy'];
+    const spellNames = { hint: 'Hint', undo: 'Undo', swap: 'Swap', destroy: 'Destroy' };
 
     spellTypes.forEach(type => {
       const status = this.gameLogic.getSpellStatus(type);
@@ -3612,6 +3634,16 @@ class GameApp {
           }
           if (this.isSwapMode) {
             btn.title = 'Bấm để hủy chế độ đổi chỗ';
+          }
+        }
+        if (type === 'destroy') {
+          btn.classList.toggle('active-destroy', this.isDestroyMode);
+          const nameSpan = btn.querySelector('.spell-name');
+          if (nameSpan) {
+            nameSpan.textContent = this.isDestroyMode ? 'Hủy' : (t('spell_destroy') || 'Phá khối');
+          }
+          if (this.isDestroyMode) {
+            btn.title = 'Bấm để hủy chế độ phá khối';
           }
         }
 
@@ -3670,6 +3702,8 @@ class GameApp {
 
   handleSpellHint() {
     if (this.isAnimating || this.gameLogic.gameOver) return;
+    if (this.isSwapMode) this.cancelSwapMode(null);
+    if (this.isDestroyMode) this.cancelDestroyMode(null);
 
     const status = this.gameLogic.getSpellStatus('hint');
     if (status === 'depleted') {
@@ -3739,7 +3773,8 @@ class GameApp {
 
   handleSpellUndo() {
     if (this.isAnimating) return;
-    if (this.isSwapMode) this.cancelSwapMode();
+    if (this.isSwapMode) this.cancelSwapMode(null);
+    if (this.isDestroyMode) this.cancelDestroyMode(null);
 
     const status = this.gameLogic.getSpellStatus('undo');
     if (status === 'depleted') {
@@ -3795,6 +3830,10 @@ class GameApp {
 
   handleSpellSwap() {
     if (this.isAnimating || this.gameLogic.gameOver) return;
+
+    if (this.isDestroyMode) {
+      this.cancelDestroyMode(null);
+    }
 
     if (this.isSwapMode) {
       this.cancelSwapMode();
@@ -3898,7 +3937,17 @@ class GameApp {
 
   handleCanvasClick(clientX, clientY, altX = null, altY = null) {
     this.registerInteraction();
-    if (!this.isSwapMode || this.isAnimating || this.gameLogic.gameOver) return;
+    if ((!this.isSwapMode && !this.isDestroyMode) || this.isAnimating || this.gameLogic.gameOver) return;
+
+    if (this.isDestroyMode) {
+      let clickedTile = this.findTileFromPoint(clientX, clientY);
+      if (!clickedTile && altX !== null && altY !== null) {
+        clickedTile = this.findTileFromPoint(altX, altY);
+      }
+      if (!clickedTile) return;
+      this.confirmExecuteDestroy(clickedTile);
+      return;
+    }
 
     let clickedTile = this.findTileFromPoint(clientX, clientY);
     if (!clickedTile && altX !== null && altY !== null) {
@@ -4013,6 +4062,116 @@ class GameApp {
     this.isAnimating = false;
     this.updateSpellUI();
     this.showSpellToast(`ĐÃ ĐỔI VỊ TRÍ [${tileA.value}] ⇄ [${tileB.value}] THÀNH CÔNG!`);
+    this.saveGameState();
+  }
+
+  handleSpellDestroy() {
+    if (this.isAnimating || this.gameLogic.gameOver) return;
+
+    if (this.isSwapMode) {
+      this.cancelSwapMode(null);
+    }
+
+    if (this.isDestroyMode) {
+      this.cancelDestroyMode();
+      return;
+    }
+
+    const status = this.gameLogic.getSpellStatus('destroy');
+    if (status === 'depleted') {
+      this.showSpellToast('HẾT LƯỢT: Bạn đã dùng tối đa 2 lần Phá khối trong ván này!');
+      return;
+    }
+    if (status === 'cooldown') {
+      this.showSpellToast(`Đang tạm khóa: Cần ghép ô [${this.gameLogic.nextRechargeMilestone}] để mở lại trợ giúp.`);
+      return;
+    }
+
+    this.isDestroyMode = true;
+    this.container.style.cursor = 'crosshair';
+    document.body.classList.add('in-destroy-mode');
+    if (this.sceneManager && this.sceneManager.controls) {
+      this.sceneManager.controls.enabled = false;
+    }
+    this.updateSpellUI();
+    this.showDestroyHud('Chạm vào khối số muốn phá hủy trên bàn cờ...');
+    this.showSpellToast('💣 CHẾ ĐỘ PHÁ KHỐI: Chạm vào 1 khối bất kỳ để loại bỏ!');
+  }
+
+  cancelDestroyMode(toastMsg = 'Đã hủy chế độ Phá khối.') {
+    if (!this.isDestroyMode) return;
+    this.isDestroyMode = false;
+    document.body.classList.remove('in-destroy-mode');
+    if (this.sceneManager && this.sceneManager.controls) {
+      this.sceneManager.controls.enabled = true;
+    }
+    if (this.hoveredTile) {
+      this.hoveredTile.setHovered(false);
+      this.hoveredTile = null;
+    }
+    this.hideDestroyHud();
+    this.container.style.cursor = 'default';
+    this.updateSpellUI();
+    if (toastMsg) {
+      this.showSpellToast(toastMsg);
+    }
+  }
+
+  showDestroyHud(stepText) {
+    if (!this.destroyActionHud) return;
+    this.destroyActionHud.style.display = 'flex';
+    if (this.destroyHudText) {
+      this.destroyHudText.textContent = stepText;
+    }
+  }
+
+  hideDestroyHud() {
+    if (!this.destroyActionHud) return;
+    this.destroyActionHud.style.display = 'none';
+  }
+
+  async confirmExecuteDestroy(tile) {
+    if (!this.isDestroyMode || !tile || this.isAnimating || this.gameLogic.gameOver) return;
+    this.isAnimating = true;
+
+    const l = tile.layer;
+    const r = tile.row;
+    const c = tile.col;
+    const val = tile.value;
+
+    this.cancelDestroyMode(null);
+
+    const result = this.gameLogic.destroyTile({ l, r, c });
+    if (!result || !result.success) {
+      this.isAnimating = false;
+      this.updateSpellUI();
+      this.showSpellToast('Không thể phá hủy ô này!');
+      return;
+    }
+
+    soundManager.playBombExplode();
+    if (this.questManager) {
+      this.questManager.recordSpell('destroy');
+    }
+
+    const pos = getGridPosition(l, r, c);
+    if (this.particleSystem) {
+      if (this.particleSystem.supernovaBurst) {
+        this.particleSystem.supernovaBurst(pos.x, pos.y + 0.25, pos.z, val, this.sceneManager.camera);
+      } else if (this.particleSystem.burst) {
+        this.particleSystem.burst(pos.x, pos.y, pos.z, val);
+      }
+      if (this.particleSystem.screenShake) {
+        this.particleSystem.screenShake(this.sceneManager.camera, 0.4);
+      }
+    }
+
+    this.tiles3D[l][r][c] = null;
+    tile.dispose();
+
+    this.isAnimating = false;
+    this.updateSpellUI();
+    this.showSpellToast(`💣 ĐÃ PHÁ HỦY KHỐI [${val}] THÀNH CÔNG!`);
     this.saveGameState();
   }
 

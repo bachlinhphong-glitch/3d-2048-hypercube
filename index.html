@@ -51,11 +51,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./src/style.css?v=6.8.51">
+  <link rel="stylesheet" href="./src/style.css?v=6.8.52">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=6.8.51').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=6.8.52').then(reg => {
           reg.update();
         }).catch(() => {});
       });
@@ -355,6 +355,23 @@
         <span class="spell-name" data-i18n="spell_swap">Đổi chỗ</span>
         <kbd class="spell-kbd">X</kbd>
       </button>
+
+      <!-- 4. PHÁ KHỐI (Destroy / Bomb - Clears an annoying obstacle/blocker, key C) -->
+      <button id="btn-spell-destroy" class="spell-btn spell-btn-destroy" data-i18n-title="spell_destroy_title" title="Phá hủy 1 khối trên bàn cờ (Phím C)">
+        <div class="spell-btn-glow"></div>
+        <span class="spell-badge" id="badge-spell-destroy">2</span>
+        <div class="spell-icon-box">
+          <svg class="spell-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="13" r="7" />
+            <path d="M12 6V3" />
+            <path d="M10 3h4" />
+            <path d="m15.5 4.5 2-2" />
+            <path d="M10 13a2 2 0 0 0 4 0" />
+          </svg>
+        </div>
+        <span class="spell-name" data-i18n="spell_destroy">Phá khối</span>
+        <kbd class="spell-kbd">C</kbd>
+      </button>
     </div>
 
     <!-- Swap Mode Floating Action HUD (Sleek Apple Glassmorphism Guided Workflow) -->
@@ -380,6 +397,22 @@
             <span class="confirm-icon">✓</span>
             <span>XÁC NHẬN HOÁN ĐỔI</span>
           </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Destroy Mode Floating Action HUD (Sleek Apple Glassmorphism Guided Workflow) -->
+    <div id="destroy-action-hud" class="swap-action-hud destroy-action-hud" style="display: none;">
+      <div class="swap-hud-card destroy-hud-card">
+        <div class="swap-hud-header">
+          <div class="swap-hud-title-wrap">
+            <span class="swap-hud-badge destroy-badge">PHÉP BỔ TRỢ</span>
+            <span class="swap-hud-title">💣 PHÁ HỦY KHỐI SỐ</span>
+          </div>
+          <button id="btn-destroy-hud-cancel" class="swap-hud-btn cancel-btn" type="button" title="Hủy phá khối (Esc)">✕ Hủy</button>
+        </div>
+        <div class="swap-hud-body">
+          <div id="destroy-hud-text" class="swap-hud-text">Chạm vào một khối số để phá hủy...</div>
         </div>
       </div>
     </div>
@@ -1205,6 +1238,6 @@
   </div>
 
   <!-- Main Game Script -->
-  <script type="module" src="./src/main.js?v=6.8.51"></script>
+  <script type="module" src="./src/main.js?v=6.8.52"></script>
 </body>
 </html>

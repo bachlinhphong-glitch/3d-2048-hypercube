@@ -62,7 +62,8 @@ export class Game2048Logic {
     this.spells = {
       hint: { used: 0, ready: true },
       undo: { used: 0, ready: true },
-      swap: { used: 0, ready: true }
+      swap: { used: 0, ready: true },
+      destroy: { used: 0, ready: true }
     };
     this.history = [];
   }
@@ -141,7 +142,8 @@ export class Game2048Logic {
     this.spells = {
       hint: { used: 0, ready: true },
       undo: { used: 0, ready: true },
-      swap: { used: 0, ready: true }
+      swap: { used: 0, ready: true },
+      destroy: { used: 0, ready: true }
     };
     this.history = [];
   }
@@ -150,7 +152,8 @@ export class Game2048Logic {
     return {
       hint: Math.max(0, this.maxSpellUses - this.spells.hint.used),
       undo: Math.max(0, this.maxSpellUses - this.spells.undo.used),
-      swap: Math.max(0, this.maxSpellUses - this.spells.swap.used)
+      swap: Math.max(0, this.maxSpellUses - this.spells.swap.used),
+      destroy: Math.max(0, this.maxSpellUses - (this.spells.destroy ? this.spells.destroy.used : 0))
     };
   }
 
@@ -525,13 +528,14 @@ export class Game2048Logic {
     const hintLeft = Math.max(0, this.maxSpellUses - (this.spells.hint ? this.spells.hint.used : 0));
     const undoLeft = Math.max(0, this.maxSpellUses - (this.spells.undo ? this.spells.undo.used : 0));
     const swapLeft = Math.max(0, this.maxSpellUses - (this.spells.swap ? this.spells.swap.used : 0));
-    return hintLeft + undoLeft + swapLeft;
+    const destroyLeft = Math.max(0, this.maxSpellUses - (this.spells.destroy ? this.spells.destroy.used : 0));
+    return hintLeft + undoLeft + swapLeft + destroyLeft;
   }
 
   consumeAllSpellsForBonus() {
     if (!this.spells) return 0;
     const count = this.getRemainingSpellCount();
-    ['hint', 'undo', 'swap'].forEach(k => {
+    ['hint', 'undo', 'swap', 'destroy'].forEach(k => {
       if (this.spells[k]) {
         this.spells[k].used = this.maxSpellUses;
         this.spells[k].ready = false;
@@ -585,6 +589,7 @@ export class Game2048Logic {
     if (previous.spells) {
       if (previous.spells.hint) this.spells.hint = { ...previous.spells.hint };
       if (previous.spells.swap) this.spells.swap = { ...previous.spells.swap };
+      if (previous.spells.destroy) this.spells.destroy = { ...previous.spells.destroy };
     }
     this.gameOver = false;
     return {
@@ -617,6 +622,29 @@ export class Game2048Logic {
     this.gameOver = !this.hasValidMoves();
     return {
       success: true,
+      spells: this.getSpellsState()
+    };
+  }
+
+  canDestroy() {
+    return this.canUseSpell('destroy');
+  }
+
+  destroyTile(pos) {
+    if (!this.canDestroy()) return false;
+    const tile = this.grid[pos.l]?.[pos.r]?.[pos.c];
+    if (!tile) return false;
+
+    this.saveSnapshot();
+
+    this.grid[pos.l][pos.r][pos.c] = null;
+
+    this.spells.destroy.used++;
+    this.spells.destroy.ready = false;
+    this.gameOver = !this.hasValidMoves();
+    return {
+      success: true,
+      destroyedValue: tile.value,
       spells: this.getSpellsState()
     };
   }

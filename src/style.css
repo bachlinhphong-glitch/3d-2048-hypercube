@@ -4356,13 +4356,13 @@ body.in-boss-mode #demo-theme-switcher {
   /* Summoner Spell Buttons for Thumbs */
   .spell-bar {
     bottom: calc(max(16px, env(safe-area-inset-bottom, 16px)) + 12px) !important;
-    gap: 10px;
+    gap: 8px !important;
     z-index: 100 !important;
   }
 
   .spell-btn {
-    width: 64px;
-    height: 68px;
+    width: 58px !important;
+    height: 64px !important;
     border-radius: 14px;
     gap: 2px;
   }
@@ -4637,6 +4637,10 @@ body.in-boss-mode #demo-theme-switcher {
   color: #c084fc !important;
   filter: drop-shadow(0 0 4px rgba(192, 132, 252, 0.45));
 }
+.spell-btn-destroy .spell-svg {
+  color: #f43f5e !important;
+  filter: drop-shadow(0 0 4px rgba(244, 63, 94, 0.55));
+}
 
 .spell-btn-undo:hover:not(.depleted):not(.in-cooldown) {
   border-color: #38bdf8 !important;
@@ -4649,6 +4653,10 @@ body.in-boss-mode #demo-theme-switcher {
 .spell-btn-swap:hover:not(.depleted):not(.in-cooldown):not(.active-swap) {
   border-color: #c084fc !important;
   box-shadow: 0 8px 20px rgba(192, 132, 252, 0.25) !important;
+}
+.spell-btn-destroy:hover:not(.depleted):not(.in-cooldown):not(.active-destroy) {
+  border-color: #f43f5e !important;
+  box-shadow: 0 8px 20px rgba(244, 63, 94, 0.3) !important;
 }
 
 .spell-btn.active-swap {
@@ -4667,6 +4675,35 @@ body.in-boss-mode #demo-theme-switcher {
 .spell-btn.active-swap .spell-name {
   color: #fca5a5 !important;
   font-weight: 800 !important;
+}
+
+.spell-btn.active-destroy {
+  transform: translateY(-2px) !important;
+  border-color: #f43f5e !important;
+  background: rgba(244, 63, 94, 0.22) !important;
+  box-shadow: 0 0 24px rgba(244, 63, 94, 0.8), inset 0 0 10px rgba(244, 63, 94, 0.4) !important;
+  animation: swapCancelPulse 1s ease-in-out infinite alternate !important;
+}
+
+.spell-btn.active-destroy .spell-svg {
+  color: #f43f5e !important;
+  filter: drop-shadow(0 0 8px rgba(244, 63, 94, 0.85)) !important;
+}
+
+.spell-btn.active-destroy .spell-name {
+  color: #fca5a5 !important;
+  font-weight: 800 !important;
+}
+
+.destroy-hud-card {
+  border-color: rgba(244, 63, 94, 0.4) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55), 0 0 24px rgba(244, 63, 94, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+}
+
+.destroy-badge {
+  background: rgba(244, 63, 94, 0.2) !important;
+  color: #fb7185 !important;
+  border-color: rgba(244, 63, 94, 0.4) !important;
 }
 
 @keyframes swapCancelPulse {
@@ -5041,8 +5078,9 @@ body.theme-zen_clay .swap-hud-btn.cancel-btn:hover {
   box-shadow: 0 2px 8px rgba(245, 158, 11, 0.45);
 }
 
-/* Subtle Swap Mode Focus / Dim Background */
-body.in-swap-mode #canvas-container::after {
+/* Subtle Swap & Destroy Mode Focus / Dim Background */
+body.in-swap-mode #canvas-container::after,
+body.in-destroy-mode #canvas-container::after {
   content: '';
   position: absolute;
   top: 0;
@@ -7594,6 +7632,7 @@ select option:checked,
 .header-bar,
 .spell-bar,
 .swap-action-hud,
+.destroy-action-hud,
 .dir-pad-container,
 .camera-snap-bar,
 .slice-controls,

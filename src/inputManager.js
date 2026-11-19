@@ -61,6 +61,10 @@ export class InputManager {
         if (this.onSpell && this.onSpell.swap) this.onSpell.swap();
         return;
       }
+      if (e.code === 'KeyC' && !e.ctrlKey && !e.altKey) {
+        if (this.onSpell && this.onSpell.destroy) this.onSpell.destroy();
+        return;
+      }
       if (e.code === 'Escape') {
         if (this.onSpell && this.onSpell.cancel) this.onSpell.cancel();
         return;
@@ -140,7 +144,7 @@ export class InputManager {
     this.domElement.addEventListener('touchstart', (e) => {
       if (e.touches.length !== 1) return;
       if (this.isBlockedByUI()) return;
-      if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .spell-bar, .swap-action-hud, .swap-hud-card, .swap-hud-btn, #swap-action-hud, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel, .dir-pad-container, .dpad-disc, .dpad-petal, .dpad-layer-btn, .dpad-btn, .cam-btn, .slice-btn, .banner-container, .inapp-challenge-card, .trophy-tab-btn, .custom-bg-input')) {
+      if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .spell-bar, .swap-action-hud, .swap-hud-card, .swap-hud-btn, #swap-action-hud, .destroy-action-hud, .destroy-hud-card, .destroy-hud-btn, #destroy-action-hud, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel, .dir-pad-container, .dpad-disc, .dpad-petal, .dpad-layer-btn, .dpad-btn, .cam-btn, .slice-btn, .banner-container, .inapp-challenge-card, .trophy-tab-btn, .custom-bg-input')) {
         return;
       }
       const t = e.touches[0];
@@ -156,8 +160,8 @@ export class InputManager {
         e.preventDefault(); // Stop mobile pull-to-refresh & browser scroll from canceling swipe!
       }
       if (touchGestureTriggered || !this.enabled || this.isBlockedByUI()) return;
-      if (window.gameApp && window.gameApp.isSwapMode) {
-        // In Swap Mode, prevent board swipes so user never accidentally moves the board or cancels swap!
+      if (window.gameApp && (window.gameApp.isSwapMode || window.gameApp.isDestroyMode)) {
+        // In Swap/Destroy Mode, prevent board swipes so user never accidentally moves the board or cancels spell!
         return;
       }
 
@@ -188,8 +192,8 @@ export class InputManager {
       touchActive = false;
       touchGestureTriggered = false;
 
-      // In Swap mode: ALWAYS forward canvas touch release to onCanvasClick with generous proximity & dual coords
-      if (window.gameApp && window.gameApp.isSwapMode && !this.isBlockedByUI()) {
+      // In Swap/Destroy mode: ALWAYS forward canvas touch release to onCanvasClick with generous proximity & dual coords
+      if (window.gameApp && (window.gameApp.isSwapMode || window.gameApp.isDestroyMode) && !this.isBlockedByUI()) {
         const t = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0] : null;
         const endX = t ? t.clientX : touchStartX;
         const endY = t ? t.clientY : touchStartY;
@@ -243,7 +247,7 @@ export class InputManager {
         return;
       }
       if (e.button !== 0 && e.pointerType === 'mouse') return;
-      if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .spell-bar, .swap-action-hud, .swap-hud-card, .swap-hud-btn, #swap-action-hud, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel, .dir-pad-container, .dpad-disc, .dpad-petal, .dpad-layer-btn, .dpad-btn, .cam-btn, .slice-btn, .banner-container, .inapp-challenge-card, .trophy-tab-btn, .custom-bg-input')) {
+      if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .spell-bar, .swap-action-hud, .swap-hud-card, .swap-hud-btn, #swap-action-hud, .destroy-action-hud, .destroy-hud-card, .destroy-hud-btn, #destroy-action-hud, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel, .dir-pad-container, .dpad-disc, .dpad-petal, .dpad-layer-btn, .dpad-btn, .cam-btn, .slice-btn, .banner-container, .inapp-challenge-card, .trophy-tab-btn, .custom-bg-input')) {
         return;
       }
 
@@ -257,8 +261,8 @@ export class InputManager {
     window.addEventListener('pointermove', (e) => {
       if (e.pointerType === 'touch') return;
       if (!this.isPointerDown || pointerGestureTriggered || !this.enabled || this.isBlockedByUI()) return;
-      if (window.gameApp && window.gameApp.isSwapMode) {
-        // In swap mode, mouse drag does not move the board
+      if (window.gameApp && (window.gameApp.isSwapMode || window.gameApp.isDestroyMode)) {
+        // In swap/destroy mode, mouse drag does not move the board
         return;
       }
 
@@ -290,12 +294,12 @@ export class InputManager {
       if (!this.enabled) return;
 
       // Do not process swipes if released on interactive control elements
-      if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .spell-bar, .swap-action-hud, .swap-hud-card, .swap-hud-btn, #swap-action-hud, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel, .dir-pad-container, .dpad-disc, .dpad-petal, .dpad-layer-btn, .dpad-btn, .cam-btn, .slice-btn')) {
+      if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .spell-bar, .swap-action-hud, .swap-hud-card, .swap-hud-btn, #swap-action-hud, .destroy-action-hud, .destroy-hud-card, .destroy-hud-btn, #destroy-action-hud, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel, .dir-pad-container, .dpad-disc, .dpad-petal, .dpad-layer-btn, .dpad-btn, .cam-btn, .slice-btn')) {
         return;
       }
 
-      // In Swap mode, prioritize clicking the tile with generous tolerance and pass dual coords
-      if (window.gameApp && window.gameApp.isSwapMode) {
+      // In Swap/Destroy mode, prioritize clicking the tile with generous tolerance and pass dual coords
+      if (window.gameApp && (window.gameApp.isSwapMode || window.gameApp.isDestroyMode)) {
         if (this.onCanvasClick) {
           this.onCanvasClick(e.clientX, e.clientY, this.pointerStartX, this.pointerStartY);
         }

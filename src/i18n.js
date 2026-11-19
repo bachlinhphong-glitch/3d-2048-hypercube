@@ -139,6 +139,8 @@ export const DICTIONARY = {
     spell_hint_title: 'Gợi ý nước đi (H)',
     spell_undo_title: 'Đi lại nước trước (Z)',
     spell_swap_title: 'Đổi chỗ 2 ô (X)',
+    spell_destroy: 'Phá khối',
+    spell_destroy_title: 'Phá hủy 1 khối trên bàn cờ (C)',
 
     // Slice Controls (3x3x3)
     slice_all: 'Tất cả',
@@ -454,6 +456,8 @@ export const DICTIONARY = {
     spell_hint_title: 'Suggested move (H)',
     spell_undo_title: 'Undo step (Z)',
     spell_swap_title: 'Swap 2 tiles (X)',
+    spell_destroy: 'Destroy',
+    spell_destroy_title: 'Destroy 1 tile on board (C)',
 
     // Slice Controls (3x3x3)
     slice_all: 'All',
@@ -756,6 +760,8 @@ export const DICTIONARY = {
     spell_hint_title: '最適な手を提案 (Hキー)',
     spell_undo_title: '1手前に戻す (Zキー)',
     spell_swap_title: '2つのタイルの位置を交換 (Xキー)',
+    spell_destroy: '破壊',
+    spell_destroy_title: 'タイルを1つ破壊 (Cキー)',
 
     // Slice Controls (3x3x3)
     slice_all: 'すべて',
@@ -1057,6 +1063,8 @@ export const DICTIONARY = {
     spell_hint_title: '최적의 수 추천 (H 키)',
     spell_undo_title: '이전 수 되돌리기 (Z 키)',
     spell_swap_title: '두 타일의 위치 교환 (X 키)',
+    spell_destroy: '파괴',
+    spell_destroy_title: '타일 1개 파괴 (C 키)',
 
     // Slice Controls (3x3x3)
     slice_all: '모두',
