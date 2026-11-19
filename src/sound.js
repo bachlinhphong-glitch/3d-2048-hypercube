@@ -84,6 +84,12 @@ class SoundManager {
     this.bgmNoiseGain = null;
     this.chordIdx = 0;
     this.currentBgmTrack = 0;
+    this.sfxProfile = 'wood';
+    try {
+      this.sfxProfile = localStorage.getItem('3d2048_sfx_profile') || 'wood';
+    } catch {
+      this.sfxProfile = 'wood';
+    }
     try {
       this.currentBgmTrack = parseInt(localStorage.getItem('3d2048_bgm_track') || '0', 10);
       if (isNaN(this.currentBgmTrack) || this.currentBgmTrack < 0 || this.currentBgmTrack > 2) {
@@ -575,6 +581,381 @@ class SoundManager {
     osc.stop(t + 0.05);
   }
 
+  setSFXProfile(profile) {
+    const valid = ['wood', 'mech', 'crystal', 'ceramic'];
+    this.sfxProfile = valid.includes(profile) ? profile : 'wood';
+    try {
+      localStorage.setItem('3d2048_sfx_profile', this.sfxProfile);
+    } catch {}
+    return this.sfxProfile;
+  }
+
+  // Transient Impact Noise Generator: creates tactile micro-clicks for physical contact
+  _playNoiseClick(t, highpassFreq = 2200, duration = 0.007, gainVal = 0.16) {
+    if (!this.ctx) return;
+    try {
+      const bufferSize = Math.max(128, Math.floor(this.ctx.sampleRate * duration));
+      const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.35));
+      }
+      const noise = this.ctx.createBufferSource();
+      noise.buffer = buffer;
+
+      const filter = this.ctx.createBiquadFilter();
+      filter.type = 'highpass';
+      filter.frequency.setValueAtTime(highpassFreq, t);
+
+      const gain = this.ctx.createGain();
+      gain.gain.setValueAtTime(gainVal, t);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
+
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      noise.start(t);
+      noise.stop(t + duration);
+    } catch {}
+  }
+
+  // === 1. TACTILE WOODEN MARIMBA & KALIMBA (Default ASMR) ===
+  _synthWoodSlide(t) {
+    this._playNoiseClick(t, 2400, 0.006, 0.16);
+    const osc = this.ctx.createOscillator();
+    const filter = this.ctx.createBiquadFilter();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(390, t);
+    osc.frequency.exponentialRampToValueAtTime(180, t + 0.045);
+
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(520, t);
+    filter.Q.setValueAtTime(7.5, t);
+
+    gain.gain.setValueAtTime(0.24, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.start(t);
+    osc.stop(t + 0.055);
+
+    // Warm wooden sub-thump
+    const sub = this.ctx.createOscillator();
+    const subGain = this.ctx.createGain();
+    sub.type = 'sine';
+    sub.frequency.setValueAtTime(115, t);
+    sub.frequency.exponentialRampToValueAtTime(60, t + 0.038);
+    subGain.gain.setValueAtTime(0.18, t);
+    subGain.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
+    sub.connect(subGain);
+    subGain.connect(this.ctx.destination);
+    sub.start(t);
+    sub.stop(t + 0.042);
+  }
+
+  _synthWoodMerge(t, value, combo) {
+    this._playNoiseClick(t, 1900, 0.007, 0.20);
+
+    const scale = [
+      261.63, 293.66, 329.63, 392.00, 440.00,
+      523.25, 587.33, 659.25, 783.99, 880.00,
+      1046.50, 1174.66, 1318.51, 1567.98, 1760.00
+    ];
+    const power = Math.max(0, Math.round(Math.log2(value)) - 2);
+    const noteIdx = Math.min(scale.length - 1, power + Math.min(6, combo));
+    const f0 = scale[noteIdx];
+
+    // Voice 1: Round marimba bar fundamental
+    const osc1 = this.ctx.createOscillator();
+    const gain1 = this.ctx.createGain();
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(f0, t);
+    gain1.gain.setValueAtTime(0.001, t);
+    gain1.gain.linearRampToValueAtTime(0.24, t + 0.002);
+    gain1.gain.exponentialRampToValueAtTime(0.0001, t + 0.28);
+    osc1.connect(gain1);
+    gain1.connect(this.ctx.destination);
+    osc1.start(t);
+    osc1.stop(t + 0.3);
+
+    // Voice 2: Rosewood 4th harmonic overtone (3.98x f0)
+    const osc2 = this.ctx.createOscillator();
+    const gain2 = this.ctx.createGain();
+    osc2.type = 'triangle';
+    osc2.frequency.setValueAtTime(f0 * 3.98, t);
+    gain2.gain.setValueAtTime(0.09, t);
+    gain2.gain.exponentialRampToValueAtTime(0.0001, t + 0.065);
+    osc2.connect(gain2);
+    gain2.connect(this.ctx.destination);
+    osc2.start(t);
+    osc2.stop(t + 0.07);
+
+    // Voice 3: Acoustic body bloom on higher numbers (>= 32)
+    if (value >= 32) {
+      const oscBloom = this.ctx.createOscillator();
+      const gainBloom = this.ctx.createGain();
+      oscBloom.type = 'sine';
+      oscBloom.frequency.setValueAtTime(f0 * 1.5, t + 0.02);
+      gainBloom.gain.setValueAtTime(0.001, t + 0.02);
+      gainBloom.gain.linearRampToValueAtTime(0.12, t + 0.035);
+      gainBloom.gain.exponentialRampToValueAtTime(0.0001, t + 0.32);
+      oscBloom.connect(gainBloom);
+      gainBloom.connect(this.ctx.destination);
+      oscBloom.start(t + 0.02);
+      oscBloom.stop(t + 0.34);
+    }
+  }
+
+  _synthWoodPop(t) {
+    this._playNoiseClick(t, 2600, 0.005, 0.16);
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(420, t);
+    osc.frequency.exponentialRampToValueAtTime(840, t + 0.035);
+    osc.frequency.exponentialRampToValueAtTime(540, t + 0.07);
+    gain.gain.setValueAtTime(0.2, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.075);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.08);
+  }
+
+  _synthWoodDrop(t) {
+    this._playNoiseClick(t, 1600, 0.008, 0.22);
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(160, t);
+    osc.frequency.exponentialRampToValueAtTime(42, t + 0.075);
+    gain.gain.setValueAtTime(0.26, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.09);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.095);
+  }
+
+  // === 2. MECHANICAL KEYBOARD (Thocky Switches ASMR) ===
+  _synthMechSlide(t) {
+    this._playNoiseClick(t, 3400, 0.004, 0.22);
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(360, t);
+    osc.frequency.exponentialRampToValueAtTime(140, t + 0.025);
+    gain.gain.setValueAtTime(0.25, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.03);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.032);
+  }
+
+  _synthMechMerge(t, value, combo) {
+    this._playNoiseClick(t, 3800, 0.003, 0.25);
+    this._playNoiseClick(t + 0.012, 2800, 0.005, 0.28);
+
+    const basePitch = 160 + Math.min(240, Math.log2(value) * 25 + combo * 15);
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sawtooth';
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(800, t);
+    filter.frequency.exponentialRampToValueAtTime(220, t + 0.08);
+
+    osc.frequency.setValueAtTime(basePitch, t);
+    osc.frequency.exponentialRampToValueAtTime(basePitch * 0.5, t + 0.07);
+
+    gain.gain.setValueAtTime(0.26, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.085);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.09);
+
+    const plate = this.ctx.createOscillator();
+    const plateGain = this.ctx.createGain();
+    plate.type = 'triangle';
+    plate.frequency.setValueAtTime(95, t + 0.01);
+    plateGain.gain.setValueAtTime(0.22, t + 0.01);
+    plateGain.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
+    plate.connect(plateGain);
+    plateGain.connect(this.ctx.destination);
+    plate.start(t + 0.01);
+    plate.stop(t + 0.065);
+  }
+
+  _synthMechPop(t) {
+    this._playNoiseClick(t, 4200, 0.003, 0.2);
+    this._playNoiseClick(t + 0.01, 3000, 0.004, 0.16);
+  }
+
+  // === 3. CRYSTAL & CELESTA (Glass Bell Chime) ===
+  _synthCrystalSlide(t) {
+    this._playNoiseClick(t, 4600, 0.005, 0.12);
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(1400, t);
+    osc.frequency.exponentialRampToValueAtTime(950, t + 0.05);
+    gain.gain.setValueAtTime(0.14, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.055);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.06);
+  }
+
+  _synthCrystalMerge(t, value, combo) {
+    const scale = [
+      523.25, 587.33, 659.25, 783.99, 880.00,
+      1046.50, 1174.66, 1318.51, 1567.98, 1760.00,
+      2093.00, 2349.32, 2637.02
+    ];
+    const power = Math.max(0, Math.round(Math.log2(value)) - 2);
+    const f0 = scale[Math.min(scale.length - 1, power + Math.min(5, combo))];
+
+    const osc1 = this.ctx.createOscillator();
+    const gain1 = this.ctx.createGain();
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(f0, t);
+    gain1.gain.setValueAtTime(0.2, t);
+    gain1.gain.exponentialRampToValueAtTime(0.0001, t + 0.35);
+    osc1.connect(gain1);
+    gain1.connect(this.ctx.destination);
+    osc1.start(t);
+    osc1.stop(t + 0.38);
+
+    const osc2 = this.ctx.createOscillator();
+    const gain2 = this.ctx.createGain();
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(f0 * 2.756, t);
+    gain2.gain.setValueAtTime(0.08, t);
+    gain2.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+    osc2.connect(gain2);
+    gain2.connect(this.ctx.destination);
+    osc2.start(t);
+    osc2.stop(t + 0.24);
+
+    const osc3 = this.ctx.createOscillator();
+    const gain3 = this.ctx.createGain();
+    osc3.type = 'sine';
+    osc3.frequency.setValueAtTime(f0 * 4.05, t);
+    gain3.gain.setValueAtTime(0.05, t);
+    gain3.gain.exponentialRampToValueAtTime(0.0001, t + 0.15);
+    osc3.connect(gain3);
+    gain3.connect(this.ctx.destination);
+    osc3.start(t);
+    osc3.stop(t + 0.17);
+  }
+
+  _synthCrystalPop(t) {
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(980, t);
+    osc.frequency.exponentialRampToValueAtTime(1860, t + 0.045);
+    gain.gain.setValueAtTime(0.18, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.07);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.075);
+  }
+
+  // === 4. CERAMIC MAHJONG & DOMINO (Solid Stone / Ivory) ===
+  _synthCeramicSlide(t) {
+    this._playNoiseClick(t, 1800, 0.007, 0.16);
+    const osc = this.ctx.createOscillator();
+    const filter = this.ctx.createBiquadFilter();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(460, t);
+    osc.frequency.exponentialRampToValueAtTime(240, t + 0.04);
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(680, t);
+    filter.Q.setValueAtTime(9.0, t);
+
+    gain.gain.setValueAtTime(0.25, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.045);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.05);
+  }
+
+  _synthCeramicMerge(t, value, combo) {
+    this._playNoiseClick(t, 3800, 0.006, 0.24);
+
+    const scale = [
+      330, 370, 415, 494, 554,
+      659, 740, 831, 988, 1109,
+      1318, 1480, 1661
+    ];
+    const power = Math.max(0, Math.round(Math.log2(value)) - 2);
+    const f0 = scale[Math.min(scale.length - 1, power + Math.min(5, combo))];
+
+    const osc = this.ctx.createOscillator();
+    const filter = this.ctx.createBiquadFilter();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(f0, t);
+
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(f0 * 1.25, t);
+    filter.Q.setValueAtTime(11, t);
+
+    gain.gain.setValueAtTime(0.28, t);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.2);
+
+    const knock = this.ctx.createOscillator();
+    const knockGain = this.ctx.createGain();
+    knock.type = 'sine';
+    knock.frequency.setValueAtTime(140, t);
+    knockGain.gain.setValueAtTime(0.24, t);
+    knockGain.gain.exponentialRampToValueAtTime(0.001, t + 0.045);
+    knock.connect(knockGain);
+    knockGain.connect(this.ctx.destination);
+    knock.start(t);
+    knock.stop(t + 0.05);
+  }
+
+  _synthCeramicPop(t) {
+    this._playNoiseClick(t, 3200, 0.004, 0.18);
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(580, t);
+    osc.frequency.exponentialRampToValueAtTime(880, t + 0.035);
+    gain.gain.setValueAtTime(0.2, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.055);
+  }
+
   playSlide() {
     this.triggerHaptic('slide');
     if (this.muted) return;
@@ -582,22 +963,17 @@ class SoundManager {
     if (!this.ctx) return;
 
     const t = this.ctx.currentTime;
-    // Warm tactile thud/pop on tile slide
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
+    const profile = this.sfxProfile || 'wood';
 
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(150, t);
-    osc.frequency.exponentialRampToValueAtTime(70, t + 0.07);
-
-    gain.gain.setValueAtTime(0.12, t);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
-
-    osc.connect(gain);
-    gain.connect(this.ctx.destination);
-
-    osc.start(t);
-    osc.stop(t + 0.08);
+    if (profile === 'mech') {
+      this._synthMechSlide(t);
+    } else if (profile === 'crystal') {
+      this._synthCrystalSlide(t);
+    } else if (profile === 'ceramic') {
+      this._synthCeramicSlide(t);
+    } else {
+      this._synthWoodSlide(t);
+    }
   }
 
   playLayerMove(direction = 'up') {
@@ -607,26 +983,34 @@ class SoundManager {
     if (!this.ctx) return;
 
     const t = this.ctx.currentTime;
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
+    const profile = this.sfxProfile || 'wood';
 
-    osc.type = 'triangle';
-    if (direction === 'up') {
-      osc.frequency.setValueAtTime(260, t);
-      osc.frequency.exponentialRampToValueAtTime(520, t + 0.14);
+    if (profile === 'mech') {
+      this._playNoiseClick(t, 3200, 0.005, 0.18);
+    } else if (profile === 'crystal') {
+      this._synthCrystalSlide(t);
+    } else if (profile === 'ceramic') {
+      this._synthCeramicSlide(t);
     } else {
-      osc.frequency.setValueAtTime(520, t);
-      osc.frequency.exponentialRampToValueAtTime(260, t + 0.14);
+      this._synthWoodSlide(t);
     }
 
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'triangle';
+    if (direction === 'up') {
+      osc.frequency.setValueAtTime(240, t);
+      osc.frequency.exponentialRampToValueAtTime(480, t + 0.11);
+    } else {
+      osc.frequency.setValueAtTime(480, t);
+      osc.frequency.exponentialRampToValueAtTime(240, t + 0.11);
+    }
     gain.gain.setValueAtTime(0.12, t);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.16);
-
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.13);
     osc.connect(gain);
     gain.connect(this.ctx.destination);
-
     osc.start(t);
-    osc.stop(t + 0.16);
+    osc.stop(t + 0.13);
   }
 
   playTileGrab() {
@@ -684,23 +1068,17 @@ class SoundManager {
     if (!this.ctx) return;
 
     const t = this.ctx.currentTime;
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
+    const profile = this.sfxProfile || 'wood';
 
-    osc.type = 'sine';
-    // Bubbly crystal pop: rapid upward chirp from 360Hz to 760Hz with fast decay
-    osc.frequency.setValueAtTime(360, t);
-    osc.frequency.exponentialRampToValueAtTime(780, t + 0.045);
-    osc.frequency.exponentialRampToValueAtTime(540, t + 0.09);
-
-    gain.gain.setValueAtTime(0.18, t);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.095);
-
-    osc.connect(gain);
-    gain.connect(this.ctx.destination);
-
-    osc.start(t);
-    osc.stop(t + 0.1);
+    if (profile === 'mech') {
+      this._synthMechPop(t);
+    } else if (profile === 'crystal') {
+      this._synthCrystalPop(t);
+    } else if (profile === 'ceramic') {
+      this._synthCeramicPop(t);
+    } else {
+      this._synthWoodPop(t);
+    }
   }
 
   playTileDrop() {
@@ -710,22 +1088,17 @@ class SoundManager {
     if (!this.ctx) return;
 
     const t = this.ctx.currentTime;
-    // Deep tactile physical brick thud
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
+    const profile = this.sfxProfile || 'wood';
 
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(145, t);
-    osc.frequency.exponentialRampToValueAtTime(38, t + 0.08);
-
-    gain.gain.setValueAtTime(0.22, t);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.095);
-
-    osc.connect(gain);
-    gain.connect(this.ctx.destination);
-
-    osc.start(t);
-    osc.stop(t + 0.095);
+    if (profile === 'mech') {
+      this._synthMechSlide(t);
+    } else if (profile === 'crystal') {
+      this._synthCrystalSlide(t);
+    } else if (profile === 'ceramic') {
+      this._synthCeramicSlide(t);
+    } else {
+      this._synthWoodDrop(t);
+    }
   }
 
   playMerge(value = 4, combo = 0) {
@@ -735,49 +1108,17 @@ class SoundManager {
     if (!this.ctx) return;
 
     const t = this.ctx.currentTime;
-    // Pentatonic / Major Scale (Đồ - Rê - Mi - Sol - La - Đố)
-    const scale = [
-      261.63, // C4 (Đồ)
-      293.66, // D4 (Rê)
-      329.63, // E4 (Mi)
-      392.00, // G4 (Sol)
-      440.00, // A4 (La)
-      523.25, // C5 (Đố)
-      587.33, // D5 (Rế)
-      659.25, // E5 (Mí)
-      783.99, // G5 (Sốl)
-      880.00, // A5 (Lá)
-      1046.50, // C6 (Đố cao)
-      1174.66, // D6
-      1318.51, // E6
-      1567.98  // G6
-    ];
+    const profile = this.sfxProfile || 'wood';
 
-    const power = Math.max(0, Math.round(Math.log2(value)) - 2); // 4 -> 0, 8 -> 1, 16 -> 2...
-    const noteIndex = Math.min(scale.length - 1, power + Math.min(6, combo));
-    const baseFreq = scale[noteIndex];
-
-    // Dual harmonic tone: triangle (warm fundamental) + sine (sweet 5th/octave overtone)
-    [
-      { type: 'triangle', freq: baseFreq, vol: 0.15, mult: 1.0 },
-      { type: 'sine', freq: baseFreq * 1.5, vol: 0.08, mult: 1.03 }
-    ].forEach((voice) => {
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-
-      osc.type = voice.type;
-      osc.frequency.setValueAtTime(voice.freq, t);
-      osc.frequency.exponentialRampToValueAtTime(voice.freq * voice.mult, t + 0.2);
-
-      gain.gain.setValueAtTime(voice.vol, t);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.26);
-
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-
-      osc.start(t);
-      osc.stop(t + 0.26);
-    });
+    if (profile === 'mech') {
+      this._synthMechMerge(t, value, combo);
+    } else if (profile === 'crystal') {
+      this._synthCrystalMerge(t, value, combo);
+    } else if (profile === 'ceramic') {
+      this._synthCeramicMerge(t, value, combo);
+    } else {
+      this._synthWoodMerge(t, value, combo);
+    }
   }
 
   playBombTick() {

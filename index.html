@@ -51,18 +51,18 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./src/style.css?v=6.8.53">
+  <link rel="stylesheet" href="./src/style.css?v=6.8.54">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=6.8.53').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=6.8.54').then(reg => {
           reg.update();
         }).catch(() => {});
       });
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         try {
-          if (!sessionStorage.getItem('sw_reloaded_6853')) {
-            sessionStorage.setItem('sw_reloaded_6853', '1');
+          if (!sessionStorage.getItem('sw_reloaded_6854')) {
+            sessionStorage.setItem('sw_reloaded_6854', '1');
             window.location.reload();
           }
         } catch {}
@@ -1120,6 +1120,17 @@
           </div>
         </div>
 
+        <!-- Gói Âm Thanh (SFX Sound Profile) -->
+        <div class="settings-row" id="row-sfx-profile">
+          <label class="settings-label" data-i18n="setting_sfx_profile">Gói Âm Thanh (SFX)</label>
+          <select id="select-sfx-profile" class="settings-select">
+            <option value="wood" selected data-i18n="sfx_wood">🪵 Gỗ Mộc Marimba (ASMR)</option>
+            <option value="mech" data-i18n="sfx_mech">⌨️ Phím Cơ Thocky (Mechanical)</option>
+            <option value="crystal" data-i18n="sfx_crystal">💎 Pha Lê & Celesta (Crystal Bell)</option>
+            <option value="ceramic" data-i18n="sfx_ceramic">🀄 Gốm Sứ Mạt Chược (Ceramic)</option>
+          </select>
+        </div>
+
         <!-- 8. Giai điệu Chill (BGM Track Selector) -->
         <div class="settings-row" id="row-bgm-track">
           <label class="settings-label" data-i18n="setting_bgm_track">Giai điệu Chill</label>
@@ -1238,6 +1249,6 @@
   </div>
 
   <!-- Main Game Script -->
-  <script type="module" src="./src/main.js?v=6.8.53"></script>
+  <script type="module" src="./src/main.js?v=6.8.54"></script>
 </body>
 </html>

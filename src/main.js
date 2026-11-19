@@ -623,6 +623,18 @@ class GameApp {
       });
     }
 
+    const sfxProfileSelect = document.getElementById('select-sfx-profile');
+    if (sfxProfileSelect) {
+      sfxProfileSelect.value = soundManager.sfxProfile || 'wood';
+      sfxProfileSelect.addEventListener('change', (e) => {
+        soundManager.setSFXProfile(e.target.value);
+        const profileName = sfxProfileSelect.options[sfxProfileSelect.selectedIndex].text;
+        this.showSpellToast(`🔊 ${t('setting_sfx_profile') || 'Gói âm thanh'}: ${profileName}`);
+        soundManager.playMerge(16, 1);
+        this.registerInteraction();
+      });
+    }
+
     const bgmTrackSelect = document.getElementById('select-bgm-track');
     if (bgmTrackSelect) {
       bgmTrackSelect.value = soundManager.currentBgmTrack.toString();
