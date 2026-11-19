@@ -1917,6 +1917,10 @@ class GameApp {
       });
     }
 
+    // Isolate camera snap bar and flyout from canvas pointer/touch gestures
+    bar.addEventListener('pointerdown', (e) => e.stopPropagation());
+    bar.addEventListener('touchstart', (e) => e.stopPropagation(), { passive: true });
+
     document.addEventListener('pointerdown', (e) => {
       if (bar.classList.contains('expanded') && !bar.contains(e.target)) {
         collapseMenu();
@@ -3502,7 +3506,7 @@ class GameApp {
       this.triggerSpellRecharge(result.milestoneAchieved);
     }
 
-    this.spawnTile();
+    const newlySpawnedTile = this.spawnTile();
 
     // Check game over right after the new tile has been placed on the grid
     const isGameOver = !this.gameLogic.hasValidMoves();
@@ -3549,7 +3553,7 @@ class GameApp {
               tile.group.position.set(targetPos.x, targetPos.y, targetPos.z);
             }
             tile.group.rotation.set(0, 0, 0);
-            if (tile.group.scale.x < 0.8 || tile.group.scale.y < 0.8 || tile.group.scale.z < 0.8) {
+            if (tile !== newlySpawnedTile && (tile.group.scale.x < 0.8 || tile.group.scale.y < 0.8 || tile.group.scale.z < 0.8)) {
               tile.group.scale.set(1, 1, 1);
             }
           }

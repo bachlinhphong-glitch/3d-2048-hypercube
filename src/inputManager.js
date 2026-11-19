@@ -150,7 +150,7 @@ export class InputManager {
     this.domElement.addEventListener('touchstart', (e) => {
       if (e.touches.length !== 1) return;
       if (this.isBlockedByUI()) return;
-      if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .spell-bar, .swap-action-hud, .swap-hud-card, .swap-hud-btn, #swap-action-hud, .destroy-action-hud, .destroy-hud-card, .destroy-hud-btn, #destroy-action-hud, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel, .dir-pad-container, .dpad-disc, .dpad-petal, .dpad-layer-btn, .dpad-btn, .cam-btn, .slice-btn, .banner-container, .inapp-challenge-card, .trophy-tab-btn, .custom-bg-input')) {
+      if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .spell-bar, .swap-action-hud, .swap-hud-card, .swap-hud-btn, #swap-action-hud, .destroy-action-hud, .destroy-hud-card, .destroy-hud-btn, #destroy-action-hud, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel, .dir-pad-container, .dpad-disc, .dpad-petal, .dpad-layer-btn, .dpad-btn, .cam-btn, .slice-btn, #camera-snap-bar, .camera-snap-bar, #cam-presets-flyout, .cam-presets-flyout, #btn-camera-menu-toggle, .camera-menu-toggle, .banner-container, .inapp-challenge-card, .trophy-tab-btn, .custom-bg-input')) {
         return;
       }
       const t = e.touches[0];
@@ -191,7 +191,7 @@ export class InputManager {
         }
 
         const now = performance.now();
-        if (direction && (!touchGestureTriggered || (direction !== lastSwipeDir && (now - lastSwipeTime) > 75))) {
+        if (direction && (!touchGestureTriggered || (direction !== lastSwipeDir && (now - lastSwipeTime) > 75) || ((now - lastSwipeTime) > 170))) {
           touchGestureTriggered = true;
           lastSwipeDir = direction;
           lastSwipeTime = now;
@@ -265,7 +265,7 @@ export class InputManager {
         return;
       }
       if (e.button !== 0 && e.pointerType === 'mouse') return;
-      if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .spell-bar, .swap-action-hud, .swap-hud-card, .swap-hud-btn, #swap-action-hud, .destroy-action-hud, .destroy-hud-card, .destroy-hud-btn, #destroy-action-hud, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel, .dir-pad-container, .dpad-disc, .dpad-petal, .dpad-layer-btn, .dpad-btn, .cam-btn, .slice-btn, .banner-container, .inapp-challenge-card, .trophy-tab-btn, .custom-bg-input')) {
+      if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .spell-bar, .swap-action-hud, .swap-hud-card, .swap-hud-btn, #swap-action-hud, .destroy-action-hud, .destroy-hud-card, .destroy-hud-btn, #destroy-action-hud, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel, .dir-pad-container, .dpad-disc, .dpad-petal, .dpad-layer-btn, .dpad-btn, .cam-btn, .slice-btn, #camera-snap-bar, .camera-snap-bar, #cam-presets-flyout, .cam-presets-flyout, #btn-camera-menu-toggle, .camera-menu-toggle, .banner-container, .inapp-challenge-card, .trophy-tab-btn, .custom-bg-input')) {
         return;
       }
 
@@ -301,7 +301,7 @@ export class InputManager {
         }
 
         const now = performance.now();
-        if (direction && (!pointerGestureTriggered || (direction !== lastPointerDir && (now - lastPointerTime) > 75))) {
+        if (direction && (!pointerGestureTriggered || (direction !== lastPointerDir && (now - lastPointerTime) > 75) || ((now - lastPointerTime) > 170))) {
           pointerGestureTriggered = true;
           lastPointerDir = direction;
           lastPointerTime = now;
@@ -323,7 +323,7 @@ export class InputManager {
       if (!this.enabled) return;
 
       // Do not process swipes if released on interactive control elements
-      if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .spell-bar, .swap-action-hud, .swap-hud-card, .swap-hud-btn, #swap-action-hud, .destroy-action-hud, .destroy-hud-card, .destroy-hud-btn, #destroy-action-hud, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel, .dir-pad-container, .dpad-disc, .dpad-petal, .dpad-layer-btn, .dpad-btn, .cam-btn, .slice-btn')) {
+      if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .spell-bar, .swap-action-hud, .swap-hud-card, .swap-hud-btn, #swap-action-hud, .destroy-action-hud, .destroy-hud-card, .destroy-hud-btn, #destroy-action-hud, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel, .dir-pad-container, .dpad-disc, .dpad-petal, .dpad-layer-btn, .dpad-btn, .cam-btn, .slice-btn, #camera-snap-bar, .camera-snap-bar, #cam-presets-flyout, .cam-presets-flyout, #btn-camera-menu-toggle, .camera-menu-toggle, .banner-container, .inapp-challenge-card, .trophy-tab-btn, .custom-bg-input')) {
         return;
       }
 
