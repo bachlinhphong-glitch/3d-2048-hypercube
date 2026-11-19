@@ -51,18 +51,18 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./src/style.css?v=6.8.57">
+  <link rel="stylesheet" href="./src/style.css?v=6.8.58">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=6.8.57').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=6.8.58').then(reg => {
           reg.update();
         }).catch(() => {});
       });
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         try {
-          if (!sessionStorage.getItem('sw_reloaded_6857')) {
-            sessionStorage.setItem('sw_reloaded_6857', '1');
+          if (!sessionStorage.getItem('sw_reloaded_6858')) {
+            sessionStorage.setItem('sw_reloaded_6858', '1');
             window.location.reload();
           }
         } catch {}
@@ -419,44 +419,6 @@
 
     <!-- Spell Toast Alert / Recharge Banner -->
     <div id="spell-toast" class="spell-toast"></div>
-
-    <!-- Camera Snap Bar (Modern Collapsible Flyout - Never blocks board swiping) -->
-    <div id="camera-snap-bar" class="camera-snap-bar collapsed">
-      <button class="cam-toggle-btn" id="btn-camera-menu-toggle" type="button" title="Góc nhìn Camera & Xoay 3D (Phím 1, 2, 3, R)" aria-label="Góc nhìn Camera" aria-expanded="false">
-        <svg class="cam-main-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-          <circle cx="12" cy="13" r="4"></circle>
-        </svg>
-        <span class="cam-active-badge" id="cam-active-preset-label">3D</span>
-      </button>
-      <div class="cam-presets-flyout" id="cam-presets-flyout">
-        <button class="cam-btn active" data-preset="1" title="Isometric (1) - Góc chéo">
-          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M8 2L14 5.5V10.5L8 14L2 10.5V5.5L8 2Z"/>
-          </svg>
-          <span class="cam-label">Iso</span>
-        </button>
-        <button class="cam-btn" data-preset="2" title="Top-Down (2) - Nhìn từ trên">
-          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-            <circle cx="8" cy="8" r="5"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/>
-          </svg>
-          <span class="cam-label">Top</span>
-        </button>
-        <button class="cam-btn" data-preset="3" title="Front View (3) - Nhìn chính diện">
-          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-            <rect x="2" y="4" width="12" height="8" rx="1"/>
-            <line x1="2" y1="8" x2="14" y2="8"/>
-          </svg>
-          <span class="cam-label">Front</span>
-        </button>
-        <button class="cam-btn" id="btn-toggle-orbit" data-preset="orbit" title="Xoay 360° tự động (Phím R)" data-i18n-title="hint_rotate_auto">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
-          </svg>
-          <span class="cam-label">360°</span>
-        </button>
-      </div>
-    </div>
 
     <!-- 🕹️ Arcade Directional Pad (Redesigned Unified Cross Disk) -->
     <div id="dir-pad" class="dir-pad-container" role="group" aria-label="Bộ điều hướng 2048">
@@ -1262,6 +1224,6 @@
   </div>
 
   <!-- Main Game Script -->
-  <script type="module" src="./src/main.js?v=6.8.57"></script>
+  <script type="module" src="./src/main.js?v=6.8.58"></script>
 </body>
 </html>
