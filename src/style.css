@@ -4162,113 +4162,92 @@ body.in-boss-mode #demo-theme-switcher {
     display: none !important;
   }
 
-  /* 2. Structured 2-Row Header Layout for Mobile */
+  /* 2. Streamlined Single-Row Compact Header for All Mobile & Tablet Screens */
   .header-bar {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-    padding: 6px 10px;
-    gap: 6px 8px;
-    width: calc(100% - 16px);
-    max-width: 480px;
-    margin: 4px auto 0;
-    border-radius: 14px;
-    box-sizing: border-box;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 4px 8px !important;
+    gap: 4px 6px !important;
+    width: calc(100% - 14px) !important;
+    max-width: 768px !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    max-height: 46px !important;
+    margin: 4px auto 0 !important;
+    border-radius: 13px !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
   }
 
-  /* ROW 1: Brand (Left), Score/Best (Center), Main Actions (Right) */
+  /* Cluster 1: Brand (Left) */
   .header-brand-cluster {
-    order: 1;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    flex-shrink: 0;
+    order: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    flex-shrink: 0 !important;
   }
 
   .game-title {
-    font-size: 20px;
-    font-weight: 900;
+    font-size: 18px !important;
+    font-weight: 900 !important;
+    letter-spacing: -0.4px !important;
+    line-height: 1 !important;
   }
 
+  /* Cluster 2: Score & Best (Center-Left) */
   .header-stats-cluster {
-    order: 2;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    flex-shrink: 0;
+    order: 2 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    flex-shrink: 0 !important;
   }
 
   .stat-pill {
-    min-width: 48px;
-    padding: 2px 7px;
-    border-radius: 9px;
+    min-width: 36px !important;
+    padding: 2px 5px !important;
+    border-radius: 8px !important;
+    gap: 1px !important;
   }
 
   .stat-label {
-    font-size: 8px;
-    letter-spacing: 0.3px;
+    font-size: 7px !important;
+    letter-spacing: 0.2px !important;
+    line-height: 1 !important;
   }
 
   .stat-value {
-    font-size: 13px;
-    font-weight: 800;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    line-height: 1.1 !important;
   }
 
-  .header-actions-cluster {
-    order: 3;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    flex-shrink: 0;
-  }
-
-  .header-actions-cluster .glass-btn {
-    padding: 5px 8px;
-    font-size: 11px;
-    height: 32px;
-    min-height: 32px;
-  }
-
-  .header-actions-cluster .icon-only-btn {
-    width: 32px;
-    height: 32px;
-    min-width: 32px;
-    min-height: 32px;
-    padding: 5px;
-  }
-
-  .header-actions-cluster .header-icon-svg {
-    width: 16px;
-    height: 16px;
-  }
-
-  /* ROW 2: Shapes & Game Modes Bar (Spans full width across mobile header) */
+  /* Cluster 3: Modes & Shapes (Center-Right) */
   .header-modes-cluster {
-    order: 4;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 5px;
-    padding-top: 5px;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-    margin-top: 2px;
-  }
-
-  body.theme-gentle_light .header-modes-cluster,
-  body.theme-zen_clay .header-modes-cluster {
-    border-top-color: rgba(187, 173, 160, 0.28);
+    order: 3 !important;
+    width: auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 3px !important;
+    padding-top: 0 !important;
+    border-top: none !important;
+    margin-top: 0 !important;
+    flex-shrink: 1 !important;
   }
 
   .shape-quick-wrapper {
-    flex: 1.3 1 0 !important;
-    min-width: 90px !important;
-    max-width: 120px !important;
+    flex: 0 0 auto !important;
+    min-width: 32px !important;
+    max-width: 82px !important;
     height: 30px !important;
-    position: relative;
-    display: flex;
-    align-items: center;
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
     padding: 0 4px !important;
   }
 
@@ -4279,13 +4258,13 @@ body.in-boss-mode #demo-theme-switcher {
   }
 
   .shape-trigger-btn {
-    font-size: 11px !important;
-    gap: 4px !important;
+    font-size: 10px !important;
+    gap: 3px !important;
     padding: 0 2px !important;
   }
 
   .shape-trigger-btn #shape-trigger-label {
-    font-size: 11px !important;
+    font-size: 10px !important;
     font-weight: 700 !important;
   }
 
@@ -4293,65 +4272,91 @@ body.in-boss-mode #demo-theme-switcher {
     width: 100%;
     max-width: 100%;
     height: 30px;
-    font-size: 10px;
+    font-size: 9.5px;
     font-weight: 700;
-    padding: 3px 15px 3px 22px;
-    background-position: right 5px center;
-    background-size: 9px 9px;
+    padding: 2px 14px 2px 20px;
+    background-position: right 4px center;
+    background-size: 8px 8px;
     text-overflow: ellipsis;
     letter-spacing: -0.2px;
-    line-height: normal;
   }
 
   .header-modes-cluster .glass-btn {
-    flex: 1 1 0 !important;
-    min-width: 54px !important;
+    flex: 0 0 auto !important;
+    width: 30px !important;
+    min-width: 30px !important;
+    max-width: 30px !important;
     height: 30px !important;
     min-height: 30px !important;
-    padding: 3px 6px !important;
-    font-size: 11px !important;
-    font-weight: 700 !important;
-    justify-content: center;
-    gap: 3px !important;
-    overflow: hidden;
+    padding: 0 !important;
+    justify-content: center !important;
+    border-radius: 8px !important;
+    gap: 0 !important;
   }
 
   .header-modes-cluster .header-btn-svg {
-    width: 14px;
-    height: 14px;
-    flex-shrink: 0;
+    width: 14px !important;
+    height: 14px !important;
+    flex-shrink: 0 !important;
   }
 
   .header-modes-cluster .btn-text {
-    display: inline-block;
-    font-size: 11px !important;
-    font-weight: 700 !important;
-    white-space: nowrap !important;
-    overflow: visible !important;
-    text-overflow: clip !important;
+    display: none !important; /* Hide text on touch screens so mode buttons stay strictly 1 row */
   }
 
-  /* Compact Quest Button: Trophy icon + badge on mobile screens (zero clipping) */
   .header-modes-cluster #btn-quests-toggle {
-    flex: 0 0 auto;
-    padding: 3px 7px;
-    gap: 4px;
-    min-width: 44px;
-  }
-
-  .header-modes-cluster #btn-quests-toggle .btn-text {
-    display: none !important; /* Hide 'Cúp' text on mobile so Trophy icon + 0/7 badge fit with zero clipping */
+    width: 38px !important;
+    min-width: 38px !important;
+    max-width: 38px !important;
+    position: relative !important;
+    padding: 0 2px !important;
+    gap: 2px !important;
   }
 
   .header-modes-cluster .quest-badge {
-    font-size: 9px;
-    font-weight: 800;
-    padding: 1px 5px;
-    margin-left: 1px;
-    flex-shrink: 0;
-    border-radius: 8px;
+    font-size: 8px !important;
+    font-weight: 800 !important;
+    padding: 1px 3px !important;
+    border-radius: 6px !important;
+    margin-left: 0 !important;
   }
 
+  /* Cluster 4: Actions (Right) */
+  .header-actions-cluster {
+    order: 4 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 3px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .header-actions-cluster .glass-btn {
+    width: 30px !important;
+    min-width: 30px !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    padding: 0 !important;
+    justify-content: center !important;
+    border-radius: 8px !important;
+  }
+
+  .header-actions-cluster #btn-new-game .btn-text {
+    display: none !important;
+  }
+
+  .header-actions-cluster .icon-only-btn {
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+    min-height: 30px !important;
+    padding: 0 !important;
+  }
+
+  .header-actions-cluster .header-btn-svg,
+  .header-actions-cluster .header-icon-svg {
+    width: 15px !important;
+    height: 15px !important;
+  }
 
   /* Summoner Spell Buttons for Thumbs */
   .spell-bar {
@@ -5264,7 +5269,9 @@ body.theme-zen_clay .bottom-bar .hint-compact-pill {
 }
 
 body.theme-gentle_light .cam-btn,
-body.theme-zen_clay .cam-btn {
+body.theme-gentle_light .cam-toggle-btn,
+body.theme-zen_clay .cam-btn,
+body.theme-zen_clay .cam-toggle-btn {
   background: rgba(255, 255, 255, 0.92);
   border: 1px solid rgba(187, 173, 160, 0.35);
   color: #776e65;
@@ -5429,7 +5436,9 @@ body.theme-modern_slate .bottom-bar .hint-compact-pill {
 }
 
 body.theme-gentle_dark .cam-btn,
-body.theme-modern_slate .cam-btn {
+body.theme-gentle_dark .cam-toggle-btn,
+body.theme-modern_slate .cam-btn,
+body.theme-modern_slate .cam-toggle-btn {
   background: rgba(36, 33, 29, 0.88);
   border: 1px solid rgba(255, 255, 255, 0.08);
   color: #a69b8f;
@@ -5645,53 +5654,137 @@ body.theme-zen_clay .rush-progress-track {
 }
 
 
-/* --- Camera Snap Bar (top-right fixed) --- */
+/* ==========================================================================
+   Modern Collapsible Floating Camera Widget (Never blocks board swiping)
+   ========================================================================== */
 .camera-snap-bar {
   position: fixed;
-  top: 80px;
-  right: 14px;
-  z-index: 30;
+  top: 56px;
+  right: 12px;
+  z-index: 45;
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: 6px;
-  pointer-events: auto;
+  pointer-events: auto !important;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.cam-btn {
-  width: 34px;
-  height: 34px;
+.cam-toggle-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--glass-bg, rgba(22, 27, 34, 0.88));
-  border: 1px solid var(--glass-border, rgba(255,255,255,0.12));
+  gap: 4px;
+  height: 32px;
+  min-width: 32px;
+  padding: 0 7px;
+  background: var(--glass-bg, rgba(16, 20, 32, 0.92));
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.14));
   border-radius: 10px;
   color: var(--text-main, #f0f6fc);
   cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  z-index: 2;
+}
+
+.cam-toggle-btn:hover {
+  background: rgba(58, 134, 255, 0.25);
+  border-color: rgba(58, 134, 255, 0.5);
+  box-shadow: 0 0 14px rgba(58, 134, 255, 0.35);
+  transform: scale(1.04);
+}
+
+.cam-toggle-btn:active {
+  transform: scale(0.94);
+}
+
+.cam-main-svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  stroke: var(--text-main, #fff);
+}
+
+.cam-active-badge {
+  font-size: 9.5px;
+  font-weight: 800;
+  color: var(--accent-blue, #3a86ff);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.cam-presets-flyout {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 5px;
+  background: rgba(14, 18, 28, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 11px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.55), 0 0 14px rgba(58, 134, 255, 0.2);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: all 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transform-origin: right center;
+}
+
+.camera-snap-bar.collapsed .cam-presets-flyout {
+  opacity: 0;
+  transform: scale(0.85) translateX(8px);
+  pointer-events: none !important;
+  display: none !important;
+}
+
+.camera-snap-bar.expanded .cam-presets-flyout {
+  opacity: 1;
+  transform: scale(1) translateX(0);
+  pointer-events: auto !important;
+  display: flex !important;
+}
+
+.cam-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  height: 28px;
+  padding: 0 7px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 7px;
+  color: var(--text-main, #f0f6fc);
+  cursor: pointer;
   transition: all 0.18s ease;
-  padding: 6px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.35);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
 }
 
 .cam-btn svg {
-  width: 100%;
-  height: 100%;
+  width: 13px;
+  height: 13px;
   display: block;
+}
+
+.cam-label {
+  font-size: 9px;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .cam-btn:hover {
   background: rgba(0, 240, 255, 0.18);
   border-color: rgba(0, 240, 255, 0.45);
-  transform: scale(1.08);
-  box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+  transform: scale(1.05);
 }
 
-.cam-btn:active {
-  transform: scale(0.95);
+.cam-btn.active {
+  background: rgba(58, 134, 255, 0.35);
+  border-color: var(--accent-blue, #3a86ff);
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(58, 134, 255, 0.4);
 }
-
 /* --- Slice Controls (bottom center, 3x3x3 only) --- */
 .slice-controls {
   position: fixed;
@@ -6001,7 +6094,7 @@ body.theme-zen_clay .rush-progress-track {
   }
   .camera-snap-bar {
     right: 8px;
-    top: 104px;
+    top: 52px !important;
   }
   .cam-btn {
     width: 30px;
@@ -6023,9 +6116,9 @@ body.theme-zen_clay .rush-progress-track {
    Placed at the end of stylesheet to ensure full cascade precedence.
    ========================================================================== */
 @media (max-width: 768px) {
-  /* Position camera preset buttons comfortably below the 2-row header */
+  /* Streamlined Floating Camera Pill: compact in corner, never blocks thumb swiping */
   .camera-snap-bar {
-    top: 112px !important;
+    top: 54px !important;
     right: 8px !important;
   }
 
@@ -6054,7 +6147,7 @@ body.theme-zen_clay .rush-progress-track {
   /* Time Rush HUD Panel on mobile: Positioned comfortably at the top, NEVER blocking the 3D board */
   .rush-panel {
     position: absolute !important;
-    top: 106px !important;
+    top: 54px !important;
     left: 10px !important;
     right: 48px !important;
     width: auto !important;
@@ -6087,10 +6180,10 @@ body.theme-zen_clay .rush-progress-track {
     font-size: 20px !important;
   }
 
-  /* Boss HUD on mobile: Centered below single-row header */
+  /* Boss HUD on mobile: Centered cleanly below compact 1-row header */
   .boss-hud {
     position: absolute !important;
-    top: 72px !important;
+    top: 54px !important;
     left: 50% !important;
     transform: translateX(-50%) !important;
     width: min(94%, 380px) !important;
@@ -6099,16 +6192,16 @@ body.theme-zen_clay .rush-progress-track {
     z-index: 25 !important;
   }
 
-  /* Bottom Summoner Spell Bar - Thumb friendly & safely anchored */
+  /* Bottom Summoner Spell Bar - Ultra-compact, ergonomic & maximum 3D board room */
   .spell-bar {
-    bottom: calc(max(16px, env(safe-area-inset-bottom, 16px)) + 12px) !important;
-    gap: 10px;
+    bottom: calc(max(10px, env(safe-area-inset-bottom, 10px)) + 6px) !important;
+    gap: 8px !important;
     z-index: 100 !important;
   }
 
   .spell-btn {
-    width: 64px !important;
-    height: 68px !important;
+    width: 52px !important;
+    height: 54px !important;
     border-radius: 14px;
     gap: 2px;
   }

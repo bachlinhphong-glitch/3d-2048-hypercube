@@ -1880,18 +1880,79 @@ class GameApp {
   setupCameraSnapBar() {
     const bar = document.getElementById('camera-snap-bar');
     if (!bar) return;
+
+    const toggleBtn = document.getElementById('btn-camera-menu-toggle');
+    const badgeLabel = document.getElementById('cam-active-preset-label');
+    let autoCollapseTimer = null;
+
+    const collapseMenu = () => {
+      bar.classList.add('collapsed');
+      bar.classList.remove('expanded');
+      if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'false');
+      if (autoCollapseTimer) {
+        clearTimeout(autoCollapseTimer);
+        autoCollapseTimer = null;
+      }
+    };
+
+    const expandMenu = () => {
+      bar.classList.remove('collapsed');
+      bar.classList.add('expanded');
+      if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'true');
+      if (autoCollapseTimer) clearTimeout(autoCollapseTimer);
+      autoCollapseTimer = setTimeout(() => {
+        collapseMenu();
+      }, 4000);
+    };
+
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (bar.classList.contains('expanded')) {
+          collapseMenu();
+        } else {
+          expandMenu();
+        }
+        this.registerInteraction();
+      });
+    }
+
+    document.addEventListener('pointerdown', (e) => {
+      if (bar.classList.contains('expanded') && !bar.contains(e.target)) {
+        collapseMenu();
+      }
+    });
+
+    const presetLabels = {
+      '1': 'Iso',
+      '2': 'Top',
+      '3': 'Front',
+      'orbit': '360°'
+    };
+
     bar.querySelectorAll('.cam-btn[data-preset]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        if (btn.dataset.preset === 'orbit') {
+        const presetKey = btn.dataset.preset;
+        if (presetKey === 'orbit') {
           const isRotating = this.sceneManager.toggleAutoRotate();
           btn.classList.toggle('active', isRotating);
+          if (badgeLabel) badgeLabel.textContent = isRotating ? '360°' : 'Iso';
         } else {
-          const preset = parseInt(btn.dataset.preset, 10);
+          const preset = parseInt(presetKey, 10);
           this.sceneManager.snapCamera(preset);
           document.getElementById('btn-toggle-orbit')?.classList.remove('active');
+          bar.querySelectorAll('.cam-btn[data-preset]').forEach(b => {
+            if (b.dataset.preset !== 'orbit') b.classList.toggle('active', b === btn);
+          });
+          if (badgeLabel && presetLabels[presetKey]) {
+            badgeLabel.textContent = presetLabels[presetKey];
+          }
         }
         this.registerInteraction();
+        setTimeout(() => {
+          collapseMenu();
+        }, 220);
       });
     });
   }
