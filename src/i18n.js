@@ -147,6 +147,7 @@ export const DICTIONARY = {
     spell_swap_title: 'Đổi chỗ 2 ô (X)',
     spell_destroy: 'Phá khối',
     spell_destroy_title: 'Phá hủy 1 khối trên bàn cờ (C)',
+    spell_cancel_mode: 'Hủy chọn',
 
     // Slice Controls (3x3x3)
     slice_all: 'Tất cả',
@@ -470,6 +471,7 @@ export const DICTIONARY = {
     spell_swap_title: 'Swap 2 tiles (X)',
     spell_destroy: 'Destroy',
     spell_destroy_title: 'Destroy 1 tile on board (C)',
+    spell_cancel_mode: 'Cancel',
 
     // Slice Controls (3x3x3)
     slice_all: 'All',
@@ -780,6 +782,7 @@ export const DICTIONARY = {
     spell_swap_title: '2つのタイルの位置を交換 (Xキー)',
     spell_destroy: '破壊',
     spell_destroy_title: 'タイルを1つ破壊 (Cキー)',
+    spell_cancel_mode: 'キャンセル',
 
     // Slice Controls (3x3x3)
     slice_all: 'すべて',
@@ -1089,6 +1092,7 @@ export const DICTIONARY = {
     spell_swap_title: '두 타일의 위치 교환 (X 키)',
     spell_destroy: '파괴',
     spell_destroy_title: '타일 1개 파괴 (C 키)',
+    spell_cancel_mode: '선택취소',
 
     // Slice Controls (3x3x3)
     slice_all: '모두',

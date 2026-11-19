@@ -849,7 +849,7 @@ export class Tile3D {
     this.buildGeometry();
   }
 
-  setSelected(isSelected) {
+  setSelected(isSelected, mode = 'swap') {
     this.isSelected = isSelected;
 
     // Clean up hover outline if currently present
@@ -872,20 +872,22 @@ export class Tile3D {
 
     if (isSelected) {
       const { size, height } = getTileDimensions();
-      const boxGeo = new THREE.BoxGeometry(size * 1.025, height * 1.025, size * 1.025);
+      const boxGeo = new THREE.BoxGeometry(size * 1.03, height * 1.03, size * 1.03);
       const edgesGeo = new THREE.EdgesGeometry(boxGeo);
       boxGeo.dispose();
+      const lineColor = (mode === 'destroy') ? 0xff2a55 : 0x00f0ff;
       const lineMat = new THREE.LineBasicMaterial({
-        color: 0x00f0ff,
+        color: lineColor,
         transparent: true,
-        opacity: 0.95
+        opacity: 0.98,
+        linewidth: 2
       });
       this.selectionOutline = new THREE.LineSegments(edgesGeo, lineMat);
       this.group.add(this.selectionOutline);
 
-      // Smoothly lift up by 0.3 units on Y-axis with subtle bounce
+      // Smoothly lift up by 0.32 units on Y-axis with subtle bounce
       gsap.to(this.group.position, {
-        y: basePos.y + 0.3,
+        y: basePos.y + 0.32,
         duration: 0.22,
         ease: 'back.out(1.8)'
       });

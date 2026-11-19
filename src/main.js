@@ -186,11 +186,12 @@ class GameApp {
     this.fpsHistory = new Array(40).fill(60);
     this.msHistory = new Array(40).fill(16);
 
-    // Summoner Spells State (Lùi lại, Gợi ý, Đổi chỗ)
+    // Summoner Spells State (Lùi lại, Gợi ý, Đổi chỗ, Phá khối)
     this.isSwapMode = false;
     this.swapSelectedTileA = null;
     this.swapSelectedTileB = null;
     this.isDestroyMode = false;
+    this.destroyTargetTile = null;
     this.hoveredTile = null;
     this.toastTimeout = null;
 
@@ -997,6 +998,10 @@ class GameApp {
     this.badgeSpellDestroy = document.getElementById('badge-spell-destroy');
     this.destroyActionHud = document.getElementById('destroy-action-hud');
     this.destroyHudText = document.getElementById('destroy-hud-text');
+    this.destroyHudPreview = document.getElementById('destroy-hud-preview');
+    this.destroyTileTargetTag = document.getElementById('destroy-tile-target-tag');
+    this.destroyHudActionsConfirm = document.getElementById('destroy-hud-actions-confirm');
+    this.btnDestroyHudConfirm = document.getElementById('btn-destroy-hud-confirm');
     this.btnDestroyHudCancel = document.getElementById('btn-destroy-hud-cancel');
 
     // Helper to reliably trigger spell taps without ghost double-clicks or touch cancellation
@@ -1062,6 +1067,13 @@ class GameApp {
     }
     if (this.btnSwapHudCancel) {
       bindSpellTap(this.btnSwapHudCancel, () => this.cancelSwapMode());
+    }
+    if (this.btnDestroyHudConfirm) {
+      bindSpellTap(this.btnDestroyHudConfirm, () => {
+        if (this.destroyTargetTile) {
+          this.confirmExecuteDestroy(this.destroyTargetTile);
+        }
+      });
     }
     if (this.btnDestroyHudCancel) {
       bindSpellTap(this.btnDestroyHudCancel, () => this.cancelDestroyMode());
@@ -2081,7 +2093,7 @@ class GameApp {
   }
 
   isTileSwapSelected(tile) {
-    return Boolean(tile && (tile === this.swapSelectedTileA || tile === this.swapSelectedTileB));
+    return Boolean(tile && (tile === this.swapSelectedTileA || tile === this.swapSelectedTileB || tile === this.destroyTargetTile));
   }
 
   initTileGrabControls() {
@@ -3735,20 +3747,20 @@ class GameApp {
           btn.classList.toggle('active-swap', this.isSwapMode);
           const nameSpan = btn.querySelector('.spell-name');
           if (nameSpan) {
-            nameSpan.textContent = this.isSwapMode ? 'Hủy' : (t('spell_swap') || 'Đổi chỗ');
+            nameSpan.textContent = this.isSwapMode ? (t('spell_cancel_mode') || 'Hủy chọn') : (t('spell_swap') || 'Đổi chỗ');
           }
           if (this.isSwapMode) {
-            btn.title = 'Bấm để hủy chế độ đổi chỗ';
+            btn.title = 'Bấm để hủy chọn chế độ đổi chỗ';
           }
         }
         if (type === 'destroy') {
           btn.classList.toggle('active-destroy', this.isDestroyMode);
           const nameSpan = btn.querySelector('.spell-name');
           if (nameSpan) {
-            nameSpan.textContent = this.isDestroyMode ? 'Hủy' : (t('spell_destroy') || 'Phá khối');
+            nameSpan.textContent = this.isDestroyMode ? (t('spell_cancel_mode') || 'Hủy chọn') : (t('spell_destroy') || 'Phá khối');
           }
           if (this.isDestroyMode) {
-            btn.title = 'Bấm để hủy chế độ phá khối';
+            btn.title = 'Bấm để hủy chọn chế độ phá khối';
           }
         }
 
@@ -4049,8 +4061,31 @@ class GameApp {
       if (!clickedTile && altX !== null && altY !== null) {
         clickedTile = this.findTileFromPoint(altX, altY);
       }
-      if (!clickedTile) return;
-      this.confirmExecuteDestroy(clickedTile);
+
+      if (!clickedTile) {
+        if (!this.destroyTargetTile) {
+          this.showDestroyHud('Hãy chạm trực tiếp vào một khối số trên bàn cờ...');
+        } else {
+          this.showDestroyHud(`Chạm lại ô [${this.destroyTargetTile.value}] hoặc bấm Xác nhận để phá hủy!`, this.destroyTargetTile.value);
+        }
+        return;
+      }
+
+      // If tapping the already targeted tile -> instant double-tap confirmation!
+      if (this.destroyTargetTile === clickedTile) {
+        this.confirmExecuteDestroy(clickedTile);
+        return;
+      }
+
+      // Target new tile
+      if (this.destroyTargetTile) {
+        this.destroyTargetTile.setSelected(false);
+      }
+      this.destroyTargetTile = clickedTile;
+      clickedTile.setSelected(true, 'destroy');
+      soundManager.playTilePop();
+
+      this.showDestroyHud(`Đã nhắm ô [${clickedTile.value}]. Chạm lại ô này hoặc bấm Xác nhận để phá hủy!`, clickedTile.value);
       return;
     }
 
@@ -4210,6 +4245,10 @@ class GameApp {
     if (this.sceneManager && this.sceneManager.controls) {
       this.sceneManager.controls.enabled = true;
     }
+    if (this.destroyTargetTile) {
+      this.destroyTargetTile.setSelected(false);
+      this.destroyTargetTile = null;
+    }
     if (this.hoveredTile) {
       this.hoveredTile.setHovered(false);
       this.hoveredTile = null;
@@ -4222,31 +4261,77 @@ class GameApp {
     }
   }
 
-  showDestroyHud(stepText) {
+  showDestroyHud(stepText, targetValue = null) {
     if (!this.destroyActionHud) return;
     this.destroyActionHud.style.display = 'flex';
     if (this.destroyHudText) {
       this.destroyHudText.textContent = stepText;
+    }
+    if (this.destroyHudPreview && this.destroyTileTargetTag) {
+      if (targetValue !== null) {
+        this.destroyHudPreview.style.display = 'flex';
+        this.destroyTileTargetTag.textContent = targetValue;
+        this.destroyTileTargetTag.className = `swap-tile-tag destroy-tile-tag selected tile-val-${targetValue}`;
+      } else {
+        this.destroyHudPreview.style.display = 'none';
+      }
+    }
+    if (this.destroyHudActionsConfirm) {
+      if (targetValue !== null) {
+        this.destroyHudActionsConfirm.style.display = 'flex';
+        const confirmText = document.getElementById('destroy-confirm-btn-text');
+        if (confirmText) {
+          confirmText.textContent = `XÁC NHẬN PHÁ HỦY KHỐI [${targetValue}]`;
+        }
+      } else {
+        this.destroyHudActionsConfirm.style.display = 'none';
+      }
     }
   }
 
   hideDestroyHud() {
     if (!this.destroyActionHud) return;
     this.destroyActionHud.style.display = 'none';
+    if (this.destroyHudPreview) {
+      this.destroyHudPreview.style.display = 'none';
+    }
+    if (this.destroyHudActionsConfirm) {
+      this.destroyHudActionsConfirm.style.display = 'none';
+    }
   }
 
   async confirmExecuteDestroy(tile) {
-    if (!this.isDestroyMode || !tile || this.isAnimating || this.gameLogic.gameOver) return;
+    if (!tile || this.isAnimating || this.gameLogic.gameOver) return;
     this.isAnimating = true;
 
-    const l = tile.layer;
-    const r = tile.row;
-    const c = tile.col;
+    // Resolve target coordinates with full self-healing
+    let targetL = tile.layer;
+    let targetR = tile.row;
+    let targetC = tile.col;
     const val = tile.value;
+
+    // Verify coordinates match logic grid, fallback scan if needed
+    if (!this.gameLogic.grid[targetL]?.[targetR]?.[targetC] || this.gameLogic.grid[targetL][targetR][targetC].value !== val) {
+      for (let l = 0; l < this.gameLogic.layers; l++) {
+        for (let r = 0; r < this.gameLogic.rows; r++) {
+          for (let c = 0; c < this.gameLogic.cols; c++) {
+            if (this.tiles3D[l] && this.tiles3D[l][r] && this.tiles3D[l][r][c] === tile) {
+              targetL = l; targetR = r; targetC = c;
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    if (this.destroyTargetTile) {
+      this.destroyTargetTile.setSelected(false);
+      this.destroyTargetTile = null;
+    }
 
     this.cancelDestroyMode(null);
 
-    const result = this.gameLogic.destroyTile({ l, r, c });
+    const result = this.gameLogic.destroyTile({ l: targetL, r: targetR, c: targetC });
     if (!result || !result.success) {
       this.isAnimating = false;
       this.updateSpellUI();
@@ -4259,7 +4344,7 @@ class GameApp {
       this.questManager.recordSpell('destroy');
     }
 
-    const pos = getGridPosition(l, r, c);
+    const pos = getGridPosition(targetL, targetR, targetC);
     if (this.particleSystem) {
       if (this.particleSystem.supernovaBurst) {
         this.particleSystem.supernovaBurst(pos.x, pos.y + 0.25, pos.z, val, this.sceneManager.camera);
@@ -4271,7 +4356,9 @@ class GameApp {
       }
     }
 
-    this.tiles3D[l][r][c] = null;
+    if (this.tiles3D[targetL] && this.tiles3D[targetL][targetR]) {
+      this.tiles3D[targetL][targetR][targetC] = null;
+    }
     tile.dispose();
 
     this.isAnimating = false;
