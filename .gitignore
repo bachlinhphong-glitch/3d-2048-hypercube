@@ -2,6 +2,7 @@
 .edge_temp_profile/
 __pycache__/
 *.pyc
+scratch/
 
 # Local screenshots & recordings
 screenshot*.png

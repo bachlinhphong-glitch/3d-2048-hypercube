@@ -189,8 +189,14 @@
         </button>
       </div>
 
-      <!-- Cluster 4 (Right): Primary Actions (New Game + Help + Settings) -->
+      <!-- Cluster 4 (Right): Primary Actions (Zen + New Game + Help + Settings) -->
       <div class="header-actions-cluster">
+        <button id="btn-zen-mode" class="glass-btn icon-only-btn" data-i18n-title="zen_mode_tooltip" title="Chế độ Tối giản (Zen Mode - F2)">
+          <svg class="header-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2C9 6 4 9 4 14a8 8 0 0 0 16 0c0-5-5-8-8-12z"></path>
+            <circle cx="12" cy="14" r="3"></circle>
+          </svg>
+        </button>
         <button id="btn-new-game" class="glass-btn primary" data-i18n-title="new_game_tooltip" title="Bắt đầu ván mới">
           <svg class="header-btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="1 4 1 10 7 10"></polyline>
@@ -996,6 +1002,16 @@
           </button>
         </div>
 
+        <!-- 2b. Tốc độ AI Bot -->
+        <div class="settings-row" id="row-ai-speed">
+          <label class="settings-label" data-i18n="setting_ai_speed">Tốc độ AI Bot</label>
+          <select id="select-ai-speed" class="settings-select">
+            <option value="420" data-i18n="ai_speed_slow">Chậm (420ms - Dễ học)</option>
+            <option value="220" selected data-i18n="ai_speed_normal">Chuẩn (220ms - Tự nhiên)</option>
+            <option value="90" data-i18n="ai_speed_fast">Siêu tốc (90ms - Cày điểm)</option>
+          </select>
+        </div>
+
         <!-- 3. Ngôn ngữ -->
         <div class="settings-row">
           <label class="settings-label" data-i18n="setting_lang">Ngôn ngữ</label>
@@ -1092,6 +1108,24 @@
               <svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
               <span id="label-bgm" data-i18n="btn_bgm">Nhạc nền</span>
             </button>
+          </div>
+        </div>
+
+        <!-- Âm lượng SFX -->
+        <div class="settings-row" id="row-sfx-volume">
+          <label class="settings-label" data-i18n="setting_sfx_volume">Âm lượng SFX</label>
+          <div class="slider-wrap">
+            <input type="range" id="slider-sfx-volume" min="0" max="100" value="80" class="settings-range-slider" />
+            <span id="label-sfx-vol-val" class="slider-val-badge">80%</span>
+          </div>
+        </div>
+
+        <!-- Âm lượng BGM -->
+        <div class="settings-row" id="row-bgm-volume">
+          <label class="settings-label" data-i18n="setting_bgm_volume">Âm lượng Nhạc nền</label>
+          <div class="slider-wrap">
+            <input type="range" id="slider-bgm-volume" min="0" max="100" value="50" class="settings-range-slider" />
+            <span id="label-bgm-vol-val" class="slider-val-badge">50%</span>
           </div>
         </div>
 

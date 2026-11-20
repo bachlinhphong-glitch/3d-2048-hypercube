@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import gsap from 'gsap';
-import { getGridPosition, getTileDimensions } from './board.js';
+import { getGridPosition, getTileDimensions, getBoardMode } from './board.js';
 import { textureManager } from './textureManager.js';
 import { soundManager } from './sound.js';
 
@@ -828,11 +828,39 @@ export class Tile3D {
   }
 
   addBillboardLabel(size) {
+    const is3D = getBoardMode() === '3x3x3';
     const spriteMat = textureManager.getBillboardMaterial(this.value, this.isBomb, this.bombCountdown);
-    this.labelSprite = new THREE.Sprite(spriteMat.clone());
-    this.labelSprite.scale.set(size * 0.9, size * 0.9, 1);
-    this.labelSprite.position.set(0, 0, 0);
-    this.labelSprite.renderOrder = 999;
+    const clonedMat = spriteMat.clone();
+
+    if (is3D) {
+      // In 3x3x3 mode: Enable depth testing so foreground tiles occlude background tiles.
+      clonedMat.depthTest = true;
+      clonedMat.depthWrite = false;
+      this.labelSprite = new THREE.Sprite(clonedMat);
+      this.labelSprite.scale.set(size * 0.85, size * 0.85, 1);
+      this.labelSprite.position.set(0, 0, 0);
+      this.labelSprite.renderOrder = 30 + (this.layer || 0) * 10;
+
+      // Ensure the tile innerMesh does not clip its own billboard label
+      if (this.innerMesh && this.innerMesh.material) {
+        const offsetMat = (m) => {
+          m.polygonOffset = true;
+          m.polygonOffsetFactor = 2;
+          m.polygonOffsetUnits = 2;
+        };
+        if (Array.isArray(this.innerMesh.material)) {
+          this.innerMesh.material.forEach(offsetMat);
+        } else {
+          offsetMat(this.innerMesh.material);
+        }
+      }
+    } else {
+      this.labelSprite = new THREE.Sprite(clonedMat);
+      this.labelSprite.scale.set(size * 0.9, size * 0.9, 1);
+      this.labelSprite.position.set(0, 0, 0);
+      this.labelSprite.renderOrder = 999;
+    }
+
     this.labelSprite.userData = { isTile3D: true, tileInstance: this };
     this.group.add(this.labelSprite);
   }

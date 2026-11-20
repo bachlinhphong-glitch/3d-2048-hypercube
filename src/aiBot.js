@@ -10,7 +10,11 @@ export class AIBot {
     this.gameApp = gameApp;
     this.isRunning = false;
     this.timer = null;
-    this.intervalMs = 280; // Smooth 280ms per move
+    this.intervalMs = 220; // Default 220ms per move
+    try {
+      const savedSpeed = parseInt(localStorage.getItem('3d2048_ai_speed') || '220', 10);
+      if ([420, 220, 90].includes(savedSpeed)) this.intervalMs = savedSpeed;
+    } catch {}
     this.onStatusChange = null;
 
     // Precompute 4x4 Snake Weight Matrices (4 Corners x 2 Orientations = 8 Patterns)
@@ -45,6 +49,16 @@ export class AIBot {
     if (this.onStatusChange) this.onStatusChange(false);
   }
 
+  setSpeed(ms) {
+    const val = parseInt(ms, 10);
+    if (!isNaN(val) && val > 0) {
+      this.intervalMs = val;
+      try {
+        localStorage.setItem('3d2048_ai_speed', val.toString());
+      } catch {}
+    }
+  }
+
   scheduleNextStep(delay = this.intervalMs) {
     if (!this.isRunning) return;
     if (this.timer) clearTimeout(this.timer);
@@ -62,7 +76,7 @@ export class AIBot {
 
     // Wait if the 3D scene is currently animating
     if (this.gameApp.isAnimating) {
-      this.scheduleNextStep(60);
+      this.scheduleNextStep(Math.min(30, Math.max(15, Math.floor(this.intervalMs / 3))));
       return;
     }
 

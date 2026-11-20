@@ -7896,3 +7896,122 @@ select option:checked,
     max-width: 100% !important;
   }
 }
+
+/* =========================================================================
+   🧘 ZEN UI MODE (Minimalist Clean 2048 Experience - F2)
+   ========================================================================= */
+#btn-zen-mode.active {
+  background: rgba(56, 189, 248, 0.22) !important;
+  border-color: rgba(56, 189, 248, 0.6) !important;
+  color: #38bdf8 !important;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.35) !important;
+}
+
+body.zen-ui-mode .header-modes-cluster,
+body.zen-ui-mode #spell-bar,
+body.zen-ui-mode #dir-pad,
+body.zen-ui-mode .bottom-bar,
+body.zen-ui-mode .inapp-challenge-card,
+body.zen-ui-mode #telemetry-hud,
+body.zen-ui-mode .quest-badge,
+body.zen-ui-mode .share-challenge-card {
+  display: none !important;
+}
+
+body.zen-ui-mode .game-header {
+  padding-bottom: 4px !important;
+  background: transparent !important;
+  border-bottom: none !important;
+}
+
+/* =========================================================================
+   🎚️ MODERN SETTINGS RANGE SLIDERS (SFX & BGM Volume)
+   ========================================================================= */
+.slider-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  max-width: 220px;
+  justify-content: flex-end;
+}
+
+.settings-range-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  outline: none;
+  transition: background 0.2s ease;
+  cursor: pointer;
+}
+
+.settings-range-slider:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.settings-range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #38bdf8;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.settings-range-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  background: #0284c7;
+}
+
+.settings-range-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #38bdf8;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+}
+
+.slider-val-badge {
+  font-family: var(--font-mono, monospace);
+  font-size: 12px;
+  font-weight: 700;
+  color: #38bdf8;
+  min-width: 38px;
+  text-align: right;
+  letter-spacing: 0.3px;
+}
+
+body.theme-gentle_light .settings-range-slider {
+  background: rgba(0, 0, 0, 0.12);
+}
+
+body.theme-gentle_light .slider-val-badge {
+  color: #0284c7;
+}
+
+@media (max-width: 600px) {
+  .slider-wrap {
+    max-width: 140px;
+    gap: 8px;
+  }
+  .settings-range-slider {
+    height: 5px;
+  }
+  .settings-range-slider::-webkit-slider-thumb {
+    width: 16px;
+    height: 16px;
+  }
+  .slider-val-badge {
+    font-size: 11px;
+    min-width: 32px;
+  }
+}

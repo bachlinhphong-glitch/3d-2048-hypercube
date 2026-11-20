@@ -392,6 +392,8 @@ class GameApp {
       });
     }
 
+    this.initZenMode();
+
     const resetCamBtn = document.getElementById('btn-reset-camera');
     if (resetCamBtn) {
       resetCamBtn.addEventListener('click', () => {
@@ -645,6 +647,48 @@ class GameApp {
         const trackName = t(trackKey) || track.name;
         this.showSpellToast(`🎵 ${t('setting_bgm_track') || 'Giai điệu'}: ${trackName}`);
         this.registerInteraction();
+      });
+    }
+
+    // SFX & BGM Smooth Volume Sliders
+    const sfxSlider = document.getElementById('slider-sfx-volume');
+    const sfxValLabel = document.getElementById('label-sfx-vol-val');
+    if (sfxSlider) {
+      const currentSfxVal = Math.round((soundManager.sfxVolume ?? 0.8) * 100);
+      sfxSlider.value = currentSfxVal;
+      if (sfxValLabel) sfxValLabel.textContent = `${currentSfxVal}%`;
+      sfxSlider.addEventListener('input', (e) => {
+        const val = parseInt(e.target.value, 10);
+        soundManager.setSFXVolume(val);
+        if (sfxValLabel) sfxValLabel.textContent = `${val}%`;
+      });
+      sfxSlider.addEventListener('change', () => {
+        soundManager.playSlide();
+      });
+    }
+
+    const bgmSlider = document.getElementById('slider-bgm-volume');
+    const bgmValLabel = document.getElementById('label-bgm-vol-val');
+    if (bgmSlider) {
+      const currentBgmVal = Math.round((soundManager.bgmVolume ?? 0.5) * 100);
+      bgmSlider.value = currentBgmVal;
+      if (bgmValLabel) bgmValLabel.textContent = `${currentBgmVal}%`;
+      bgmSlider.addEventListener('input', (e) => {
+        const val = parseInt(e.target.value, 10);
+        soundManager.setBGMVolume(val);
+        if (bgmValLabel) bgmValLabel.textContent = `${val}%`;
+      });
+    }
+
+    // AI Bot Speed Selector
+    const aiSpeedSelect = document.getElementById('select-ai-speed');
+    if (aiSpeedSelect) {
+      aiSpeedSelect.value = (this.aiBot && this.aiBot.intervalMs) ? this.aiBot.intervalMs.toString() : '220';
+      aiSpeedSelect.addEventListener('change', (e) => {
+        const speed = parseInt(e.target.value, 10);
+        if (this.aiBot) this.aiBot.setSpeed(speed);
+        const speedText = aiSpeedSelect.options[aiSpeedSelect.selectedIndex].text;
+        this.showSpellToast(`🤖 ${t('setting_ai_speed') || 'Tốc độ AI'}: ${speedText}`);
       });
     }
 
@@ -1143,6 +1187,19 @@ class GameApp {
       this.questManager.recordMode(newMode);
     }
 
+    if (newMode === '3x3x3') {
+      // Default to rounded_cube for crystal-clear readability across all 27 dice faces
+      if (this.currentShape === 'auto_evolution') {
+        this.switchTileShape('rounded_cube');
+        this._autoSwitchedToCube = true;
+      }
+    } else if (newMode === '4x4') {
+      if (this._autoSwitchedToCube) {
+        this.switchTileShape('auto_evolution');
+        this._autoSwitchedToCube = false;
+      }
+    }
+
     const sliceControls = document.getElementById('slice-controls');
     if (sliceControls) {
       sliceControls.style.display = newMode === '3x3x3' ? 'flex' : 'none';
@@ -1156,6 +1213,43 @@ class GameApp {
 
     if (this.sceneManager && this.sceneManager.requestShadowUpdate) this.sceneManager.requestShadowUpdate(30);
     this.startNewGame(true);
+  }
+
+  initZenMode() {
+    const zenBtn = document.getElementById('btn-zen-mode');
+    const isZenSaved = localStorage.getItem('3d2048_zen_mode') === 'true';
+    if (isZenSaved) {
+      document.body.classList.add('zen-ui-mode');
+      if (zenBtn) {
+        zenBtn.classList.add('active');
+        zenBtn.setAttribute('aria-pressed', 'true');
+      }
+    }
+
+    const toggleZen = () => {
+      const active = document.body.classList.toggle('zen-ui-mode');
+      localStorage.setItem('3d2048_zen_mode', active ? 'true' : 'false');
+      if (zenBtn) {
+        zenBtn.classList.toggle('active', active);
+        zenBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
+      }
+      this.showSpellToast(active ? t('zen_mode_on') : t('zen_mode_off'));
+      if (soundManager && soundManager.playClick) soundManager.playClick();
+    };
+
+    if (zenBtn) {
+      zenBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleZen();
+      });
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'F2') {
+        e.preventDefault();
+        toggleZen();
+      }
+    });
   }
 
   switchTileShape(newShape) {

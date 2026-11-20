@@ -99,6 +99,20 @@ class SoundManager {
     } catch {
       this.currentBgmTrack = 0;
     }
+    this.sfxVolume = 0.8;
+    this.bgmVolume = 0.5;
+    try {
+      const savedSfxVol = localStorage.getItem('3d2048_sfx_volume');
+      if (savedSfxVol !== null) {
+        const parsed = parseFloat(savedSfxVol);
+        if (!isNaN(parsed)) this.sfxVolume = Math.max(0, Math.min(1, parsed));
+      }
+      const savedBgmVol = localStorage.getItem('3d2048_bgm_volume');
+      if (savedBgmVol !== null) {
+        const parsed = parseFloat(savedBgmVol);
+        if (!isNaN(parsed)) this.bgmVolume = Math.max(0, Math.min(1, parsed));
+      }
+    } catch {}
   }
 
   init() {
@@ -124,7 +138,7 @@ class SoundManager {
         this.sfxFilter.Q.setValueAtTime(0.7, this.ctx.currentTime);
 
         this.sfxGain = this.ctx.createGain();
-        this.sfxGain.gain.setValueAtTime(0.88, this.ctx.currentTime);
+        this.sfxGain.gain.setValueAtTime(this.sfxVolume, this.ctx.currentTime);
 
         this.sfxGain.connect(this.sfxFilter);
         this.sfxFilter.connect(this.masterLimiter);
@@ -192,6 +206,43 @@ class SoundManager {
       this.stopBGM();
     }
     return this.muted;
+  }
+
+  setSFXVolume(percentOrFraction) {
+    let norm = typeof percentOrFraction === 'number' ? percentOrFraction : 0.8;
+    if (norm > 1) norm = norm / 100;
+    norm = Math.max(0, Math.min(1, norm));
+    this.sfxVolume = norm;
+    try {
+      localStorage.setItem('3d2048_sfx_volume', norm.toString());
+    } catch {}
+    if (this.sfxGain && this.ctx) {
+      try {
+        this.sfxGain.gain.setTargetAtTime(norm, this.ctx.currentTime, 0.03);
+      } catch {}
+    }
+  }
+
+  setBGMVolume(percentOrFraction) {
+    let norm = typeof percentOrFraction === 'number' ? percentOrFraction : 0.5;
+    if (norm > 1) norm = norm / 100;
+    norm = Math.max(0, Math.min(1, norm));
+    this.bgmVolume = norm;
+    try {
+      localStorage.setItem('3d2048_bgm_volume', norm.toString());
+    } catch {}
+    if (this.bgmMasterGain && this.ctx && this.bgmPlaying) {
+      try {
+        const targetGain = Math.max(0.0001, 0.08 * norm);
+        this.bgmMasterGain.gain.setTargetAtTime(targetGain, this.ctx.currentTime, 0.05);
+      } catch {}
+    }
+    if (this.bgmBassGain && this.ctx && this.bgmPlaying) {
+      try {
+        const targetBass = Math.max(0.0001, 0.12 * norm);
+        this.bgmBassGain.gain.setTargetAtTime(targetBass, this.ctx.currentTime, 0.05);
+      } catch {}
+    }
   }
 
   triggerHaptic(type = 'slide') {
@@ -374,10 +425,11 @@ class SoundManager {
     this.bgmPlaying = true;
     const track = this.getBGMTrack();
 
-    // 1. Master Output Gain with gentle fade-in
+    // 1. Master Output Gain with gentle fade-in (scaled by user bgmVolume)
+    const targetBgmGain = Math.max(0.0001, 0.08 * this.bgmVolume);
     this.bgmMasterGain = this.ctx.createGain();
-    this.bgmMasterGain.gain.setValueAtTime(0.001, this.ctx.currentTime);
-    this.bgmMasterGain.gain.exponentialRampToValueAtTime(0.05, this.ctx.currentTime + 1.8);
+    this.bgmMasterGain.gain.setValueAtTime(0.0001, this.ctx.currentTime);
+    this.bgmMasterGain.gain.exponentialRampToValueAtTime(targetBgmGain, this.ctx.currentTime + 1.8);
 
     // 2. Warm analog lowpass filter
     this.bgmFilter = this.ctx.createBiquadFilter();
@@ -399,10 +451,11 @@ class SoundManager {
     this.bgmMasterGain.connect(this.bgmFilter);
     this.bgmFilter.connect(this.ctx.destination);
 
-    // 4. Dedicated Sub-Bass Channel (Clean low-end isolation at 155Hz)
+    // 4. Dedicated Sub-Bass Channel (Clean low-end isolation at 155Hz, scaled by bgmVolume)
+    const targetBassGain = Math.max(0.0001, 0.12 * this.bgmVolume);
     this.bgmBassGain = this.ctx.createGain();
-    this.bgmBassGain.gain.setValueAtTime(0.001, this.ctx.currentTime);
-    this.bgmBassGain.gain.exponentialRampToValueAtTime(0.08, this.ctx.currentTime + 1.2);
+    this.bgmBassGain.gain.setValueAtTime(0.0001, this.ctx.currentTime);
+    this.bgmBassGain.gain.exponentialRampToValueAtTime(targetBassGain, this.ctx.currentTime + 1.2);
 
     this.bgmBassFilter = this.ctx.createBiquadFilter();
     this.bgmBassFilter.type = 'lowpass';
