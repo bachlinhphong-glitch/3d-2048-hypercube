@@ -1068,13 +1068,6 @@ class GameApp {
     if (this.btnSwapHudCancel) {
       bindSpellTap(this.btnSwapHudCancel, () => this.cancelSwapMode());
     }
-    if (this.btnDestroyHudConfirm) {
-      bindSpellTap(this.btnDestroyHudConfirm, () => {
-        if (this.destroyTargetTile) {
-          this.confirmExecuteDestroy(this.destroyTargetTile);
-        }
-      });
-    }
     if (this.btnDestroyHudCancel) {
       bindSpellTap(this.btnDestroyHudCancel, () => this.cancelDestroyMode());
     }
@@ -2044,7 +2037,7 @@ class GameApp {
 
     // 2D Screen-space Proximity Projection (Guarantees 100% mobile touch reliability)
     let closestTile = null;
-    let minDistance = 75; // 75px touch radius allowance for human fingers
+    let minDistance = 140; // 140px generous proximity allowance for touch and mouse clicks
     const worldPos = new THREE.Vector3();
 
     for (let l = 0; l < this.tiles3D.length; l++) {
@@ -4063,29 +4056,12 @@ class GameApp {
       }
 
       if (!clickedTile) {
-        if (!this.destroyTargetTile) {
-          this.showDestroyHud('Hãy chạm trực tiếp vào một khối số trên bàn cờ...');
-        } else {
-          this.showDestroyHud(`Chạm lại ô [${this.destroyTargetTile.value}] hoặc bấm Xác nhận để phá hủy!`, this.destroyTargetTile.value);
-        }
+        this.showSpellToast('Chạm vào 1 khối số trên bàn cờ để phá hủy!');
         return;
       }
 
-      // If tapping the already targeted tile -> instant double-tap confirmation!
-      if (this.destroyTargetTile === clickedTile) {
-        this.confirmExecuteDestroy(clickedTile);
-        return;
-      }
-
-      // Target new tile
-      if (this.destroyTargetTile) {
-        this.destroyTargetTile.setSelected(false);
-      }
-      this.destroyTargetTile = clickedTile;
-      clickedTile.setSelected(true, 'destroy');
-      soundManager.playTilePop();
-
-      this.showDestroyHud(`Đã nhắm ô [${clickedTile.value}]. Chạm lại ô này hoặc bấm Xác nhận để phá hủy!`, clickedTile.value);
+      // INSTANT 1-TAP OBLITERATION — ZERO LAG, ZERO DELAY!
+      this.confirmExecuteDestroy(clickedTile);
       return;
     }
 
@@ -4261,110 +4237,87 @@ class GameApp {
     }
   }
 
-  showDestroyHud(stepText, targetValue = null) {
+  showDestroyHud(stepText = 'Chạm vào một khối số bất kỳ trên bàn cờ để loại bỏ ngay!') {
     if (!this.destroyActionHud) return;
     this.destroyActionHud.style.display = 'flex';
     if (this.destroyHudText) {
       this.destroyHudText.textContent = stepText;
-    }
-    if (this.destroyHudPreview && this.destroyTileTargetTag) {
-      if (targetValue !== null) {
-        this.destroyHudPreview.style.display = 'flex';
-        this.destroyTileTargetTag.textContent = targetValue;
-        this.destroyTileTargetTag.className = `swap-tile-tag destroy-tile-tag selected tile-val-${targetValue}`;
-      } else {
-        this.destroyHudPreview.style.display = 'none';
-      }
-    }
-    if (this.destroyHudActionsConfirm) {
-      if (targetValue !== null) {
-        this.destroyHudActionsConfirm.style.display = 'flex';
-        const confirmText = document.getElementById('destroy-confirm-btn-text');
-        if (confirmText) {
-          confirmText.textContent = `XÁC NHẬN PHÁ HỦY KHỐI [${targetValue}]`;
-        }
-      } else {
-        this.destroyHudActionsConfirm.style.display = 'none';
-      }
     }
   }
 
   hideDestroyHud() {
     if (!this.destroyActionHud) return;
     this.destroyActionHud.style.display = 'none';
-    if (this.destroyHudPreview) {
-      this.destroyHudPreview.style.display = 'none';
-    }
-    if (this.destroyHudActionsConfirm) {
-      this.destroyHudActionsConfirm.style.display = 'none';
-    }
   }
 
   async confirmExecuteDestroy(tile) {
     if (!tile || this.isAnimating || this.gameLogic.gameOver) return;
     this.isAnimating = true;
 
-    // Resolve target coordinates with full self-healing
-    let targetL = tile.layer;
-    let targetR = tile.row;
-    let targetC = tile.col;
-    const val = tile.value;
+    try {
+      // 1. Resolve target coordinates with full self-healing
+      let targetL = tile.layer;
+      let targetR = tile.row;
+      let targetC = tile.col;
+      const val = tile.value;
 
-    // Verify coordinates match logic grid, fallback scan if needed
-    if (!this.gameLogic.grid[targetL]?.[targetR]?.[targetC] || this.gameLogic.grid[targetL][targetR][targetC].value !== val) {
-      for (let l = 0; l < this.gameLogic.layers; l++) {
-        for (let r = 0; r < this.gameLogic.rows; r++) {
-          for (let c = 0; c < this.gameLogic.cols; c++) {
-            if (this.tiles3D[l] && this.tiles3D[l][r] && this.tiles3D[l][r][c] === tile) {
-              targetL = l; targetR = r; targetC = c;
-              break;
+      // Verify coordinates match logic grid, fallback scan if needed
+      if (!this.gameLogic.grid[targetL]?.[targetR]?.[targetC] || this.gameLogic.grid[targetL][targetR][targetC].value !== val) {
+        for (let l = 0; l < this.gameLogic.layers; l++) {
+          for (let r = 0; r < this.gameLogic.rows; r++) {
+            for (let c = 0; c < this.gameLogic.cols; c++) {
+              if (this.tiles3D[l] && this.tiles3D[l][r] && this.tiles3D[l][r][c] === tile) {
+                targetL = l; targetR = r; targetC = c;
+                break;
+              }
             }
           }
         }
       }
-    }
 
-    if (this.destroyTargetTile) {
-      this.destroyTargetTile.setSelected(false);
-      this.destroyTargetTile = null;
-    }
+      if (this.destroyTargetTile) {
+        this.destroyTargetTile.setSelected(false);
+        this.destroyTargetTile = null;
+      }
 
-    this.cancelDestroyMode(null);
+      // Immediately cancel destroy mode so cursor and controls are restored without 1ms of lag
+      this.cancelDestroyMode(null);
 
-    const result = this.gameLogic.destroyTile({ l: targetL, r: targetR, c: targetC });
-    if (!result || !result.success) {
+      const result = this.gameLogic.destroyTile({ l: targetL, r: targetR, c: targetC });
+      if (!result || !result.success) {
+        this.showSpellToast('Không thể phá hủy ô này!');
+        return;
+      }
+
+      // Punchy, ultra-fast 160ms audio & telemetry
+      soundManager.playBombExplode();
+      if (this.questManager) {
+        this.questManager.recordSpell('destroy');
+      }
+
+      // Instant particle burst & micro camera impulse (no conflicting screen-shake)
+      const pos = getGridPosition(targetL, targetR, targetC);
+      if (this.particleSystem && this.particleSystem.burst) {
+        this.particleSystem.burst(pos.x, pos.y + 0.2, pos.z, 0xff2a55);
+      }
+      if (this.sceneManager && this.sceneManager.impulseCamera) {
+        this.sceneManager.impulseCamera('merge', 0.8);
+      }
+
+      // Free 3D grid slot immediately so board is fully ready for next swipe
+      if (this.tiles3D[targetL] && this.tiles3D[targetL][targetR]) {
+        this.tiles3D[targetL][targetR][targetC] = null;
+      }
+      tile.dispose();
+
+      this.showSpellToast(`💣 ĐÃ PHÁ HỦY KHỐI [${val}]!`);
+      this.saveGameState();
+    } catch (err) {
+      console.error('Destroy error:', err);
+    } finally {
       this.isAnimating = false;
       this.updateSpellUI();
-      this.showSpellToast('Không thể phá hủy ô này!');
-      return;
     }
-
-    soundManager.playBombExplode();
-    if (this.questManager) {
-      this.questManager.recordSpell('destroy');
-    }
-
-    const pos = getGridPosition(targetL, targetR, targetC);
-    if (this.particleSystem) {
-      if (this.particleSystem.supernovaBurst) {
-        this.particleSystem.supernovaBurst(pos.x, pos.y + 0.25, pos.z, val, this.sceneManager.camera);
-      } else if (this.particleSystem.burst) {
-        this.particleSystem.burst(pos.x, pos.y, pos.z, val);
-      }
-      if (this.particleSystem.screenShake) {
-        this.particleSystem.screenShake(this.sceneManager.camera, 0.4);
-      }
-    }
-
-    if (this.tiles3D[targetL] && this.tiles3D[targetL][targetR]) {
-      this.tiles3D[targetL][targetR][targetC] = null;
-    }
-    tile.dispose();
-
-    this.isAnimating = false;
-    this.updateSpellUI();
-    this.showSpellToast(`💣 ĐÃ PHÁ HỦY KHỐI [${val}] THÀNH CÔNG!`);
-    this.saveGameState();
   }
 
   updateTelemetryAndStats() {

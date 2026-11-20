@@ -215,7 +215,7 @@ class SoundManager {
         } else if (type === 'win') {
           navigator.vibrate([50, 40, 80, 40, 140]);
         } else if (type === 'bomb') {
-          navigator.vibrate([80, 30, 100]);
+          navigator.vibrate([22, 18, 30]);
         }
       } catch {}
     }
@@ -1214,18 +1214,19 @@ class SoundManager {
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
 
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(140, t);
-    osc.frequency.exponentialRampToValueAtTime(35, t + 0.4);
+    // Cinematic punchy 808 sub-boom (warm sine wave, quick punchy decay, no harsh buzzing)
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(115, t);
+    osc.frequency.exponentialRampToValueAtTime(32, t + 0.14);
 
-    gain.gain.setValueAtTime(0.25, t);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
+    gain.gain.setValueAtTime(0.32, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.16);
 
     osc.connect(gain);
     gain.connect(this.ctx.destination);
 
     osc.start(t);
-    osc.stop(t + 0.45);
+    osc.stop(t + 0.16);
   }
 
   playTimeBonus() {

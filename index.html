@@ -51,11 +51,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./src/style.css?v=6.8.59">
+  <link rel="stylesheet" href="./src/style.css?v=6.8.60">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=6.8.59').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=6.8.60').then(reg => {
           reg.update();
         }).catch(() => {});
       });
@@ -401,7 +401,7 @@
       </div>
     </div>
 
-    <!-- Destroy Mode Floating Action HUD (Sleek Apple Glassmorphism Guided Workflow) -->
+    <!-- Destroy Mode Floating Action HUD (Instant 1-Tap Obliteration) -->
     <div id="destroy-action-hud" class="swap-action-hud destroy-action-hud" style="display: none;">
       <div class="swap-hud-card destroy-hud-card">
         <div class="swap-hud-header">
@@ -409,21 +409,10 @@
             <span class="swap-hud-badge destroy-badge">PHÉP BỔ TRỢ</span>
             <span class="swap-hud-title">💣 PHÁ HỦY KHỐI SỐ</span>
           </div>
-          <button id="btn-destroy-hud-cancel" class="swap-hud-btn cancel-btn destroy-hud-btn" type="button" title="Hủy chọn (Esc)">✕ Hủy</button>
+          <button id="btn-destroy-hud-cancel" class="swap-hud-btn cancel-btn destroy-hud-btn" type="button" title="Hủy chọn (Esc)">✕ Thoát</button>
         </div>
         <div class="swap-hud-body">
-          <div id="destroy-hud-text" class="swap-hud-text">Chạm vào một khối số trên bàn cờ để chọn mục tiêu...</div>
-          <div id="destroy-hud-preview" class="swap-hud-preview" style="display: none;">
-            <div id="destroy-tile-target-tag" class="swap-tile-tag destroy-tile-tag selected">--</div>
-            <span class="destroy-target-arrow">💣</span>
-            <span class="destroy-target-label">MỤC TIÊU PHÁ HỦY</span>
-          </div>
-        </div>
-        <div id="destroy-hud-actions-confirm" class="swap-hud-actions-confirm" style="display: none;">
-          <button id="btn-destroy-hud-confirm" class="swap-hud-btn confirm-btn destroy-confirm-btn destroy-hud-btn" type="button">
-            <span class="confirm-icon">💣</span>
-            <span id="destroy-confirm-btn-text">XÁC NHẬN PHÁ HỦY KHỐI</span>
-          </button>
+          <div id="destroy-hud-text" class="swap-hud-text">Chạm vào một khối số bất kỳ trên bàn cờ để loại bỏ ngay!</div>
         </div>
       </div>
     </div>
@@ -1235,6 +1224,6 @@
   </div>
 
   <!-- Main Game Script -->
-  <script type="module" src="./src/main.js?v=6.8.59"></script>
+  <script type="module" src="./src/main.js?v=6.8.60"></script>
 </body>
 </html>
