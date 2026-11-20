@@ -205,6 +205,7 @@ export class BossManager {
 
   update(delta, time) {
     if (!this.isActive) return;
+    if (this.gameApp && this.gameApp.isRescueMode) return; // Pause Boss timer in Rescue Mode!
     if (this.gameApp && this.gameApp.isAnyModalOpen && this.gameApp.isAnyModalOpen()) {
       return; // Auto-pause boss countdown while any dialog/modal is open
     }

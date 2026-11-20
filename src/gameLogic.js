@@ -580,6 +580,13 @@ export class Game2048Logic {
     return true;
   }
 
+  hasRescueSpell() {
+    const canUndo = this.canUndo();
+    const canSwap = this.canSwap();
+    const canDestroy = this.canDestroy();
+    return canUndo || canSwap || canDestroy;
+  }
+
   canUndo() {
     return this.canUseSpell('undo') && this.history.length > 0;
   }

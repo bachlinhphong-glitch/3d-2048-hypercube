@@ -1875,6 +1875,26 @@ unlockAudio() {
     });
   }
 
+  playWarningChime() {
+    if (this.muted) return;
+    this.ensureContext();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+    [440, 587.33].forEach((f, idx) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(f, t + idx * 0.12);
+      gain.gain.setValueAtTime(0.18, t + idx * 0.12);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + idx * 0.12 + 0.45);
+      osc.connect(gain);
+      gain.connect(this.compressor || this.ctx.destination);
+      osc.start(t + idx * 0.12);
+      osc.stop(t + idx * 0.12 + 0.5);
+    });
+  }
+
   // Grand Majestic Victory Fanfare (Web Audio API Sub-bass, Brass Ascending Chords & Crystal Bells)
   playBossDefeatedFanfare() {
     this.triggerHaptic('win');

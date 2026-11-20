@@ -165,6 +165,7 @@ class GameApp {
     this.soundManager = soundManager;
 
     this.isBossRaid = false;
+    this.isRescueMode = false;
     this.trophyMascot = null;
     this.bossTrophyMascot = null;
     this.isAnimating = false;
@@ -456,6 +457,16 @@ class GameApp {
         closeSettings();
       }
     });
+
+    // Rescue Mode (Second Wind) Give Up Button
+    const rescueGiveupBtn = document.getElementById('btn-rescue-giveup');
+    if (rescueGiveupBtn) {
+      rescueGiveupBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.registerInteraction();
+        this.giveUpFromRescueMode();
+      });
+    }
 
     // Easter Egg: Tap logo '2048' 5 times within 2.5s for Dev Signature & Confetti
     const gameTitleLogo = document.querySelector('.game-title');
@@ -2526,7 +2537,11 @@ class GameApp {
 
       if (!this.gameLogic.hasValidMoves()) {
         setTimeout(() => {
-          this.triggerGameOverModal();
+          if (this.hasRescueSpell()) {
+            this.enterRescueMode();
+          } else {
+            this.triggerGameOverModal();
+          }
         }, 300);
       }
       return true;
@@ -2975,6 +2990,7 @@ class GameApp {
     if (this.heldTile) this.onTileGrabCancel();
     if (this.aiBot) this.aiBot.stop();
     this.hideModal();
+    this.exitRescueMode(false);
     this.cancelSwapMode();
     this.cancelDestroyMode();
     this.isAnimating = false;
@@ -3437,14 +3453,22 @@ class GameApp {
     }
 
     if (this.gameLogic.gameOver || !this.gameLogic.hasValidMoves()) {
-      this.triggerGameOverModal();
+      if (this.hasRescueSpell()) {
+        this.enterRescueMode();
+      } else {
+        this.triggerGameOverModal();
+      }
       return;
     }
 
     const result = this.gameLogic.move(direction);
     if (!result.moved) {
       if (!this.gameLogic.hasValidMoves()) {
-        this.triggerGameOverModal();
+        if (this.hasRescueSpell()) {
+          this.enterRescueMode();
+        } else {
+          this.triggerGameOverModal();
+        }
       }
       return;
     }
@@ -3836,8 +3860,16 @@ class GameApp {
     }
 
     if (isGameOver) {
+      if (this.hasRescueSpell()) {
+        this.gameLogic.gameOver = false;
+        this.enterRescueMode();
+        this.saveGameState();
+        return;
+      }
       this.triggerGameOverModal();
       return;
+    } else if (this.isRescueMode) {
+      this.exitRescueMode(true);
     }
 
     this.saveGameState();
@@ -3890,7 +3922,121 @@ class GameApp {
     }
   }
 
+  hasRescueSpell() {
+    if (!this.gameLogic) return false;
+    return this.gameLogic.hasRescueSpell();
+  }
+
+  enterRescueMode() {
+    if (this.isRescueMode || this.gameLogic.gameOver) return;
+    this.isRescueMode = true;
+    this.gameLogic.gameOver = false;
+
+    // Show Rescue Alert Banner
+    this.showRescueBanner();
+
+    // Pulse usable rescue spell buttons
+    this.updateRescueSpellPulses();
+
+    // Audio chime warning
+    if (soundManager && soundManager.playWarningChime) {
+      soundManager.playWarningChime();
+    }
+    if (soundManager && soundManager.triggerHaptic) {
+      soundManager.triggerHaptic('bomb');
+    }
+  }
+
+  exitRescueMode(success = true) {
+    if (!this.isRescueMode) return;
+    this.isRescueMode = false;
+
+    // Hide Rescue Alert Banner
+    this.hideRescueBanner();
+
+    // Remove pulse animations
+    this.clearRescueSpellPulses();
+
+    if (success) {
+      const toastMsg = typeof t === 'function' ? (t('rescue_success_toast') || '✨ Cứu nguy thành công! Bàn cờ đã có lại nước đi.') : '✨ Cứu nguy thành công! Bàn cờ đã có lại nước đi.';
+      this.showSpellToast(toastMsg, true);
+      if (soundManager && soundManager.playSpellRecharge) {
+        soundManager.playSpellRecharge();
+      }
+      if (soundManager && soundManager.triggerHaptic) {
+        soundManager.triggerHaptic('win');
+      }
+    }
+  }
+
+  evaluateRescueState() {
+    if (!this.isRescueMode) return;
+    if (this.gameLogic.hasValidMoves()) {
+      this.exitRescueMode(true);
+    } else {
+      if (this.hasRescueSpell()) {
+        this.updateRescueSpellPulses();
+        const toastMsg = typeof t === 'function' ? (t('rescue_still_stuck_toast') || 'Bàn cờ vẫn kẹt! Hãy dùng thêm phép để mở đường.') : 'Bàn cờ vẫn kẹt! Hãy dùng thêm phép để mở đường.';
+        this.showSpellToast(toastMsg, true);
+      } else {
+        this.exitRescueMode(false);
+        this.triggerGameOverModal();
+      }
+    }
+  }
+
+  showRescueBanner() {
+    let banner = document.getElementById('rescue-mode-banner');
+    if (!banner) return;
+    banner.style.display = 'block';
+    void banner.offsetWidth;
+    banner.classList.add('active');
+  }
+
+  hideRescueBanner() {
+    let banner = document.getElementById('rescue-mode-banner');
+    if (!banner) return;
+    banner.classList.remove('active');
+    setTimeout(() => {
+      if (!this.isRescueMode) {
+        banner.style.display = 'none';
+      }
+    }, 280);
+  }
+
+  updateRescueSpellPulses() {
+    if (!this.isRescueMode) {
+      this.clearRescueSpellPulses();
+      return;
+    }
+    const undoBtn = document.getElementById('btn-spell-undo');
+    const swapBtn = document.getElementById('btn-spell-swap');
+    const destroyBtn = document.getElementById('btn-spell-destroy');
+
+    if (undoBtn) undoBtn.classList.toggle('spell-rescue-pulse', this.gameLogic.canUndo());
+    if (swapBtn) swapBtn.classList.toggle('spell-rescue-pulse', this.gameLogic.canSwap());
+    if (destroyBtn) destroyBtn.classList.toggle('spell-rescue-pulse', this.gameLogic.canDestroy());
+  }
+
+  clearRescueSpellPulses() {
+    const undoBtn = document.getElementById('btn-spell-undo');
+    const swapBtn = document.getElementById('btn-spell-swap');
+    const destroyBtn = document.getElementById('btn-spell-destroy');
+    if (undoBtn) undoBtn.classList.remove('spell-rescue-pulse');
+    if (swapBtn) swapBtn.classList.remove('spell-rescue-pulse');
+    if (destroyBtn) destroyBtn.classList.remove('spell-rescue-pulse');
+  }
+
+  giveUpFromRescueMode() {
+    if (!this.isRescueMode) return;
+    this.exitRescueMode(false);
+    this.triggerGameOverModal();
+  }
+
   triggerGameOverModal(customMessage) {
+    if (this.isRescueMode) {
+      this.exitRescueMode(false);
+    }
     this.gameLogic.gameOver = true;
     this.isAnimating = false; // UNFREEZE IMMEDIATELY
     if (this.aiBot) this.aiBot.stop();
@@ -4054,6 +4200,10 @@ class GameApp {
         }
       }
     });
+
+    if (this.isRescueMode) {
+      this.updateRescueSpellPulses();
+    }
   }
 
   showSpellToast(text, isRecharge = false) {
@@ -4210,6 +4360,9 @@ class GameApp {
       this.updateSpellUI();
       this.showSpellToast('ĐÃ HOÀN TÁC NƯỚC ĐI VỪA RỒI!');
       this.saveGameState();
+      if (this.isRescueMode) {
+        this.evaluateRescueState();
+      }
     }
   }
 
@@ -4454,6 +4607,9 @@ class GameApp {
     this.updateSpellUI();
     this.showSpellToast(`ĐÃ ĐỔI VỊ TRÍ [${tileA.value}] ⇄ [${tileB.value}] THÀNH CÔNG!`);
     this.saveGameState();
+    if (this.isRescueMode) {
+      this.evaluateRescueState();
+    }
   }
 
   handleSpellDestroy() {
@@ -4587,6 +4743,9 @@ class GameApp {
 
       this.showSpellToast(`💣 ĐÃ PHÁ HỦY KHỐI [${val}]!`);
       this.saveGameState();
+      if (this.isRescueMode) {
+        this.evaluateRescueState();
+      }
     } catch (err) {
       console.error('Destroy error:', err);
     } finally {
@@ -4743,7 +4902,7 @@ class GameApp {
     }
 
     // 3. Update Rush Mode internal countdown (pure math - zero DOM writes in rAF)
-    if (this.isRushMode && !this.gameLogic.gameOver && !this.isAnimating && !this.isAnyModalOpen()) {
+    if (this.isRushMode && !this.gameLogic.gameOver && !this.isAnimating && !this.isRescueMode && !this.isAnyModalOpen()) {
       this.rushTime -= delta;
       if (this.rushTime <= 0) {
         // ⚡ Emergency Spell-to-Time Bonus (Cơ chế cứu nguy bằng phép bổ trợ)

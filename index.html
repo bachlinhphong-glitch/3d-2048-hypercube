@@ -51,18 +51,18 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./src/style.css?v=6.8.67">
+  <link rel="stylesheet" href="./src/style.css?v=6.8.68">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=6.8.67').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=6.8.68').then(reg => {
           reg.update();
         }).catch(() => {});
       });
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         try {
-          if (!sessionStorage.getItem('sw_reloaded_6867')) {
-            sessionStorage.setItem('sw_reloaded_6867', '1');
+          if (!sessionStorage.getItem('sw_reloaded_6868')) {
+            sessionStorage.setItem('sw_reloaded_6868', '1');
             window.location.reload();
           }
         } catch {}
@@ -265,6 +265,15 @@
         <div class="swipe-hand-icon">👆</div>
       </div>
       <div class="swipe-hand-text" data-i18n="swipe_prompt">Vuốt ngón tay để trượt khối!</div>
+    </div>
+
+    <!-- Rescue Mode / Last Chance Second Wind Floating Banner -->
+    <div id="rescue-mode-banner" class="rescue-mode-banner" style="display: none;">
+      <div class="rescue-banner-inner">
+        <div class="rescue-banner-icon">⚠️</div>
+        <div class="rescue-banner-text" data-i18n="rescue_banner_msg">Hết nước đi! Dùng phép để cứu bàn cờ</div>
+        <button id="btn-rescue-giveup" class="rescue-giveup-btn" data-i18n="rescue_btn_giveup">Bỏ cuộc</button>
+      </div>
     </div>
 
     <!-- Golden Cinematic Screen Flash -->
