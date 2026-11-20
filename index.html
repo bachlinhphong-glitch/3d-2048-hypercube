@@ -51,11 +51,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./src/style.css?v=6.8.68">
+  <link rel="stylesheet" href="./src/style.css?v=6.8.69">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=6.8.68').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=6.8.69').then(reg => {
           reg.update();
         }).catch(() => {});
       });
@@ -286,7 +286,10 @@
           <span class="rush-badge-mode" data-i18n="rush_mode_title">⚡ Đua Giờ</span>
           <span class="rush-badge-bomb" data-i18n="rush_bomb_active">💣 Bom Hẹn Giờ</span>
         </div>
-        <div class="rush-timer" id="rush-timer-val">30.0s</div>
+        <div class="rush-timer-cluster">
+          <span id="rush-heat-badge" class="rush-heat-badge">x1.0</span>
+          <div class="rush-timer" id="rush-timer-val">25.0s</div>
+        </div>
       </div>
       <div class="rush-progress-track">
         <div id="rush-progress-bar" class="rush-progress-bar"></div>
@@ -1325,6 +1328,6 @@
   </div>
 
   <!-- Main Game Script -->
-  <script type="module" src="./src/main.js?v=6.8.60"></script>
+  <script type="module" src="./src/main.js?v=6.8.69"></script>
 </body>
 </html>

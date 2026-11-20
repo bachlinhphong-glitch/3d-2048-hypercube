@@ -9177,3 +9177,56 @@ body.reduce-motion *::after {
     font-size: 11px;
   }
 }
+
+
+/* Rush Timer Cluster & Heat Level Badge */
+.rush-timer-cluster {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rush-heat-badge {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: rgba(251, 191, 36, 0.2);
+  border: 1px solid rgba(251, 191, 36, 0.5);
+  color: #fbbf24;
+  font-family: SFMono-Regular, Consolas, monospace;
+  transition: all 0.25s ease;
+}
+
+.rush-heat-badge.heat-lvl-2 {
+  background: rgba(245, 158, 11, 0.25);
+  border-color: #f59e0b;
+  color: #fde047;
+}
+
+.rush-heat-badge.heat-lvl-3 {
+  background: rgba(249, 115, 22, 0.28);
+  border-color: #f97316;
+  color: #fed7aa;
+}
+
+.rush-heat-badge.heat-lvl-4 {
+  background: rgba(239, 68, 68, 0.3);
+  border-color: #ef4444;
+  color: #fca5a5;
+  animation: heatPulse 1s infinite alternate;
+}
+
+.rush-heat-badge.heat-lvl-5,
+.rush-heat-badge.heat-lvl-6 {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.4), rgba(168, 85, 247, 0.4));
+  border-color: #f43f5e;
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(244, 63, 94, 0.6);
+  animation: heatPulse 0.7s infinite alternate;
+}
+
+@keyframes heatPulse {
+  0% { transform: scale(1); filter: brightness(1); }
+  100% { transform: scale(1.08); filter: brightness(1.25); }
+}

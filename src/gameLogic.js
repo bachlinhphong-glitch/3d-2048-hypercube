@@ -253,7 +253,8 @@ export class Game2048Logic {
     const value = Math.random() < 0.9 ? 2 : 4;
 
     let isBomb = false;
-    if (this.isRushMode && this.moveCount > 0 && this.moveCount % 6 === 0) {
+    const bombInterval = (this.rushLevel && this.rushLevel >= 3) ? 4 : 5;
+    if (this.isRushMode && this.moveCount > 0 && this.moveCount % bombInterval === 0) {
       isBomb = true;
     }
 
@@ -263,7 +264,7 @@ export class Game2048Logic {
       c: cell.c,
       value,
       isBomb,
-      bombCountdown: isBomb ? 5 : 0
+      bombCountdown: isBomb ? ((this.rushLevel && this.rushLevel >= 4) ? 4 : 5) : 0
     };
   }
 
@@ -539,6 +540,18 @@ export class Game2048Logic {
     const swapLeft = Math.max(0, this.maxSpellUses - (this.spells.swap ? this.spells.swap.used : 0));
     const destroyLeft = Math.max(0, this.maxSpellUses - (this.spells.destroy ? this.spells.destroy.used : 0));
     return hintLeft + undoLeft + swapLeft + destroyLeft;
+  }
+
+  consumeOneSpellForBonus() {
+    if (!this.spells) return false;
+    const order = ['hint', 'swap', 'undo', 'destroy'];
+    for (const k of order) {
+      if (this.spells[k] && this.spells[k].used < this.maxSpellUses) {
+        this.spells[k].used++;
+        return true;
+      }
+    }
+    return false;
   }
 
   consumeAllSpellsForBonus() {

@@ -174,10 +174,13 @@ class GameApp {
     // 3D tiles grid: tiles3D[layer][row][col]
     this.tiles3D = this.createEmptyTileGrid();
 
-    // Rush Mode State
+    // Rush Mode State (Rebalanced v6.8.69)
     this.isRushMode = false;
-    this.rushTime = 30.0;
-    this.maxRushTime = 45.0;
+    this.rushTime = 25.0;
+    this.maxRushTime = 30.0;
+    this.rushElapsed = 0.0;
+    this.rushLevel = 1;
+    this.rushEmergencyCount = 0;
 
     // Telemetry & Stats State
     this.frameCount = 0;
@@ -1486,7 +1489,12 @@ class GameApp {
       this.rushPanel.style.display = this.isRushMode ? 'flex' : 'none';
     }
 
-    this.rushTime = 30.0;
+    this.rushTime = 25.0;
+    this.rushElapsed = 0.0;
+    this.rushLevel = 1;
+    this.rushEmergencyCount = 0;
+    if (this.gameLogic) this.gameLogic.rushLevel = 1;
+    this.updateRushHeatBadge();
   }
 
   toggleBossRaid(forceState = null) {
@@ -2445,6 +2453,9 @@ class GameApp {
       }
       const state = this.gameLogic.serializeState();
       state.rushTime = this.rushTime;
+      state.rushElapsed = this.rushElapsed || 0;
+      state.rushLevel = this.rushLevel || 1;
+      state.rushEmergencyCount = this.rushEmergencyCount || 0;
       state.moveCount = this.moveCount;
       state.elapsedSeconds = Math.round((Date.now() - this.matchStartTime) / 1000);
       state.maxTileValue = this.maxTileValue;
@@ -2490,7 +2501,12 @@ class GameApp {
       this.particleSystem.clear();
 
       this.gameLogic.deserializeState(data);
-      this.rushTime = data.rushTime || 30.0;
+      this.rushTime = typeof data.rushTime === 'number' ? data.rushTime : 25.0;
+      this.rushElapsed = data.rushElapsed || 0;
+      this.rushLevel = data.rushLevel || 1;
+      this.rushEmergencyCount = data.rushEmergencyCount || 0;
+      if (this.gameLogic) this.gameLogic.rushLevel = this.rushLevel;
+      this.updateRushHeatBadge();
       this.moveCount = data.moveCount || 0;
       this.elapsedSeconds = data.elapsedSeconds || 0;
       this.matchStartTime = Date.now() - (this.elapsedSeconds * 1000);
@@ -3019,7 +3035,12 @@ class GameApp {
     this.particleSystem.clear();
     this.gameLogic.reset();
     this.gameLogic.gameOver = false;
-    this.rushTime = 30.0;
+    this.rushTime = 25.0;
+    this.rushElapsed = 0.0;
+    this.rushLevel = 1;
+    this.rushEmergencyCount = 0;
+    if (this.gameLogic) this.gameLogic.rushLevel = 1;
+    this.updateRushHeatBadge();
     this.updateScoreUI();
     this.updateSpellUI();
 
@@ -3071,6 +3092,14 @@ class GameApp {
       this.rushFloatingContainer.appendChild(floatEl);
       setTimeout(() => floatEl.remove(), 900);
     }
+  }
+
+  updateRushHeatBadge() {
+    const badge = document.getElementById('rush-heat-badge');
+    if (!badge) return;
+    const rate = 1.0 + ((this.rushLevel || 1) - 1) * 0.25;
+    badge.textContent = `x${rate.toFixed(2)}`;
+    badge.className = `rush-heat-badge heat-lvl-${this.rushLevel || 1}`;
   }
 
   // --- In-App Browser & Visual Juice Architecture (v6.6.0) ---
@@ -3766,23 +3795,30 @@ class GameApp {
       this.updateTrophyMascot();
     }
 
-    // Rush mode time additions for merges
+    // Rush mode time additions for merges (Rebalanced v6.8.69: +0.25s / +0.75s / +1.5s)
     if (this.isRushMode && maxMergedVal > 0) {
-      if (maxMergedVal <= 8) this.addRushTime(0.8);
-      else if (maxMergedVal <= 64) this.addRushTime(2.0);
-      else this.addRushTime(4.0);
+      if (maxMergedVal <= 8) this.addRushTime(0.25);
+      else if (maxMergedVal <= 64) this.addRushTime(0.75);
+      else this.addRushTime(1.5);
     }
 
-    // Process Bomb Events in Rush Mode
+    // Process Bomb Events in Rush Mode (Defuse: +2.0s, Explode: -8.0s)
     if (this.isRushMode) {
       if (result.defusedBombs > 0) {
         soundManager.playBombDefused();
-        this.addRushTime(3.0 * result.defusedBombs);
+        const bonus = 2.0 * result.defusedBombs;
+        this.addRushTime(bonus);
+        const msg = (t('rush_bomb_defused_toast') || '🛡️ GỠ BOM: +{time}s!').replace('{time}', bonus.toFixed(1));
+        this.showSpellToast(msg);
       }
       if (result.explodedBombs && result.explodedBombs.length > 0) {
         soundManager.playBombExplode();
-        this.rushTime = Math.max(0, this.rushTime - 5.0 * result.explodedBombs.length);
-        this.particleSystem.screenShake(this.sceneManager.camera, 0.45);
+        const penalty = 8.0 * result.explodedBombs.length;
+        this.rushTime = Math.max(0, this.rushTime - penalty);
+        this.particleSystem.screenShake(this.sceneManager.camera, 0.75);
+        if (soundManager.triggerHaptic) soundManager.triggerHaptic('bomb');
+        const msg = (t('rush_bomb_detonated_toast') || '💥 BOM NỔ: -{time}s!').replace('{time}', penalty.toFixed(1));
+        this.showSpellToast(msg, true);
       }
 
       // Update remaining bombs visually
@@ -4901,26 +4937,39 @@ class GameApp {
       return;
     }
 
-    // 3. Update Rush Mode internal countdown (pure math - zero DOM writes in rAF)
-    if (this.isRushMode && !this.gameLogic.gameOver && !this.isAnimating && !this.isRescueMode && !this.isAnyModalOpen()) {
-      this.rushTime -= delta;
+    // 3. Update Rush Mode internal countdown (continuous drain & heat escalation v6.8.69)
+    if (this.isRushMode && !this.gameLogic.gameOver && !this.isRescueMode && !this.isAnyModalOpen()) {
+      this.rushElapsed = (this.rushElapsed || 0) + delta;
+      const calculatedLevel = Math.min(6, Math.floor(this.rushElapsed / 25.0) + 1);
+      if (calculatedLevel !== this.rushLevel) {
+        this.rushLevel = calculatedLevel;
+        if (this.gameLogic) this.gameLogic.rushLevel = this.rushLevel;
+        const rate = (1.0 + (this.rushLevel - 1) * 0.25).toFixed(2);
+        soundManager.playMilestoneCelebration();
+        this.showSpellToast(`🔥 RUSH HEAT UP: CẤP ${this.rushLevel} (x${rate} TỐC ĐỘ)!`, true);
+        this.updateRushHeatBadge();
+      }
+
+      const timeDrainRate = 1.0 + ((this.rushLevel || 1) - 1) * 0.25;
+      this.rushTime -= delta * timeDrainRate;
+
       if (this.rushTime <= 0) {
-        // ⚡ Emergency Spell-to-Time Bonus (Cơ chế cứu nguy bằng phép bổ trợ)
+        // ⚡ Emergency Protocol: 1 spell = +6.0s (maximum 2 saves per run)
         const remainingSpells = this.gameLogic.getRemainingSpellCount();
-        if (remainingSpells > 0) {
-          const bonusSeconds = remainingSpells * 15;
-          this.rushTime += bonusSeconds;
-          this.gameLogic.consumeAllSpellsForBonus();
+        if ((this.rushEmergencyCount || 0) < 2 && remainingSpells > 0) {
+          this.rushEmergencyCount = (this.rushEmergencyCount || 0) + 1;
+          this.gameLogic.consumeOneSpellForBonus();
+          this.rushTime = 6.0;
           this.updateSpellUI();
 
           soundManager.playSpellRecharge();
-          this.showSpellToast(`⚡ GIAO THỨC KHẨN CẤP: Quy đổi ${remainingSpells} mô-đun thành +${bonusSeconds}s sinh tồn!`, true);
+          this.showSpellToast(`⚡ GIAO THỨC KHẨN CẤP (${this.rushEmergencyCount}/2): +6.0s sinh tồn!`, true);
         } else {
           this.rushTime = 0;
           this.gameLogic.gameOver = true;
           if (this.aiBot) this.aiBot.stop();
           this.clearSavedGameState();
-          this.isAnimating = false; // UNFREEZE
+          this.isAnimating = false;
           soundManager.playGameOver();
           this.showModal({
             title: t('modal_gameover_title') || 'THẤT BẠI (GAME OVER)',

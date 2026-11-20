@@ -243,7 +243,7 @@ export const DICTIONARY = {
     mode_confirm_boss_title: 'ĐẤU TRÙM (BOSS RAID)',
     mode_confirm_boss_subtitle: 'Hạ gục Lõi Năng Lượng qua 4 Phase',
     mode_confirm_rush_title: 'ĐUA GIỜ (TIME RUSH)',
-    mode_confirm_rush_subtitle: 'Chạy đua sinh tồn với đồng hồ đếm ngược 30 giây',
+    mode_confirm_rush_subtitle: 'Chạy đua sinh tồn 25s — Áp lực và tốc độ trôi giờ tăng dần',
     mode_warning_title: 'CẢNH BÁO TIẾN TRÌNH:',
     mode_warning_desc: 'Bắt đầu chế độ này sẽ làm mới toàn bộ bàn cờ và xóa ván chơi dở hiện tại để bắt đầu tính điểm thử thách mới!',
     mode_tutorial_badge_first: '🔥 LẦN ĐẦU: ĐỌC KỸ LUẬT CHƠI!',
@@ -262,13 +262,15 @@ export const DICTIONARY = {
     rule_boss_bonus_title: 'Cứu nguy:',
     rule_boss_bonus_desc: 'Mỗi kỹ năng chưa dùng sẽ tự đổi thành +15s khi chạm mốc 0s.',
 
-    // Rush Rules Details
-    rule_rush_goal_title: 'Mục tiêu:',
-    rule_rush_goal_desc: 'Đạt điểm kỷ lục cao nhất trong 30 giây.',
-    rule_rush_time_title: 'Cộng dồn giờ:',
-    rule_rush_time_desc: 'Mỗi lần gộp khối thành công sẽ cộng thêm vài giây quý giá.',
-    rule_rush_bonus_title: 'Cứu nguy:',
-    rule_rush_bonus_desc: 'Kỹ năng còn lại sẽ tự đổi thành +15s sinh tồn khi hết giờ.',
+    // Rush Rules Details (Rebalanced v6.8.69)
+    rule_rush_goal_title: 'Mục tiêu & Áp lực:',
+    rule_rush_goal_desc: 'Khởi đầu 25s (trần 30s). Cứ mỗi 25s sống sót, tốc độ đếm giờ tăng dần từ 1.0x lên tới 2.25x!',
+    rule_rush_time_title: 'Cộng dồn & Bom phạt:',
+    rule_rush_time_desc: 'Gộp khối cộng +0.25s / +0.75s / +1.5s; gỡ bom thưởng +2.0s nhưng để bom nổ bị phạt -8.0s!',
+    rule_rush_bonus_title: 'Giao thức khẩn cấp:',
+    rule_rush_bonus_desc: 'Khi cạn giờ, tự động đổi 1 lượt phép thành +6s khẩn cấp (tối đa 2 lần).',
+    rush_bomb_defused_toast: '🛡️ GỠ BOM: +{time}s!',
+    rush_bomb_detonated_toast: '💥 BOM NỔ: -{time}s!',
 
     // Boss Victory & Achievements
     boss_victory_heading: 'CHIẾN THẮNG HUYỀN THOẠI!',
@@ -605,7 +607,7 @@ export const DICTIONARY = {
     mode_confirm_boss_title: 'BOSS RAID CHALLENGE',
     mode_confirm_boss_subtitle: 'Defeat the Dark Singularity Core across 4 intense phases',
     mode_confirm_rush_title: 'TIME RUSH CHALLENGE',
-    mode_confirm_rush_subtitle: 'Race against the survival countdown clock',
+    mode_confirm_rush_subtitle: '25s survival race — timer drain escalates over time',
     mode_warning_title: 'PROGRESS WARNING:',
     mode_warning_desc: 'Starting this mode will reset the board and erase your unfinished game to begin fresh challenge scoring!',
     mode_tutorial_badge_first: '🔥 FIRST TIME: READ RULES CAREFULLY!',
@@ -624,13 +626,15 @@ export const DICTIONARY = {
     rule_boss_bonus_title: 'Emergency Spell Bonus:',
     rule_boss_bonus_desc: 'If the timer hits 0s while Boss has HP, each remaining spell (Hint, Undo, Swap) automatically converts into +15s bonus battle time!',
 
-    // Rush Rules Details
-    rule_rush_goal_title: 'Survival Goal:',
-    rule_rush_goal_desc: 'Race against a 30s timer to achieve the highest possible score.',
-    rule_rush_time_title: 'Stacking Bonus Time:',
-    rule_rush_time_desc: 'Every successful merge adds precious seconds to your clock.',
-    rule_rush_bonus_title: 'Emergency Spell Bonus:',
-    rule_rush_bonus_desc: 'When time hits 0s, each remaining spell automatically converts into +15s survival time to keep your combo alive!',
+    // Rush Rules Details (Rebalanced v6.8.69)
+    rule_rush_goal_title: 'Goal & Escalating Heat:',
+    rule_rush_goal_desc: 'Starts at 25s (cap 30s). Every 25s survived escalates timer drain from 1.0x up to 2.25x!',
+    rule_rush_time_title: 'Merges & Bomb Hazards:',
+    rule_rush_time_desc: 'Merges award +0.25s / +0.75s / +1.5s; defusing bombs grants +2.0s while detonating costs -8.0s!',
+    rule_rush_bonus_title: 'Emergency Protocol:',
+    rule_rush_bonus_desc: 'When timer hits 0s, converts 1 spell for +6s emergency time (max 2 saves per run).',
+    rush_bomb_defused_toast: '🛡️ BOMB DEFUSED: +{time}s!',
+    rush_bomb_detonated_toast: '💥 BOMB EXPLODED: -{time}s!',
 
     // Boss Victory & Achievements
     boss_victory_heading: 'LEGENDARY VICTORY!',
@@ -952,7 +956,7 @@ export const DICTIONARY = {
     mode_confirm_boss_title: 'ボスレイドチャレンジ',
     mode_confirm_boss_subtitle: '4段階のダークシンギュラリティコアを撃破せよ',
     mode_confirm_rush_title: 'タイムラッシュチャレンジ',
-    mode_confirm_rush_subtitle: '生存をかけたカウントダウンレース',
+    mode_confirm_rush_subtitle: '25秒サバイバル — 時間経過で速度と重圧が激増',
     mode_warning_title: '進行状況の警告:',
     mode_warning_desc: 'このモードを開始すると盤面がリセットされ、進行中のゲームが消去されて新しいスコア計測が始まります！',
     mode_tutorial_badge_first: '🔥 初回プレイ: ルールをよくお読みください！',
@@ -971,13 +975,15 @@ export const DICTIONARY = {
     rule_boss_bonus_title: '緊急呪文救済システム:',
     rule_boss_bonus_desc: 'タイマーが0秒になってもボスが残っている場合、残っている呪文1つにつき+15秒の戦闘時間が付与されます！',
 
-    // Rush Rules Details
-    rule_rush_goal_title: '生存目標:',
-    rule_rush_goal_desc: '30秒の制限時間内にできるだけ高いスコアを目指します。',
-    rule_rush_time_title: 'ボーナスタイム累積:',
-    rule_rush_time_desc: 'タイル合体に成功するたびに貴重な秒数がタイマーに加算されます。',
-    rule_rush_bonus_title: '緊急呪文救済システム:',
-    rule_rush_bonus_desc: 'タイマーが0秒になっても呪文が残っていれば、1つにつき+15秒の生存時間が付与されます！',
+    // Rush Rules Details (Rebalanced v6.8.69)
+    rule_rush_goal_title: '目標と加速システム:',
+    rule_rush_goal_desc: '初期25秒（上限30秒）。25秒生き延びるごとに消費速度が1.0倍から最大2.25倍まで加速！',
+    rule_rush_time_title: '合体加算と爆弾ペナルティ:',
+    rule_rush_time_desc: '合体で+0.25秒/+0.75秒/+1.5秒獲得。爆弾解除で+2.0秒、爆発すると-8.0秒の大減点！',
+    rule_rush_bonus_title: '緊急救助プロトコル:',
+    rule_rush_bonus_desc: '0秒到達時、呪文1回分を消費して+6秒の延命が可能（1プレイ中2回まで）。',
+    rush_bomb_defused_toast: '🛡️ 爆弾解除: +{time}秒!',
+    rush_bomb_detonated_toast: '💥 爆弾爆発: -{time}秒!',
 
     // Boss Victory & Achievements
     boss_victory_heading: '伝説の大勝利！',
@@ -1299,7 +1305,7 @@ export const DICTIONARY = {
     mode_confirm_boss_title: '보스 레이드 챌린지',
     mode_confirm_boss_subtitle: '4단계의 다크 싱귤래리티 코어를 격파하세요',
     mode_confirm_rush_title: '타임 러시 챌린지',
-    mode_confirm_rush_subtitle: '생존을 위한 카운트다운 레이스',
+    mode_confirm_rush_subtitle: '25초 생존 레이스 — 시간 경과에 따라 압박과 감소 속도 증가',
     mode_warning_title: '진행 상황 경고:',
     mode_warning_desc: '이 모드를 시작하면 보드가 새로 고쳐지며 진행 중인 게임이 삭제되고 새로운 챌린지 기록이 시작됩니다!',
     mode_tutorial_badge_first: '🔥 최초 플레이: 규칙을 꼭 읽어보세요!',
@@ -1318,13 +1324,15 @@ export const DICTIONARY = {
     rule_boss_bonus_title: '긴급 주문 보너스 시스템:',
     rule_boss_bonus_desc: '타이머가 0초가 되었을 때 보스 체력이 남아있다면, 남은 주문 1개당 +15초의 추가 전투 시간이 지급됩니다!',
 
-    // Rush Rules Details
-    rule_rush_goal_title: '생존 목표:',
-    rule_rush_goal_desc: '30초의 제한 시간 내에 가능한 한 높은 점수를 달성하세요.',
-    rule_rush_time_title: '보너스 시간 누적:',
-    rule_rush_time_desc: '타일 병합에 성공할 때마다 귀중한 초가 시계에 추가됩니다.',
-    rule_rush_bonus_title: '긴급 주문 보너스 시스템:',
-    rule_rush_bonus_desc: '타이머가 0초가 되었을 때 남은 주문이 있다면, 1개당 +15초의 생존 시간이 지급되어 콤보를 이어갈 수 있습니다!',
+    // Rush Rules Details (Rebalanced v6.8.69)
+    rule_rush_goal_title: '생존 목표 및 가속:',
+    rule_rush_goal_desc: '시작 시간 25초 (최대 30초). 25초 생존할 때마다 감소 속도가 1.0x에서 최대 2.25x까지 증가!',
+    rule_rush_time_title: '병합 보너스 및 폭탄 패널티:',
+    rule_rush_time_desc: '병합 시 +0.25초/+0.75초/+1.5초 추가. 폭탄 해제 시 +2.0초, 폭발 시 -8.0초 차감!',
+    rule_rush_bonus_title: '긴급 구호 프로토콜:',
+    rule_rush_bonus_desc: '시간 초과 시 마법 1개를 소모하여 +6초 생존 (게임당 최대 2회).',
+    rush_bomb_defused_toast: '🛡️ 폭탄 해제: +{time}초!',
+    rush_bomb_detonated_toast: '💥 폭탄 폭발: -{time}초!',
 
     // Boss Victory & Achievements
     boss_victory_heading: '전설적인 대승리!',
