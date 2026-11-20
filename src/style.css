@@ -8129,24 +8129,35 @@ body.theme-zen_clay .apple-glass-dropdown {
   border: 1px solid rgba(0, 0, 0, 0.14) !important;
   color: #0f172a !important;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.14), 0 0 0 1px rgba(0, 0, 0, 0.06) !important;
+  scrollbar-color: rgba(0, 0, 0, 0.22) transparent !important;
 }
 
-body.theme-gentle_light .apple-dropdown-item,
-body.theme-zen_clay .apple-dropdown-item {
+body.theme-gentle_light .apple-glass-dropdown::-webkit-scrollbar-thumb,
+body.theme-zen_clay .apple-glass-dropdown::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.22) !important;
+}
+
+body.theme-gentle_light .apple-glass-menu-item,
+body.theme-zen_clay .apple-glass-menu-item {
   color: #1e293b !important;
 }
 
-body.theme-gentle_light .apple-dropdown-item:hover,
-body.theme-zen_clay .apple-dropdown-item:hover {
-  background: rgba(0, 0, 0, 0.06) !important;
-  color: #000000 !important;
+body.theme-gentle_light .apple-glass-menu-item:hover,
+body.theme-zen_clay .apple-glass-menu-item:hover {
+  background: rgba(2, 132, 199, 0.08) !important;
+  color: #0284c7 !important;
 }
 
-body.theme-gentle_light .apple-dropdown-item.active,
-body.theme-zen_clay .apple-dropdown-item.active {
-  background: rgba(0, 122, 255, 0.14) !important;
-  color: #007aff !important;
+body.theme-gentle_light .apple-glass-menu-item.active,
+body.theme-zen_clay .apple-glass-menu-item.active {
+  background: rgba(2, 132, 199, 0.14) !important;
+  color: #0284c7 !important;
   font-weight: 700 !important;
+}
+
+body.theme-gentle_light .apple-glass-menu-item.active::after,
+body.theme-zen_clay .apple-glass-menu-item.active::after {
+  color: #0284c7 !important;
 }
 
 .shape-quick-wrapper.open .apple-glass-dropdown,

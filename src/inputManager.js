@@ -149,7 +149,7 @@ export class InputManager {
 
     const isModalTarget = (target) => {
       if (!target || !target.closest) return false;
-      return Boolean(target.closest('.modal, .modal-card, .modal-content, [role="dialog"], .modal-overlay, .mode-confirm-card, .mode-confirm-modal-overlay, .settings-modal-card, .settings-modal-overlay, .welcome-modal-card, .welcome-modal-overlay, .trophy-modal-card, .trophy-modal-overlay, .share-modal-card, .share-modal-overlay, .boss-victory-card, .boss-victory-modal-overlay'));
+      return Boolean(target.closest('.modal, .modal-card, .modal-content, [role="dialog"], [role="listbox"], [role="option"], .modal-overlay, .mode-confirm-card, .mode-confirm-modal-overlay, .settings-modal-card, .settings-modal-overlay, .welcome-modal-card, .welcome-modal-overlay, .trophy-modal-card, .trophy-modal-overlay, .share-modal-card, .share-modal-overlay, .boss-victory-card, .boss-victory-modal-overlay, .apple-glass-dropdown, .apple-glass-menu-item, .shape-quick-wrapper'));
     };
 
     this.domElement.addEventListener('touchstart', (e) => {
