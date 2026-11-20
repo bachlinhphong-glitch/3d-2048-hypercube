@@ -1614,8 +1614,21 @@ class GameApp {
     const badgeTextEl = document.getElementById('mode-tutorial-badge-text');
     const contentEl = document.getElementById('mode-tutorial-content');
     const dontShowCheckbox = document.getElementById('mode-confirm-dont-show');
+    const warningTitleEl = modal.querySelector('.mode-warning-text strong');
+    const warningDescEl = modal.querySelector('.mode-warning-text span');
+    const dontAskSpan = modal.querySelector('.mode-dont-ask span');
+    const cancelBtn = document.getElementById('btn-mode-confirm-cancel');
+    const startBtnText = document.getElementById('mode-confirm-start-text');
 
     if (dontShowCheckbox) dontShowCheckbox.checked = false;
+    if (warningTitleEl) warningTitleEl.textContent = t('mode_warning_title');
+    if (warningDescEl) warningDescEl.textContent = t('mode_warning_desc');
+    if (dontAskSpan) dontAskSpan.textContent = t('mode_dont_ask');
+    if (cancelBtn) {
+      const span = cancelBtn.querySelector('span');
+      if (span) span.textContent = t('mode_btn_cancel');
+    }
+    if (startBtnText) startBtnText.textContent = t('mode_btn_start');
 
     const isFirstTime = !localStorage.getItem(`3d2048_${mode}_tutorial_seen`);
 
@@ -1692,12 +1705,19 @@ class GameApp {
       }
     }
 
+    const bodyEl = modal.querySelector('.mode-confirm-body');
+    if (bodyEl) bodyEl.scrollTop = 0;
+
     soundManager.playClick();
     modal.style.display = 'flex';
     modal.classList.add('active');
   }
 
   updateDynamicLanguageTexts() {
+    const confirmModal = document.getElementById('mode-confirm-modal');
+    if (confirmModal && confirmModal.classList.contains('active') && confirmModal.dataset.pendingMode) {
+      this.openModeConfirmModal(confirmModal.dataset.pendingMode);
+    }
     const bossBtn = document.getElementById('btn-toggle-boss');
     if (bossBtn) {
       const textEl = bossBtn.querySelector('.btn-text');

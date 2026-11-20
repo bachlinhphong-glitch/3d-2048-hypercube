@@ -243,14 +243,14 @@ export const DICTIONARY = {
     mode_confirm_boss_title: 'ĐẤU TRÙM (BOSS RAID)',
     mode_confirm_boss_subtitle: 'Hạ gục Lõi Năng Lượng qua 4 Phase',
     mode_confirm_rush_title: 'ĐUA GIỜ (TIME RUSH)',
-    mode_confirm_rush_subtitle: 'Chạy đua với đồng hồ 30 giây',
-    mode_warning_title: 'LƯU Ý:',
-    mode_warning_desc: 'Ván chơi hiện tại sẽ bắt đầu lại từ đầu.',
-    mode_tutorial_badge_first: '🔥 LUẬT CHƠI',
-    mode_tutorial_badge: '💡 LUẬT CHƠI',
-    mode_dont_ask: 'Không hỏi lại lần sau',
-    mode_btn_cancel: 'Quay lại',
-    mode_btn_start: 'Bắt đầu',
+    mode_confirm_rush_subtitle: 'Chạy đua sinh tồn với đồng hồ đếm ngược 30 giây',
+    mode_warning_title: 'CẢNH BÁO TIẾN TRÌNH:',
+    mode_warning_desc: 'Bắt đầu chế độ này sẽ làm mới toàn bộ bàn cờ và xóa ván chơi dở hiện tại để bắt đầu tính điểm thử thách mới!',
+    mode_tutorial_badge_first: '🔥 LẦN ĐẦU: ĐỌC KỸ LUẬT CHƠI!',
+    mode_tutorial_badge: '💡 LUẬT CHƠI & CƠ CHẾ ĐẶC BIỆT',
+    mode_dont_ask: 'Không hỏi lại khi chuyển sang chế độ này',
+    mode_btn_cancel: 'Hủy / Quay lại',
+    mode_btn_start: 'Xác nhận & Bắt đầu',
 
     // Boss Rules Details
     rule_boss_goal_title: 'Mục tiêu:',
@@ -596,7 +596,7 @@ export const DICTIONARY = {
 
     // Mode Confirmation & Tutorial
     mode_confirm_boss_title: 'BOSS RAID CHALLENGE',
-    mode_confirm_boss_subtitle: 'Defeat the Dark Singularity Core across 3 intense phases',
+    mode_confirm_boss_subtitle: 'Defeat the Dark Singularity Core across 4 intense phases',
     mode_confirm_rush_title: 'TIME RUSH CHALLENGE',
     mode_confirm_rush_subtitle: 'Race against the survival countdown clock',
     mode_warning_title: 'PROGRESS WARNING:',
@@ -627,10 +627,10 @@ export const DICTIONARY = {
 
     // Boss Victory & Achievements
     boss_victory_heading: 'GLORIOUS VICTORY!',
-    boss_victory_congrats: 'Warmest congratulations, Champion! You have courageously conquered all odds and annihilated the Dark Singularity Core across 3 thrilling phases!',
+    boss_victory_congrats: 'Warmest congratulations, Champion! You have courageously conquered all odds and annihilated the Dark Singularity Core across 4 thrilling phases!',
     boss_achieve_tier: 'LEGENDARY ACHIEVEMENT UNLOCKED',
     boss_achieve_name: 'SINGULARITY SLAYER',
-    boss_achieve_desc: 'Annihilated Dark Singularity Core in Phase 3 with a devastating [2048] tile finisher!',
+    boss_achieve_desc: 'Annihilated Dark Singularity Core across 4 phases with a devastating [2048] tile finisher!',
     boss_stat_time: 'Clear Time',
     boss_stat_damage: 'Total Damage',
     boss_stat_score: 'Match Score',
@@ -936,7 +936,7 @@ export const DICTIONARY = {
 
     // Mode Confirmation & Tutorial
     mode_confirm_boss_title: 'ボスレイドチャレンジ',
-    mode_confirm_boss_subtitle: '3段階のダークシンギュラリティコアを撃破せよ',
+    mode_confirm_boss_subtitle: '4段階のダークシンギュラリティコアを撃破せよ',
     mode_confirm_rush_title: 'タイムラッシュチャレンジ',
     mode_confirm_rush_subtitle: '生存をかけたカウントダウンレース',
     mode_warning_title: '進行状況の警告:',
@@ -1276,7 +1276,7 @@ export const DICTIONARY = {
 
     // Mode Confirmation & Tutorial
     mode_confirm_boss_title: '보스 레이드 챌린지',
-    mode_confirm_boss_subtitle: '3단계의 다크 싱귤래리티 코어를 격파하세요',
+    mode_confirm_boss_subtitle: '4단계의 다크 싱귤래리티 코어를 격파하세요',
     mode_confirm_rush_title: '타임 러시 챌린지',
     mode_confirm_rush_subtitle: '생존을 위한 카운트다운 레이스',
     mode_warning_title: '진행 상황 경고:',

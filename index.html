@@ -51,18 +51,18 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./src/style.css?v=6.8.65">
+  <link rel="stylesheet" href="./src/style.css?v=6.8.66">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=6.8.65').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=6.8.66').then(reg => {
           reg.update();
         }).catch(() => {});
       });
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         try {
-          if (!sessionStorage.getItem('sw_reloaded_6865')) {
-            sessionStorage.setItem('sw_reloaded_6865', '1');
+          if (!sessionStorage.getItem('sw_reloaded_6866')) {
+            sessionStorage.setItem('sw_reloaded_6866', '1');
             window.location.reload();
           }
         } catch {}
@@ -817,8 +817,8 @@
           </svg>
         </div>
         <div class="mode-confirm-title-wrap">
-          <h3 id="mode-confirm-title" class="mode-confirm-title" data-i18n="mode_confirm_boss_title">CHIẾN DỊCH HƯ KHÔNG (BOSS RAID)</h3>
-          <p id="mode-confirm-subtitle" class="mode-confirm-subtitle" data-i18n="mode_confirm_boss_subtitle">Tiến vào vết nứt không gian, thanh trừng Lõi Hư Không qua 4 dạng thức</p>
+          <h3 id="mode-confirm-title" class="mode-confirm-title" data-i18n="mode_confirm_boss_title">ĐẤU TRÙM (BOSS RAID)</h3>
+          <p id="mode-confirm-subtitle" class="mode-confirm-subtitle" data-i18n="mode_confirm_boss_subtitle">Hạ gục Lõi Năng Lượng qua 4 Phase</p>
         </div>
         <button id="mode-confirm-close" class="settings-close-btn" aria-label="Đóng" title="Đóng">✕</button>
       </div>

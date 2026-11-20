@@ -2026,25 +2026,28 @@ body.theme-zen_clay .welcome-start-btn {
 .mode-confirm-card {
   width: 540px;
   max-width: 95vw;
-  max-height: 90vh;
+  max-height: 85vh;
+  max-height: 85dvh;
   background: rgba(13, 17, 23, 0.94);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 20px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 240, 255, 0.1);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
   animation: modalScaleIn 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box !important;
 }
 
 .mode-confirm-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 18px 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(22, 27, 34, 0.6);
-  gap: 12px;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 18px 24px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background: rgba(22, 27, 34, 0.6) !important;
+  gap: 12px !important;
+  flex-shrink: 0 !important;
 }
 
 .mode-confirm-icon-box {
@@ -2091,7 +2094,12 @@ body.theme-zen_clay .welcome-start-btn {
 
 .mode-confirm-body {
   padding: 20px 24px;
-  overflow-y: auto;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  touch-action: pan-y !important;
+  overscroll-behavior: contain !important;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -2190,6 +2198,7 @@ body.theme-zen_clay .welcome-start-btn {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  flex-shrink: 0 !important;
   flex-wrap: wrap;
 }
 
@@ -6575,6 +6584,78 @@ body.zen-ui .slice-controls {
   .camera-snap-bar {
     top: 92px !important;
   }
+
+  /* Mobile Modal Optimization for iOS Safari (85dvh + Fixed Header/Footer + Inertial Body Scroll) */
+  .mode-confirm-card {
+    width: min(94vw, 420px) !important;
+    max-height: 85vh !important;
+    max-height: 85dvh !important;
+    border-radius: 16px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+  }
+
+  .mode-confirm-header {
+    padding: 12px 14px !important;
+    gap: 8px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .mode-confirm-icon-box {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  .mode-confirm-title {
+    font-size: 13.5px !important;
+  }
+
+  .mode-confirm-subtitle {
+    font-size: 11px !important;
+  }
+
+  .mode-confirm-body {
+    padding: 12px 14px !important;
+    gap: 10px !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-y !important;
+    overscroll-behavior: contain !important;
+  }
+
+  .mode-confirm-footer {
+    padding: 10px 14px !important;
+    gap: 8px !important;
+    flex-shrink: 0 !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .mode-dont-ask {
+    font-size: 11px !important;
+  }
+
+  .mode-confirm-actions {
+    display: grid !important;
+    grid-template-columns: 1fr 1.3fr !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+
+  .mode-confirm-actions .modal-btn,
+  .mode-confirm-actions .mode-start-btn {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 10px 6px !important;
+    font-size: 12px !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    border-radius: 10px !important;
+    box-sizing: border-box !important;
+  }
 }
 
 @media (max-width: 360px) {
@@ -8206,6 +8287,7 @@ body.theme-zen_clay .apple-dropdown-item.active {
 .welcome-modal-card,
 .trophy-modal-card,
 .share-modal-card,
+.mode-confirm-card,
 .mode-confirm-modal-card {
   pointer-events: auto !important;
 }
@@ -8237,6 +8319,50 @@ body.theme-zen_clay .apple-dropdown-item.active {
 .first-swipe-hand-container,
 #first-swipe-hand {
   pointer-events: none !important;
+}
+
+/* ==========================================================================
+   UNIVERSAL MODAL 3-TIER ARCHITECTURE FOR IOS SAFARI (DVH + FLEX + TOUCH)
+   ========================================================================== */
+.mode-confirm-card,
+.settings-modal-card,
+.welcome-modal-card,
+.trophy-modal-card,
+.share-modal-card,
+.boss-victory-card,
+.modal-card {
+  max-height: 85vh !important;
+  max-height: 85dvh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+.mode-confirm-header,
+.settings-header,
+.welcome-modal-header,
+.trophy-modal-header,
+.share-modal-header,
+.mode-confirm-footer,
+.welcome-modal-footer,
+.trophy-modal-footer,
+.share-modal-footer,
+.modal-actions {
+  flex-shrink: 0 !important;
+}
+
+.mode-confirm-body,
+.settings-body,
+.welcome-modal-body,
+.trophy-modal-body,
+.share-modal-body {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  touch-action: pan-y !important;
+  overscroll-behavior: contain !important;
 }
 
 /* ==========================================================================

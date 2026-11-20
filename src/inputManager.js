@@ -147,10 +147,19 @@ export class InputManager {
     let lastPointerDir = null;
     let lastPointerTime = 0;
 
+    const isModalTarget = (target) => {
+      if (!target || !target.closest) return false;
+      return Boolean(target.closest('.modal, .modal-card, .modal-content, [role="dialog"], .modal-overlay, .mode-confirm-card, .mode-confirm-modal-overlay, .settings-modal-card, .settings-modal-overlay, .welcome-modal-card, .welcome-modal-overlay, .trophy-modal-card, .trophy-modal-overlay, .share-modal-card, .share-modal-overlay, .boss-victory-card, .boss-victory-modal-overlay'));
+    };
+
     this.domElement.addEventListener('touchstart', (e) => {
       if (e.touches.length !== 1) return;
-      if (this.isBlockedByUI()) return;
-      if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .spell-bar, .swap-action-hud, .swap-hud-card, .swap-hud-btn, #swap-action-hud, .destroy-action-hud, .destroy-hud-card, .destroy-hud-btn, #destroy-action-hud, .modal-card, .settings-modal-card, .settings-modal-overlay, .header-bar, .rush-panel, .dir-pad-container, .dpad-disc, .dpad-petal, .dpad-layer-btn, .dpad-btn, .cam-btn, .slice-btn, #camera-snap-bar, .camera-snap-bar, #cam-presets-flyout, .cam-presets-flyout, #btn-camera-menu-toggle, .camera-menu-toggle, .banner-container, .inapp-challenge-card, .trophy-tab-btn, .custom-bg-input')) {
+      if (this.isBlockedByUI() || isModalTarget(e.target)) {
+        touchActive = false;
+        return;
+      }
+      if (e.target && e.target.closest && e.target.closest('button, select, input, label, .spell-btn, .spell-bar, .swap-action-hud, .swap-hud-card, .swap-hud-btn, #swap-action-hud, .destroy-action-hud, .destroy-hud-card, .destroy-hud-btn, #destroy-action-hud, .header-bar, .rush-panel, .dir-pad-container, .dpad-disc, .dpad-petal, .dpad-layer-btn, .dpad-btn, .cam-btn, .slice-btn, #camera-snap-bar, .camera-snap-bar, #cam-presets-flyout, .cam-presets-flyout, #btn-camera-menu-toggle, .camera-menu-toggle, .banner-container, .inapp-challenge-card, .trophy-tab-btn, .custom-bg-input')) {
+        touchActive = false;
         return;
       }
       const t = e.touches[0];
@@ -163,11 +172,16 @@ export class InputManager {
     }, { passive: true });
 
     this.domElement.addEventListener('touchmove', (e) => {
+      // If modal is active or target is inside a modal, NEVER preventDefault - allow native iOS scrolling!
+      if (this.isBlockedByUI() || isModalTarget(e.target)) {
+        touchActive = false;
+        return;
+      }
       if (!touchActive) return;
       if (e.cancelable) {
         e.preventDefault(); // Stop mobile pull-to-refresh & browser scroll from canceling swipe!
       }
-      if (!this.enabled || this.isBlockedByUI()) return;
+      if (!this.enabled) return;
       if (window.gameApp && (window.gameApp.isSwapMode || window.gameApp.isDestroyMode)) {
         // In Swap/Destroy Mode, prevent board swipes so user never accidentally moves the board or cancels spell!
         return;
