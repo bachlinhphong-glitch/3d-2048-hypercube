@@ -385,13 +385,13 @@
       <div class="swap-hud-card">
         <div class="swap-hud-header">
           <div class="swap-hud-title-wrap">
-            <span class="swap-hud-badge">PHÉP BỔ TRỢ</span>
-            <span class="swap-hud-title">⇄ HOÁN ĐỔI VỊ TRÍ</span>
+            <span class="swap-hud-badge" data-i18n="spell_badge_support">PHÉP BỔ TRỢ</span>
+            <span class="swap-hud-title" data-i18n="swap_hud_title">⇄ HOÁN ĐỔI VỊ TRÍ</span>
           </div>
-          <button id="btn-swap-hud-cancel" class="swap-hud-btn cancel-btn" type="button" title="Hủy đổi chỗ (Esc)">✕ Hủy</button>
+          <button id="btn-swap-hud-cancel" class="swap-hud-btn cancel-btn" type="button" title="Hủy đổi chỗ (Esc)" data-i18n="btn_cancel_esc">✕ Hủy</button>
         </div>
         <div class="swap-hud-body">
-          <div id="swap-hud-text" class="swap-hud-text">Chạm khối thứ nhất trên bàn cờ...</div>
+          <div id="swap-hud-text" class="swap-hud-text" data-i18n="swap_hud_step1">Chạm khối thứ nhất trên bàn cờ...</div>
           <div id="swap-hud-preview" class="swap-hud-preview" style="display: none;">
             <div id="swap-tile-a-tag" class="swap-tile-tag slot-a">--</div>
             <span class="swap-arrow">⇄</span>
@@ -401,7 +401,7 @@
         <div id="swap-hud-actions-confirm" class="swap-hud-actions-confirm" style="display: none;">
           <button id="btn-swap-hud-confirm" class="swap-hud-btn confirm-btn" type="button">
             <span class="confirm-icon">✓</span>
-            <span>XÁC NHẬN HOÁN ĐỔI</span>
+            <span data-i18n="swap_hud_confirm">XÁC NHẬN HOÁN ĐỔI</span>
           </button>
         </div>
       </div>
@@ -412,13 +412,13 @@
       <div class="swap-hud-card destroy-hud-card">
         <div class="swap-hud-header">
           <div class="swap-hud-title-wrap">
-            <span class="swap-hud-badge destroy-badge">PHÉP BỔ TRỢ</span>
-            <span class="swap-hud-title">💣 PHÁ HỦY KHỐI SỐ</span>
+            <span class="swap-hud-badge destroy-badge" data-i18n="spell_badge_support">PHÉP BỔ TRỢ</span>
+            <span class="swap-hud-title" data-i18n="destroy_hud_title">💣 PHÁ HỦY KHỐI SỐ</span>
           </div>
-          <button id="btn-destroy-hud-cancel" class="swap-hud-btn cancel-btn destroy-hud-btn" type="button" title="Hủy chọn (Esc)">✕ Thoát</button>
+          <button id="btn-destroy-hud-cancel" class="swap-hud-btn cancel-btn destroy-hud-btn" type="button" title="Hủy chọn (Esc)" data-i18n="btn_cancel_esc">✕ Thoát</button>
         </div>
         <div class="swap-hud-body">
-          <div id="destroy-hud-text" class="swap-hud-text">Chạm vào một khối số bất kỳ trên bàn cờ để loại bỏ ngay!</div>
+          <div id="destroy-hud-text" class="swap-hud-text" data-i18n="destroy_hud_step">Chạm vào một khối số bất kỳ trên bàn cờ để loại bỏ ngay!</div>
         </div>
       </div>
     </div>
@@ -430,13 +430,13 @@
     <div id="dir-pad" class="dir-pad-container" role="group" aria-label="Bộ điều hướng 2048">
       <!-- 3D Layer Wings (Tầng Trên / Tầng Dưới - tự động ẩn ở chế độ 4x4) -->
       <div class="dpad-layer-dock" id="dpad-layer-dock">
-        <button class="dpad-layer-btn" id="btn-layer-up" data-dir="layerUp" title="Lên tầng trên (E / PageUp)">
+        <button class="dpad-layer-btn" id="btn-layer-up" data-dir="layerUp" title="Lên tầng trên (E / PageUp)" data-i18n-title="dpad_layer_up_title">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m18 15-6-6-6 6"/></svg>
-          <span>TẦNG TRÊN (E)</span>
+          <span data-i18n="dpad_layer_up">TẦNG TRÊN (E)</span>
         </button>
-        <button class="dpad-layer-btn" id="btn-layer-down" data-dir="layerDown" title="Xuống tầng dưới (Q / PageDown)">
+        <button class="dpad-layer-btn" id="btn-layer-down" data-dir="layerDown" title="Xuống tầng dưới (Q / PageDown)" data-i18n-title="dpad_layer_down_title">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
-          <span>TẦNG DƯỚI (Q)</span>
+          <span data-i18n="dpad_layer_down">TẦNG DƯỚI (Q)</span>
         </button>
       </div>
 
@@ -470,7 +470,7 @@
         <span class="hint-sep">|</span>
         <span><kbd>E</kbd>/<kbd>Q</kbd> <span data-i18n="hint_layer">Tầng</span></span>
         <span class="hint-sep">|</span>
-        <span><kbd>Chuột phải</kbd> <span data-i18n="hint_rotate">Xoay 360°</span></span>
+        <span><kbd data-i18n="kbd_right_click">Chuột phải</kbd> <span data-i18n="hint_rotate">Xoay 360°</span></span>
         <span class="hint-sep">|</span>
         <span><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> <span data-i18n="hint_cam">Camera</span></span>
         <span class="hint-sep">|</span>
@@ -759,18 +759,18 @@
             <div class="welcome-control-box">
               <span class="control-device" data-i18n="welcome_device_pc">Trên máy tính</span>
               <ul class="control-tips">
-                <li data-i18n="welcome_pc_tip1"><kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> hoặc phím mũi tên: Trượt dồn khối số</li>
-                <li data-i18n="welcome_pc_tip2"><kbd>Q</kbd> / <kbd>E</kbd>: Đổi tầng lên hoặc xuống (chế độ 3x3x3)</li>
-                <li data-i18n="welcome_pc_tip3"><kbd>Chuột trái kéo</kbd>: Xoay tự do góc nhìn bàn cờ 3D</li>
-                <li data-i18n="welcome_pc_tip4">Phím <kbd>H</kbd> Gợi ý • Phím <kbd>Z</kbd> Đi lại • Phím <kbd>X</kbd> Đổi vị trí</li>
+                <li data-i18n-html="welcome_pc_tip1"><kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> / Mũi tên: Trượt dồn khối số</li>
+                <li data-i18n-html="welcome_pc_tip2"><kbd>Q</kbd> / <kbd>E</kbd>: Đổi tầng lên/xuống (chế độ 3x3x3)</li>
+                <li data-i18n-html="welcome_pc_tip3"><kbd>Chuột phải kéo</kbd>: Xoay tự do góc nhìn bàn cờ 3D</li>
+                <li data-i18n-html="welcome_pc_tip4"><kbd>H</kbd> Gợi ý • <kbd>Z</kbd> Lùi lại • <kbd>X</kbd> Đổi chỗ • <kbd>C</kbd> Phá khối</li>
               </ul>
             </div>
             <div class="welcome-control-box">
               <span class="control-device" data-i18n="welcome_device_mobile">Trên điện thoại & máy tính bảng</span>
               <ul class="control-tips">
-                <li data-i18n="welcome_mobile_tip1"><span class="gesture-pill">Vuốt 1 ngón tay</span>: Trượt dồn các khối số</li>
-                <li data-i18n="welcome_mobile_tip2"><span class="gesture-pill">Chạm 2 ngón xoay</span>: Thay đổi góc nhìn 3D</li>
-                <li data-i18n="welcome_mobile_tip3"><span class="gesture-pill">Thanh kỹ năng bên dưới</span>: Dùng Gợi ý, Đi lại, Đổi vị trí</li>
+                <li data-i18n-html="welcome_mobile_tip1"><span class="gesture-pill">Vuốt 1 ngón</span>: Trượt dồn các khối số</li>
+                <li data-i18n-html="welcome_mobile_tip2"><span class="gesture-pill">Vuốt 2 ngón</span>: Thay đổi góc nhìn 3D</li>
+                <li data-i18n-html="welcome_mobile_tip3"><span class="gesture-pill">Thanh kỹ năng đáy</span>: Gợi ý, Đi lại, Đổi chỗ, Phá khối</li>
               </ul>
             </div>
           </div>

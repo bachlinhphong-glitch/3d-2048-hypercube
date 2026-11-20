@@ -21,17 +21,17 @@ const TILE_STYLES = {
 // 2. [HƯỚNG SÁNG] Gentle Light (Hiền Hòa Sáng / Harmonious Classic Warm Silk Palette)
 // Tông màu dịu mắt, chuyển tiếp tự nhiên, không chói lóa, số hiển thị sắc nét rõ ràng
 const TILE_STYLES_GENTLE_LIGHT = {
-  2:     { bg: '#eee4da', text: '#776e65', emissive: '#eee4da', intensity: 0, rim: '#ffffff' }, // Warm Silk Ivory
-  4:     { bg: '#ede0c8', text: '#776e65', emissive: '#ede0c8', intensity: 0, rim: '#ffffff' }, // Warm Toasted Linen
+  2:     { bg: '#f8f5ee', text: '#5c5248', emissive: '#f8f5ee', intensity: 0, rim: '#ffffff' }, // Delicate Silk Cream
+  4:     { bg: '#e8c79b', text: '#451a03', emissive: '#e8c79b', intensity: 0, rim: '#fff6e9' }, // Warm Caramel Sand (Distinct from 2)
   8:     { bg: '#f2b179', text: '#ffffff', emissive: '#f2b179', intensity: 0, rim: '#fff1e5' }, // Soft Apricot
   16:    { bg: '#f59563', text: '#ffffff', emissive: '#f59563', intensity: 0, rim: '#ffede5' }, // Warm Coral
   32:    { bg: '#f67c5f', text: '#ffffff', emissive: '#f67c5f', intensity: 0, rim: '#ffe8e0' }, // Soft Terracotta
   64:    { bg: '#ea580c', text: '#ffffff', emissive: '#ea580c', intensity: 0, rim: '#ffedd5' }, // Rich Amber Clay
-  128:   { bg: '#edcf72', text: '#ffffff', emissive: '#edcf72', intensity: 0, rim: '#fffde8' }, // Gentle Sunlight
-  256:   { bg: '#edcc61', text: '#ffffff', emissive: '#edcc61', intensity: 0, rim: '#fffde8' }, // Warm Honey Gold
-  512:   { bg: '#edc850', text: '#ffffff', emissive: '#edc850', intensity: 0, rim: '#fffde8' }, // Pure Gold
+  128:   { bg: '#edcf72', text: '#451a03', emissive: '#edcf72', intensity: 0, rim: '#fffde8' }, // Gentle Sunlight (High-contrast dark text)
+  256:   { bg: '#edcc61', text: '#451a03', emissive: '#edcc61', intensity: 0, rim: '#fffde8' }, // Warm Honey Gold
+  512:   { bg: '#edc850', text: '#451a03', emissive: '#edc850', intensity: 0, rim: '#fffde8' }, // Pure Gold
   1024:  { bg: '#edc53f', text: '#ffffff', emissive: '#edc53f', intensity: 0, rim: '#fffde8' }, // Burnished Crown Gold
-  2048:  { bg: '#edc22e', text: '#ffffff', emissive: '#edc22e', intensity: 0, rim: '#fffde8' }, // Classic 2048 Crown Gold
+  2048:  { bg: '#eab308', text: '#ffffff', emissive: '#facc15', intensity: 0.15, rim: '#fef08a' }, // Classic 2048 Crown Gold
   4096:  { bg: '#a855f7', text: '#ffffff', emissive: '#a855f7', intensity: 0, rim: '#f3e8ff' }, // Soft Amethyst
   8192:  { bg: '#3b82f6', text: '#ffffff', emissive: '#3b82f6', intensity: 0, rim: '#eff6ff' }, // Soft Cobalt
   16384: { bg: '#10b981', text: '#ffffff', emissive: '#10b981', intensity: 0, rim: '#ecfdf5' }  // Soft Sage

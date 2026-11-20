@@ -205,8 +205,14 @@ export class QuestManager {
     const celebrateLabel = document.getElementById('trophy-celebrate-label');
 
     if (tab === 'boss') {
-      if (tabC1Btn) tabC1Btn.classList.remove('active');
-      if (tabBossBtn) tabBossBtn.classList.add('active');
+      if (tabC1Btn) {
+        tabC1Btn.classList.remove('active');
+        tabC1Btn.setAttribute('aria-selected', 'false');
+      }
+      if (tabBossBtn) {
+        tabBossBtn.classList.add('active');
+        tabBossBtn.setAttribute('aria-selected', 'true');
+      }
       if (c1Pane) c1Pane.style.display = 'none';
       if (bossPane) bossPane.style.display = 'block';
       if (celebrateLabel) celebrateLabel.textContent = t('trophy_celebrate_boss_btn') || 'Bắn Pháo Lửa Diệt Trùm';
@@ -233,8 +239,14 @@ export class QuestManager {
         maxLoopEl.textContent = `Loop ${maxLoop}`;
       }
     } else {
-      if (tabC1Btn) tabC1Btn.classList.add('active');
-      if (tabBossBtn) tabBossBtn.classList.remove('active');
+      if (tabC1Btn) {
+        tabC1Btn.classList.add('active');
+        tabC1Btn.setAttribute('aria-selected', 'true');
+      }
+      if (tabBossBtn) {
+        tabBossBtn.classList.remove('active');
+        tabBossBtn.setAttribute('aria-selected', 'false');
+      }
       if (c1Pane) c1Pane.style.display = 'flex';
       if (bossPane) bossPane.style.display = 'none';
       if (celebrateLabel) celebrateLabel.textContent = t('trophy_celebrate_btn') || 'Bắn Pháo Hoa Ăn Mừng';

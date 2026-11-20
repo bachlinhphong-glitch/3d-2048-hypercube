@@ -365,16 +365,20 @@ export class SceneManager {
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, 512, 512);
 
-      // Nebula cloud puffs
-      ctx.fillStyle = 'rgba(139, 92, 246, 0.14)';
-      ctx.beginPath();
-      ctx.arc(170, 190, 150, 0, Math.PI * 2);
-      ctx.fill();
+      // Smooth radial nebula clouds (Zero harsh circular cuts)
+      const neb1 = ctx.createRadialGradient(170, 190, 10, 170, 190, 180);
+      neb1.addColorStop(0, 'rgba(139, 92, 246, 0.18)');
+      neb1.addColorStop(0.5, 'rgba(139, 92, 246, 0.08)');
+      neb1.addColorStop(1, 'rgba(139, 92, 246, 0)');
+      ctx.fillStyle = neb1;
+      ctx.fillRect(0, 0, 512, 512);
 
-      ctx.fillStyle = 'rgba(14, 165, 233, 0.1)';
-      ctx.beginPath();
-      ctx.arc(350, 310, 160, 0, Math.PI * 2);
-      ctx.fill();
+      const neb2 = ctx.createRadialGradient(350, 310, 10, 350, 310, 190);
+      neb2.addColorStop(0, 'rgba(14, 165, 233, 0.15)');
+      neb2.addColorStop(0.5, 'rgba(14, 165, 233, 0.06)');
+      neb2.addColorStop(1, 'rgba(14, 165, 233, 0)');
+      ctx.fillStyle = neb2;
+      ctx.fillRect(0, 0, 512, 512);
     } else if (themeName === 'sunset') {
       // Synthwave Retro Sunset Horizon
       const grad = ctx.createLinearGradient(0, 0, 0, 512);
@@ -491,8 +495,16 @@ export class SceneManager {
       this.container.style.backgroundRepeat = 'no-repeat';
     } else {
       this.container.style.backgroundImage = 'none';
-      this.container.style.backgroundColor = '#060814';
-      this.renderer.setClearColor(0x060814, 1);
+      if (themeName === 'gentle_light' || themeName === 'zen_clay') {
+        this.container.style.backgroundColor = '#f4f0e6';
+        this.renderer.setClearColor(0xf4f0e6, 1);
+      } else if (themeName === 'gentle_dark' || themeName === 'modern_slate') {
+        this.container.style.backgroundColor = '#141311';
+        this.renderer.setClearColor(0x141311, 1);
+      } else {
+        this.container.style.backgroundColor = '#060814';
+        this.renderer.setClearColor(0x060814, 1);
+      }
       this.scene.background = this.getBackgroundTexture(themeName);
     }
 

@@ -211,13 +211,31 @@ export const DICTIONARY = {
     welcome_controls_title: 'ĐIỀU KHIỂN',
     welcome_device_pc: 'Máy tính',
     welcome_device_mobile: 'Điện thoại & Tablet',
-    welcome_pc_tip1: 'W / A / S / D hoặc Mũi tên: Trượt dồn khối số',
-    welcome_pc_tip2: 'Q / E: Đổi tầng lên/xuống (chế độ 3x3x3)',
-    welcome_pc_tip3: 'Giữ chuột phải & kéo: Xoay bàn cờ 3D',
-    welcome_pc_tip4: 'Phím H: Gợi ý • Phím Z: Lùi lại • Phím X: Đổi chỗ',
-    welcome_mobile_tip1: 'Vuốt 1 ngón: Trượt dồn khối số',
-    welcome_mobile_tip2: 'Vuốt 2 ngón: Xoay góc nhìn 3D',
-    welcome_mobile_tip3: 'Thanh dưới: Dùng Gợi ý, Lùi lại, Đổi chỗ',
+    welcome_pc_tip1: '<kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> / Mũi tên: Trượt dồn khối số',
+    welcome_pc_tip2: '<kbd>Q</kbd> / <kbd>E</kbd>: Đổi tầng lên/xuống (chế độ 3x3x3)',
+    welcome_pc_tip3: '<kbd>Chuột phải kéo</kbd>: Xoay tự do góc nhìn bàn cờ 3D',
+    welcome_pc_tip4: '<kbd>H</kbd> Gợi ý • <kbd>Z</kbd> Lùi lại • <kbd>X</kbd> Đổi chỗ • <kbd>C</kbd> Phá khối',
+    welcome_mobile_tip1: '<span class="gesture-pill">Vuốt 1 ngón</span>: Trượt dồn các khối số',
+    welcome_mobile_tip2: '<span class="gesture-pill">Vuốt 2 ngón</span>: Thay đổi góc nhìn 3D',
+    welcome_mobile_tip3: '<span class="gesture-pill">Thanh kỹ năng đáy</span>: Gợi ý, Đi lại, Đổi chỗ, Phá khối',
+    dpad_layer_up: 'TẦNG TRÊN (E)',
+    dpad_layer_down: 'TẦNG DƯỚI (Q)',
+    dpad_layer_up_title: 'Lên tầng trên (E / PageUp)',
+    dpad_layer_down_title: 'Xuống tầng dưới (Q / PageDown)',
+    kbd_right_click: 'Chuột phải',
+    spell_badge_support: 'PHÉP BỔ TRỢ',
+    destroy_hud_title: '💣 PHÁ HỦY KHỐI SỐ',
+    destroy_hud_step: 'Chạm vào một khối số bất kỳ trên bàn cờ để loại bỏ ngay!',
+    destroy_cancelled: 'Đã hủy chế độ Phá khối.',
+    swap_hud_title: '⇄ HOÁN ĐỔI VỊ TRÍ',
+    swap_hud_step1: 'Chạm khối thứ nhất trên bàn cờ...',
+    swap_hud_confirm: 'XÁC NHẬN HOÁN ĐỔI',
+    btn_cancel_esc: '✕ Thoát',
+    share_card_mode: 'Chế độ',
+    share_card_score: '🏆 ĐIỂM SỐ',
+    share_card_max_tile: '⭐ KHỐI CAO NHẤT',
+    webgl_error_title: 'Đồ họa 3D WebGL Chưa Sẵn Sàng',
+    webgl_error_desc: 'Trình duyệt của bạn có thể đang tắt tính năng Tăng tốc phần cứng (Hardware Acceleration) hoặc chưa cấp quyền WebGL.',
     welcome_dont_show: 'Không hiện lại khi mở trang',
     welcome_btn_start: 'Bắt Đầu',
 
@@ -236,7 +254,7 @@ export const DICTIONARY = {
 
     // Boss Rules Details
     rule_boss_goal_title: 'Mục tiêu:',
-    rule_boss_goal_desc: 'Đánh bại 4 Phase: Kim Cương (500 HP) ➔ Bão Từ (1000 HP) ➔ Kỳ Dị (2000 HP) ➔ Đa Chiều (4096 HP).',
+    rule_boss_goal_desc: 'Đánh bại 4 Phase: Kim Cương (500 HP) → Bão Từ (1000 HP) → Kỳ Dị (2000 HP) → Đa Chiều (4096 HP).',
     rule_boss_dmg_title: 'Sát thương:',
     rule_boss_dmg_desc: 'Khối gộp càng lớn, đòn đánh càng mạnh. Tạo khối 2048 để kết liễu ngay lập tức.',
     rule_boss_time_title: 'Thời gian:',
@@ -548,13 +566,31 @@ export const DICTIONARY = {
     welcome_controls_title: 'QUICK CONTROLS GUIDE',
     welcome_device_pc: 'Desktop & Laptop',
     welcome_device_mobile: 'Mobile & Tablet',
-    welcome_pc_tip1: 'W / A / S / D or Arrow keys: Slide number tiles',
-    welcome_pc_tip2: 'Q / E keys: Shift layers up/down (3x3x3 mode)',
-    welcome_pc_tip3: 'Left-click & drag: Orbit camera view freely',
-    welcome_pc_tip4: 'Key H: Hint • Key Z: Undo • Key X: Swap',
-    welcome_mobile_tip1: '1-finger swipe: Slide and merge number tiles',
-    welcome_mobile_tip2: '2-finger pinch/drag: Rotate 3D camera view',
-    welcome_mobile_tip3: 'Bottom skill bar: Tap to use Hint, Undo, Swap',
+    welcome_pc_tip1: '<kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> / Arrow keys: Slide & merge tiles',
+    welcome_pc_tip2: '<kbd>Q</kbd> / <kbd>E</kbd>: Shift layers up/down (3x3x3 mode)',
+    welcome_pc_tip3: '<kbd>Right-click & drag</kbd>: Orbit 3D board view freely',
+    welcome_pc_tip4: '<kbd>H</kbd> Hint • <kbd>Z</kbd> Undo • <kbd>X</kbd> Swap • <kbd>C</kbd> Destroy',
+    welcome_mobile_tip1: '<span class="gesture-pill">1-finger swipe</span>: Slide and merge number tiles',
+    welcome_mobile_tip2: '<span class="gesture-pill">2-finger drag</span>: Rotate 3D camera view',
+    welcome_mobile_tip3: '<span class="gesture-pill">Bottom skill bar</span>: Hint, Undo, Swap, Destroy',
+    dpad_layer_up: 'UP LAYER (E)',
+    dpad_layer_down: 'DOWN LAYER (Q)',
+    dpad_layer_up_title: 'Shift to upper layer (E / PageUp)',
+    dpad_layer_down_title: 'Shift to lower layer (Q / PageDown)',
+    kbd_right_click: 'Right Click',
+    spell_badge_support: 'SUMMONER SPELL',
+    destroy_hud_title: '💣 DESTROY TILE',
+    destroy_hud_step: 'Tap any number tile on the board to obliterate it!',
+    destroy_cancelled: 'Destroy mode cancelled.',
+    swap_hud_title: '⇄ SWAP POSITIONS',
+    swap_hud_step1: 'Tap 1st tile on board...',
+    swap_hud_confirm: 'CONFIRM SWAP',
+    btn_cancel_esc: '✕ Cancel',
+    share_card_mode: 'Mode',
+    share_card_score: '🏆 FINAL SCORE',
+    share_card_max_tile: '⭐ HIGHEST TILE',
+    webgl_error_title: '3D WebGL Graphics Not Available',
+    webgl_error_desc: 'Hardware Acceleration might be disabled or WebGL permission is blocked in your browser.',
     welcome_dont_show: "Don't show automatically on startup",
     welcome_btn_start: 'Start Playing Now',
 
@@ -573,7 +609,7 @@ export const DICTIONARY = {
 
     // Boss Rules Details
     rule_boss_goal_title: 'Ultimate Objective:',
-    rule_boss_goal_desc: 'Defeat the Void Boss across 3 phases (Phase 1: 500 HP ➔ Phase 2: 1,500 HP ➔ Phase 3: 2,048 HP).',
+    rule_boss_goal_desc: 'Defeat 4 Phases: Diamond (500 HP) → Magnetic Storm (1000 HP) → Singularity (2000 HP) → Hyperdimensional (4096 HP).',
     rule_boss_dmg_title: 'Mathematical Damage:',
     rule_boss_dmg_desc: 'Every merge fires energy lasers at the Boss (larger tiles deal massive damage; tile 2048 executes an instant kill!).',
     rule_boss_time_title: 'Breathless Timer:',
@@ -870,13 +906,31 @@ export const DICTIONARY = {
     welcome_controls_title: '操作ガイド',
     welcome_device_pc: 'パソコン',
     welcome_device_mobile: 'スマートフォン＆タブレット',
-    welcome_pc_tip1: 'W / A / S / D または 矢印キー: タイルをスライド',
-    welcome_pc_tip2: 'Q / E キー: 上下階層を移動 (3x3x3モード)',
-    welcome_pc_tip3: '左ドラッグ: 3D盤面を自由に回転',
-    welcome_pc_tip4: 'Hキー: ヒント • Zキー: 戻す • Xキー: 位置交換',
-    welcome_mobile_tip1: '1本指スワイプ: タイルをスライド合体',
-    welcome_mobile_tip2: '2本指操作: 3D視点を自由に回転',
-    welcome_mobile_tip3: '下のボタン: ヒント、戻す、位置交換',
+    welcome_pc_tip1: '<kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> / 矢印キー: タイルをスライド合体',
+    welcome_pc_tip2: '<kbd>Q</kbd> / <kbd>E</kbd>: レイヤー昇降切替 (3x3x3モード)',
+    welcome_pc_tip3: '<kbd>右クリック＋ドラッグ</kbd>: 3D視点を自由に回転',
+    welcome_pc_tip4: '<kbd>H</kbd> ヒント • <kbd>Z</kbd> アンドゥ • <kbd>X</kbd> 入替 • <kbd>C</kbd> 破壊',
+    welcome_mobile_tip1: '<span class="gesture-pill">1本指スワイプ</span>: タイルをスライド合体',
+    welcome_mobile_tip2: '<span class="gesture-pill">2本指ドラッグ</span>: 3D視点を自由に回転',
+    welcome_mobile_tip3: '<span class="gesture-pill">下部スキルバー</span>: ヒント、アンドゥ、入替、破壊',
+    dpad_layer_up: '上層 (E)',
+    dpad_layer_down: '下層 (Q)',
+    dpad_layer_up_title: '上層へ移動 (E / PageUp)',
+    dpad_layer_down_title: '下層へ移動 (Q / PageDown)',
+    kbd_right_click: '右クリック',
+    spell_badge_support: 'スペル',
+    destroy_hud_title: '💣 タイル破壊',
+    destroy_hud_step: '盤面の数字タイルをタップして即座に消去！',
+    destroy_cancelled: 'タイル破壊モードを解除しました。',
+    swap_hud_title: '⇄ タイル位置入替',
+    swap_hud_step1: '1つ目のタイルをタップ...',
+    swap_hud_confirm: '入替を確定',
+    btn_cancel_esc: '✕ キャンセル',
+    share_card_mode: 'モード',
+    share_card_score: '🏆 スコア',
+    share_card_max_tile: '⭐ 最大タイル',
+    webgl_error_title: '3D WebGL グラフィック未準備',
+    webgl_error_desc: 'ハードウェアアクセラレーションが無効か、ブラウザでWebGLが許可されていません。',
     welcome_dont_show: '次回から自動で表示しない',
     welcome_btn_start: '今すぐプレイ開始',
 
@@ -895,7 +949,7 @@ export const DICTIONARY = {
 
     // Boss Rules Details
     rule_boss_goal_title: '最終目標:',
-    rule_boss_goal_desc: '3段階でボスを撃破 (第1形態: 500 HP ➔ 第2形態: 1,500 HP ➔ 第3形態: 2,048 HP)。',
+    rule_boss_goal_desc: '4形態のボスを撃破: ダイヤモンド (500 HP) → 磁気嵐 (1000 HP) → 特異点 (2000 HP) → 多次元体 (4096 HP)。',
     rule_boss_dmg_title: '合体ダメージ:',
     rule_boss_dmg_desc: 'タイルを合体させるたびにレーザーを発射 (大きなタイルほど大ダメージ、2048は一撃必殺！)。',
     rule_boss_time_title: '緊迫のタイマー:',
@@ -1192,13 +1246,31 @@ export const DICTIONARY = {
     welcome_controls_title: '조작 가이드',
     welcome_device_pc: '데스크톱 & 노트북',
     welcome_device_mobile: '모바일 & 태블릿',
-    welcome_pc_tip1: 'W / A / S / D 또는 방향키: 타일 슬라이드',
-    welcome_pc_tip2: 'Q / E 키: 위/아래 층 이동 (3x3x3 모드)',
-    welcome_pc_tip3: '마우스 드래그: 3D 보드 시점 자유 회전',
-    welcome_pc_tip4: 'H키: 힌트 • Z키: 되돌리기 • X키: 위치 교환',
-    welcome_mobile_tip1: '한 손가락 스와이프: 숫자 타일 합치기',
-    welcome_mobile_tip2: '두 손가락 터치: 3D 시점 회전',
-    welcome_mobile_tip3: '하단 스킬 버튼: 힌트, 되돌리기, 위치 교환',
+    welcome_pc_tip1: '<kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> / 화살표 키: 타일 밀어 합치기',
+    welcome_pc_tip2: '<kbd>Q</kbd> / <kbd>E</kbd>: 위/아래 층 전환 (3x3x3 모드)',
+    welcome_pc_tip3: '<kbd>우클릭 드래그</kbd>: 3D 보드 시점 자유 회전',
+    welcome_pc_tip4: '<kbd>H</kbd> 힌트 • <kbd>Z</kbd> 실행취소 • <kbd>X</kbd> 교체 • <kbd>C</kbd> 파괴',
+    welcome_mobile_tip1: '<span class="gesture-pill">1손가락 스와이프</span>: 숫자 타일 밀어 합치기',
+    welcome_mobile_tip2: '<span class="gesture-pill">2손가락 드래그</span>: 3D 시점 자유 회전',
+    welcome_mobile_tip3: '<span class="gesture-pill">하단 스킬바</span>: 힌트, 실행취소, 교체, 파괴',
+    dpad_layer_up: '윗층 (E)',
+    dpad_layer_down: '아래층 (Q)',
+    dpad_layer_up_title: '윗층으로 이동 (E / PageUp)',
+    dpad_layer_down_title: '아래층으로 이동 (Q / PageDown)',
+    kbd_right_click: '우클릭',
+    spell_badge_support: '소환사 주문',
+    destroy_hud_title: '💣 타일 파괴',
+    destroy_hud_step: '보드의 숫자 타일을 터치하여 즉시 파괴하세요!',
+    destroy_cancelled: '타일 파괴 모드가 취소되었습니다.',
+    swap_hud_title: '⇄ 타일 위치 교체',
+    swap_hud_step1: '첫 번째 타일을 터치...',
+    swap_hud_confirm: '교체 확인',
+    btn_cancel_esc: '✕ 취소',
+    share_card_mode: '모드',
+    share_card_score: '🏆 최종 점수',
+    share_card_max_tile: '⭐ 최고 타일',
+    webgl_error_title: '3D WebGL 그래픽 미지원',
+    webgl_error_desc: '하드웨어 가속이 꺼져 있거나 브라우저에서 WebGL 권한이 차단되었을 수 있습니다.',
     welcome_dont_show: '시작 시 자동으로 표시하지 않기',
     welcome_btn_start: '지금 시작하기',
 
@@ -1217,7 +1289,7 @@ export const DICTIONARY = {
 
     // Boss Rules Details
     rule_boss_goal_title: '최종 목표:',
-    rule_boss_goal_desc: '3단계에 걸쳐 보스를 격파 (1페이즈: 500 HP ➔ 2페이즈: 1,500 HP ➔ 3페이즈: 2,048 HP).',
+    rule_boss_goal_desc: '4개 페이즈 격파: 다이아몬드 (500 HP) → 자기 폭풍 (1000 HP) → 특이점 (2000 HP) → 다차원체 (4096 HP).',
     rule_boss_dmg_title: '수학적 대미지:',
     rule_boss_dmg_desc: '타일을 병합할 때마다 보스에게 레이저 공격 (큰 타일일수록 큰 피해, 2048은 즉사 결정타!).',
     rule_boss_time_title: '긴박한 타이머:',
@@ -1363,14 +1435,26 @@ class I18nManager {
   }
 
   applyToDOM() {
+    // 0. Rich HTML elements (Formatted tips with kbd, gesture pills, etc.)
+    document.querySelectorAll('[data-i18n-html]').forEach(el => {
+      const key = el.getAttribute('data-i18n-html');
+      const val = this.t(key);
+      if (val !== undefined && val !== '') {
+        el.innerHTML = val;
+      }
+    });
+
     // 1. Text elements (Preserve SVG icons inside buttons & complex components)
     document.querySelectorAll('[data-i18n]').forEach(el => {
       const key = el.getAttribute('data-i18n');
       const val = this.t(key);
       if (val !== undefined && val !== '') {
-        const textSpan = el.querySelector('.btn-text') || el.querySelector('span');
+        const isInteractive = el.tagName === 'BUTTON' || el.classList.contains('glass-btn') || el.classList.contains('dpad-layer-btn');
+        const textSpan = el.querySelector('.btn-text');
         if (textSpan) {
           textSpan.textContent = val;
+        } else if (isInteractive && el.querySelector('span')) {
+          el.querySelector('span').textContent = val;
         } else if (el.querySelector('svg')) {
           let updated = false;
           el.childNodes.forEach(n => {

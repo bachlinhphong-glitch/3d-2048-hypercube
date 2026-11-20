@@ -331,9 +331,9 @@ class GameApp {
         z-index: 15;
       ">
         <div style="font-size: 36px; margin-bottom: 10px;">⚠️</div>
-        <h4 style="font-size: 17px; font-weight: 800; color: #ffffff; margin: 0 0 8px 0;">Đồ họa 3D WebGL Chưa Sẵn Sàng</h4>
+        <h4 style="font-size: 17px; font-weight: 800; color: #ffffff; margin: 0 0 8px 0;">${t('webgl_error_title') || 'Đồ họa 3D WebGL Chưa Sẵn Sàng'}</h4>
         <p style="font-size: 13px; color: #94a3b8; line-height: 1.5; margin: 0 0 14px 0;">
-          Trình duyệt của bạn có thể đang tắt tính năng Tăng tốc phần cứng (Hardware Acceleration) hoặc chưa cấp quyền WebGL.<br>
+          ${t('webgl_error_desc') || 'Trình duyệt của bạn có thể đang tắt tính năng Tăng tốc phần cứng (Hardware Acceleration) hoặc chưa cấp quyền WebGL.'}<br>
           <small style="color:#ef4444; opacity: 0.85;">(${msg})</small>
         </p>
         <button onclick="window.location.reload()" style="
@@ -1359,9 +1359,13 @@ class GameApp {
 
   switchTheme(newTheme) {
     this.currentTheme = newTheme;
+    const wasZen = document.body.classList.contains('zen-ui-mode') || this.isZenMode;
     document.body.className = `theme-${newTheme}`;
     if (this.isBossRaid) {
       document.body.classList.add('in-boss-mode');
+    }
+    if (wasZen) {
+      document.body.classList.add('zen-ui-mode');
     }
     if (this.sceneManager && this.sceneManager.setTheme) this.sceneManager.setTheme(newTheme);
     if (this.board && this.board.setTheme) {
@@ -2675,6 +2679,13 @@ class GameApp {
     const modal = document.getElementById('share-modal');
     if (!modal) return;
 
+    // Close Settings modal if open so share modal takes clear foreground focus
+    const settingsModal = document.getElementById('settings-modal');
+    if (settingsModal && (settingsModal.classList.contains('active') || settingsModal.style.display !== 'none')) {
+      settingsModal.classList.remove('active');
+      settingsModal.style.display = 'none';
+    }
+
     const score = this.gameLogic ? this.gameLogic.score : 0;
     const modeName = this.mode === '3x3x3' ? '3x3x3 Hypercube' : '4x4 Classic';
 
@@ -2787,7 +2798,8 @@ class GameApp {
 
       ctx.fillStyle = '#94a3b8';
       ctx.font = '600 20px system-ui, -apple-system, sans-serif';
-      ctx.fillText(`CHẾ ĐỘ: ${modeName.toUpperCase()}`, 540, 120);
+      const modeLabel = (t('share_card_mode') || 'CHẾ ĐỘ').toUpperCase();
+      ctx.fillText(`${modeLabel}: ${modeName.toUpperCase()}`, 540, 120);
 
       // 4. Bottom Score Banner Card
       const cardY = 935;
@@ -2807,7 +2819,7 @@ class GameApp {
       ctx.textAlign = 'left';
       ctx.fillStyle = '#94a3b8';
       ctx.font = '600 20px system-ui, -apple-system, sans-serif';
-      ctx.fillText('🏆 ĐIỂM SỐ', 180, cardY + 42);
+      ctx.fillText(t('share_card_score') || '🏆 ĐIỂM SỐ', 180, cardY + 42);
 
       ctx.fillStyle = '#f8fafc';
       ctx.font = 'bold 40px system-ui, -apple-system, sans-serif';
@@ -2817,7 +2829,7 @@ class GameApp {
       ctx.textAlign = 'right';
       ctx.fillStyle = '#94a3b8';
       ctx.font = '600 20px system-ui, -apple-system, sans-serif';
-      ctx.fillText('⭐ KHỐI CAO NHẤT', 900, cardY + 42);
+      ctx.fillText(t('share_card_max_tile') || '⭐ KHỐI CAO NHẤT', 900, cardY + 42);
 
       ctx.fillStyle = '#fbbf24';
       ctx.font = 'bold 40px system-ui, -apple-system, sans-serif';
@@ -4456,11 +4468,10 @@ class GameApp {
       this.sceneManager.controls.enabled = false;
     }
     this.updateSpellUI();
-    this.showDestroyHud('Chạm vào khối số muốn phá hủy trên bàn cờ...');
-    this.showSpellToast('💣 CHẾ ĐỘ PHÁ KHỐI: Chạm vào 1 khối bất kỳ để loại bỏ!');
+    this.showDestroyHud();
   }
 
-  cancelDestroyMode(toastMsg = 'Đã hủy chế độ Phá khối.') {
+  cancelDestroyMode(toastMsg = null) {
     if (!this.isDestroyMode) return;
     this.isDestroyMode = false;
     document.body.classList.remove('in-destroy-mode');
@@ -4478,16 +4489,17 @@ class GameApp {
     this.hideDestroyHud();
     this.container.style.cursor = 'default';
     this.updateSpellUI();
-    if (toastMsg) {
-      this.showSpellToast(toastMsg);
+    const finalMsg = toastMsg !== null ? toastMsg : (t('destroy_cancelled') || 'Đã hủy chế độ Phá khối.');
+    if (finalMsg) {
+      this.showSpellToast(finalMsg);
     }
   }
 
-  showDestroyHud(stepText = 'Chạm vào một khối số bất kỳ trên bàn cờ để loại bỏ ngay!') {
+  showDestroyHud(stepText = null) {
     if (!this.destroyActionHud) return;
     this.destroyActionHud.style.display = 'flex';
     if (this.destroyHudText) {
-      this.destroyHudText.textContent = stepText;
+      this.destroyHudText.textContent = stepText || t('destroy_hud_step') || 'Chạm vào một khối số bất kỳ trên bàn cờ để loại bỏ ngay!';
     }
   }
 
