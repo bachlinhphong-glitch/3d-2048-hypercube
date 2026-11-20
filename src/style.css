@@ -6366,7 +6366,7 @@ body.zen-ui .slice-controls {
     min-height: unset !important;
     max-height: unset !important;
     margin: 4px auto 0 !important;
-    padding: 6px 10px !important;
+    padding: 6px 8px !important;
     overflow: visible !important;
     border-radius: 16px !important;
     box-sizing: border-box !important;
@@ -6462,8 +6462,8 @@ body.zen-ui .slice-controls {
     align-items: center !important;
     justify-content: space-between !important;
     width: 100% !important;
-    gap: 6px !important;
-    padding-top: 6px !important;
+    gap: 4px !important;
+    padding-top: 5px !important;
     border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
     margin-top: 0 !important;
   }
@@ -6471,10 +6471,10 @@ body.zen-ui .slice-controls {
   .shape-quick-wrapper {
     flex: 0 0 auto !important;
     width: auto !important;
-    min-width: 110px !important;
-    max-width: 135px !important;
-    height: 32px !important;
-    padding: 0 10px !important;
+    min-width: 96px !important;
+    max-width: 118px !important;
+    height: 31px !important;
+    padding: 0 7px !important;
     border-radius: 9999px !important;
     position: relative !important;
     display: flex !important;
@@ -6486,7 +6486,7 @@ body.zen-ui .slice-controls {
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
-    gap: 6px !important;
+    gap: 4px !important;
     padding: 0 !important;
     width: 100% !important;
     height: 100% !important;
@@ -6497,24 +6497,24 @@ body.zen-ui .slice-controls {
   .shape-prefix-icon,
   .shape-quick-wrapper .shape-prefix-icon,
   .shape-trigger-btn .shape-prefix-icon {
-    width: 14px !important;
-    height: 14px !important;
+    width: 13px !important;
+    height: 13px !important;
     margin: 0 !important;
     flex-shrink: 0 !important;
   }
 
   .shape-trigger-btn #shape-trigger-label {
-    font-size: 11px !important;
+    font-size: 10.5px !important;
     font-weight: 700 !important;
     line-height: 1 !important;
     display: inline-block !important;
-    margin: 0 2px !important;
+    margin: 0 1px !important;
   }
 
   .shape-chevron-icon,
   .shape-trigger-btn .shape-chevron-icon {
-    width: 12px !important;
-    height: 12px !important;
+    width: 11px !important;
+    height: 11px !important;
     margin: 0 !important;
     flex-shrink: 0 !important;
   }
@@ -6524,25 +6524,25 @@ body.zen-ui .slice-controls {
     width: auto !important;
     min-width: unset !important;
     max-width: unset !important;
-    height: 32px !important;
-    min-height: 32px !important;
+    height: 31px !important;
+    min-height: 31px !important;
     border-radius: 9999px !important;
-    padding: 0 8px !important;
-    gap: 4px !important;
+    padding: 0 5px !important;
+    gap: 3px !important;
     justify-content: center !important;
     display: flex !important;
     align-items: center !important;
   }
 
   .header-modes-cluster .header-btn-svg {
-    width: 14px !important;
-    height: 14px !important;
+    width: 13px !important;
+    height: 13px !important;
     flex-shrink: 0 !important;
   }
 
   .header-modes-cluster .btn-text {
     display: inline-block !important;
-    font-size: 10.5px !important;
+    font-size: 10px !important;
     font-weight: 700 !important;
     line-height: 1 !important;
     white-space: nowrap !important;
@@ -6552,15 +6552,15 @@ body.zen-ui .slice-controls {
     width: auto !important;
     min-width: unset !important;
     max-width: unset !important;
-    padding: 0 8px !important;
-    gap: 3px !important;
+    padding: 0 5px !important;
+    gap: 2.5px !important;
   }
 
   .header-modes-cluster .quest-badge {
-    font-size: 8.5px !important;
+    font-size: 8px !important;
     font-weight: 800 !important;
-    padding: 1px 4px !important;
-    border-radius: 6px !important;
+    padding: 1px 3.5px !important;
+    border-radius: 5px !important;
   }
 
   /* Coordinate HUDs sitting below 2-row header */

@@ -2,8 +2,8 @@ import * as THREE from 'three';
 
 // 1. Cyberpunk / Legacy Theme Palette
 const TILE_STYLES = {
-  2:     { bg: '#3b82f6', text: '#ffffff', emissive: '#60a5fa', intensity: 0.58, rim: '#bfdbfe' },  // Radiant Sky Cobalt
-  4:     { bg: '#06b6d4', text: '#ffffff', emissive: '#22d3ee', intensity: 0.68, rim: '#a5f3fc' },  // Luminous Electric Cyan
+  2:     { bg: '#4d94ff', text: '#ffffff', emissive: '#70b5ff', intensity: 0.68, rim: '#dbeafe' },  // Radiant Electric Sky Cobalt (+15% brighter)
+  4:     { bg: '#00d4ff', text: '#ffffff', emissive: '#38e1ff', intensity: 0.85, rim: '#e0f7fa' },  // Sparkling Aqua Cyan / Electric Turquoise
   8:     { bg: '#059669', text: '#ffffff', emissive: '#10b981', intensity: 0.48, rim: '#6ee7b7' },  // Emerald Jade
   16:    { bg: '#d97706', text: '#ffffff', emissive: '#f59e0b', intensity: 0.52, rim: '#fde68a' },  // Warm Amber Gold
   32:    { bg: '#ea580c', text: '#ffffff', emissive: '#f97316', intensity: 0.58, rim: '#fed7aa' },  // Sunset Tangerine
@@ -583,7 +583,7 @@ export class TextureManager {
       transparent: !isLight,
       opacity: isLight ? 1.0 : 0.92,
       emissive: emissiveColor,
-      emissiveIntensity: isBomb ? 0.75 : (isLight ? 0 : (this.isHyperNeon ? 1.0 : 0.65))
+      emissiveIntensity: isBomb ? 0.75 : (isLight ? 0 : (this.isHyperNeon ? 1.1 : (style.intensity ? Math.max(0.68, style.intensity * 1.15) : 0.68)))
     });
     this.materialCache.set(key, mat);
     return mat;
@@ -601,7 +601,7 @@ export class TextureManager {
     const mat = new THREE.MeshStandardMaterial({
       color: emissive,
       emissive: emissive,
-      emissiveIntensity: isBomb ? 0.8 : (isLight ? 0 : 1.4),
+      emissiveIntensity: isBomb ? 0.8 : (isLight ? 0 : (style.intensity ? Math.max(1.3, style.intensity * 1.8) : 1.4)),
       roughness: isLight ? 0.55 : 0.1,
       metalness: isLight ? 0.05 : 0.8
     });
