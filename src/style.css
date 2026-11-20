@@ -5884,7 +5884,7 @@ body.theme-zen_clay .rush-progress-track {
 /* --- Slice Controls (bottom center, 3x3x3 only) --- */
 .slice-controls {
   position: fixed;
-  bottom: 125px !important;
+  bottom: 135px !important;
   left: 50%;
   transform: translateX(-50%);
   z-index: 105 !important;
@@ -5904,7 +5904,7 @@ body.theme-zen_clay .rush-progress-track {
 
 @media (max-width: 768px) {
   .slice-controls {
-    bottom: 115px !important;
+    bottom: 110px !important;
   }
 }
 
@@ -6209,7 +6209,7 @@ body.zen-ui .slice-controls {
     height: 30px;
   }
   .slice-controls {
-    bottom: 60px;
+    bottom: 96px !important;
     padding: 5px 8px;
     gap: 4px;
   }
