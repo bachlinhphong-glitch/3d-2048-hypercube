@@ -51,11 +51,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./src/style.css?v=6.8.70">
+  <link rel="stylesheet" href="./src/style.css?v=6.8.71">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=6.8.70').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=6.8.71').then(reg => {
           reg.update();
         }).catch(() => {});
       });
@@ -616,7 +616,7 @@
             <p id="trophy-main-subtitle" class="trophy-modal-subtitle" data-i18n="trophy_modal_subtitle">Chiêm ngưỡng 2 Cúp Danh Giá: Cúp Chiến Tích Bậc Thầy & Cúp Trảm Thần Hư Không</p>
           </div>
         </div>
-        <button id="trophy-modal-close" class="settings-close-btn" aria-label="Đóng">✕</button>
+        <button id="trophy-modal-close" class="settings-close-btn" aria-label="Đóng"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2 2L12 12M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
       </div>
 
       <!-- Trophy Switcher Tabs (C1 vs Boss) -->
@@ -733,7 +733,7 @@
             <button type="button" class="welcome-lang-btn" data-lang="vi">Tiếng Việt</button>
             <button type="button" class="welcome-lang-btn" data-lang="en">English</button>
           </div>
-          <button id="welcome-modal-close" class="settings-close-btn" aria-label="Đóng" title="Đóng">✕</button>
+          <button id="welcome-modal-close" class="settings-close-btn" aria-label="Đóng" title="Đóng"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2 2L12 12M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
         </div>
       </div>
 
@@ -832,7 +832,7 @@
           <h3 id="mode-confirm-title" class="mode-confirm-title" data-i18n="mode_confirm_boss_title">ĐẤU TRÙM (BOSS RAID)</h3>
           <p id="mode-confirm-subtitle" class="mode-confirm-subtitle" data-i18n="mode_confirm_boss_subtitle">Hạ gục Lõi Năng Lượng qua 4 Phase</p>
         </div>
-        <button id="mode-confirm-close" class="settings-close-btn" aria-label="Đóng" title="Đóng">✕</button>
+        <button id="mode-confirm-close" class="settings-close-btn" aria-label="Đóng" title="Đóng"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2 2L12 12M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
       </div>
 
       <div class="mode-confirm-body">
@@ -1032,7 +1032,7 @@
           </svg>
           <h3 class="settings-title" data-i18n="settings_title">Cài Đặt</h3>
         </div>
-        <button id="btn-close-settings" class="settings-close-btn" title="Đóng">✕</button>
+        <button id="btn-close-settings" class="settings-close-btn" title="Đóng"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2 2L12 12M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
       </div>
 
       <div class="settings-body">
@@ -1250,7 +1250,7 @@
           <h3 class="share-modal-title" data-i18n="share_title">Chia Sẻ Điểm Số</h3>
           <p class="share-modal-subtitle" data-i18n="share_subtitle">Khoe thành tích cùng bạn bè qua các mạng xã hội!</p>
         </div>
-        <button id="btn-close-share" class="share-close-btn" aria-label="Đóng">&times;</button>
+        <button id="btn-close-share" class="share-close-btn" aria-label="Đóng"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2 2L12 12M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
       </div>
 
       <!-- Preview Score Badge -->
@@ -1328,6 +1328,6 @@
   </div>
 
   <!-- Main Game Script -->
-  <script type="module" src="./src/main.js?v=6.8.70"></script>
+  <script type="module" src="./src/main.js?v=6.8.71"></script>
 </body>
 </html>

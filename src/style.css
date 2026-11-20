@@ -9241,3 +9241,207 @@ body.reduce-motion *::after {
   0% { transform: scale(1); filter: brightness(1); }
   100% { transform: scale(1.08); filter: brightness(1.25); }
 }
+
+
+/* ==========================================================================
+   UI / THEME REFINEMENTS (v6.8.71)
+   1. Rush Panel Width & 25.0s Overflow Fix
+   2. Crisp Modal Close SVG Buttons across Dark & Gentle Light
+   3. Settings Audio / SFX / BGM Button Contrast Fix
+   4. Gentle Light Theme Contrast: HUD, Kbd Shortcuts, Help Language Tabs & Tips
+   ========================================================================== */
+
+/* === 1. Sửa tràn số 25.0s trong khung Rush === */
+#rush-panel,
+.rush-panel {
+  width: auto !important;
+  min-width: 250px !important;
+  max-width: min(92vw, 340px) !important;
+  padding: 8px 12px !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+#rush-panel .rush-header,
+.rush-panel .rush-top-row,
+.rush-panel .rush-header-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+  width: 100% !important;
+  flex-wrap: nowrap !important;
+}
+
+#rush-timer-val {
+  flex-shrink: 0 !important;
+  white-space: nowrap !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+.rush-timer-cluster {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex-shrink: 0 !important;
+}
+
+/* === 2. Nút đóng Modal luôn rõ nét trên cả Dark & Light === */
+.settings-close-btn,
+.modal-close-btn,
+.share-close-btn,
+[class*="close-btn"] {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #f8fafc !important;
+  background: rgba(255, 255, 255, 0.14) !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  border-radius: 50% !important;
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  transition: all 0.2s ease !important;
+}
+
+.settings-close-btn:hover,
+.modal-close-btn:hover,
+.share-close-btn:hover,
+[class*="close-btn"]:hover {
+  background: rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important;
+  transform: scale(1.05) !important;
+}
+
+.settings-close-btn svg,
+.modal-close-btn svg,
+.share-close-btn svg,
+[class*="close-btn"] svg {
+  width: 14px !important;
+  height: 14px !important;
+  stroke: currentColor !important;
+  pointer-events: none !important;
+}
+
+body.theme-gentle_light .settings-close-btn,
+body.theme-gentle_light .modal-close-btn,
+body.theme-gentle_light .share-close-btn,
+body.theme-gentle_light [class*="close-btn"] {
+  color: #0f172a !important;
+  background: rgba(15, 23, 42, 0.08) !important;
+  border: 1px solid rgba(15, 23, 42, 0.18) !important;
+}
+
+body.theme-gentle_light .settings-close-btn:hover,
+body.theme-gentle_light .modal-close-btn:hover,
+body.theme-gentle_light .share-close-btn:hover,
+body.theme-gentle_light [class*="close-btn"]:hover {
+  background: rgba(15, 23, 42, 0.15) !important;
+  color: #000000 !important;
+}
+
+/* === 3. Sửa nút SFX bị chìm chữ trên cả Dark & Gentle Light === */
+.settings-modal-card .audio-btn,
+#btn-sound-toggle,
+#btn-bgm-toggle,
+#btn-toggle-sfx,
+#btn-toggle-bgm {
+  color: #f8fafc !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+}
+
+body.theme-gentle_light .settings-modal-card .audio-btn,
+body.theme-gentle_light #btn-sound-toggle,
+body.theme-gentle_light #btn-bgm-toggle,
+body.theme-gentle_light #btn-toggle-sfx,
+body.theme-gentle_light #btn-toggle-bgm {
+  color: #0f172a !important;
+  background: #e2e8f0 !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+/* === 4. Sửa tương phản Gentle Light (HUD, phím tắt, thanh trượt, bảng Hướng dẫn ?) === */
+body.theme-gentle_light .hud-icon-btn,
+body.theme-gentle_light .icon-btn,
+body.theme-gentle_light #btn-help,
+body.theme-gentle_light #btn-settings,
+body.theme-gentle_light #btn-theme-quick,
+body.theme-gentle_light #btn-zen-mode,
+body.theme-gentle_light #btn-help-toggle,
+body.theme-gentle_light #btn-settings-toggle,
+body.theme-gentle_light .header-actions-cluster .glass-btn,
+body.theme-gentle_light .header-actions-cluster .icon-only-btn {
+  color: #0f172a !important;
+  background: rgba(15, 23, 42, 0.08) !important;
+  border-color: rgba(15, 23, 42, 0.18) !important;
+}
+
+body.theme-gentle_light .header-actions-cluster .header-icon-svg,
+body.theme-gentle_light .header-actions-cluster .header-btn-svg,
+body.theme-gentle_light #btn-zen-mode svg,
+body.theme-gentle_light #btn-help-toggle svg,
+body.theme-gentle_light #btn-settings-toggle svg {
+  stroke: #0f172a !important;
+  color: #0f172a !important;
+}
+
+body.theme-gentle_light .spell-hotkey,
+body.theme-gentle_light kbd,
+body.theme-gentle_light .hint-compact-pill kbd,
+body.theme-gentle_light .control-tips kbd {
+  color: #1e293b !important;
+  background: #e2e8f0 !important;
+  border: 1px solid #94a3b8 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08) !important;
+}
+
+body.theme-gentle_light input[type="range"] {
+  background: #cbd5e1 !important;
+}
+
+/* Tab ngôn ngữ & thẻ Điện thoại/Tablet trong bảng Hướng dẫn (?) ở theme sáng */
+body.theme-gentle_light .welcome-lang-picker {
+  background: #f1f5f9 !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+body.theme-gentle_light .help-lang-btn,
+body.theme-gentle_light .lang-tab-btn,
+body.theme-gentle_light .welcome-lang-btn {
+  color: #334155 !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+body.theme-gentle_light .help-lang-btn:hover,
+body.theme-gentle_light .lang-tab-btn:hover,
+body.theme-gentle_light .welcome-lang-btn:hover {
+  color: #0f172a !important;
+  background: rgba(15, 23, 42, 0.06) !important;
+}
+
+body.theme-gentle_light .help-lang-btn.active,
+body.theme-gentle_light .lang-tab-btn.active,
+body.theme-gentle_light .welcome-lang-btn.active {
+  color: #ffffff !important;
+  background: #0284c7 !important;
+  border-color: #0284c7 !important;
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.3) !important;
+}
+
+body.theme-gentle_light .help-touch-card,
+body.theme-gentle_light .mobile-tip-card,
+body.theme-gentle_light .gesture-pill {
+  color: #0369a1 !important;
+  background: #e0f2fe !important;
+  border: 1px solid #7dd3fc !important;
+}
+
+body.theme-gentle_light .control-device {
+  color: #0284c7 !important;
+  font-weight: 800 !important;
+}

@@ -349,7 +349,7 @@ class GameApp {
           border-radius: 10px;
           cursor: pointer;
           box-shadow: 0 4px 14px rgba(56, 189, 248, 0.4);
-        ">Tải lại trang</button>
+        ">${t('webgl_reload_btn') || 'Tải lại trang'}</button>
       </div>
     `;
   }
@@ -1567,7 +1567,7 @@ class GameApp {
     if (!this.isRushMode) {
       this.toggleRushMode(true);
     }
-    this.showSpellToast('⚡ Chế độ Đua Giờ đã kích hoạt!');
+    this.showSpellToast(t('rush_activated_toast') || '⚡ Chế độ Đua Giờ đã kích hoạt!');
   }
 
   setupModeConfirmModal() {

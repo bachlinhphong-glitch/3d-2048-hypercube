@@ -236,6 +236,8 @@ export const DICTIONARY = {
     share_card_max_tile: '⭐ KHỐI CAO NHẤT',
     webgl_error_title: 'Đồ họa 3D WebGL Chưa Sẵn Sàng',
     webgl_error_desc: 'Trình duyệt của bạn có thể đang tắt tính năng Tăng tốc phần cứng (Hardware Acceleration) hoặc chưa cấp quyền WebGL.',
+    webgl_reload_btn: 'Tải lại trang',
+    rush_activated_toast: '⚡ Chế độ Đua Giờ đã kích hoạt!',
     welcome_dont_show: 'Không hiện lại khi mở trang',
     welcome_btn_start: 'Bắt Đầu',
 
@@ -600,6 +602,8 @@ export const DICTIONARY = {
     share_card_max_tile: '⭐ HIGHEST TILE',
     webgl_error_title: '3D WebGL Graphics Not Available',
     webgl_error_desc: 'Hardware Acceleration might be disabled or WebGL permission is blocked in your browser.',
+    webgl_reload_btn: 'Reload Page',
+    rush_activated_toast: '⚡ Time Rush Mode Activated!',
     welcome_dont_show: "Don't show automatically on startup",
     welcome_btn_start: 'Start Playing Now',
 
@@ -949,6 +953,8 @@ export const DICTIONARY = {
     share_card_max_tile: '⭐ 最大タイル',
     webgl_error_title: '3D WebGL グラフィック未準備',
     webgl_error_desc: 'ハードウェアアクセラレーションが無効か、ブラウザでWebGLが許可されていません。',
+    webgl_reload_btn: 'ページを再読み込み',
+    rush_activated_toast: '⚡ タイムラッシュモードが有効化されました！',
     welcome_dont_show: '次回から自動で表示しない',
     welcome_btn_start: '今すぐプレイ開始',
 
@@ -1298,6 +1304,8 @@ export const DICTIONARY = {
     share_card_max_tile: '⭐ 최고 타일',
     webgl_error_title: '3D WebGL 그래픽 미지원',
     webgl_error_desc: '하드웨어 가속이 꺼져 있거나 브라우저에서 WebGL 권한이 차단되었을 수 있습니다.',
+    webgl_reload_btn: '페이지 새로고침',
+    rush_activated_toast: '⚡ 타임 러시 모드가 활성화되었습니다!',
     welcome_dont_show: '시작 시 자동으로 표시하지 않기',
     welcome_btn_start: '지금 시작하기',
 
