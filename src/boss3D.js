@@ -1155,6 +1155,38 @@ export class Boss3DController {
     const supernova = new THREE.Points(geo, mat);
     this.fxGroup.add(supernova);
 
+    // Expanding Supernova Shockwave Ring (Gold & Radiant Magenta)
+    try {
+      const ringGeo = new THREE.RingGeometry(0.3, 1.4, 64);
+      const ringMat = new THREE.MeshBasicMaterial({
+        color: 0xffd700,
+        transparent: true,
+        opacity: 0.95,
+        side: THREE.DoubleSide,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+      });
+      const shockwave = new THREE.Mesh(ringGeo, ringMat);
+      shockwave.rotation.x = -Math.PI / 2;
+      shockwave.position.copy(this.root.position);
+      this.fxGroup.add(shockwave);
+
+      gsap.fromTo(shockwave.scale,
+        { x: 1, y: 1, z: 1 },
+        { x: 32, y: 32, z: 32, duration: 1.35, ease: 'power2.out' }
+      );
+      gsap.to(ringMat, {
+        opacity: 0,
+        duration: 1.35,
+        ease: 'power2.out',
+        onComplete: () => {
+          this.fxGroup.remove(shockwave);
+          ringGeo.dispose();
+          ringMat.dispose();
+        }
+      });
+    } catch (e) {}
+
     const state = { progress: 0 };
     gsap.killTweensOf(this.phase3Group.scale);
     gsap.killTweensOf(this.phase4Group.scale);

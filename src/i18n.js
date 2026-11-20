@@ -271,8 +271,11 @@ export const DICTIONARY = {
     rule_rush_bonus_desc: 'Kỹ năng còn lại sẽ tự đổi thành +15s sinh tồn khi hết giờ.',
 
     // Boss Victory & Achievements
-    boss_victory_heading: 'HẠ GỤC HOÀN TẤT',
-    boss_victory_congrats: 'Bạn đã xuất sắc đánh bại cả 4 Phase của Boss!',
+    boss_victory_heading: 'CHIẾN THẮNG HUYỀN THOẠI!',
+    boss_victory_congrats: 'Không thời gian đã được tái lập. Bạn đã làm chủ ma trận số học và thanh trừng hoàn toàn 4 dạng thức của Thực Thể Hư Không!',
+    boss_victory_ai_title: 'CHIẾN DỊCH HOÀN TẤT',
+    boss_ai_pill: 'Hỗ trợ bởi AI (Tạm khóa kỷ lục & Cúp)',
+    boss_phase_destroyed: 'PHASE {phase} ĐÃ BỊ PHÁ HỦY!',
     boss_achieve_tier: 'MỞ KHÓA THÀNH TỰU',
     boss_achieve_name: 'BẬC THẦY DIỆT BOSS',
     boss_achieve_desc: 'Hạ gục Chúa Tể Đa Chiều bằng cú dứt điểm 2048!',
@@ -626,8 +629,11 @@ export const DICTIONARY = {
     rule_rush_bonus_desc: 'When time hits 0s, each remaining spell automatically converts into +15s survival time to keep your combo alive!',
 
     // Boss Victory & Achievements
-    boss_victory_heading: 'GLORIOUS VICTORY!',
-    boss_victory_congrats: 'Warmest congratulations, Champion! You have courageously conquered all odds and annihilated the Dark Singularity Core across 4 thrilling phases!',
+    boss_victory_heading: 'LEGENDARY VICTORY!',
+    boss_victory_congrats: 'Spacetime continuum restored! You have mastered the matrix and completely purged all 4 phases of the Void Entity!',
+    boss_victory_ai_title: 'CAMPAIGN COMPLETED',
+    boss_ai_pill: 'Assisted by AI Bot (Records & Trophy Locked)',
+    boss_phase_destroyed: 'PHASE {phase} DESTROYED!',
     boss_achieve_tier: 'LEGENDARY ACHIEVEMENT UNLOCKED',
     boss_achieve_name: 'SINGULARITY SLAYER',
     boss_achieve_desc: 'Annihilated Dark Singularity Core across 4 phases with a devastating [2048] tile finisher!',
@@ -966,8 +972,11 @@ export const DICTIONARY = {
     rule_rush_bonus_desc: 'タイマーが0秒になっても呪文が残っていれば、1つにつき+15秒の生存時間が付与されます！',
 
     // Boss Victory & Achievements
-    boss_victory_heading: '輝かしき大勝利！',
-    boss_victory_congrats: '勇者よ、熱烈に祝福します！過酷な試練を乗り越え、3段階のダークシンギュラリティコアを完全に消滅させました！',
+    boss_victory_heading: '伝説の大勝利！',
+    boss_victory_congrats: '時空が再構築されました！幾何マトリクスを極め、虚空の実体の4形態を完全消滅させました！',
+    boss_victory_ai_title: '作戦完了',
+    boss_ai_pill: 'AIサポートプレイ（記録とトロフィーは保留）',
+    boss_phase_destroyed: 'フェーズ {phase} 破壊完了！',
     boss_achieve_tier: '伝説の実績が解除されました',
     boss_achieve_name: '虚空の破壊者 (SINGULARITY SLAYER)',
     boss_achieve_desc: '2048タイルの究極合体で第3形態のシンギュラリティコアを完全破壊！',
@@ -1306,8 +1315,11 @@ export const DICTIONARY = {
     rule_rush_bonus_desc: '타이머가 0초가 되었을 때 남은 주문이 있다면, 1개당 +15초의 생존 시간이 지급되어 콤보를 이어갈 수 있습니다!',
 
     // Boss Victory & Achievements
-    boss_victory_heading: '눈부신 대승리!',
-    boss_victory_congrats: '용사여, 진심으로 축하합니다! 모든 시련을 딛고 3단계 싱귤래리티 코어를 완전히 소멸시켰습니다!',
+    boss_victory_heading: '전설적인 대승리!',
+    boss_victory_congrats: '시공간이 재건되었습니다! 매트릭스를 완벽히 정복하고 공허 실체의 4단계를 완전히 소멸시켰습니다!',
+    boss_victory_ai_title: '작전 완료',
+    boss_ai_pill: 'AI 봇 지원 플레이 (기록 및 트로피 잠김)',
+    boss_phase_destroyed: '페이즈 {phase} 파괴 완료!',
     boss_achieve_tier: '전설적인 업적 잠금 해제',
     boss_achieve_name: '공허의 파괴자 (SINGULARITY SLAYER)',
     boss_achieve_desc: '2048 타일 융합으로 3페이즈 싱귤래리티 코어를 완벽히 격파했습니다!',

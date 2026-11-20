@@ -51,18 +51,18 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./src/style.css?v=6.8.66">
+  <link rel="stylesheet" href="./src/style.css?v=6.8.67">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=6.8.66').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=6.8.67').then(reg => {
           reg.update();
         }).catch(() => {});
       });
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         try {
-          if (!sessionStorage.getItem('sw_reloaded_6866')) {
-            sessionStorage.setItem('sw_reloaded_6866', '1');
+          if (!sessionStorage.getItem('sw_reloaded_6867')) {
+            sessionStorage.setItem('sw_reloaded_6867', '1');
             window.location.reload();
           }
         } catch {}
@@ -872,107 +872,140 @@
   <!-- Grand Boss Victory & Achievement Modal -->
   <div id="boss-victory-modal" class="boss-victory-modal-overlay" style="display: none;">
     <div class="boss-victory-card">
-      <!-- Boss Victory Execution Banner -->
-      <div class="sekiro-severance-banner">
-        <div class="sekiro-kanji">THANH TRỪNG HOÀN TẤT</div>
-        <div class="sekiro-sub">THỰC THỂ HƯ KHÔNG ĐÃ BỊ THANH TRỪNG • ENTITY SEVERED</div>
-      </div>
+      <!-- Rotating Conic God Rays Background -->
+      <div class="boss-victory-god-rays"></div>
 
-      <div class="boss-victory-banner-top">
-        <div class="boss-trophy-glow"></div>
-        <div class="boss-victory-badge-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+      <!-- Section 1: Pinned Header (flex-shrink: 0) -->
+      <div class="boss-victory-header">
+        <!-- Floating Falling Gold Dust Particles -->
+        <div id="boss-victory-confetti" class="boss-embers-container"></div>
+
+        <!-- Majestic Multi-layered Crown / Void Core Trophy Badge -->
+        <div class="boss-trophy-badge-wrap">
+          <div class="boss-trophy-aura-glow"></div>
+          <svg class="boss-trophy-crown-svg" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="goldGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#fffbeb" />
+                <stop offset="25%" stop-color="#fcd34d" />
+                <stop offset="60%" stop-color="#f59e0b" />
+                <stop offset="100%" stop-color="#b45309" />
+              </linearGradient>
+              <linearGradient id="crimsonGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#f43f5e" />
+                <stop offset="100%" stop-color="#881337" />
+              </linearGradient>
+              <radialGradient id="rubyGlow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#ffedd5" />
+                <stop offset="40%" stop-color="#fb7185" />
+                <stop offset="100%" stop-color="#9f1239" />
+              </radialGradient>
+            </defs>
+            <path d="M32 4 L57 16 V40 L32 60 L7 40 V16 Z" fill="url(#crimsonGrad1)" stroke="url(#goldGrad1)" stroke-width="2.5" />
+            <circle cx="32" cy="32" r="18" fill="#12061a" stroke="url(#goldGrad1)" stroke-width="1.8" />
+            <path d="M21 41 L19 26 L26 31 L32 20 L38 31 L45 26 L43 41 Z" fill="url(#goldGrad1)" stroke="#78350f" stroke-width="0.8" />
+            <circle cx="32" cy="20" r="2.4" fill="url(#rubyGlow)" />
+            <circle cx="19" cy="26" r="2.0" fill="url(#rubyGlow)" />
+            <circle cx="45" cy="26" r="2.0" fill="url(#rubyGlow)" />
+            <circle cx="32" cy="36" r="3.2" fill="url(#rubyGlow)" stroke="#fef08a" stroke-width="0.8" />
+            <path d="M22 41 Q32 45 42 41" stroke="#fef08a" stroke-width="2" stroke-linecap="round" />
           </svg>
         </div>
-        <h2 id="boss-victory-heading" class="boss-victory-title" data-i18n="boss_victory_heading">THANH TRỪNG HOÀN TẤT</h2>
-        <p id="boss-victory-subtitle" class="boss-victory-subtitle" data-i18n="boss_victory_congrats">Không thời gian đã được tái lập. Bạn đã làm chủ ma trận số học và thanh trừng hoàn toàn 4 dạng thức của Thực Thể Hư Không.</p>
+
+        <div class="boss-victory-title-wrap">
+          <div class="boss-victory-tag-severance">THANH TRỪNG HOÀN TẤT • ENTITY SEVERED</div>
+          <h2 id="boss-victory-heading" class="boss-victory-title" data-i18n="boss_victory_heading">CHIẾN THẮNG HUYỀN THOẠI!</h2>
+          <p id="boss-victory-subtitle" class="boss-victory-subtitle" data-i18n="boss_victory_congrats">Không thời gian đã được tái lập. Bạn đã làm chủ ma trận số học và thanh trừng hoàn toàn 4 dạng thức của Thực Thể Hư Không.</p>
+        </div>
+
+        <!-- Slim 1-line AI Banner Pill -->
+        <div id="boss-victory-ai-pill" class="boss-ai-compact-pill" style="display: none;">
+          <span class="boss-ai-tag">AI</span>
+          <span class="boss-ai-pill-text" data-i18n="boss_ai_pill">Hỗ trợ bởi AI (Tạm khóa kỷ lục & Cúp)</span>
+        </div>
       </div>
 
-      <div class="boss-achievement-container">
-        <div class="boss-achievement-badge">
-          <div class="boss-achievement-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-            </svg>
+      <!-- Section 2: Scrollable Body (flex: 1; min-height: 0; overflow-y: auto) -->
+      <div class="boss-victory-body">
+        <!-- Compact Achievement Row -->
+        <div class="boss-achievement-container">
+          <div class="boss-achievement-badge">
+            <div class="boss-achievement-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+              </svg>
+            </div>
+            <div class="boss-achievement-details">
+              <div class="boss-achievement-tier" data-i18n="boss_achieve_tier">THÀNH TỰU THẦN THOẠI ĐÃ MỞ KHÓA</div>
+              <div class="boss-achievement-name" data-i18n="boss_achieve_name">KẺ THANH TRỪNG HƯ KHÔNG (VOID SLAYER)</div>
+              <div class="boss-achievement-desc" data-i18n="boss_achieve_desc">Tiêu diệt hoàn toàn Chúa Tể Đa Chiều Omniverse bằng xung kích 2048 tối thượng!</div>
+            </div>
           </div>
-          <div class="boss-achievement-details">
-            <div class="boss-achievement-tier" data-i18n="boss_achieve_tier">THÀNH TỰU THẦN THOẠI ĐÃ MỞ KHÓA</div>
-            <div class="boss-achievement-name" data-i18n="boss_achieve_name">KẺ THANH TRỪNG HƯ KHÔNG (VOID SLAYER)</div>
-            <div class="boss-achievement-desc" data-i18n="boss_achieve_desc">Tiêu diệt hoàn toàn Chúa Tể Đa Chiều Omniverse bằng xung kích 2048 tối thượng!</div>
+        </div>
+
+        <!-- 2x2 Stats Grid with Animated Count-up Numbers -->
+        <div class="boss-victory-stats-grid">
+          <div class="boss-v-stat">
+            <span class="boss-v-label" data-i18n="boss_stat_time">Thời gian diệt trùm</span>
+            <span id="boss-v-time" class="boss-v-val">01:45</span>
+          </div>
+          <div class="boss-v-stat">
+            <span class="boss-v-label" data-i18n="boss_stat_damage">Tổng sát thương</span>
+            <span id="boss-v-damage" class="boss-v-val">6,096 HP</span>
+          </div>
+          <div class="boss-v-stat">
+            <span class="boss-v-label" data-i18n="boss_stat_score">Điểm số trận đấu</span>
+            <span id="boss-v-score" class="boss-v-val">0</span>
+          </div>
+          <div class="boss-v-stat">
+            <span class="boss-v-label" data-i18n="boss_stat_finisher">Đòn kết liễu</span>
+            <span class="boss-v-val gold" data-i18n="boss_stat_finisher_val">Khối 2048 Siêu Cấp</span>
+          </div>
+        </div>
+
+        <!-- Records & Loop Info Pill -->
+        <div class="boss-victory-records-bar">
+          <div class="boss-v-rec-pill">
+            <span class="boss-v-rec-icon">⚡</span>
+            <span class="boss-v-rec-lbl" data-i18n="boss_rec_speed">Kỷ lục:</span>
+            <span id="boss-v-best-time" class="boss-v-rec-num">--:--</span>
+            <span id="boss-v-new-record-badge" class="boss-v-new-pill" style="display: none;" data-i18n="boss_rec_new">KỶ LỤC MỚI! ⭐</span>
+          </div>
+          <div class="boss-v-rec-pill">
+            <span class="boss-v-rec-icon">🌌</span>
+            <span class="boss-v-rec-lbl" data-i18n="boss_rec_loop">Vòng:</span>
+            <span id="boss-v-loop-level" class="boss-v-rec-num">Vòng 1</span>
           </div>
         </div>
       </div>
 
-      <!-- Stats Grid -->
-      <div class="boss-victory-stats-grid">
-        <div class="boss-v-stat">
-          <span class="boss-v-label" data-i18n="boss_stat_time">Thời gian diệt trùm</span>
-          <span id="boss-v-time" class="boss-v-val">01:45</span>
-        </div>
-        <div class="boss-v-stat">
-          <span class="boss-v-label" data-i18n="boss_stat_damage">Tổng sát thương</span>
-          <span id="boss-v-damage" class="boss-v-val">6,096 HP</span>
-        </div>
-        <div class="boss-v-stat">
-          <span class="boss-v-label" data-i18n="boss_stat_score">Điểm số trận đấu</span>
-          <span id="boss-v-score" class="boss-v-val">0</span>
-        </div>
-        <div class="boss-v-stat">
-          <span class="boss-v-label" data-i18n="boss_stat_finisher">Đòn kết liễu</span>
-          <span class="boss-v-val gold" data-i18n="boss_stat_finisher_val">Khối 2048 Siêu Cấp</span>
-        </div>
-      </div>
-
-      <!-- Records & Milestones Bar -->
-      <div class="boss-victory-records-bar">
-        <div class="boss-v-rec-pill">
-          <span class="boss-v-rec-icon">⚡</span>
-          <span class="boss-v-rec-lbl" data-i18n="boss_rec_speed">Kỷ lục Tốc độ:</span>
-          <span id="boss-v-best-time" class="boss-v-rec-num">--:--</span>
-          <span id="boss-v-new-record-badge" class="boss-v-new-pill" style="display: none;" data-i18n="boss_rec_new">KỶ LỤC MỚI! ⭐</span>
-        </div>
-        <div class="boss-v-rec-pill">
-          <span class="boss-v-rec-icon">🌌</span>
-          <span class="boss-v-rec-lbl" data-i18n="boss_rec_loop">Vòng lặp:</span>
-          <span id="boss-v-loop-level" class="boss-v-rec-num">Vòng 1 (Kỷ lục: Loop 1)</span>
-        </div>
-      </div>
-
-      <div class="boss-victory-actions">
-        <!-- Primary Action: New Game+ Loop -->
+      <!-- Section 3: Pinned Actions Footer (flex-shrink: 0) -->
+      <div class="boss-victory-footer">
+        <!-- Primary Action: New Game+ Loop / Continue -->
         <button id="boss-victory-btn-loop" class="boss-v-start-btn loop-btn">
-          <span id="boss-v-btn-loop-text">⚔️ Tiến vào Vòng lặp 2 (New Game+ • +50% Điểm)</span>
+          <span id="boss-v-btn-loop-text">⚔️ Tiến vào Vòng lặp 2 (NG+ • +50% Điểm)</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><polyline points="9 18 15 12 9 6"/></svg>
-
         </button>
 
-        <!-- Secondary Action: Endless Mode 4096+ -->
-        <button id="boss-victory-btn-endless" class="boss-v-endless-btn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-          <span data-i18n="boss_btn_endless">🏆 Chế độ Tự Do Vô Hạn (Vượt ngưỡng 4096+)</span>
-        </button>
-
-        <!-- Sub-actions Row -->
+        <!-- Action Buttons Row -->
         <div class="boss-victory-sub-actions">
-          <button id="boss-victory-btn-fireworks" class="modal-btn secondary" style="border-color: #f59e0b; color: #fde047;">
-            <span>🎉 Bắn Pháo Hoa</span>
-          </button>
-          <button id="boss-victory-btn-share" class="modal-btn secondary" style="border-color: #00f0ff; color: #38bdf8;">
+          <button id="boss-victory-btn-share" class="modal-btn boss-btn-gold-share">
             <svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
-            <span data-i18n="modal_btn_share">Chia sẻ thành tích</span>
+            <span data-i18n="boss_btn_share">Chia Sẻ Chiến Tích</span>
           </button>
-        <button id="boss-victory-btn-view-trophy" class="modal-btn secondary" style="border-color: #ef4444; color: #fca5a5;">
-          <svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-          <span data-i18n="boss_btn_trophy">Chiêm Ngưỡng Cúp Trảm Thần 3D</span>
-        </button>
-          <button id="boss-victory-btn-restart" class="modal-btn secondary" style="border-color: #64748b; color: #94a3b8;">
-            <span data-i18n="boss_btn_restart">🔄 Chơi ván mới</span>
+          <button id="boss-victory-btn-endless" class="modal-btn secondary">
+            <span>🏆 Vô Hạn</span>
+          </button>
+          <button id="boss-victory-btn-view-trophy" class="modal-btn secondary">
+            <span>👑 Xem Cúp</span>
+          </button>
+          <button id="boss-victory-btn-restart" class="modal-btn secondary">
+            <span data-i18n="boss_btn_restart">🔄 Ván mới</span>
           </button>
           <button id="boss-victory-btn-continue" style="display: none;"></button>
+          <button id="boss-victory-btn-fireworks" style="display: none;"></button>
         </div>
       </div>
-      <div id="boss-victory-confetti" class="boss-embers-container"></div>
     </div>
   </div>
 

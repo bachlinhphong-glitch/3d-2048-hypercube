@@ -1,4 +1,7 @@
 // Procedural Web Audio API sound generator for 3D 2048 & Hypercube
+if (typeof navigator !== 'undefined' && 'audioSession' in navigator) {
+  try { navigator.audioSession.type = 'playback'; } catch (e) {}
+}
 export const BGM_TRACKS = [
   {
     id: 0,
@@ -180,10 +183,37 @@ class SoundManager {
       console.warn("Web Audio API not supported", e);
     }
   }
+unlockAudio() {
+    if (typeof navigator !== 'undefined' && 'audioSession' in navigator) {
+      try { navigator.audioSession.type = 'playback'; } catch (e) {}
+    }
+    if (!this.ctx) {
+      this.init();
+    }
+    if (this.ctx) {
+      if (this.ctx.state === 'suspended' || this.ctx.state === 'interrupted') {
+        this.ctx.resume().catch(() => {});
+      }
+      try {
+        const buffer = this.ctx.createBuffer(1, 1, 22050);
+        const source = this.ctx.createBufferSource();
+        source.buffer = buffer;
+        source.connect(this.ctx.destination);
+        source.start(0);
+      } catch (e) {}
+    }
+    if (!this.muted && this.bgmVolume > 0 && !this.bgmPlaying) {
+      const bgmSaved = localStorage.getItem('3d2048_bgm');
+      if (bgmSaved === 'true' || bgmSaved === null) {
+        this.startBGM();
+      }
+    }
+  }
+
   ensureContext() {
     this.init();
-    if (this.ctx && this.ctx.state === 'suspended') {
-      this.ctx.resume();
+    if (this.ctx && (this.ctx.state === 'suspended' || this.ctx.state === 'interrupted')) {
+      this.ctx.resume().catch(() => {});
     }
   }
 
@@ -1845,6 +1875,108 @@ class SoundManager {
     });
   }
 
+  // Grand Majestic Victory Fanfare (Web Audio API Sub-bass, Brass Ascending Chords & Crystal Bells)
+  playBossDefeatedFanfare() {
+    this.triggerHaptic('win');
+    if (this.muted) return;
+    this.ensureContext();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+
+    // 1. Sub-bass boom & impact punch (65Hz -> 28Hz sweep)
+    const boomOsc = this.ctx.createOscillator();
+    const boomGain = this.ctx.createGain();
+    boomOsc.type = 'sine';
+    boomOsc.frequency.setValueAtTime(68, t);
+    boomOsc.frequency.exponentialRampToValueAtTime(28, t + 0.85);
+    boomGain.gain.setValueAtTime(0.42, t);
+    boomGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.9);
+    boomOsc.connect(boomGain);
+    boomGain.connect(this.compressor || this.ctx.destination);
+    boomOsc.start(t);
+    boomOsc.stop(t + 0.95);
+
+    // Punch transient noise burst
+    const noiseLen = Math.floor(this.ctx.sampleRate * 0.12);
+    const noiseBuf = this.ctx.createBuffer(1, noiseLen, this.ctx.sampleRate);
+    const nData = noiseBuf.getChannelData(0);
+    for (let i = 0; i < noiseLen; i++) nData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (this.ctx.sampleRate * 0.03));
+    const noiseNode = this.ctx.createBufferSource();
+    noiseNode.buffer = noiseBuf;
+    const noiseFilter = this.ctx.createBiquadFilter();
+    noiseFilter.type = 'lowpass';
+    noiseFilter.frequency.setValueAtTime(1400, t);
+    const noiseGain = this.ctx.createGain();
+    noiseGain.gain.setValueAtTime(0.28, t);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+    noiseNode.connect(noiseFilter);
+    noiseFilter.connect(noiseGain);
+    noiseGain.connect(this.compressor || this.ctx.destination);
+    noiseNode.start(t);
+
+    // 2. Triumphant Ascending Brass / Synth Chords: C4 -> E4 -> G4 -> C5
+    const brassNotes = [
+      { f: 261.63, start: 0.08, dur: 2.2 }, // C4
+      { f: 329.63, start: 0.22, dur: 2.2 }, // E4
+      { f: 392.00, start: 0.36, dur: 2.4 }, // G4
+      { f: 523.25, start: 0.50, dur: 2.8 }  // C5 (ringing sustain)
+    ];
+
+    brassNotes.forEach(note => {
+      const nt = t + note.start;
+      const bOsc = this.ctx.createOscillator();
+      const bGain = this.ctx.createGain();
+      const bFilter = this.ctx.createBiquadFilter();
+
+      bOsc.type = 'sawtooth';
+      bOsc.frequency.setValueAtTime(note.f, nt);
+
+      bFilter.type = 'lowpass';
+      bFilter.frequency.setValueAtTime(450, nt);
+      bFilter.frequency.exponentialRampToValueAtTime(2600, nt + 0.45);
+      bFilter.frequency.exponentialRampToValueAtTime(800, nt + note.dur);
+      bFilter.Q.setValueAtTime(2.2, nt);
+
+      bGain.gain.setValueAtTime(0.001, nt);
+      bGain.gain.linearRampToValueAtTime(0.18, nt + 0.06);
+      bGain.gain.exponentialRampToValueAtTime(0.0001, nt + note.dur);
+
+      bOsc.connect(bFilter);
+      bFilter.connect(bGain);
+      bGain.connect(this.compressor || this.ctx.destination);
+
+      bOsc.start(nt);
+      bOsc.stop(nt + note.dur + 0.05);
+    });
+
+    // 3. Shimmering Crystal Stardust Bells Arpeggio (C6, E6, G6, C7)
+    const bellNotes = [
+      { f: 1046.50, start: 0.55 },
+      { f: 1318.51, start: 0.70 },
+      { f: 1567.98, start: 0.85 },
+      { f: 2093.00, start: 1.00 }
+    ];
+
+    bellNotes.forEach(bell => {
+      const bt = t + bell.start;
+      const bellOsc = this.ctx.createOscillator();
+      const bellGain = this.ctx.createGain();
+
+      bellOsc.type = 'sine';
+      bellOsc.frequency.setValueAtTime(bell.f, bt);
+
+      bellGain.gain.setValueAtTime(0.15, bt);
+      bellGain.gain.exponentialRampToValueAtTime(0.0001, bt + 0.75);
+
+      bellOsc.connect(bellGain);
+      bellGain.connect(this.compressor || this.ctx.destination);
+
+      bellOsc.start(bt);
+      bellOsc.stop(bt + 0.8);
+    });
+  }
+
   // Grand Royal Fanfare for Unlocking the Exclusive 3D 2048 Trophy
   playTrophyUnlockFanfare() {
     this.playChampionsLeagueFanfare();
@@ -1856,3 +1988,29 @@ class SoundManager {
 }
 
 export const soundManager = new SoundManager();
+
+// Standard iOS Safari Audio Unlock & Tab-Restore Handlers
+if (typeof window !== 'undefined') {
+  const unlockEvents = ['touchend', 'pointerup', 'click', 'keydown'];
+  const onUserGesture = () => {
+    soundManager.unlockAudio();
+  };
+  unlockEvents.forEach((evt) => {
+    window.addEventListener(evt, onUserGesture, { passive: true });
+  });
+
+  // Re-arm when tab is resumed
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      if (soundManager.ctx && (soundManager.ctx.state === 'suspended' || soundManager.ctx.state === 'interrupted')) {
+        soundManager.ctx.resume().catch(() => {});
+      }
+    }
+  });
+  window.addEventListener('pageshow', () => {
+    if (soundManager.ctx && (soundManager.ctx.state === 'suspended' || soundManager.ctx.state === 'interrupted')) {
+      soundManager.ctx.resume().catch(() => {});
+    }
+  });
+}
+

@@ -286,6 +286,11 @@ export class BossManager {
     const hpMult = Math.pow(1.35, (this.loop || 1) - 1);
     const loopTag = this.loop > 1 ? `[VÒNG ${this.loop}] ` : '';
 
+    const getPhaseDestText = (p) => {
+      const template = typeof t === 'function' ? (t('boss_phase_destroyed') || 'PHASE {phase} ĐÃ BỊ PHÁ HỦY!') : 'PHASE {phase} ĐÃ BỊ PHÁ HỦY!';
+      return template.replace('{phase}', p);
+    };
+
     if (this.phase === 1) {
       // Phase 1 -> Phase 2 (Solar Helios)
       this.emitExpandingRingWave(0xfbbf24);
@@ -298,7 +303,7 @@ export class BossManager {
       if (this.boss3D) this.boss3D.setHpRatio(1.0);
       this.updateHUD();
 
-      this.triggerBanner(`${loopTag}SOLAR QUASAR — PHASE 2 • QUANG NĂNG VĨNH CỬU`, `${this.hp.toLocaleString()} HP | +120s • Đã thanh lọc phân mảnh [2], [4]`);
+      this.triggerBanner(`${loopTag}${getPhaseDestText(1)}`, `SOLAR QUASAR • +120s • Đã thanh lọc phân mảnh [2], [4]`);
     } else if (this.phase === 2) {
       // Phase 2 -> Phase 3 (Cosmic Singularity)
       this.emitExpandingRingWave(0xa855f7);
@@ -310,7 +315,7 @@ export class BossManager {
       if (this.boss3D) this.boss3D.setHpRatio(1.0);
       this.updateHUD();
 
-      this.triggerBanner(`${loopTag}💥 SINGULARITY CORE — PHASE 3 • ĐIỂM KỲ DỊ HƯ KHÔNG`, `${this.hp.toLocaleString()} HP | +120s • Vết nứt không gian mở rộng!`);
+      this.triggerBanner(`${loopTag}${getPhaseDestText(2)}`, `SINGULARITY CORE • +120s • Vết nứt không gian mở rộng!`);
     } else if (this.phase === 3) {
       // Phase 3 -> Phase 4 (Omniverse Transcendent God)
       this.emitExpandingRingWave(0x00f0ff);
@@ -323,7 +328,7 @@ export class BossManager {
       if (this.boss3D) this.boss3D.setHpRatio(1.0);
       this.updateHUD();
 
-      this.triggerBanner(`${loopTag}🌌 OMNIVERSE SOVEREIGN — PHASE 4 • CHÚA TỂ ĐA CHIỀU`, `${this.hp.toLocaleString()} HP | +120s • Thực thể tối thượng thức tỉnh!`);
+      this.triggerBanner(`${loopTag}${getPhaseDestText(3)}`, `OMNIVERSE SOVEREIGN • +120s • Thực thể tối thượng thức tỉnh!`);
     } else if (this.phase === 4) {
       // Phase 4 Defeated!
       this.executeGrandFinale();
@@ -415,14 +420,30 @@ export class BossManager {
     this.hp = 0;
     this.updateHUD();
 
-    if (this.flashEl) {
-      this.flashEl.style.opacity = '0.85';
-      gsap.to(this.flashEl, { opacity: 0, duration: 1.2, ease: 'power2.out' });
+    // 1. Golden-White Screen Energy Flash (fading over 350ms)
+    const flashEl = document.getElementById('cinematic-flash') || this.flashEl;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches || (this.gameApp && this.gameApp.reduceMotion);
+    if (flashEl && !reduceMotion) {
+      flashEl.style.transition = 'none';
+      flashEl.style.background = 'radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.98) 0%, rgba(251, 191, 36, 0.92) 45%, rgba(168, 85, 247, 0.5) 80%, transparent 100%)';
+      flashEl.style.opacity = '0.92';
+      requestAnimationFrame(() => {
+        flashEl.style.transition = 'opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1)';
+        flashEl.style.opacity = '0';
+      });
     }
 
-    soundManager.playBossObliteration();
-    soundManager.triggerHaptic('bomb');
-    this.gameApp.particleSystem.screenShake(this.camera, 0.45);
+    // 2. Victory Fanfare Sound + Sub-bass Boom + Shimmering Crystal Bells
+    if (soundManager.playBossDefeatedFanfare) {
+      soundManager.playBossDefeatedFanfare();
+    } else {
+      soundManager.playBossObliteration();
+    }
+
+    soundManager.triggerHaptic('win');
+    if (!reduceMotion && this.gameApp && this.gameApp.particleSystem) {
+      this.gameApp.particleSystem.screenShake(this.camera, 0.4);
+    }
 
     const totalSecs = Math.round(this.clearTime);
     const m = Math.floor(totalSecs / 60);
@@ -583,9 +604,23 @@ export class BossManager {
     const hpMult = Math.pow(1.35, (this.loop || 1) - 1);
     const totalLoopDamage = Math.round(6096 * hpMult);
 
+    // Animated count up for numbers
+    const animateCountUp = (el, target, suffix = '', duration = 1.1) => {
+      if (!el) return;
+      const startTime = performance.now();
+      const update = (now) => {
+        const progress = Math.min(1, (now - startTime) / (duration * 1000));
+        const ease = 1 - Math.pow(1 - progress, 3);
+        const val = Math.round(target * ease);
+        el.textContent = `${val.toLocaleString()}${suffix}`;
+        if (progress < 1) requestAnimationFrame(update);
+      };
+      requestAnimationFrame(update);
+    };
+
     if (this.victoryTimeEl) this.victoryTimeEl.textContent = clearTimeStr;
-    if (this.victoryDamageEl) this.victoryDamageEl.textContent = `${totalLoopDamage.toLocaleString()} HP`;
-    if (this.victoryScoreEl) this.victoryScoreEl.textContent = this.gameApp.gameLogic.score.toLocaleString();
+    if (this.victoryDamageEl) animateCountUp(this.victoryDamageEl, totalLoopDamage, ' HP');
+    if (this.victoryScoreEl) animateCountUp(this.victoryScoreEl, this.gameApp.gameLogic.score, '');
 
     // Records Bar
     const bestTimeEl = document.getElementById('boss-v-best-time');
@@ -610,30 +645,29 @@ export class BossManager {
     }
 
     const headingEl = document.getElementById('boss-victory-heading');
-    if (headingEl) {
-      if (isAI) {
-        headingEl.textContent = 'HOÀN THÀNH CHIẾN DỊCH (HỖ TRỢ BỞI AI)';
-      } else {
-        headingEl.textContent = this.loop > 1 ? `THANH TRỪNG VÒNG LẶP ${this.loop}!` : (typeof t === 'function' ? t('boss_victory_heading') : 'THANH TRỪNG HOÀN TẤT');
-      }
-    }
-
-    // Achievement Badge updates for AI Mode
-    const achTier = this.victoryModal.querySelector('.boss-achievement-tier');
-    const achName = this.victoryModal.querySelector('.boss-achievement-name');
-    const achDesc = this.victoryModal.querySelector('.boss-achievement-desc');
-    const achBadge = this.victoryModal.querySelector('.boss-achievement-badge');
+    const aiPill = document.getElementById('boss-victory-ai-pill');
+    const achContainer = this.victoryModal.querySelector('.boss-achievement-container');
 
     if (isAI) {
-      if (achTier) achTier.textContent = '⚠️ CHẾ ĐỘ TỰ ĐỘNG CHƠI (AI BOT)';
-      if (achName) achName.textContent = 'TẠM KHÓA THÀNH TỰU (LOCKED)';
-      if (achDesc) achDesc.textContent = 'Trận đánh có sự hỗ trợ của AI. Hãy tự tay điều khiển và kết liễu Thực Thể Đa Chiều để xác lập kỷ lục & mở khóa Cúp Thần Thoại!';
-      if (achBadge) achBadge.style.opacity = '0.75';
+      if (aiPill) aiPill.style.display = 'inline-flex';
+      if (achContainer) achContainer.style.display = 'none'; // Compact mode saves space on phone
+      if (headingEl) {
+        headingEl.textContent = typeof t === 'function' && t('boss_victory_ai_title') ? t('boss_victory_ai_title') : 'CHIẾN DỊCH HOÀN TẤT';
+      }
     } else {
-      if (achTier) achTier.textContent = t('boss_achieve_tier');
-      if (achName) achName.textContent = t('boss_achieve_name');
-      if (achDesc) achDesc.textContent = t('boss_achieve_desc');
-      if (achBadge) achBadge.style.opacity = '1';
+      if (aiPill) aiPill.style.display = 'none';
+      if (achContainer) achContainer.style.display = 'block';
+      if (headingEl) {
+        headingEl.textContent = this.loop > 1 
+          ? `THANH TRỪNG VÒNG LẶP ${this.loop}!` 
+          : (typeof t === 'function' ? (t('boss_victory_heading') || 'CHIẾN THẮNG HUYỀN THOẠI!') : 'CHIẾN THẮNG HUYỀN THOẠI!');
+      }
+      const achTier = this.victoryModal.querySelector('.boss-achievement-tier');
+      const achName = this.victoryModal.querySelector('.boss-achievement-name');
+      const achDesc = this.victoryModal.querySelector('.boss-achievement-desc');
+      if (achTier && typeof t === 'function') achTier.textContent = t('boss_achieve_tier');
+      if (achName && typeof t === 'function') achName.textContent = t('boss_achieve_name');
+      if (achDesc && typeof t === 'function') achDesc.textContent = t('boss_achieve_desc');
     }
 
     this.victoryModal.style.display = 'flex';
@@ -832,9 +866,10 @@ export class BossManager {
     void this.cutinBannerEl.offsetWidth;
     this.cutinBannerEl.classList.add('active');
 
-    setTimeout(() => {
+    if (this.cutinBannerTimer) clearTimeout(this.cutinBannerTimer);
+    this.cutinBannerTimer = setTimeout(() => {
       this.cutinBannerEl.classList.remove('active');
-    }, 2200);
+    }, 1600);
   }
 
   // Developer & Quick Test shortcut (Alt+B)
