@@ -51,18 +51,18 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./src/style.css?v=6.8.60">
+  <link rel="stylesheet" href="./src/style.css?v=6.8.64">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=6.8.60').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=6.8.64').then(reg => {
           reg.update();
         }).catch(() => {});
       });
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         try {
-          if (!sessionStorage.getItem('sw_reloaded_6858')) {
-            sessionStorage.setItem('sw_reloaded_6858', '1');
+          if (!sessionStorage.getItem('sw_reloaded_6864')) {
+            sessionStorage.setItem('sw_reloaded_6864', '1');
             window.location.reload();
           }
         } catch {}
@@ -484,18 +484,25 @@
       </div>
       <div class="hint-compact-pill mobile-only">
         <span class="hint-item">
-          <svg class="hint-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+          <!-- 4-way swipe gesture icon -->
+          <svg class="hint-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="5 9 2 12 5 15"></polyline>
+            <polyline points="9 5 12 2 15 5"></polyline>
+            <polyline points="15 19 12 22 9 19"></polyline>
+            <polyline points="19 9 22 12 19 15"></polyline>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <line x1="12" y1="2" x2="12" y2="22"></line>
           </svg>
-          <span data-i18n="hint_mobile_swipe">Vuốt để trượt khối</span>
+          <span data-i18n="hint_mobile_swipe">Vuốt để trượt</span>
         </span>
         <span class="hint-sep">•</span>
         <span class="hint-item">
-          <svg class="hint-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            <path d="M12 6v6l4 2"></path>
+          <!-- 3D Orbit / Rotate icon -->
+          <svg class="hint-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.5 2v6h-6"></path>
+            <path d="M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
           </svg>
-          <span data-i18n="hint_mobile_rotate">2 ngón xoay 360°</span>
+          <span data-i18n="hint_mobile_rotate">2 ngón để xoay</span>
         </span>
       </div>
     </footer>

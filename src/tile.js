@@ -379,7 +379,7 @@ export class Tile3D {
         this.buildPrestige2048Aura(size);
       }
     } else if (effShape === 'crystal_octahedron') {
-      const radius = size * 0.58;
+      const radius = size * 0.48;
       const { geo, edges } = getSharedOctahedron();
       const mat = textureManager.getOctahedronMaterial(this.value, this.isBomb);
       this.innerMesh = new THREE.Mesh(geo, mat.clone());
@@ -434,8 +434,8 @@ export class Tile3D {
 
       this.addBillboardLabel(size);
     } else if (effShape === 'hex_prism') {
-      const radius = size * 0.52;
-      const h = height * 0.95;
+      const radius = size * 0.46;
+      const h = height * 0.90;
       const { geo, edges } = getSharedHexCylinder();
       const mat = textureManager.getOctahedronMaterial(this.value, this.isBomb);
       this.innerMesh = new THREE.Mesh(geo, mat.clone());
@@ -456,8 +456,8 @@ export class Tile3D {
 
       this.addBillboardLabel(size);
     } else if (effShape === 'cyber_pyramid') {
-      const radius = size * 0.56;
-      const h = height * 1.4;
+      const radius = size * 0.47;
+      const h = height * 1.15;
       const { geo, edges } = getSharedCone();
       const mat = textureManager.getOctahedronMaterial(this.value, this.isBomb);
       this.innerMesh = new THREE.Mesh(geo, mat.clone());
@@ -481,7 +481,7 @@ export class Tile3D {
 
       this.addBillboardLabel(size);
     } else if (effShape === 'star_dodecahedron') {
-      const radius = size * 0.52;
+      const radius = size * 0.46;
       const { geo, edges } = getSharedDodecahedron();
       const mat = textureManager.getOctahedronMaterial(this.value, this.isBomb);
       this.innerMesh = new THREE.Mesh(geo, mat.clone());
@@ -521,8 +521,8 @@ export class Tile3D {
 
       this.addBillboardLabel(size);
     } else if (effShape === 'prism_triangle') {
-      const radius = size * 0.54;
-      const h = height * 1.0;
+      const radius = size * 0.45;
+      const h = height * 0.88;
       const { geo, edges } = getSharedTrianglePrism();
       const mat = textureManager.getOctahedronMaterial(this.value, this.isBomb);
       this.innerMesh = new THREE.Mesh(geo, mat.clone());
@@ -543,7 +543,7 @@ export class Tile3D {
 
       this.addBillboardLabel(size);
     } else if (effShape === 'stellar_icosahedron') {
-      const radius = size * 0.54;
+      const radius = size * 0.46;
       const { geo, edges } = getSharedIcosahedron();
       const mat = textureManager.getOctahedronMaterial(this.value, this.isBomb);
       this.innerMesh = new THREE.Mesh(geo, mat.clone());

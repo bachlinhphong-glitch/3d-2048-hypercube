@@ -964,12 +964,9 @@ class GameApp {
           dirPad.classList.add('device-touch-adapted');
         }
       } else {
-        // 'auto' mode: automatically adapt to device (shown on touch/mobile, cleanly hidden on PC desktop)
-        if (isTouchDevice()) {
-          dirPad.classList.add('force-show', 'device-touch-adapted');
-        } else {
-          dirPad.classList.add('auto-hide-desktop');
-        }
+        // 'auto' mode: on touch/mobile devices, hidden by default because intuitive swipe gesture is active.
+        // Can be explicitly enabled in Settings ('visible') if the player desires an on-screen arcade D-pad disc.
+        dirPad.classList.add('hide-dpad');
       }
     };
 

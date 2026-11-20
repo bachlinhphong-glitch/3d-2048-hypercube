@@ -17,11 +17,12 @@ export class SceneManager {
     this.defaultTarget3x3 = new THREE.Vector3(0, 1.8, 0.2);
 
     // Pre-allocated mobile targets & zero-allocation scratch vector for render loop
-    this.defaultTargetMobile4x4 = new THREE.Vector3(0, 0.6, 0.6);
-    this.defaultCamPosMobile4x4 = new THREE.Vector3(0, 12.8, 11.8);
+    // Vertically elevated mobile framing: centers the 3D board between the 2-row top HUD and bottom spell bar
+    this.defaultTargetMobile4x4 = new THREE.Vector3(0, -0.3, -0.4);
+    this.defaultCamPosMobile4x4 = new THREE.Vector3(0, 12.2, 11.2);
 
-    this.defaultTargetMobile3x3 = new THREE.Vector3(0, 2.0, 0.6);
-    this.defaultCamPosMobile3x3 = new THREE.Vector3(5.6, 12.0, 12.4);
+    this.defaultTargetMobile3x3 = new THREE.Vector3(0, 1.2, -0.2);
+    this.defaultCamPosMobile3x3 = new THREE.Vector3(5.4, 11.6, 12.0);
     this._scratchVec = new THREE.Vector3();
     this.camImpulseOffset = new THREE.Vector3();
 
