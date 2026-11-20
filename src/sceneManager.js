@@ -464,9 +464,9 @@ export class SceneManager {
     this.theme = themeName;
 
     const imageThemes = {
-      cat_moon: './assets/backgrounds/cat_moon.png',
-      elmo_fire: './assets/backgrounds/elmo_fire.png',
-      patrick_space: './assets/backgrounds/patrick_space.png'
+      cat_moon: './assets/backgrounds/cat_moon.webp',
+      elmo_fire: './assets/backgrounds/elmo_fire.webp',
+      patrick_space: './assets/backgrounds/patrick_space.webp'
     };
 
     let customBg = null;

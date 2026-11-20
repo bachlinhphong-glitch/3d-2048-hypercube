@@ -220,6 +220,22 @@ class GameApp {
     this.mergeCount = 0;
     this.mergeTierCounts = {};
 
+    // Input Buffer & Zero-Allocation Math Vector Cache
+    this.moveQueue = [];
+    this.maxQueuedMoves = 2;
+    this._raycaster = (typeof THREE !== 'undefined' && THREE.Raycaster) ? new THREE.Raycaster() : null;
+    this._ndcVec = (typeof THREE !== 'undefined' && THREE.Vector2) ? new THREE.Vector2() : null;
+    this._dragPlane = (typeof THREE !== 'undefined' && THREE.Plane && THREE.Vector3) ? new THREE.Plane(new THREE.Vector3(0, 1, 0), 0) : null;
+    this._dragTargetPos = (typeof THREE !== 'undefined' && THREE.Vector3) ? new THREE.Vector3() : null;
+    this._projVec = (typeof THREE !== 'undefined' && THREE.Vector3) ? new THREE.Vector3() : null;
+    this._tileGroupCache = [];
+
+    // Accessibility & Motion Preference
+    this.reduceMotion = localStorage.getItem('3d2048_reduce_motion') === 'true';
+    if (this.reduceMotion) {
+      document.body.classList.add('reduce-motion');
+    }
+
     // Hardware Adaptive Performance State & Graphics Quality (high, medium, low)
     this.graphicsQuality = localStorage.getItem('3d2048_graphics_quality') || 
       (localStorage.getItem('3d2048_target_fps') === '30' ? 'low' : 
@@ -1217,12 +1233,16 @@ class GameApp {
 
   initZenMode() {
     const zenBtn = document.getElementById('btn-zen-mode');
+    const zenToggleSwitch = document.getElementById('toggle-zen-ui');
     const isZenSaved = localStorage.getItem('3d2048_zen_mode') === 'true';
     if (isZenSaved) {
       document.body.classList.add('zen-ui-mode');
       if (zenBtn) {
         zenBtn.classList.add('active');
         zenBtn.setAttribute('aria-pressed', 'true');
+      }
+      if (zenToggleSwitch) {
+        zenToggleSwitch.checked = true;
       }
     }
 
@@ -1233,6 +1253,9 @@ class GameApp {
         zenBtn.classList.toggle('active', active);
         zenBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
       }
+      if (zenToggleSwitch) {
+        zenToggleSwitch.checked = active;
+      }
       this.showSpellToast(active ? t('zen_mode_on') : t('zen_mode_off'));
       if (soundManager && soundManager.playClick) soundManager.playClick();
     };
@@ -1241,6 +1264,25 @@ class GameApp {
       zenBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         toggleZen();
+      });
+    }
+
+    if (zenToggleSwitch) {
+      zenToggleSwitch.addEventListener('change', () => {
+        toggleZen();
+      });
+    }
+
+    // Reduce Motion Toggle Switch
+    const reduceMotionSwitch = document.getElementById('toggle-reduce-motion');
+    if (reduceMotionSwitch) {
+      reduceMotionSwitch.checked = this.reduceMotion;
+      reduceMotionSwitch.addEventListener('change', (e) => {
+        this.reduceMotion = e.target.checked;
+        localStorage.setItem('3d2048_reduce_motion', this.reduceMotion ? 'true' : 'false');
+        document.body.classList.toggle('reduce-motion', this.reduceMotion);
+        this.showSpellToast(this.reduceMotion ? (t('setting_reduce_motion') + ': ON') : (t('setting_reduce_motion') + ': OFF'));
+        if (soundManager && soundManager.playClick) soundManager.playClick();
       });
     }
 
@@ -2083,7 +2125,9 @@ class GameApp {
     const rect = this.container.getBoundingClientRect();
     if (rect.width <= 0 || rect.height <= 0) return null;
 
-    const tileGroups = [];
+    if (!this._tileGroupCache) this._tileGroupCache = [];
+    const tileGroups = this._tileGroupCache;
+    tileGroups.length = 0;
     for (let l = 0; l < this.tiles3D.length; l++) {
       for (let r = 0; r < this.tiles3D[l].length; r++) {
         for (let c = 0; c < this.tiles3D[l][r].length; c++) {
@@ -2096,11 +2140,14 @@ class GameApp {
     }
     if (tileGroups.length === 0) return null;
 
-    const raycaster = new THREE.Raycaster();
+    const raycaster = this._raycaster || (this._raycaster = new THREE.Raycaster());
+    const ndc = this._ndcVec || (this._ndcVec = new THREE.Vector2());
+
     const probe = (px, py) => {
       const x = ((px - rect.left) / rect.width) * 2 - 1;
       const y = -((py - rect.top) / rect.height) * 2 + 1;
-      raycaster.setFromCamera(new THREE.Vector2(x, y), this.sceneManager.camera);
+      ndc.set(x, y);
+      raycaster.setFromCamera(ndc, this.sceneManager.camera);
       const intersects = raycaster.intersectObjects(tileGroups, true);
       if (intersects.length === 0) return null;
       for (let i = 0; i < intersects.length; i++) {
@@ -2132,7 +2179,7 @@ class GameApp {
     // 2D Screen-space Proximity Projection (Guarantees 100% mobile touch reliability)
     let closestTile = null;
     let minDistance = 140; // 140px generous proximity allowance for touch and mouse clicks
-    const worldPos = new THREE.Vector3();
+    const worldPos = this._projVec || (this._projVec = new THREE.Vector3());
 
     for (let l = 0; l < this.tiles3D.length; l++) {
       for (let r = 0; r < this.tiles3D[l].length; r++) {
@@ -2674,6 +2721,117 @@ class GameApp {
     }
   }
 
+  async createShareCardBlob(score, maxTileVal, modeName) {
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = 1080;
+      canvas.height = 1080;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return null;
+
+      // 1. Background gradient (Rich Dark Cyber & Deep Cosmic)
+      const bgGrad = ctx.createLinearGradient(0, 0, 1080, 1080);
+      bgGrad.addColorStop(0, '#090d16');
+      bgGrad.addColorStop(0.5, '#111827');
+      bgGrad.addColorStop(1, '#05070e');
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, 1080, 1080);
+
+      // Radial subtle ambient glow
+      const radialGlow = ctx.createRadialGradient(540, 540, 50, 540, 540, 600);
+      radialGlow.addColorStop(0, 'rgba(59, 130, 246, 0.18)');
+      radialGlow.addColorStop(0.6, 'rgba(139, 92, 246, 0.08)');
+      radialGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = radialGlow;
+      ctx.fillRect(0, 0, 1080, 1080);
+
+      // 2. Draw 3D board snapshot in center (fit inside 740x740 at x: 170, y: 160)
+      if (this.sceneManager && this.sceneManager.renderer) {
+        const webglCanvas = this.sceneManager.renderer.domElement;
+        if (webglCanvas && webglCanvas.width > 0 && webglCanvas.height > 0) {
+          this.sceneManager.renderer.render(this.sceneManager.scene, this.sceneManager.camera);
+          const boardW = 740;
+          const boardH = 740;
+          const boardX = (1080 - boardW) / 2;
+          const boardY = 160;
+
+          ctx.save();
+          ctx.beginPath();
+          if (ctx.roundRect) {
+            ctx.roundRect(boardX, boardY, boardW, boardH, 24);
+          } else {
+            ctx.rect(boardX, boardY, boardW, boardH);
+          }
+          ctx.clip();
+          ctx.drawImage(webglCanvas, 0, 0, webglCanvas.width, webglCanvas.height, boardX, boardY, boardW, boardH);
+          ctx.restore();
+
+          // Border for the 3D board
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.16)';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          if (ctx.roundRect) {
+            ctx.roundRect(boardX, boardY, boardW, boardH, 24);
+          } else {
+            ctx.rect(boardX, boardY, boardW, boardH);
+          }
+          ctx.stroke();
+        }
+      }
+
+      // 3. Top Header: Title & Mode badge
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#60a5fa';
+      ctx.font = 'bold 32px system-ui, -apple-system, sans-serif';
+      ctx.fillText('3D 2048 & HYPERCUBE', 540, 80);
+
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '600 20px system-ui, -apple-system, sans-serif';
+      ctx.fillText(`CHẾ ĐỘ: ${modeName.toUpperCase()}`, 540, 120);
+
+      // 4. Bottom Score Banner Card
+      const cardY = 935;
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.90)';
+      ctx.beginPath();
+      if (ctx.roundRect) {
+        ctx.roundRect(140, cardY, 800, 105, 22);
+      } else {
+        ctx.rect(140, cardY, 800, 105);
+      }
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(59, 130, 246, 0.45)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Score column (left)
+      ctx.textAlign = 'left';
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '600 20px system-ui, -apple-system, sans-serif';
+      ctx.fillText('🏆 ĐIỂM SỐ', 180, cardY + 42);
+
+      ctx.fillStyle = '#f8fafc';
+      ctx.font = 'bold 40px system-ui, -apple-system, sans-serif';
+      ctx.fillText(Number(score).toLocaleString(), 180, cardY + 84);
+
+      // Max tile column (right)
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '600 20px system-ui, -apple-system, sans-serif';
+      ctx.fillText('⭐ KHỐI CAO NHẤT', 900, cardY + 42);
+
+      ctx.fillStyle = '#fbbf24';
+      ctx.font = 'bold 40px system-ui, -apple-system, sans-serif';
+      ctx.fillText(String(maxTileVal || 2), 900, cardY + 84);
+
+      return new Promise((resolve) => {
+        canvas.toBlob((blob) => resolve(blob), 'image/png');
+      });
+    } catch (err) {
+      console.warn('Share card generation failed:', err);
+      return null;
+    }
+  }
+
   async executeShare(app) {
     this.registerInteraction();
     const score = this.gameLogic ? this.gameLogic.score : 0;
@@ -2683,10 +2841,13 @@ class GameApp {
 
     let snapshotFile = null;
     try {
-      if (this.sceneManager && this.sceneManager.captureSnapshotBlob) {
-        const blob = await this.sceneManager.captureSnapshotBlob();
-        if (blob) {
-          snapshotFile = new File([blob], `2048-score-${score}.png`, { type: 'image/png' });
+      const cardBlob = await this.createShareCardBlob(score, this.maxTileValue, modeName);
+      if (cardBlob) {
+        snapshotFile = new File([cardBlob], `2048-share-${score}.png`, { type: 'image/png' });
+      } else if (this.sceneManager && this.sceneManager.captureSnapshotBlob) {
+        const rawBlob = await this.sceneManager.captureSnapshotBlob();
+        if (rawBlob) {
+          snapshotFile = new File([rawBlob], `2048-score-${score}.png`, { type: 'image/png' });
         }
       }
     } catch (e) {
@@ -2781,6 +2942,7 @@ class GameApp {
 
   startNewGame(checkSaved = false) {
     if (!this.gameLogic || !this.sceneManager || !this.board) return;
+    if (this.moveQueue) this.moveQueue.length = 0;
     if (this.heldTile) this.onTileGrabCancel();
     if (this.aiBot) this.aiBot.stop();
     this.hideModal();
@@ -3230,27 +3392,11 @@ class GameApp {
     this.dismissFirstSwipeGuide();
     if (this.ghostPreview) this.ghostPreview.hideGhost();
 
-    // Instant Move Chaining: fast-forward active slide so subsequent swipes are NEVER dropped
+    // Input Buffer & Move Chaining: queue up to 2 moves when animating
     if (this.isAnimating) {
       if (!this.moveQueue) this.moveQueue = [];
-      if (this.moveQueue.length < 1) {
+      if (this.moveQueue.length < this.maxQueuedMoves) {
         this.moveQueue.push(direction);
-      }
-      if (this._activeSlideTweens && this._activeSlideTweens.length > 0) {
-        this._activeSlideTweens.forEach(t => {
-          try {
-            if (t && typeof t.totalProgress === 'function') t.totalProgress(1);
-          } catch {}
-        });
-        this._activeSlideTweens = [];
-      }
-      if (this._activeSpawnTweens && this._activeSpawnTweens.length > 0) {
-        this._activeSpawnTweens.forEach(t => {
-          try {
-            if (t && typeof t.totalProgress === 'function') t.totalProgress(1);
-          } catch {}
-        });
-        this._activeSpawnTweens = [];
       }
       return;
     }
@@ -3675,10 +3821,16 @@ class GameApp {
     }
     this.isAnimating = false;
 
-    // Move Buffering Queue: Instantly execute chained move
+    // Move Buffering Queue: Instantly execute chained move via microtask
     if (this.moveQueue && this.moveQueue.length > 0 && !this.gameLogic.gameOver) {
-      const nextMove = this.moveQueue.shift();
-      Promise.resolve().then(() => this.handleMove(nextMove));
+      const modal = document.getElementById('modal');
+      const isModalOpen = modal && modal.classList.contains('active');
+      if (!isModalOpen) {
+        const nextMove = this.moveQueue.shift();
+        queueMicrotask(() => this.handleMove(nextMove));
+      } else {
+        this.moveQueue.length = 0;
+      }
     }
   } // end finally
   } // end handleMove

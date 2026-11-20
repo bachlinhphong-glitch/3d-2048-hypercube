@@ -1,4 +1,4 @@
-const CACHE_NAME = '3d-2048-v6.8.61';
+const CACHE_NAME = '3d-2048-v6.8.62';
 const CACHE_URLS = [
   './',
   './index.html',
@@ -25,6 +25,9 @@ const CACHE_URLS = [
   './libs/gsap.module.js',
   './libs/controls/OrbitControls.js',
   './libs/geometries/RoundedBoxGeometry.js',
+  './assets/backgrounds/cat_moon.webp',
+  './assets/backgrounds/elmo_fire.webp',
+  './assets/backgrounds/patrick_space.webp',
   './assets/backgrounds/cat_moon.png',
   './assets/backgrounds/elmo_fire.png',
   './assets/backgrounds/patrick_space.png',

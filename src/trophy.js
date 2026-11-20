@@ -1139,6 +1139,7 @@ export class TrophyModalViewer {
     this.renderer = null;
     this.trophyGroup = null;
     this.animId = null;
+    this.isPaused = false;
 
     this.currentType = 'c1'; // 'c1' | 'boss'
     this.c1Unlocked = false;
@@ -1367,6 +1368,10 @@ export class TrophyModalViewer {
   }
 
   animate() {
+    if (this.isPaused) {
+      this.animId = null;
+      return;
+    }
     this.animId = requestAnimationFrame(this.animate);
     const time = performance.now() * 0.001;
 
@@ -1511,6 +1516,22 @@ export class TrophyModalViewer {
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(width, height);
+  }
+
+  pause() {
+    this.isPaused = true;
+    if (this.animId) {
+      cancelAnimationFrame(this.animId);
+      this.animId = null;
+    }
+  }
+
+  resume() {
+    if (!this.isPaused && this.animId) return;
+    this.isPaused = false;
+    if (!this.animId) {
+      this.animate();
+    }
   }
 
   destroy() {

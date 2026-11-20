@@ -1252,7 +1252,7 @@ export class Boss3DController {
         this.p1AsteroidBelt.instanceMatrix.needsUpdate = true;
       }
 
-      // Moons Elliptical Motion & Comet Trails
+      // Moons Elliptical Motion & Comet Trails (Zero-Allocation TypedArray Shift)
       if (this.p1Moons) {
         this.p1Moons.forEach((m) => {
           const angle = t * m.speed;
@@ -1260,17 +1260,12 @@ export class Boss3DController {
           const mz = Math.sin(angle) * m.b;
           m.mesh.position.set(mx, 0, mz);
 
-          // Update trail history
-          m.history.unshift(new THREE.Vector3(mx, 0, mz));
-          if (m.history.length > 16) m.history.pop();
-
+          // Shift 15 points (45 floats) down by 3 floats in-place, then store newest position at index 0
           const posArr = m.trailPositions;
-          for (let i = 0; i < 16; i++) {
-            const p = m.history[i] || m.mesh.position;
-            posArr[i * 3]     = p.x;
-            posArr[i * 3 + 1] = p.y;
-            posArr[i * 3 + 2] = p.z;
-          }
+          posArr.copyWithin(3, 0, 45);
+          posArr[0] = mx;
+          posArr[1] = 0;
+          posArr[2] = mz;
           m.trailLine.geometry.attributes.position.needsUpdate = true;
         });
       }

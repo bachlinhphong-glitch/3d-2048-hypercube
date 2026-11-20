@@ -102,7 +102,7 @@ body.theme-cat_moon .game-title {
 }
 
 body.theme-cat_moon #canvas-container {
-  background-image: url('../assets/backgrounds/cat_moon.png');
+  background-image: url('../assets/backgrounds/cat_moon.webp');
 }
 
 body.theme-elmo_fire {
@@ -120,7 +120,7 @@ body.theme-elmo_fire .game-title {
 }
 
 body.theme-elmo_fire #canvas-container {
-  background-image: url('../assets/backgrounds/elmo_fire.png');
+  background-image: url('../assets/backgrounds/elmo_fire.webp');
 }
 
 body.theme-patrick_space {
@@ -138,7 +138,7 @@ body.theme-patrick_space .game-title {
 }
 
 body.theme-patrick_space #canvas-container {
-  background-image: url('../assets/backgrounds/patrick_space.png');
+  background-image: url('../assets/backgrounds/patrick_space.webp');
 }
 
 body.theme-galaxy {
@@ -7914,11 +7914,20 @@ body.zen-ui-mode .bottom-bar,
 body.zen-ui-mode .inapp-challenge-card,
 body.zen-ui-mode #telemetry-hud,
 body.zen-ui-mode .quest-badge,
-body.zen-ui-mode .share-challenge-card {
+body.zen-ui-mode .share-challenge-card,
+body.zen-ui .header-modes-cluster,
+body.zen-ui #spell-bar,
+body.zen-ui #dir-pad,
+body.zen-ui .bottom-bar,
+body.zen-ui .inapp-challenge-card,
+body.zen-ui #telemetry-hud,
+body.zen-ui .quest-badge,
+body.zen-ui .share-challenge-card {
   display: none !important;
 }
 
-body.zen-ui-mode .game-header {
+body.zen-ui-mode .game-header,
+body.zen-ui .game-header {
   padding-bottom: 4px !important;
   background: transparent !important;
   border-bottom: none !important;
@@ -8014,4 +8023,76 @@ body.theme-gentle_light .slider-val-badge {
     font-size: 11px;
     min-width: 32px;
   }
+}
+
+/* =========================================================================
+   🔘 MODERN TOGGLE SWITCHES (Zen UI & Reduce Motion)
+   ========================================================================= */
+.settings-switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 26px;
+  cursor: pointer;
+}
+
+.settings-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.settings-switch-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 26px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.settings-switch-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 50%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.35);
+}
+
+.settings-switch input:checked + .settings-switch-slider {
+  background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%);
+  border-color: rgba(56, 189, 248, 0.6);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+}
+
+.settings-switch input:checked + .settings-switch-slider:before {
+  transform: translateX(22px);
+  background: #ffffff;
+}
+
+body.theme-gentle_light .settings-switch-slider {
+  background-color: rgba(0, 0, 0, 0.12);
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+/* =========================================================================
+   ♿ REDUCE MOTION ACCESSIBILITY
+   ========================================================================= */
+body.reduce-motion *,
+body.reduce-motion *::before,
+body.reduce-motion *::after {
+  animation-duration: 0.001s !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.05s !important;
+  scroll-behavior: auto !important;
 }

@@ -46,8 +46,16 @@ const sharedGeos = {
   prestigeRing2048_1: null,
   prestigeRing2048_2: null,
   prestigeBeadDiamond: null,
-  prestigeBeadRuby: null
+  prestigeBeadRuby: null,
+  contactShadowPlane: null
 };
+
+function getSharedContactShadowPlane(size) {
+  if (!sharedGeos.contactShadowPlane) {
+    sharedGeos.contactShadowPlane = new THREE.PlaneGeometry(size * 1.08, size * 1.08);
+  }
+  return sharedGeos.contactShadowPlane;
+}
 
 function getSharedPrestigeRing1024(size) {
   if (!sharedGeos.prestigeRing1024) {
@@ -311,7 +319,7 @@ export class Tile3D {
     }
     if (this.decorGroup) {
       this.decorGroup.traverse((child) => {
-        if (child === this.bombRing) return;
+        if (child === this.bombRing || child === this.contactShadowMesh) return;
         if (child.material) {
           if (Array.isArray(child.material)) {
             child.material.forEach(m => m.dispose && m.dispose());
@@ -334,6 +342,7 @@ export class Tile3D {
       const child = this.decorGroup.children[0];
       this.decorGroup.remove(child);
     }
+    this.contactShadowMesh = null;
     this.ring1 = null;
     this.ring2 = null;
     this.ring3 = null;
@@ -736,6 +745,17 @@ export class Tile3D {
       this.bombRing.scale.set(size * 0.7, size * 0.7, size * 0.7);
       this.bombRing.rotation.x = Math.PI / 2;
       this.decorGroup.add(this.bombRing);
+    }
+
+    // Contact Shadow Plane (4x4 mode): adds visual ground anchoring beneath tiles
+    if (getBoardMode() === '4x4') {
+      const shadowGeo = getSharedContactShadowPlane(size);
+      const shadowMat = textureManager.getContactShadowMaterial();
+      this.contactShadowMesh = new THREE.Mesh(shadowGeo, shadowMat);
+      this.contactShadowMesh.rotation.x = -Math.PI / 2;
+      this.contactShadowMesh.position.set(0, -height / 2 + 0.005, 0);
+      this.contactShadowMesh.renderOrder = 1;
+      this.decorGroup.add(this.contactShadowMesh);
     }
 
     if (this.innerMesh) {
@@ -1186,6 +1206,9 @@ export class Tile3D {
   }
 
   update(delta) {
+    if (document.body.classList.contains('reduce-motion') || (window.gameApp && window.gameApp.reduceMotion)) {
+      delta *= 0.15;
+    }
     const effShape = this.getEffectiveShape();
     if (effShape === 'rounded_cube') {
       if (this.value === 1024 && this.ring1) {

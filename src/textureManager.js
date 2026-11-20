@@ -699,6 +699,38 @@ export class TextureManager {
     this.materialCache.set(key, bombMat);
     return bombMat;
   }
+
+  getContactShadowMaterial() {
+    const key = 'tile_contact_shadow_mat';
+    if (this.materialCache.has(key)) return this.materialCache.get(key);
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 128;
+    canvas.height = 128;
+    const ctx = canvas.getContext('2d');
+    const grad = ctx.createRadialGradient(64, 64, 8, 64, 64, 64);
+    grad.addColorStop(0, 'rgba(0, 0, 0, 0.42)');
+    grad.addColorStop(0.45, 'rgba(0, 0, 0, 0.20)');
+    grad.addColorStop(0.8, 'rgba(0, 0, 0, 0.05)');
+    grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 128, 128);
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.generateMipmaps = false;
+    tex.minFilter = THREE.LinearFilter;
+    const mat = new THREE.MeshBasicMaterial({
+      map: tex,
+      transparent: true,
+      opacity: 0.85,
+      depthWrite: false,
+      polygonOffset: true,
+      polygonOffsetFactor: -1,
+      polygonOffsetUnits: -1
+    });
+    this.materialCache.set(key, mat);
+    return mat;
+  }
   // ================= THE ICONIC 1024 & 2048 SOVEREIGN MASTERPIECE DRAWING METHODS =================
   drawDiamondStar(ctx, cx, cy, rOuter, rInner, color1 = '#ffffff', color2 = '#38bdf8') {
     ctx.save();

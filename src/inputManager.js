@@ -381,23 +381,75 @@ export class InputManager {
   }
 
   initGamepad() {
-    window.addEventListener('gamepadconnected', (e) => {
-      console.log('🎮 Gamepad connected:', e.gamepad.id);
-    });
+    this.gamepadRafId = null;
+    this.hasActiveGamepad = false;
+
+    const checkGamepads = () => {
+      if (!('getGamepads' in navigator)) return false;
+      const gamepads = navigator.getGamepads();
+      for (let i = 0; i < gamepads.length; i++) {
+        const gp = gamepads[i];
+        if (gp && gp.connected) return true;
+      }
+      return false;
+    };
 
     const poll = () => {
+      if (!this.hasActiveGamepad) {
+        this.gamepadRafId = null;
+        return;
+      }
       if (this.enabled && 'getGamepads' in navigator) {
         const gamepads = navigator.getGamepads();
-        for (const gp of gamepads) {
-          if (gp) {
+        let anyConnected = false;
+        for (let i = 0; i < gamepads.length; i++) {
+          const gp = gamepads[i];
+          if (gp && gp.connected) {
+            anyConnected = true;
             this.handleGamepad(gp);
             break;
           }
         }
+        if (!anyConnected) {
+          this.hasActiveGamepad = false;
+          this.gamepadRafId = null;
+          return;
+        }
       }
-      requestAnimationFrame(poll);
+      this.gamepadRafId = requestAnimationFrame(poll);
     };
-    requestAnimationFrame(poll);
+
+    const startPolling = () => {
+      this.hasActiveGamepad = true;
+      if (!this.gamepadRafId) {
+        this.gamepadRafId = requestAnimationFrame(poll);
+      }
+    };
+
+    const stopPolling = () => {
+      this.hasActiveGamepad = false;
+      if (this.gamepadRafId) {
+        cancelAnimationFrame(this.gamepadRafId);
+        this.gamepadRafId = null;
+      }
+    };
+
+    window.addEventListener('gamepadconnected', (e) => {
+      console.log('🎮 Gamepad connected:', e.gamepad.id);
+      startPolling();
+    });
+
+    window.addEventListener('gamepaddisconnected', (e) => {
+      console.log('🎮 Gamepad disconnected:', e.gamepad.id);
+      if (!checkGamepads()) {
+        stopPolling();
+      }
+    });
+
+    // Check if gamepad was connected prior to script execution
+    if (checkGamepads()) {
+      startPolling();
+    }
   }
 
   handleGamepad(gp) {

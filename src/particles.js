@@ -136,6 +136,7 @@ export class ParticleSystem {
   // Camera screen shake for impactful big merges with zero camera drift
   screenShake(camera, intensity = 0.22) {
     if (!camera) return;
+    if (document.body.classList.contains('reduce-motion') || (window.gameApp && window.gameApp.reduceMotion)) return;
     if (this._shakeTimeline) {
       this._shakeTimeline.progress(1);
       this._shakeTimeline.kill();

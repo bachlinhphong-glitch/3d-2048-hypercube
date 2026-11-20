@@ -588,6 +588,8 @@ export class QuestManager {
     if (viewport) {
       if (!this.trophyViewer) {
         this.trophyViewer = new TrophyModalViewer(viewport);
+      } else {
+        this.trophyViewer.resume();
       }
       setTimeout(() => {
         if (this.trophyViewer) this.trophyViewer.resize();
@@ -598,6 +600,9 @@ export class QuestManager {
   }
 
   closeModal() {
+    if (this.trophyViewer) {
+      this.trophyViewer.pause();
+    }
     if (!this.modal) return;
     this.modal.classList.remove('active');
     setTimeout(() => {
