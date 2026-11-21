@@ -413,6 +413,7 @@ class GameApp {
     }
 
     this.initZenMode();
+    this.initCameraLock();
 
     const resetCamBtn = document.getElementById('btn-reset-camera');
     if (resetCamBtn) {
@@ -1305,6 +1306,70 @@ class GameApp {
     });
   }
 
+  initCameraLock() {
+    this.isCameraLocked = localStorage.getItem('3d2048_camera_locked') === 'true';
+    const lockBtn = document.getElementById('btn-camera-lock');
+    const lockToggleSwitch = document.getElementById('toggle-camera-lock');
+    const mobileHintRotate = document.getElementById('hint-mobile-rotate-container');
+    const mobileRotateText = document.getElementById('hint-mobile-rotate-text');
+
+    const updateUI = (locked) => {
+      if (lockBtn) {
+        lockBtn.classList.toggle('locked', locked);
+        lockBtn.setAttribute('aria-pressed', locked ? 'true' : 'false');
+      }
+      if (lockToggleSwitch) {
+        lockToggleSwitch.checked = locked;
+      }
+      if (mobileHintRotate) {
+        const iconUnlocked = mobileHintRotate.querySelector('.hint-icon-unlocked');
+        const iconLocked = mobileHintRotate.querySelector('.hint-icon-locked');
+        if (iconUnlocked) iconUnlocked.style.display = locked ? 'none' : 'inline-block';
+        if (iconLocked) iconLocked.style.display = locked ? 'inline-block' : 'none';
+        if (mobileRotateText) {
+          mobileRotateText.textContent = locked ? (t('hint_mobile_cam_locked') || 'Góc nhìn đã khóa') : (t('hint_mobile_rotate') || '2 ngón để xoay');
+        }
+      }
+      if (this.sceneManager && this.sceneManager.setCameraLocked) {
+        this.sceneManager.setCameraLocked(locked);
+      }
+    };
+
+    updateUI(this.isCameraLocked);
+
+    const toggleLock = (showToast = true) => {
+      this.isCameraLocked = !this.isCameraLocked;
+      try {
+        localStorage.setItem('3d2048_camera_locked', this.isCameraLocked ? 'true' : 'false');
+      } catch {}
+      updateUI(this.isCameraLocked);
+      if (showToast) {
+        this.showSpellToast(this.isCameraLocked ? t('camera_locked_toast') : t('camera_unlocked_toast'));
+      }
+      if (soundManager && soundManager.playClick) soundManager.playClick();
+    };
+
+    if (lockBtn) {
+      lockBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleLock(true);
+      });
+    }
+
+    if (lockToggleSwitch) {
+      lockToggleSwitch.addEventListener('change', () => {
+        toggleLock(true);
+      });
+    }
+
+    if (mobileHintRotate) {
+      mobileHintRotate.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleLock(true);
+      });
+    }
+  }
+
   switchTileShape(newShape) {
     this.currentShape = newShape;
     try {
@@ -1761,6 +1826,10 @@ class GameApp {
     if (this.rushToggleBtn) {
       const textEl = this.rushToggleBtn.querySelector('.btn-text');
       if (textEl) textEl.textContent = t('btn_rush') || 'RUSH';
+    }
+    const mobileRotateText = document.getElementById('hint-mobile-rotate-text');
+    if (mobileRotateText) {
+      mobileRotateText.textContent = this.isCameraLocked ? (t('hint_mobile_cam_locked') || 'Góc nhìn đã khóa') : (t('hint_mobile_rotate') || '2 ngón để xoay');
     }
   }
 

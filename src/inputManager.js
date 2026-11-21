@@ -187,30 +187,29 @@ export class InputManager {
         return;
       }
 
+      // CRITICAL: Strictly latch 1 Physical Swipe = Exactly 1 Move!
+      // Once a move is triggered during this stroke, NEVER fire again until finger lifts!
+      if (touchGestureTriggered) return;
+
       const t = e.touches[0];
       if (!t) return;
       const dx = t.clientX - touchStartX;
       const dy = t.clientY - touchStartY;
       const distance = Math.hypot(dx, dy);
 
-      // Instant 14px threshold: triggers DURING finger motion without waiting for touchend!
-      if (distance >= 14) {
+      // Clean calibrated 24px threshold with 1.3 directional dominance
+      if (distance >= 24) {
         let direction = null;
-        if (Math.abs(dx) > Math.abs(dy) * 1.12) {
+        if (Math.abs(dx) > Math.abs(dy) * 1.3) {
           direction = dx > 0 ? 'right' : 'left';
-        } else if (Math.abs(dy) > Math.abs(dx) * 1.12) {
+        } else if (Math.abs(dy) > Math.abs(dx) * 1.3) {
           direction = dy > 0 ? 'down' : 'up';
-        } else {
-          direction = Math.abs(dx) >= Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up');
         }
 
-        const now = performance.now();
-        if (direction && (!touchGestureTriggered || (direction !== lastSwipeDir && (now - lastSwipeTime) > 75) || ((now - lastSwipeTime) > 170))) {
+        if (direction) {
           touchGestureTriggered = true;
           lastSwipeDir = direction;
-          lastSwipeTime = now;
-          touchStartX = t.clientX;
-          touchStartY = t.clientY;
+          lastSwipeTime = performance.now();
           this.onMove(direction);
         }
       }
@@ -242,14 +241,12 @@ export class InputManager {
           const dy = t.clientY - touchStartY;
           const distance = Math.hypot(dx, dy);
 
-          if (distance >= 10) {
+          if (distance >= 20) {
             let direction = null;
-            if (Math.abs(dx) > Math.abs(dy) * 1.12) {
+            if (Math.abs(dx) > Math.abs(dy) * 1.3) {
               direction = dx > 0 ? 'right' : 'left';
-            } else if (Math.abs(dy) > Math.abs(dx) * 1.12) {
+            } else if (Math.abs(dy) > Math.abs(dx) * 1.3) {
               direction = dy > 0 ? 'down' : 'up';
-            } else {
-              direction = Math.abs(dx) >= Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up');
             }
             if (direction) {
               this.onMove(direction);
@@ -257,7 +254,7 @@ export class InputManager {
             }
           }
           // Tap on canvas for normal game click (e.g. tile inspect)
-          if (distance < 10 && this.onCanvasClick) {
+          if (distance < 12 && this.onCanvasClick) {
             this.onCanvasClick(t.clientX, t.clientY);
           }
         }
@@ -300,27 +297,25 @@ export class InputManager {
         return;
       }
 
+      // CRITICAL: Strictly latch 1 Drag = Exactly 1 Move!
+      if (pointerGestureTriggered) return;
+
       const dx = e.clientX - this.pointerStartX;
       const dy = e.clientY - this.pointerStartY;
       const distance = Math.hypot(dx, dy);
 
-      if (distance >= 16) {
+      if (distance >= 26) {
         let direction = null;
-        if (Math.abs(dx) > Math.abs(dy) * 1.12) {
+        if (Math.abs(dx) > Math.abs(dy) * 1.3) {
           direction = dx > 0 ? 'right' : 'left';
-        } else if (Math.abs(dy) > Math.abs(dx) * 1.12) {
+        } else if (Math.abs(dy) > Math.abs(dx) * 1.3) {
           direction = dy > 0 ? 'down' : 'up';
-        } else {
-          direction = Math.abs(dx) >= Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up');
         }
 
-        const now = performance.now();
-        if (direction && (!pointerGestureTriggered || (direction !== lastPointerDir && (now - lastPointerTime) > 75) || ((now - lastPointerTime) > 170))) {
+        if (direction) {
           pointerGestureTriggered = true;
           lastPointerDir = direction;
-          lastPointerTime = now;
-          this.pointerStartX = e.clientX;
-          this.pointerStartY = e.clientY;
+          lastPointerTime = performance.now();
           this.onMove(direction);
         }
       }

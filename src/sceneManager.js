@@ -729,12 +729,34 @@ export class SceneManager {
 
   setMode(mode) {
     this.mode = mode;
+    this.calibrateZoomBounds();
     this.updateTouchControls();
     this.resetCamera();
   }
 
+  calibrateZoomBounds() {
+    if (!this.controls) return;
+    const is3D = this.mode === '3x3x3';
+    this.controls.minDistance = is3D ? 10.5 : 11.2;
+    this.controls.maxDistance = is3D ? 19.5 : 18.5;
+  }
+
+  setCameraLocked(locked) {
+    this.isCameraLocked = Boolean(locked);
+    if (this.controls) {
+      this.controls.enabled = !this.isCameraLocked;
+      if (!this.isCameraLocked) {
+        this.updateTouchControls();
+      }
+    }
+  }
+
   updateTouchControls() {
     if (!this.controls) return;
+    if (this.isCameraLocked) {
+      this.controls.enabled = false;
+      return;
+    }
     // Both 4x4 and 3x3x3 modes: 2 fingers rotate view 360° around the board & pinch to zoom
     this.controls.touches = {
       ONE: null,
@@ -745,20 +767,17 @@ export class SceneManager {
   initControls() {
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.enableDamping = true;
-    this.controls.dampingFactor = 0.06;
-    this.controls.enablePan = true; // Enables bounded 2-finger panning so user can reposition the board
-    this.controls.panSpeed = 0.8;
-    this.controls.screenSpacePanning = true;
+    this.controls.dampingFactor = 0.08;
+    this.controls.enablePan = false; // Keep camera strictly centered on board, zero drift into empty space
+    this.controls.zoomSpeed = 0.55;
 
     const defTarget = this.getDefaultTarget();
     this.controls.target.copy(defTarget);
     this.controls.cursor.copy(defTarget);
-    this.controls.maxTargetRadius = 2.0; // Strictly prevent board from being panned off-screen
 
     this.controls.minPolarAngle = Math.PI / 16;
     this.controls.maxPolarAngle = Math.PI / 2.05;
-    this.controls.minDistance = 7;
-    this.controls.maxDistance = 24;
+    this.calibrateZoomBounds();
 
     this.controls.mouseButtons = {
       LEFT: null,
@@ -771,6 +790,37 @@ export class SceneManager {
     this.controls.addEventListener('change', () => {
       this.requestShadowUpdate(2);
     });
+
+    // Smart Double-Tap to Reset View
+    let lastTapTime = 0;
+    let lastTapX = 0;
+    let lastTapY = 0;
+    this.renderer.domElement.addEventListener('pointerup', (e) => {
+      if (this.isCameraLocked) return;
+      const now = performance.now();
+      const dx = Math.abs(e.clientX - lastTapX);
+      const dy = Math.abs(e.clientY - lastTapY);
+      if (now - lastTapTime < 320 && dx < 20 && dy < 20) {
+        this.snapCamera(1);
+        lastTapTime = 0;
+      } else {
+        lastTapTime = now;
+        lastTapX = e.clientX;
+        lastTapY = e.clientY;
+      }
+    }, { passive: true });
+
+    // Prevent iOS Safari page-level pinch gestures so 3D zoom is seamless
+    document.addEventListener('gesturestart', (e) => {
+      if (e.target && (e.target.closest('#canvas-container') || e.target.tagName === 'CANVAS')) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+    document.addEventListener('gesturechange', (e) => {
+      if (e.target && (e.target.closest('#canvas-container') || e.target.tagName === 'CANVAS')) {
+        e.preventDefault();
+      }
+    }, { passive: false });
   }
 
   resetCamera() {

@@ -8137,29 +8137,6 @@ body.theme-zen_clay .apple-glass-dropdown::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0.22) !important;
 }
 
-body.theme-gentle_light .apple-glass-menu-item,
-body.theme-zen_clay .apple-glass-menu-item {
-  color: #1e293b !important;
-}
-
-body.theme-gentle_light .apple-glass-menu-item:hover,
-body.theme-zen_clay .apple-glass-menu-item:hover {
-  background: rgba(2, 132, 199, 0.08) !important;
-  color: #0284c7 !important;
-}
-
-body.theme-gentle_light .apple-glass-menu-item.active,
-body.theme-zen_clay .apple-glass-menu-item.active {
-  background: rgba(2, 132, 199, 0.14) !important;
-  color: #0284c7 !important;
-  font-weight: 700 !important;
-}
-
-body.theme-gentle_light .apple-glass-menu-item.active::after,
-body.theme-zen_clay .apple-glass-menu-item.active::after {
-  color: #0284c7 !important;
-}
-
 .shape-quick-wrapper.open .apple-glass-dropdown,
 .apple-glass-dropdown.open {
   display: flex !important;
@@ -8192,6 +8169,7 @@ body.theme-zen_clay .apple-glass-menu-item.active::after {
   font-size: 13px !important;
   font-weight: 600 !important;
   color: #f0f6fc !important;
+  -webkit-text-fill-color: #f0f6fc !important;
   cursor: pointer !important;
   display: flex !important;
   align-items: center !important;
@@ -8203,11 +8181,13 @@ body.theme-zen_clay .apple-glass-menu-item.active::after {
 .apple-glass-menu-item:hover {
   background: rgba(56, 189, 248, 0.18) !important;
   color: #38bdf8 !important;
+  -webkit-text-fill-color: #38bdf8 !important;
 }
 
 .apple-glass-menu-item.active {
   background: rgba(56, 189, 248, 0.25) !important;
   color: #38bdf8 !important;
+  -webkit-text-fill-color: #38bdf8 !important;
   font-weight: 700 !important;
 }
 
@@ -8215,7 +8195,83 @@ body.theme-zen_clay .apple-glass-menu-item.active::after {
   content: "✓" !important;
   font-size: 12px !important;
   color: #38bdf8 !important;
+  -webkit-text-fill-color: #38bdf8 !important;
   font-weight: 800 !important;
+}
+
+/* Crisp Dark Text for Light Themes (Gentle Light & Zen Clay) */
+body.theme-gentle_light .apple-glass-menu-item,
+body.theme-zen_clay .apple-glass-menu-item,
+.apple-glass-dropdown.light-theme .apple-glass-menu-item {
+  color: #1e293b !important;
+  -webkit-text-fill-color: #1e293b !important;
+}
+
+body.theme-gentle_light .apple-glass-menu-item:hover,
+body.theme-zen_clay .apple-glass-menu-item:hover,
+.apple-glass-dropdown.light-theme .apple-glass-menu-item:hover {
+  background: rgba(2, 132, 199, 0.1) !important;
+  color: #0284c7 !important;
+  -webkit-text-fill-color: #0284c7 !important;
+}
+
+body.theme-gentle_light .apple-glass-menu-item.active,
+body.theme-zen_clay .apple-glass-menu-item.active,
+.apple-glass-dropdown.light-theme .apple-glass-menu-item.active {
+  background: rgba(2, 132, 199, 0.16) !important;
+  color: #0284c7 !important;
+  -webkit-text-fill-color: #0284c7 !important;
+  font-weight: 700 !important;
+}
+
+body.theme-gentle_light .apple-glass-menu-item.active::after,
+body.theme-zen_clay .apple-glass-menu-item.active::after,
+.apple-glass-dropdown.light-theme .apple-glass-menu-item.active::after {
+  color: #0284c7 !important;
+  -webkit-text-fill-color: #0284c7 !important;
+}
+
+/* Camera Lock Button in Header Actions Cluster */
+#btn-camera-lock {
+  position: relative !important;
+  transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1) !important;
+}
+
+#btn-camera-lock.locked {
+  background: rgba(245, 158, 11, 0.22) !important;
+  border-color: rgba(245, 158, 11, 0.65) !important;
+  color: #fbbf24 !important;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.45) !important;
+}
+
+#btn-camera-lock.locked .icon-unlocked {
+  display: none !important;
+}
+
+#btn-camera-lock.locked .icon-locked {
+  display: inline-block !important;
+  stroke: #fbbf24 !important;
+}
+
+#btn-camera-lock:not(.locked) .icon-locked {
+  display: none !important;
+}
+
+#btn-camera-lock:not(.locked) .icon-unlocked {
+  display: inline-block !important;
+}
+
+body.theme-gentle_light #btn-camera-lock.locked,
+body.theme-zen_clay #btn-camera-lock.locked {
+  background: rgba(180, 83, 9, 0.14) !important;
+  border-color: rgba(180, 83, 9, 0.5) !important;
+  color: #b45309 !important;
+  box-shadow: 0 2px 10px rgba(180, 83, 9, 0.22) !important;
+}
+
+body.theme-gentle_light #btn-camera-lock.locked .icon-locked,
+body.theme-zen_clay #btn-camera-lock.locked .icon-locked {
+  stroke: #b45309 !important;
 }
 
 /* PERMANENTLY HIDE INTRUSIVE FLOATING DEMO THEME SWITCHER */
