@@ -9445,3 +9445,71 @@ body.theme-gentle_light .control-device {
   color: #0284c7 !important;
   font-weight: 800 !important;
 }
+
+
+/* === Gentle Light: Modal Cúp / Nhiệm vụ (v6.8.72) === */
+body.theme-gentle_light .quest-modal-title,
+body.theme-gentle_light #quest-modal .modal-title,
+body.theme-gentle_light #quest-modal h2,
+body.theme-gentle_light .trophy-modal-title,
+body.theme-gentle_light #trophy-main-title {
+  background: linear-gradient(135deg, #0f172a 0%, #b45309 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+body.theme-gentle_light .trophy-tab-btn {
+  color: #334155 !important;
+  background: #e2e8f0 !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+body.theme-gentle_light .trophy-tab-btn.active {
+  color: #78350f !important;
+  background: #fef3c7 !important;
+  border-color: #d97706 !important;
+}
+
+body.theme-gentle_light .trophy-tab-btn.boss-tab.active,
+body.theme-gentle_light .trophy-tab-btn[data-tab="boss"].active,
+body.theme-gentle_light #trophy-tab-boss.active {
+  color: #991b1b !important;
+  background: #fee2e2 !important;
+  border-color: #dc2626 !important;
+}
+
+body.theme-gentle_light .quest-item-card.completed,
+body.theme-gentle_light .quest-item.completed,
+body.theme-gentle_light .quest-card.completed {
+  background: #dcfce7 !important;
+  border-color: #4ade80 !important;
+}
+
+body.theme-gentle_light .quest-item-card.completed .quest-item-title,
+body.theme-gentle_light .quest-item-card.completed .quest-item-desc,
+body.theme-gentle_light .quest-item.completed .quest-title,
+body.theme-gentle_light .quest-card.completed .quest-title,
+body.theme-gentle_light .quest-item.completed h4,
+body.theme-gentle_light .quest-item.completed p {
+  color: #14532d !important;
+}
+
+/* === Gentle Light: Nút Cancel & Huy hiệu Luật chơi ở Modal Rush / Boss === */
+body.theme-gentle_light .mode-cancel-btn,
+body.theme-gentle_light #mode-confirm-cancel,
+body.theme-gentle_light #btn-mode-confirm-cancel,
+body.theme-gentle_light .btn-cancel-return,
+body.theme-gentle_light .mode-confirm-actions .modal-btn.secondary {
+  color: #0f172a !important;
+  background: #e2e8f0 !important;
+  border: 1px solid #94a3b8 !important;
+}
+
+body.theme-gentle_light .mode-rules-badge,
+body.theme-gentle_light .rules-section-badge,
+body.theme-gentle_light .mode-tutorial-badge,
+body.theme-gentle_light #mode-tutorial-badge {
+  color: #0369a1 !important;
+  background: #e0f2fe !important;
+  border: 1px solid #7dd3fc !important;
+}

@@ -77,6 +77,7 @@ export class QuestManager {
 
     this.initUI();
     this.updateBadge();
+    this.updateStatusPill();
   }
 
   loadState() {
@@ -297,8 +298,8 @@ export class QuestManager {
         statusEl.textContent = t('trophy_status_c1_unlocked') || '🏆 ĐÃ MỞ KHÓA — CÚP CHIẾN TÍCH 2048';
       } else {
         statusEl.className = 'trophy-status-pill locked';
-        const remaining = totalCount - completedCount;
-        const tmpl = t('trophy_status_c1_locked') || '🔒 KHÓA — CÒN {n} NHIỆM VỤ';
+        const remaining = Math.max(0, totalCount - completedCount);
+        const tmpl = t('trophy_locked_remaining') || t('trophy_status_c1_locked') || 'LOCKED — {n} QUESTS LEFT';
         statusEl.textContent = tmpl.replace('{n}', remaining);
       }
     }

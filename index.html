@@ -51,11 +51,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./src/style.css?v=6.8.71">
+  <link rel="stylesheet" href="./src/style.css?v=6.8.72">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=6.8.71').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=6.8.72').then(reg => {
           reg.update();
         }).catch(() => {});
       });
@@ -647,7 +647,7 @@
       <div class="trophy-modal-body">
         <!-- Left: 3D Trophy Showcase Stage -->
         <div class="trophy-3d-stage">
-          <div id="trophy-status-pill" class="trophy-status-pill locked">KHÓA — CÒN 7 NHIỆM VỤ</div>
+          <div id="trophy-status-pill" class="trophy-status-pill locked" data-i18n="trophy_locked_remaining">KHÓA — CÒN 7 NHIỆM VỤ</div>
           <div id="trophy-3d-viewport" class="trophy-3d-viewport"></div>
           <div class="trophy-interaction-hint" data-i18n="trophy_drag_hint">Giữ chuột hoặc vuốt để xoay cúp 360°</div>
           <div class="trophy-stage-actions">
@@ -1328,6 +1328,6 @@
   </div>
 
   <!-- Main Game Script -->
-  <script type="module" src="./src/main.js?v=6.8.71"></script>
+  <script type="module" src="./src/main.js?v=6.8.72"></script>
 </body>
 </html>

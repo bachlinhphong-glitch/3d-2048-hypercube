@@ -1533,7 +1533,7 @@ class GameApp {
   handleRushToggleClick() {
     if (this.isRushMode) {
       this.toggleRushMode(false);
-      this.showSpellToast('Đã thoát chế độ Đua Giờ.');
+      this.showSpellToast(t('rush_exited_toast') || 'Đã thoát chế độ Đua Giờ.');
       return;
     }
 
