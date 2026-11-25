@@ -181,6 +181,7 @@ class GameApp {
     this.rushElapsed = 0.0;
     this.rushLevel = 1;
     this.rushEmergencyCount = 0;
+    this.isOverdriveMode = false;
 
     // Telemetry & Stats State
     this.frameCount = 0;
@@ -861,6 +862,11 @@ class GameApp {
           shapeGlassMenu.style.setProperty('display', 'none', 'important');
           shapeTriggerBtn.setAttribute('aria-expanded', 'false');
         } else {
+          const isLight = document.body.classList.contains('theme-gentle_light') ||
+                          document.body.classList.contains('theme-zen_clay') ||
+                          this.currentTheme === 'gentle_light' ||
+                          this.currentTheme === 'zen_clay';
+          shapeGlassMenu.classList.toggle('light-theme', isLight);
           shapeDropdownWrapper?.classList.add('open');
           shapeGlassMenu.classList.add('open');
           shapeGlassMenu.style.setProperty('display', 'flex', 'important');
@@ -1437,6 +1443,11 @@ class GameApp {
     this.currentTheme = newTheme;
     const wasZen = document.body.classList.contains('zen-ui-mode') || this.isZenMode;
     document.body.className = `theme-${newTheme}`;
+    const shapeGlassMenu = document.getElementById('shape-glass-menu');
+    if (shapeGlassMenu) {
+      const isLight = (newTheme === 'gentle_light' || newTheme === 'zen_clay');
+      shapeGlassMenu.classList.toggle('light-theme', isLight);
+    }
     if (this.isBossRaid) {
       document.body.classList.add('in-boss-mode');
     }
@@ -1558,6 +1569,11 @@ class GameApp {
     this.rushElapsed = 0.0;
     this.rushLevel = 1;
     this.rushEmergencyCount = 0;
+    if (this.isRushMode && this.isOverdriveMode) {
+      this.isOverdriveMode = false;
+      if (this.gameLogic) this.gameLogic.setOverdriveMode(false);
+      this.updateOverdriveHUD();
+    }
     if (this.gameLogic) this.gameLogic.rushLevel = 1;
     this.updateRushHeatBadge();
   }
@@ -1565,6 +1581,11 @@ class GameApp {
   toggleBossRaid(forceState = null) {
     const targetState = forceState !== null ? forceState : !this.isBossRaid;
     this.isBossRaid = targetState;
+    if (this.isBossRaid && this.isOverdriveMode) {
+      this.isOverdriveMode = false;
+      if (this.gameLogic) this.gameLogic.setOverdriveMode(false);
+      this.updateOverdriveHUD();
+    }
     const bossBtn = document.getElementById('btn-toggle-boss');
     if (bossBtn) {
       bossBtn.classList.toggle('active', this.isBossRaid);
@@ -1577,6 +1598,23 @@ class GameApp {
       this.bossManager.stopRaid();
     }
     this.registerInteraction();
+  }
+
+  startOverdriveMode() {
+    if (this.isRushMode) this.toggleRushMode(false);
+    if (this.isBossRaid) this.toggleBossRaid(false);
+    this.isOverdriveMode = true;
+    if (this.gameLogic) this.gameLogic.setOverdriveMode(true);
+    this.startNewGame(false);
+    this.keepPlaying = true;
+    this.showSpellToast(t('overdrive_activated_toast') || '✨ CHẾ ĐỘ ẨN OVERDRIVE: Khối 4-8, Cầu Vồng ★ & Điểm x1.5!');
+    this.updateOverdriveHUD();
+  }
+
+  updateOverdriveHUD() {
+    const badge = document.getElementById('badge-overdrive-mode');
+    if (!badge) return;
+    badge.style.display = this.isOverdriveMode ? 'inline-flex' : 'none';
   }
 
   handleBossToggleClick() {
@@ -1833,10 +1871,10 @@ class GameApp {
     }
   }
 
-  spawnSpecificTile(l, r, c, value, delay = 0) {
-    const tile3D = new Tile3D(l, r, c, value, this.sceneManager.scene, this.currentShape, false, 0);
+  spawnSpecificTile(l, r, c, value, delay = 0, isWildcard = false) {
+    const tile3D = new Tile3D(l, r, c, value, this.sceneManager.scene, this.currentShape, false, 0, isWildcard);
     this.tiles3D[l][r][c] = tile3D;
-    this.gameLogic.setTile(l, r, c, { value, id: tile3D.id, isBomb: false, bombCountdown: 0 });
+    this.gameLogic.setTile(l, r, c, { value, id: tile3D.id, isBomb: false, bombCountdown: 0, isWildcard });
     const spawnTween = tile3D.spawnAnimation(delay);
     if (!this._activeSpawnTweens) this._activeSpawnTweens = [];
     if (spawnTween) this._activeSpawnTweens.push(spawnTween);
@@ -2588,9 +2626,9 @@ class GameApp {
           for (let c = 0; c < data.grid[l][r].length; c++) {
             const cell = data.grid[l][r][c];
             if (cell) {
-              const tile3D = new Tile3D(l, r, c, cell.value, this.sceneManager.scene, this.currentShape, cell.isBomb, cell.bombCountdown);
+              const tile3D = new Tile3D(l, r, c, cell.value, this.sceneManager.scene, this.currentShape, cell.isBomb, cell.bombCountdown, cell.isWildcard);
               this.tiles3D[l][r][c] = tile3D;
-              this.gameLogic.setTile(l, r, c, { value: cell.value, id: tile3D.id, isBomb: cell.isBomb, bombCountdown: cell.bombCountdown });
+              this.gameLogic.setTile(l, r, c, { value: cell.value, id: tile3D.id, isBomb: cell.isBomb, bombCountdown: cell.bombCountdown, isWildcard: cell.isWildcard });
               tile3D.spawnAnimation();
               this.maxTileValue = Math.max(this.maxTileValue, cell.value);
             }
@@ -3108,6 +3146,12 @@ class GameApp {
     this.rushElapsed = 0.0;
     this.rushLevel = 1;
     this.rushEmergencyCount = 0;
+    if (this.isOverdriveMode) {
+      if (this.gameLogic) this.gameLogic.setOverdriveMode(true);
+    } else {
+      if (this.gameLogic) this.gameLogic.setOverdriveMode(false);
+    }
+    this.updateOverdriveHUD();
     if (this.gameLogic) this.gameLogic.rushLevel = 1;
     this.updateRushHeatBadge();
     this.updateScoreUI();
@@ -3131,10 +3175,10 @@ class GameApp {
     const spawnInfo = this.gameLogic.getRandomSpawnInfo();
     if (!spawnInfo) return null;
 
-    const { l, r, c, value, isBomb, bombCountdown } = spawnInfo;
-    const tile3D = new Tile3D(l, r, c, value, this.sceneManager.scene, this.currentShape, isBomb, bombCountdown);
+    const { l, r, c, value, isBomb, bombCountdown, isWildcard } = spawnInfo;
+    const tile3D = new Tile3D(l, r, c, value, this.sceneManager.scene, this.currentShape, isBomb, bombCountdown, isWildcard);
     this.tiles3D[l][r][c] = tile3D;
-    this.gameLogic.setTile(l, r, c, { value, id: tile3D.id, isBomb, bombCountdown });
+    this.gameLogic.setTile(l, r, c, { value, id: tile3D.id, isBomb, bombCountdown, isWildcard });
 
     const spawnTween = tile3D.spawnAnimation(delay);
     if (!this._activeSpawnTweens) this._activeSpawnTweens = [];
@@ -3667,7 +3711,7 @@ class GameApp {
                 this.tiles3D[l][r][c] = unchanged;
               } else if (logicTile) {
                 // Resilient spawn if tile was somehow missing
-                const freshTile = new Tile3D(l, r, c, logicTile.value, this.sceneManager.scene, this.currentShape, logicTile.isBomb, logicTile.bombCountdown);
+                const freshTile = new Tile3D(l, r, c, logicTile.value, this.sceneManager.scene, this.currentShape, logicTile.isBomb, logicTile.bombCountdown, logicTile.isWildcard);
                 freshTile.group.scale.set(1, 1, 1);
                 this.tiles3D[l][r][c] = freshTile;
                 logicTile.id = freshTile.id;
@@ -4448,7 +4492,7 @@ class GameApp {
           for (let c = 0; c < this.gameLogic.cols; c++) {
             const cell = this.gameLogic.grid[l][r][c];
             if (cell) {
-              const tile3D = new Tile3D(l, r, c, cell.value, this.sceneManager.scene, this.currentShape, cell.isBomb, cell.bombCountdown);
+              const tile3D = new Tile3D(l, r, c, cell.value, this.sceneManager.scene, this.currentShape, cell.isBomb, cell.bombCountdown, cell.isWildcard);
               tile3D.group.scale.set(1, 1, 1);
               this.tiles3D[l][r][c] = tile3D;
               // Synchronize cell.id so future moves match correctly

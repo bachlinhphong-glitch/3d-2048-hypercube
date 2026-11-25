@@ -242,7 +242,7 @@ export function setTileGraphicsQuality(quality) {
 }
 
 export class Tile3D {
-  constructor(layer, row, col, value, scene, shape = 'auto_evolution', isBomb = false, bombCountdown = 5) {
+  constructor(layer, row, col, value, scene, shape = 'auto_evolution', isBomb = false, bombCountdown = 5, isWildcard = false) {
     this.id = nextTileId++;
     this.layer = layer;
     this.row = row;
@@ -252,6 +252,7 @@ export class Tile3D {
     this.shapeType = shape || 'auto_evolution';
     this.isBomb = isBomb;
     this.bombCountdown = bombCountdown;
+    this.isWildcard = !!isWildcard || (value === 0);
 
     this.group = new THREE.Group();
     this.group.userData = { isTile3D: true, tileInstance: this };
@@ -368,7 +369,7 @@ export class Tile3D {
 
     if (effShape === 'rounded_cube') {
       const geo = getSharedRoundedBox(size, height);
-      const mats = textureManager.getTileMaterials(this.value, this.isBomb, this.bombCountdown);
+      const mats = textureManager.getTileMaterials(this.value, this.isBomb, this.bombCountdown, this.isWildcard);
       this.innerMesh = new THREE.Mesh(geo, mats.map(m => m.clone()));
       this.group.add(this.innerMesh);
 
@@ -849,7 +850,7 @@ export class Tile3D {
 
   addBillboardLabel(size) {
     const is3D = getBoardMode() === '3x3x3';
-    const spriteMat = textureManager.getBillboardMaterial(this.value, this.isBomb, this.bombCountdown);
+    const spriteMat = textureManager.getBillboardMaterial(this.value, this.isBomb, this.bombCountdown, this.isWildcard);
     const clonedMat = spriteMat.clone();
 
     if (is3D) {
@@ -1161,6 +1162,7 @@ export class Tile3D {
 
   upgradeTo(newValue) {
     this.value = newValue;
+    this.isWildcard = false;
     this.buildGeometry();
 
     const basePos = getGridPosition(this.layer, this.row, this.col);

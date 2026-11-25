@@ -52,6 +52,7 @@ export class Game2048Logic {
 
     // Rush Mode Properties
     this.isRushMode = false;
+    this.isOverdriveMode = false;
     this.moveCount = 0;
 
     // Summoner Spells / Phép bổ trợ (Gợi ý, Đi lại, Đổi vị trí)
@@ -88,6 +89,12 @@ export class Game2048Logic {
 
   setRushMode(enabled) {
     this.isRushMode = enabled;
+    this.moveCount = 0;
+  }
+
+  setOverdriveMode(enabled) {
+    this.isOverdriveMode = !!enabled;
+    this.scoreMultiplier = this.isOverdriveMode ? 1.5 : 1.0;
     this.moveCount = 0;
   }
 
@@ -133,7 +140,7 @@ export class Game2048Logic {
     this.won = false;
     this.keepPlaying = false;
     this.gameOver = false;
-    this.scoreMultiplier = 1.0;
+    this.scoreMultiplier = this.isOverdriveMode ? 1.5 : 1.0;
     this.moveCount = 0;
 
     // Reset summoner spells (mỗi bổ trợ tối đa 2 lần/game, dùng 1 lần thì chờ hồi chiêu mốc 256)
@@ -161,7 +168,7 @@ export class Game2048Logic {
     return {
       grid: this.grid.map(layer =>
         layer.map(row =>
-          row.map(cell => cell ? { value: cell.value, isBomb: !!cell.isBomb, bombCountdown: cell.bombCountdown || 0 } : null)
+          row.map(cell => cell ? { value: cell.value, isBomb: !!cell.isBomb, bombCountdown: cell.bombCountdown || 0, isWildcard: !!cell.isWildcard } : null)
         )
       ),
       score: this.score,
@@ -170,6 +177,7 @@ export class Game2048Logic {
       keepPlaying: this.keepPlaying,
       gameOver: this.gameOver,
       isRushMode: this.isRushMode,
+      isOverdriveMode: !!this.isOverdriveMode,
       nextRechargeMilestone: this.nextRechargeMilestone,
       spells: JSON.parse(JSON.stringify(this.spells)),
       history: this.history.slice(-5)
@@ -185,6 +193,7 @@ export class Game2048Logic {
     this.keepPlaying = !!data.keepPlaying;
     this.gameOver = !!data.gameOver;
     this.isRushMode = !!data.isRushMode;
+    this.isOverdriveMode = !!data.isOverdriveMode;
     this.nextRechargeMilestone = data.nextRechargeMilestone || 256;
     if (data.spells) {
       this.spells = {
@@ -250,7 +259,20 @@ export class Game2048Logic {
     const emptyCells = this.getEmptyCells();
     if (emptyCells.length === 0) return null;
     const cell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-    const value = Math.random() < 0.9 ? 2 : 4;
+    let value = Math.random() < 0.9 ? 2 : 4;
+    let isWildcard = false;
+
+    if (this.isOverdriveMode) {
+      const hasWildcard = this.grid.some(layer =>
+        layer.some(row => row.some(t => t && t.isWildcard))
+      );
+      if (!hasWildcard && this.moveCount > 0 && this.moveCount % 12 === 0) {
+        isWildcard = true;
+        value = 0; // Giá trị đặc biệt cho khối Cầu Vồng ★
+      } else {
+        value = Math.random() < 0.75 ? 4 : 8;
+      }
+    }
 
     let isBomb = false;
     const bombInterval = (this.rushLevel && this.rushLevel >= 3) ? 4 : 5;
@@ -264,7 +286,8 @@ export class Game2048Logic {
       c: cell.c,
       value,
       isBomb,
-      bombCountdown: isBomb ? ((this.rushLevel && this.rushLevel >= 4) ? 4 : 5) : 0
+      bombCountdown: isBomb ? ((this.rushLevel && this.rushLevel >= 4) ? 4 : 5) : 0,
+      isWildcard
     };
   }
 
@@ -276,17 +299,19 @@ export class Game2048Logic {
     // 1. Any empty cells? Short-circuit instantly with zero object allocation
     if (this.hasEmptyCells()) return true;
 
+    const canPair = (a, b) => a && b && (a.value === b.value || a.isWildcard || b.isWildcard);
+
     // 2. Any adjacent matching tiles in 3D?
     for (let l = 0; l < this.layers; l++) {
       for (let r = 0; r < this.rows; r++) {
         for (let c = 0; c < this.cols; c++) {
-          const val = this.grid[l][r][c].value;
+          const tile = this.grid[l][r][c];
           // Check Right (X)
-          if (c < this.cols - 1 && this.grid[l][r][c + 1].value === val) return true;
+          if (c < this.cols - 1 && canPair(tile, this.grid[l][r][c + 1])) return true;
           // Check Down (Z)
-          if (r < this.rows - 1 && this.grid[l][r + 1][c].value === val) return true;
+          if (r < this.rows - 1 && canPair(tile, this.grid[l][r + 1][c])) return true;
           // Check Up Layer (Y)
-          if (l < this.layers - 1 && this.grid[l + 1][r][c].value === val) return true;
+          if (l < this.layers - 1 && canPair(tile, this.grid[l + 1][r][c])) return true;
         }
       }
     }
@@ -356,17 +381,24 @@ export class Game2048Logic {
           }
 
           // Check for collision with an existing tile
-          if (
-            nextL >= 0 && nextL < this.layers &&
-            nextR >= 0 && nextR < this.rows &&
-            nextC >= 0 && nextC < this.cols &&
-            newGrid[nextL][nextR][nextC] &&
-            newGrid[nextL][nextR][nextC].value === tile.value &&
-            !mergedGrid[nextL][nextR][nextC]
-          ) {
+          const targetTile = (nextL >= 0 && nextL < this.layers && nextR >= 0 && nextR < this.rows && nextC >= 0 && nextC < this.cols) ? newGrid[nextL][nextR][nextC] : null;
+          const canMerge = targetTile && !mergedGrid[nextL][nextR][nextC] &&
+            (targetTile.value === tile.value || targetTile.isWildcard || tile.isWildcard);
+
+          if (canMerge) {
             // Merge!
-            const targetTile = newGrid[nextL][nextR][nextC];
-            const newValue = targetTile.value * 2;
+            let newValue;
+            if (tile.isWildcard && targetTile.isWildcard) {
+              newValue = 16;
+            } else if (tile.isWildcard) {
+              newValue = targetTile.value * 2;
+            } else if (targetTile.isWildcard) {
+              newValue = tile.value * 2;
+            } else {
+              newValue = targetTile.value * 2;
+            }
+            targetTile.isWildcard = false;
+            tile.isWildcard = false;
             scoreAdded += newValue;
 
             if (tile.isBomb || targetTile.isBomb) {
@@ -728,19 +760,20 @@ export class Game2048Logic {
             nextC = currC + vector.c;
           }
 
-          if (
-            nextL >= 0 && nextL < this.layers &&
-            nextR >= 0 && nextR < this.rows &&
-            nextC >= 0 && nextC < this.cols &&
-            newGrid[nextL][nextR][nextC] &&
-            newGrid[nextL][nextR][nextC].value === tile.value &&
-            !mergedGrid[nextL][nextR][nextC]
-          ) {
-            const prevOrigPos = newGrid[nextL][nextR][nextC]._origPos || { l: nextL, r: nextR, c: nextC };
-            const newValue = tile.value * 2;
+          const targetTileSim = (nextL >= 0 && nextL < this.layers && nextR >= 0 && nextR < this.rows && nextC >= 0 && nextC < this.cols) ? newGrid[nextL][nextR][nextC] : null;
+          const canMerge = targetTileSim && !mergedGrid[nextL][nextR][nextC] &&
+            (targetTileSim.value === tile.value || targetTileSim.isWildcard || tile.isWildcard);
+
+          if (canMerge) {
+            const prevOrigPos = targetTileSim._origPos || { l: nextL, r: nextR, c: nextC };
+            let newValue;
+            if (tile.isWildcard && targetTileSim.isWildcard) newValue = 16;
+            else if (tile.isWildcard) newValue = targetTileSim.value * 2;
+            else if (targetTileSim.isWildcard) newValue = tile.value * 2;
+            else newValue = targetTileSim.value * 2;
             scoreAdded += newValue;
             mergedGrid[nextL][nextR][nextC] = true;
-            newGrid[nextL][nextR][nextC] = { ...tile, value: newValue, _origPos: prevOrigPos };
+            newGrid[nextL][nextR][nextC] = { ...tile, value: newValue, isWildcard: false, _origPos: prevOrigPos };
             moved = true;
 
             if (trackMovements) {

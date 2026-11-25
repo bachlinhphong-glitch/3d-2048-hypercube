@@ -51,11 +51,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./src/style.css?v=6.8.73">
+  <link rel="stylesheet" href="./src/style.css?v=6.8.74">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=6.8.73').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=6.8.74').then(reg => {
           reg.update();
         }).catch(() => {});
       });
@@ -187,6 +187,10 @@
           <span class="btn-text" data-i18n="btn_quests">CÚP</span>
           <span id="quest-badge" class="quest-badge">0/7</span>
         </button>
+        <div id="badge-overdrive-mode" class="overdrive-hud-badge" style="display: none;" title="Chế độ ẩn Overdrive x1.5 điểm">
+          <span class="overdrive-hud-sparkle">✨</span>
+          <span class="overdrive-hud-text" data-i18n="overdrive_hud_badge">OVERDRIVE x1.5</span>
+        </div>
       </div>
 
       <!-- Cluster 4 (Right): Primary Actions (Camera Lock + Zen + New Game + Help + Settings) -->
@@ -670,6 +674,9 @@
             <button id="trophy-celebrate-btn" class="glass-btn trophy-btn">
               <svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.2L21.6 12l-7.2 2.4L12 21.6l-2.4-7.2L2.4 12l7.2-2.4z"/></svg>
               <span id="trophy-celebrate-label" data-i18n="trophy_celebrate_btn">Bắn Pháo Hoa Ăn Mừng</span>
+            </button>
+            <button id="btn-play-overdrive" class="overdrive-unlock-btn locked" disabled>
+              <span id="overdrive-btn-label" data-i18n="overdrive_locked_btn">🔒 Hoàn thành 7/7 Nhiệm vụ hoặc Diệt Boss để mở Chế Độ Ẩn</span>
             </button>
           </div>
         </div>
@@ -1353,6 +1360,6 @@
   </div>
 
   <!-- Main Game Script -->
-  <script type="module" src="./src/main.js?v=6.8.73"></script>
+  <script type="module" src="./src/main.js?v=6.8.74"></script>
 </body>
 </html>

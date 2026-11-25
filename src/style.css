@@ -908,6 +908,8 @@ body.tile-grabbing *,
 .trophy-stage-actions {
   width: 100%;
   display: flex;
+  flex-direction: column;
+  gap: 8px;
   justify-content: center;
 }
 
@@ -926,6 +928,104 @@ body.tile-grabbing *,
   background: linear-gradient(135deg, #ffd700, #ff8800);
   color: #000;
   box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+}
+
+.overdrive-unlock-btn {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  text-align: center;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+  user-select: none;
+  border: 1.5px solid transparent;
+}
+
+.overdrive-unlock-btn.locked {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1.5px dashed rgba(255, 255, 255, 0.2);
+  color: #94a3b8;
+  cursor: not-allowed;
+  opacity: 0.85;
+}
+
+body.theme-gentle_light .overdrive-unlock-btn.locked,
+body.theme-zen_clay .overdrive-unlock-btn.locked {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.18);
+  color: #64748b;
+}
+
+.overdrive-unlock-btn.unlocked {
+  background: linear-gradient(135deg, #ff4d94, #fbbf24, #22d3ee);
+  background-size: 200% 200%;
+  color: #ffffff;
+  border: 1.5px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.55), 0 4px 12px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+  animation: overdriveRainbowShift 3s ease infinite alternate;
+}
+
+.overdrive-unlock-btn.unlocked:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 0 28px rgba(251, 191, 36, 0.8), 0 6px 18px rgba(0, 0, 0, 0.45);
+}
+
+.overdrive-unlock-btn.unlocked:active {
+  transform: translateY(0) scale(0.98);
+}
+
+@keyframes overdriveRainbowShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Overdrive HUD Badge */
+.overdrive-hud-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(255, 77, 148, 0.28), rgba(251, 191, 36, 0.28), rgba(34, 211, 238, 0.28));
+  border: 1.5px solid rgba(251, 191, 36, 0.7);
+  box-shadow: 0 0 14px rgba(251, 191, 36, 0.4);
+  color: #fef08a;
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  user-select: none;
+  animation: overdriveBadgePulse 2s infinite ease-in-out;
+}
+
+@keyframes overdriveBadgePulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 10px rgba(251, 191, 36, 0.35);
+  }
+  50% {
+    transform: scale(1.04);
+    box-shadow: 0 0 20px rgba(255, 77, 148, 0.6);
+  }
+}
+
+body.theme-gentle_light .overdrive-hud-badge,
+body.theme-zen_clay .overdrive-hud-badge {
+  background: linear-gradient(135deg, rgba(255, 77, 148, 0.16), rgba(251, 191, 36, 0.24), rgba(34, 211, 238, 0.18));
+  border-color: rgba(217, 119, 6, 0.6);
+  color: #9a3412;
+  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.25);
 }
 
 /* Quests Pane (Right) */
@@ -8102,14 +8202,21 @@ select option:checked,
 
 /* Floating Apple Glass Menu */
 .apple-glass-dropdown {
+  --dropdown-bg: #0f172a;
+  --dropdown-text: #f0f6fc;
+  --dropdown-border: rgba(255, 255, 255, 0.18);
+  --dropdown-hover-bg: rgba(56, 189, 248, 0.18);
+  --dropdown-hover-text: #38bdf8;
+  --dropdown-active-bg: rgba(56, 189, 248, 0.25);
+  --dropdown-active-text: #38bdf8;
   position: absolute !important;
   top: calc(100% + 8px) !important;
   left: 0 !important;
   min-width: 140px !important;
-  background: #0f172a !important; /* 100% Solid Opaque - zero bleed-through */
+  background: var(--dropdown-bg) !important; /* 100% Solid Opaque - zero bleed-through */
   backdrop-filter: blur(28px) saturate(200%) !important;
   -webkit-backdrop-filter: blur(28px) saturate(200%) !important;
-  border: 1.5px solid rgba(255, 255, 255, 0.18) !important;
+  border: 1.5px solid var(--dropdown-border) !important;
   border-radius: 14px !important;
   padding: 5px !important;
   box-shadow: 0 20px 48px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.1) !important;
@@ -8124,7 +8231,16 @@ select option:checked,
 }
 
 body.theme-gentle_light .apple-glass-dropdown,
-body.theme-zen_clay .apple-glass-dropdown {
+body.theme-zen_clay .apple-glass-dropdown,
+.apple-glass-dropdown.light-theme,
+#shape-glass-menu.light-theme {
+  --dropdown-bg: #ffffff;
+  --dropdown-text: #0f172a;
+  --dropdown-border: rgba(0, 0, 0, 0.14);
+  --dropdown-hover-bg: rgba(2, 132, 199, 0.1);
+  --dropdown-hover-text: #0284c7;
+  --dropdown-active-bg: rgba(2, 132, 199, 0.16);
+  --dropdown-active-text: #0284c7;
   background: #ffffff !important;
   border: 1px solid rgba(0, 0, 0, 0.14) !important;
   color: #0f172a !important;
@@ -8133,7 +8249,9 @@ body.theme-zen_clay .apple-glass-dropdown {
 }
 
 body.theme-gentle_light .apple-glass-dropdown::-webkit-scrollbar-thumb,
-body.theme-zen_clay .apple-glass-dropdown::-webkit-scrollbar-thumb {
+body.theme-zen_clay .apple-glass-dropdown::-webkit-scrollbar-thumb,
+.apple-glass-dropdown.light-theme::-webkit-scrollbar-thumb,
+#shape-glass-menu.light-theme::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0.22) !important;
 }
 
@@ -8168,8 +8286,8 @@ body.theme-zen_clay .apple-glass-dropdown::-webkit-scrollbar-thumb {
   border-radius: 9px !important;
   font-size: 13px !important;
   font-weight: 600 !important;
-  color: #f0f6fc !important;
-  -webkit-text-fill-color: #f0f6fc !important;
+  color: var(--dropdown-text, #f0f6fc) !important;
+  -webkit-text-fill-color: var(--dropdown-text, #f0f6fc) !important;
   cursor: pointer !important;
   display: flex !important;
   align-items: center !important;
@@ -8178,38 +8296,41 @@ body.theme-zen_clay .apple-glass-dropdown::-webkit-scrollbar-thumb {
   user-select: none !important;
 }
 
-.apple-glass-menu-item:hover {
-  background: rgba(56, 189, 248, 0.18) !important;
-  color: #38bdf8 !important;
-  -webkit-text-fill-color: #38bdf8 !important;
+.apple-glass-menu-item:hover,
+.apple-glass-menu-item:focus-visible {
+  background: var(--dropdown-hover-bg, rgba(56, 189, 248, 0.18)) !important;
+  color: var(--dropdown-hover-text, #38bdf8) !important;
+  -webkit-text-fill-color: var(--dropdown-hover-text, #38bdf8) !important;
 }
 
 .apple-glass-menu-item.active {
-  background: rgba(56, 189, 248, 0.25) !important;
-  color: #38bdf8 !important;
-  -webkit-text-fill-color: #38bdf8 !important;
+  background: var(--dropdown-active-bg, rgba(56, 189, 248, 0.25)) !important;
+  color: var(--dropdown-active-text, #38bdf8) !important;
+  -webkit-text-fill-color: var(--dropdown-active-text, #38bdf8) !important;
   font-weight: 700 !important;
 }
 
 .apple-glass-menu-item.active::after {
   content: "✓" !important;
   font-size: 12px !important;
-  color: #38bdf8 !important;
-  -webkit-text-fill-color: #38bdf8 !important;
+  color: var(--dropdown-active-text, #38bdf8) !important;
+  -webkit-text-fill-color: var(--dropdown-active-text, #38bdf8) !important;
   font-weight: 800 !important;
 }
 
 /* Crisp Dark Text for Light Themes (Gentle Light & Zen Clay) */
 body.theme-gentle_light .apple-glass-menu-item,
 body.theme-zen_clay .apple-glass-menu-item,
-.apple-glass-dropdown.light-theme .apple-glass-menu-item {
-  color: #1e293b !important;
-  -webkit-text-fill-color: #1e293b !important;
+.apple-glass-dropdown.light-theme .apple-glass-menu-item,
+#shape-glass-menu.light-theme .apple-glass-menu-item {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
 }
 
 body.theme-gentle_light .apple-glass-menu-item:hover,
 body.theme-zen_clay .apple-glass-menu-item:hover,
-.apple-glass-dropdown.light-theme .apple-glass-menu-item:hover {
+.apple-glass-dropdown.light-theme .apple-glass-menu-item:hover,
+#shape-glass-menu.light-theme .apple-glass-menu-item:hover {
   background: rgba(2, 132, 199, 0.1) !important;
   color: #0284c7 !important;
   -webkit-text-fill-color: #0284c7 !important;
@@ -8217,7 +8338,8 @@ body.theme-zen_clay .apple-glass-menu-item:hover,
 
 body.theme-gentle_light .apple-glass-menu-item.active,
 body.theme-zen_clay .apple-glass-menu-item.active,
-.apple-glass-dropdown.light-theme .apple-glass-menu-item.active {
+.apple-glass-dropdown.light-theme .apple-glass-menu-item.active,
+#shape-glass-menu.light-theme .apple-glass-menu-item.active {
   background: rgba(2, 132, 199, 0.16) !important;
   color: #0284c7 !important;
   -webkit-text-fill-color: #0284c7 !important;
@@ -8226,7 +8348,8 @@ body.theme-zen_clay .apple-glass-menu-item.active,
 
 body.theme-gentle_light .apple-glass-menu-item.active::after,
 body.theme-zen_clay .apple-glass-menu-item.active::after,
-.apple-glass-dropdown.light-theme .apple-glass-menu-item.active::after {
+.apple-glass-dropdown.light-theme .apple-glass-menu-item.active::after,
+#shape-glass-menu.light-theme .apple-glass-menu-item.active::after {
   color: #0284c7 !important;
   -webkit-text-fill-color: #0284c7 !important;
 }

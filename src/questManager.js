@@ -181,11 +181,24 @@ export class QuestManager {
       });
     }
 
+    // Overdrive Secret Mode Launch button
+    const overdriveBtn = document.getElementById('btn-play-overdrive');
+    if (overdriveBtn) {
+      overdriveBtn.addEventListener('click', () => {
+        if (!this.isOverdriveUnlocked()) return;
+        this.closeModal();
+        if (window.gameApp && window.gameApp.startOverdriveMode) {
+          window.gameApp.startOverdriveMode();
+        }
+      });
+    }
+
     // Dynamic Language Synchronization Listener
     window.addEventListener('languageChanged', () => {
       this.renderQuestList();
       this.updateStatusPill();
       this.updateBossStatsTexts();
+      this.updateOverdriveButton();
       const celebrateLabel = document.getElementById('trophy-celebrate-label');
       if (celebrateLabel) {
         celebrateLabel.textContent = this.currentTab === 'boss' ? (t('trophy_celebrate_boss_btn') || 'Khai hỏa Hỏa Lực Hư Không') : (t('trophy_celebrate_btn') || 'Bắn Pháo Hoa Ăn Mừng');
@@ -302,6 +315,34 @@ export class QuestManager {
         const tmpl = t('trophy_locked_remaining') || t('trophy_status_c1_locked') || 'LOCKED — {n} QUESTS LEFT';
         statusEl.textContent = tmpl.replace('{n}', remaining);
       }
+    }
+    this.updateOverdriveButton();
+  }
+
+  isOverdriveUnlocked() {
+    const c1Unlocked = this.isAllCompleted() || (this.state && !!this.state.trophy_unlocked);
+    const bossUnlocked = this.isBossDefeated() || (this.state && !!this.state.boss_trophy_unlocked);
+    return c1Unlocked || bossUnlocked;
+  }
+
+  updateOverdriveButton() {
+    const btn = document.getElementById('btn-play-overdrive');
+    const label = document.getElementById('overdrive-btn-label');
+    if (!btn || !label) return;
+
+    const unlocked = this.isOverdriveUnlocked();
+    if (unlocked) {
+      btn.disabled = false;
+      btn.classList.remove('locked');
+      btn.classList.add('unlocked');
+      label.setAttribute('data-i18n', 'overdrive_play_btn');
+      label.textContent = t('overdrive_play_btn') || '✨ CHƠI CHẾ ĐỘ ẨN OVERDRIVE (Khối 4-8, Cầu Vồng ★ & Điểm x1.5)';
+    } else {
+      btn.disabled = true;
+      btn.classList.remove('unlocked');
+      btn.classList.add('locked');
+      label.setAttribute('data-i18n', 'overdrive_locked_btn');
+      label.textContent = t('overdrive_locked_btn') || '🔒 Hoàn thành 7/7 Nhiệm vụ hoặc Diệt Boss để mở Chế Độ Ẩn';
     }
   }
 
@@ -595,6 +636,7 @@ export class QuestManager {
     }
 
     this.renderQuestList();
+    this.updateOverdriveButton();
 
     // Initialize or refresh 3D Trophy Viewer
     const viewport = document.getElementById('trophy-3d-viewport');

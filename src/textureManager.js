@@ -119,12 +119,13 @@ export class TextureManager {
   }
 
   // Create high-res 512x512 CanvasTexture for cubes
-  createCanvasTexture(value, isBomb = false, bombCountdown = 0) {
+  createCanvasTexture(value, isBomb = false, bombCountdown = 0, isWildcard = false) {
+    const isWild = !!isWildcard || value === 0;
     const isLight = this.currentTheme === 'gentle_light' || this.currentTheme === 'zen_clay';
     const isDark = this.currentTheme === 'gentle_dark' || this.currentTheme === 'modern_slate';
     const isMinimalist = isLight || isDark;
 
-    const cacheKey = `${this.currentTheme}_${value}_${isBomb}_${bombCountdown}_${this.isHyperNeon}`;
+    const cacheKey = `${this.currentTheme}_${value}_${isBomb}_${bombCountdown}_${isWild}_${this.isHyperNeon}`;
     if (this.textureCache.has(cacheKey)) {
       return this.textureCache.get(cacheKey);
     }
@@ -134,6 +135,19 @@ export class TextureManager {
     canvas.width = size;
     canvas.height = size;
     const ctx = canvas.getContext('2d');
+
+    if (isWild) {
+      this.drawWildcardFace(ctx, size);
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.colorSpace = THREE.SRGBColorSpace;
+      texture.generateMipmaps = true;
+      texture.minFilter = THREE.LinearMipmapLinearFilter;
+      texture.magFilter = THREE.LinearFilter;
+      texture.anisotropy = 16;
+      texture.needsUpdate = true;
+      this.textureCache.set(cacheKey, texture);
+      return texture;
+    }
 
     const style = this.getStyle(value);
 
@@ -320,9 +334,10 @@ export class TextureManager {
   }
 
   // Create circular billboard sprite texture for Spheres, Octahedrons & Complex 3D Models
-  createSpriteTexture(value, isBomb = false, bombCountdown = 0) {
+  createSpriteTexture(value, isBomb = false, bombCountdown = 0, isWildcard = false) {
+    const isWild = !!isWildcard || value === 0;
     const isLight = this.currentTheme === 'gentle_light' || this.currentTheme === 'zen_clay';
-    const cacheKey = `sprite_${this.currentTheme}_${value}_${isBomb}_${bombCountdown}`;
+    const cacheKey = `sprite_${this.currentTheme}_${value}_${isBomb}_${bombCountdown}_${isWild}`;
     if (this.spriteTextureCache.has(cacheKey)) {
       return this.spriteTextureCache.get(cacheKey);
     }
@@ -332,6 +347,19 @@ export class TextureManager {
     canvas.width = size;
     canvas.height = size;
     const ctx = canvas.getContext('2d');
+
+    if (isWild) {
+      this.drawWildcardSprite(ctx, size);
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.colorSpace = THREE.SRGBColorSpace;
+      texture.generateMipmaps = true;
+      texture.minFilter = THREE.LinearMipmapLinearFilter;
+      texture.magFilter = THREE.LinearFilter;
+      texture.anisotropy = 16;
+      texture.needsUpdate = true;
+      this.spriteTextureCache.set(cacheKey, texture);
+      return texture;
+    }
 
     const style = this.getStyle(value);
 
@@ -488,8 +516,9 @@ export class TextureManager {
     return '#' + (0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1);
   }
 
-  getTileMaterials(value, isBomb = false, bombCountdown = 0) {
-    const matKey = `mat_${this.currentTheme}_${value}_${isBomb}_${bombCountdown}_${this.isHyperNeon}`;
+  getTileMaterials(value, isBomb = false, bombCountdown = 0, isWildcard = false) {
+    const isWild = !!isWildcard || value === 0;
+    const matKey = `mat_${this.currentTheme}_${value}_${isBomb}_${bombCountdown}_${isWild}_${this.isHyperNeon}`;
     if (this.materialCache.has(matKey)) {
       return this.materialCache.get(matKey);
     }
@@ -499,21 +528,26 @@ export class TextureManager {
     const isMinimalist = isLight || isDark;
 
     const style = this.getStyle(value);
-    const texture = this.createCanvasTexture(value, isBomb, bombCountdown);
+    const texture = this.createCanvasTexture(value, isBomb, bombCountdown, isWild);
 
-    const emissiveColor = new THREE.Color(isBomb ? 0xff2222 : (isMinimalist ? 0x000000 : style.emissive));
+    const emissiveColor = isWild ? new THREE.Color(0xfbbf24) : new THREE.Color(isBomb ? 0xff2222 : (isMinimalist ? 0x000000 : style.emissive));
     const multiplier = this.isHyperNeon ? 1.5 : 1.0;
-    const emissiveIntensity = isMinimalist ? 0 : ((isBomb ? 0.7 : style.intensity) * multiplier);
+    const emissiveIntensity = isWild ? 0.35 : (isMinimalist ? 0 : ((isBomb ? 0.7 : style.intensity) * multiplier));
 
-    const isGrand2048 = value >= 2048 && !isBomb;
-    const isGrand1024 = value === 1024 && !isBomb;
+    const isGrand2048 = value >= 2048 && !isBomb && !isWild;
+    const isGrand1024 = value === 1024 && !isBomb && !isWild;
 
     let roughness = isLight ? 0.55 : (isDark ? 0.48 : 0.18);
     let metalness = isLight ? 0.02 : (isDark ? 0.08 : 0.22);
-    let finalEmissiveColor = new THREE.Color(isBomb ? 0xff2222 : (isMinimalist ? 0x000000 : style.emissive));
-    let finalEmissiveIntensity = isMinimalist ? 0 : ((isBomb ? 0.7 : style.intensity) * multiplier);
+    let finalEmissiveColor = emissiveColor;
+    let finalEmissiveIntensity = emissiveIntensity;
 
-    if (isGrand2048) {
+    if (isWild) {
+      roughness = 0.15;
+      metalness = 0.35;
+      finalEmissiveColor = new THREE.Color(0xfbbf24);
+      finalEmissiveIntensity = 0.40;
+    } else if (isGrand2048) {
       // Sovereign 24K Imperial Mirror Gold
       roughness = 0.10;
       metalness = 0.95;
@@ -527,9 +561,11 @@ export class TextureManager {
       finalEmissiveIntensity = 0.35;
     }
 
-    const sideColor = isBomb 
-      ? 0xcc1111 
-      : (isGrand2048 ? 0xb45309 : (isGrand1024 ? 0x1e293b : style.bg));
+    const sideColor = isWild
+      ? 0xff4d94
+      : (isBomb 
+        ? 0xcc1111 
+        : (isGrand2048 ? 0xb45309 : (isGrand1024 ? 0x1e293b : style.bg)));
 
     // High-performance tactile standard material
     const faceMatWithText = new THREE.MeshStandardMaterial({
@@ -672,11 +708,12 @@ export class TextureManager {
     return torusMat;
   }
 
-  getBillboardMaterial(value, isBomb = false, bombCountdown = 0) {
-    const key = `billboard_${this.currentTheme}_${value}_${isBomb}_${bombCountdown}_${this.isHyperNeon}`;
+  getBillboardMaterial(value, isBomb = false, bombCountdown = 0, isWildcard = false) {
+    const isWild = !!isWildcard || value === 0;
+    const key = `billboard_${this.currentTheme}_${value}_${isBomb}_${bombCountdown}_${isWild}_${this.isHyperNeon}`;
     if (this.materialCache.has(key)) return this.materialCache.get(key);
 
-    const spriteTex = this.createSpriteTexture(value, isBomb, bombCountdown);
+    const spriteTex = this.createSpriteTexture(value, isBomb, bombCountdown, isWild);
     const spriteMat = new THREE.SpriteMaterial({
       map: spriteTex,
       transparent: true,
@@ -1141,6 +1178,86 @@ export class TextureManager {
       ctx.stroke();
     });
 
+    ctx.restore();
+  }
+
+  drawWildcardFace(ctx, size) {
+    const cx = size / 2;
+    const cy = size / 2;
+
+    // 1. Radiant 3-Color Rainbow Gradient (#ff4d94 -> #fbbf24 -> #22d3ee)
+    const grad = ctx.createLinearGradient(0, 0, size, size);
+    grad.addColorStop(0, '#ff4d94');   // Hot vibrant pink
+    grad.addColorStop(0.5, '#fbbf24'); // Sunlit golden amber
+    grad.addColorStop(1, '#22d3ee');   // Luminous bright cyan
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, size, size);
+
+    // 2. Brilliant White Border
+    ctx.save();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 14;
+    ctx.strokeRect(16, 16, size - 32, size - 32);
+
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(26, 26, size - 52, size - 52);
+    ctx.restore();
+
+    // 3. Bold White Star ★ with soft drop shadow
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = '900 240px "Clear Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
+    ctx.shadowBlur = 18;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 4;
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText('★', cx, cy + 6);
+    ctx.restore();
+  }
+
+  drawWildcardSprite(ctx, size) {
+    const cx = size / 2;
+    const cy = size / 2;
+    ctx.clearRect(0, 0, size, size);
+
+    // 1. Circular Rainbow Gradient Disc
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, 220, 0, Math.PI * 2);
+    ctx.closePath();
+    const grad = ctx.createLinearGradient(cx - 200, cy - 200, cx + 200, cy + 200);
+    grad.addColorStop(0, '#ff4d94');
+    grad.addColorStop(0.5, '#fbbf24');
+    grad.addColorStop(1, '#22d3ee');
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // 2. White Rim
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 12;
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, 206, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
+    ctx.lineWidth = 4;
+    ctx.stroke();
+    ctx.restore();
+
+    // 3. Bold White Star ★
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = '900 220px "Clear Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+    ctx.shadowBlur = 16;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 4;
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText('★', cx, cy + 4);
     ctx.restore();
   }
 
