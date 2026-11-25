@@ -60,15 +60,37 @@ export const QUEST_DEFS = [
   }
 ];
 
+export const TILEPEDIA_CATALOG = [
+  { key: '2', label: '2', tierKey: 'tilepedia_tier_common', descKey: 'tilepedia_desc_2', bg: 'linear-gradient(135deg, #4d94ff, #2563eb)', color: '#ffffff' },
+  { key: '4', label: '4', tierKey: 'tilepedia_tier_common', descKey: 'tilepedia_desc_4', bg: 'linear-gradient(135deg, #00d4ff, #0284c7)', color: '#ffffff' },
+  { key: '8', label: '8', tierKey: 'tilepedia_tier_common', descKey: 'tilepedia_desc_8', bg: 'linear-gradient(135deg, #10b981, #059669)', color: '#ffffff' },
+  { key: '16', label: '16', tierKey: 'tilepedia_tier_common', descKey: 'tilepedia_desc_16', bg: 'linear-gradient(135deg, #f59e0b, #d97706)', color: '#ffffff' },
+  { key: '32', label: '32', tierKey: 'tilepedia_tier_rare', descKey: 'tilepedia_desc_32', bg: 'linear-gradient(135deg, #fb923c, #ea580c)', color: '#ffffff' },
+  { key: '64', label: '64', tierKey: 'tilepedia_tier_rare', descKey: 'tilepedia_desc_64', bg: 'linear-gradient(135deg, #f43f5e, #e11d48)', color: '#ffffff' },
+  { key: '128', label: '128', tierKey: 'tilepedia_tier_rare', descKey: 'tilepedia_desc_128', bg: 'linear-gradient(135deg, #e879f9, #c026d3)', color: '#ffffff' },
+  { key: '256', label: '256', tierKey: 'tilepedia_tier_epic', descKey: 'tilepedia_desc_256', bg: 'linear-gradient(135deg, #a78bfa, #7c3aed)', color: '#ffffff' },
+  { key: '512', label: '512', tierKey: 'tilepedia_tier_epic', descKey: 'tilepedia_desc_512', bg: 'linear-gradient(135deg, #818cf8, #4f46e5)', color: '#ffffff' },
+  { key: '1024', label: '1024', tierKey: 'tilepedia_tier_epic', descKey: 'tilepedia_desc_1024', bg: 'linear-gradient(135deg, #38bdf8, #0284c7)', color: '#ffffff' },
+  { key: '2048', label: '2048', tierKey: 'tilepedia_tier_mythic', descKey: 'tilepedia_desc_2048', bg: 'linear-gradient(135deg, #fbbf24, #b45309)', color: '#ffffff' },
+  { key: '4096', label: '4096', tierKey: 'tilepedia_tier_mythic', descKey: 'tilepedia_desc_4096', bg: 'linear-gradient(135deg, #c084fc, #9333ea)', color: '#ffffff' },
+  { key: '8192', label: '8192', tierKey: 'tilepedia_tier_mythic', descKey: 'tilepedia_desc_8192', bg: 'linear-gradient(135deg, #34d399, #059669)', color: '#ffffff' },
+  { key: '16384', label: '16384', tierKey: 'tilepedia_tier_mythic', descKey: 'tilepedia_desc_16384', bg: 'linear-gradient(135deg, #fb7185, #be123c)', color: '#ffffff' },
+  { key: 'wildcard', label: '★', tierKey: 'tilepedia_tier_special', descKey: 'tilepedia_desc_wildcard', bg: 'linear-gradient(135deg, #ec4899, #8b5cf6, #06b6d4)', color: '#ffffff' },
+  { key: 'bomb', label: '💣', tierKey: 'tilepedia_tier_special', descKey: 'tilepedia_desc_bomb', bg: 'linear-gradient(135deg, #dc2626, #7f1d1d)', color: '#ffffff' }
+];
+
 export class QuestManager {
   constructor(gameApp) {
     this.game = gameApp;
     this.storageKey = '3d2048_quests_v1';
+    this.tilepediaKey = '3d2048_tilepedia_v1';
     this.trophyViewer = null;
-    this.currentTab = 'c1'; // 'c1' | 'boss'
+    this.currentTab = 'c1'; // 'c1' | 'boss' | 'tilepedia'
+    this.selectedTilepediaKey = '2';
 
     // Internal state
     this.state = this.loadState();
+    this.tilepedia = this.loadTilepediaState();
 
     // Elements
     this.modal = document.getElementById('trophy-modal');
@@ -152,11 +174,15 @@ export class QuestManager {
     // Tabs switching
     const tabC1Btn = document.getElementById('trophy-tab-c1');
     const tabBossBtn = document.getElementById('trophy-tab-boss');
+    const tabTilepediaBtn = document.getElementById('trophy-tab-tilepedia');
     if (tabC1Btn) {
       tabC1Btn.addEventListener('click', () => this.switchTab('c1'));
     }
     if (tabBossBtn) {
       tabBossBtn.addEventListener('click', () => this.switchTab('boss'));
+    }
+    if (tabTilepediaBtn) {
+      tabTilepediaBtn.addEventListener('click', () => this.switchTab('tilepedia'));
     }
 
     // Celebrate button (Spammable with bounce animation)
@@ -196,6 +222,7 @@ export class QuestManager {
     // Dynamic Language Synchronization Listener
     window.addEventListener('languageChanged', () => {
       this.renderQuestList();
+      this.renderTilepedia();
       this.updateStatusPill();
       this.updateBossStatsTexts();
       this.updateOverdriveButton();
@@ -214,21 +241,33 @@ export class QuestManager {
 
     const tabC1Btn = document.getElementById('trophy-tab-c1');
     const tabBossBtn = document.getElementById('trophy-tab-boss');
+    const tabTilepediaBtn = document.getElementById('trophy-tab-tilepedia');
     const c1Pane = document.getElementById('trophy-c1-pane');
     const bossPane = document.getElementById('trophy-boss-pane');
+    const tilepediaPane = document.getElementById('trophy-tilepedia-pane');
+    const bodyEl = this.modal ? this.modal.querySelector('.trophy-modal-body') : null;
     const celebrateLabel = document.getElementById('trophy-celebrate-label');
 
+    [
+      [tabC1Btn, 'c1'],
+      [tabBossBtn, 'boss'],
+      [tabTilepediaBtn, 'tilepedia']
+    ].forEach(([btn, name]) => {
+      if (!btn) return;
+      const isAct = tab === name;
+      btn.classList.toggle('active', isAct);
+      btn.setAttribute('aria-selected', isAct ? 'true' : 'false');
+    });
+
+    if (bodyEl) {
+      bodyEl.classList.toggle('tilepedia-full-view', tab === 'tilepedia');
+    }
+
+    if (c1Pane) c1Pane.style.display = tab === 'c1' ? 'flex' : 'none';
+    if (bossPane) bossPane.style.display = tab === 'boss' ? 'block' : 'none';
+    if (tilepediaPane) tilepediaPane.style.display = tab === 'tilepedia' ? 'flex' : 'none';
+
     if (tab === 'boss') {
-      if (tabC1Btn) {
-        tabC1Btn.classList.remove('active');
-        tabC1Btn.setAttribute('aria-selected', 'false');
-      }
-      if (tabBossBtn) {
-        tabBossBtn.classList.add('active');
-        tabBossBtn.setAttribute('aria-selected', 'true');
-      }
-      if (c1Pane) c1Pane.style.display = 'none';
-      if (bossPane) bossPane.style.display = 'block';
       if (celebrateLabel) celebrateLabel.textContent = t('trophy_celebrate_boss_btn') || 'Bắn Pháo Lửa Diệt Trùm';
 
       // Update boss status details
@@ -252,28 +291,23 @@ export class QuestManager {
       if (maxLoopEl) {
         maxLoopEl.textContent = `Loop ${maxLoop}`;
       }
+    } else if (tab === 'tilepedia') {
+      this.renderTilepedia();
     } else {
-      if (tabC1Btn) {
-        tabC1Btn.classList.add('active');
-        tabC1Btn.setAttribute('aria-selected', 'true');
-      }
-      if (tabBossBtn) {
-        tabBossBtn.classList.remove('active');
-        tabBossBtn.setAttribute('aria-selected', 'false');
-      }
-      if (c1Pane) c1Pane.style.display = 'flex';
-      if (bossPane) bossPane.style.display = 'none';
       if (celebrateLabel) celebrateLabel.textContent = t('trophy_celebrate_btn') || 'Bắn Pháo Hoa Ăn Mừng';
     }
 
     this.updateStatusPill();
 
-    // Update 3D Viewer Mesh & Lighting
-    if (this.trophyViewer) {
+    // Update 3D Viewer Mesh & Lighting when visible
+    if (this.trophyViewer && tab !== 'tilepedia') {
       this.trophyViewer.setTrophyType(this.currentTab, {
         c1: this.isAllCompleted(),
         boss: this.isBossDefeated()
       });
+      setTimeout(() => {
+        if (this.trophyViewer) this.trophyViewer.resize();
+      }, 30);
     }
   }
 
@@ -290,11 +324,133 @@ export class QuestManager {
     }
   }
 
+  loadTilepediaState() {
+    let counts = {};
+    try {
+      const saved = JSON.parse(localStorage.getItem(this.tilepediaKey));
+      if (saved && saved.counts && typeof saved.counts === 'object') {
+        counts = { ...saved.counts };
+      }
+    } catch {}
+
+    // Backfill historical max tile for existing players
+    try {
+      const prevMax = parseInt(localStorage.getItem('3d2048_max_tile') || '0', 10);
+      if (prevMax >= 2) {
+        for (const entry of TILEPEDIA_CATALOG) {
+          const numericVal = parseInt(entry.key, 10);
+          if (!Number.isNaN(numericVal) && numericVal <= prevMax && !counts[entry.key]) {
+            counts[entry.key] = 1;
+          }
+        }
+      }
+    } catch {}
+
+    if (!counts['2']) counts['2'] = 1;
+    return { counts };
+  }
+
+  saveTilepediaState() {
+    try {
+      localStorage.setItem(this.tilepediaKey, JSON.stringify(this.tilepedia));
+    } catch {}
+  }
+
+  recordTileDiscovery(key) {
+    if (this.isAIRunning() || key === null || key === undefined) return;
+    const normKey = String(key);
+    const exists = TILEPEDIA_CATALOG.some(e => e.key === normKey);
+    if (!exists) return;
+
+    this.tilepedia.counts[normKey] = (this.tilepedia.counts[normKey] || 0) + 1;
+    this.saveTilepediaState();
+    if (this.modal && this.modal.classList.contains('active') && this.currentTab === 'tilepedia') {
+      this.renderTilepedia();
+    }
+  }
+
+  getTilepediaProgress() {
+    let discovered = 0;
+    for (const entry of TILEPEDIA_CATALOG) {
+      if ((this.tilepedia.counts[entry.key] || 0) > 0) {
+        discovered++;
+      }
+    }
+    return { discovered, total: TILEPEDIA_CATALOG.length };
+  }
+
+  renderTilepedia() {
+    const grid = document.getElementById('tilepedia-grid');
+    const detail = document.getElementById('tilepedia-detail-card');
+    const fill = document.getElementById('tilepedia-progress-fill');
+    const text = document.getElementById('tilepedia-progress-text');
+    if (!grid) return;
+
+    const { discovered, total } = this.getTilepediaProgress();
+    const pct = Math.round((discovered / total) * 100);
+    if (fill) fill.style.width = `${pct}%`;
+    if (text) text.textContent = `${discovered} / ${total} (${pct}%)`;
+
+    grid.innerHTML = '';
+    TILEPEDIA_CATALOG.forEach(entry => {
+      const count = this.tilepedia.counts[entry.key] || 0;
+      const unlocked = count > 0;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = `tilepedia-item ${unlocked ? 'unlocked' : 'locked'}${this.selectedTilepediaKey === entry.key ? ' selected' : ''}`;
+      btn.dataset.key = entry.key;
+
+      const badgeText = unlocked ? `×${count}` : '🔒';
+      btn.innerHTML = `
+        <div class="tilepedia-swatch" style="${unlocked ? `background: ${entry.bg}; color: ${entry.color};` : ''}">
+          <span>${unlocked ? entry.label : '???'}</span>
+        </div>
+        <div class="tilepedia-item-meta">${badgeText}</div>
+      `;
+
+      btn.addEventListener('click', () => {
+        this.selectedTilepediaKey = entry.key;
+        this.renderTilepedia();
+      });
+      grid.appendChild(btn);
+    });
+
+    if (detail) {
+      const activeEntry = TILEPEDIA_CATALOG.find(e => e.key === this.selectedTilepediaKey) || TILEPEDIA_CATALOG[0];
+      const count = this.tilepedia.counts[activeEntry.key] || 0;
+      const unlocked = count > 0;
+      const tierText = t(activeEntry.tierKey) || '';
+      const countText = unlocked
+        ? (t('tilepedia_merges_count') || 'Số lần tạo / gộp: ×{count}').replace('{count}', count.toLocaleString())
+        : '';
+
+      detail.innerHTML = `
+        <div class="tilepedia-detail-swatch" style="${unlocked ? `background: ${activeEntry.bg}; color: ${activeEntry.color};` : ''}">
+          ${unlocked ? activeEntry.label : '???'}
+        </div>
+        <div class="tilepedia-detail-info">
+          <div class="tilepedia-detail-top">
+            <span class="tilepedia-detail-name">${unlocked ? activeEntry.label : (t('tilepedia_locked_title') || 'Khối Bí Ẩn')}</span>
+            <span class="tilepedia-detail-tier">${unlocked ? tierText : '🔒'}</span>
+          </div>
+          <p class="tilepedia-detail-desc">${unlocked ? (t(activeEntry.descKey) || '') : (t('tilepedia_locked_hint') || '')}</p>
+          ${countText ? `<div class="tilepedia-detail-count">${countText}</div>` : ''}
+        </div>
+      `;
+    }
+  }
+
   updateStatusPill() {
     const statusEl = document.getElementById('trophy-status-pill');
     if (!statusEl) return;
 
-    if (this.currentTab === 'boss') {
+    if (this.currentTab === 'tilepedia') {
+      const { discovered, total } = this.getTilepediaProgress();
+      statusEl.className = 'trophy-status-pill unlocked';
+      statusEl.textContent = (t('tilepedia_status_unlocked') || '📘 BẢO TÀNG KHỐI 3D — ĐÃ KHAI PHÁ {done}/{total}')
+        .replace('{done}', discovered)
+        .replace('{total}', total);
+    } else if (this.currentTab === 'boss') {
       const isDefeated = this.isBossDefeated();
       if (isDefeated) {
         statusEl.className = 'trophy-status-pill unlocked boss';

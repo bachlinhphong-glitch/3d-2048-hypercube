@@ -51,18 +51,18 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./src/style.css?v=6.8.76">
+  <link rel="stylesheet" href="./src/style.css?v=6.8.77">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=6.8.76').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=6.8.77').then(reg => {
           reg.update();
         }).catch(() => {});
       });
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         try {
-          if (!sessionStorage.getItem('sw_reloaded_6876')) {
-            sessionStorage.setItem('sw_reloaded_6876', '1');
+          if (!sessionStorage.getItem('sw_reloaded_6877')) {
+            sessionStorage.setItem('sw_reloaded_6877', '1');
             window.location.reload();
           }
         } catch {}
@@ -75,6 +75,8 @@
 <body class="theme-galaxy">
   <!-- 3D WebGL Canvas Container -->
   <div id="canvas-container"></div>
+  <!-- Low Empty Cells Heartbeat Danger Vignette -->
+  <div id="danger-vignette" class="danger-vignette" aria-hidden="true"></div>
 
   <!-- Glassmorphism UI Overlay -->
   <div class="ui-overlay">
@@ -87,7 +89,7 @@
         <span class="fps-badge" id="fps-counter" style="display:none;">60 FPS</span>
       </div>
 
-      <!-- Cluster 2 (Center-Left): Score & Best Stats -->
+      <!-- Cluster 2 (Center-Left): Score, Best & Next Tile Preview -->
       <div class="header-stats-cluster">
         <div class="stat-pill" id="score-badge">
           <div class="stat-label" data-i18n="score">ĐIỂM</div>
@@ -96,6 +98,10 @@
         <div class="stat-pill best">
           <div class="stat-label" data-i18n="best">TOP</div>
           <div class="stat-value" id="best-val">0</div>
+        </div>
+        <div class="stat-pill next-tile" id="next-tile-badge" data-i18n-title="next_tile_tooltip" title="Khối sắp rơi tiếp theo">
+          <div class="stat-label" data-i18n="next_tile_label">TIẾP</div>
+          <div class="next-tile-chip" id="next-tile-val">2</div>
         </div>
       </div>
 
@@ -270,6 +276,13 @@
 
     <!-- Dynamic Combo Callout Streak Badge -->
     <div id="combo-callout" class="combo-callout hidden" aria-hidden="true"></div>
+
+    <!-- Consecutive Merge Streak & FEVER x2 Floating Indicator (Hidden when streak < 2) -->
+    <div id="streak-fever-pill" class="streak-fever-pill" style="display: none;" aria-live="polite">
+      <span class="streak-flame">🔥</span>
+      <span id="streak-count-text" class="streak-count-text">x2</span>
+      <span id="fever-mode-tag" class="fever-mode-tag" style="display: none;">FEVER x2</span>
+    </div>
 
     <!-- Milestone Unlock Celebration Banner (Non-blocking) -->
     <div id="milestone-banner" class="milestone-banner hidden" aria-hidden="true"></div>
@@ -607,6 +620,10 @@
           <svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
           <span data-i18n="modal_btn_new_game">Ván mới</span>
         </button>
+        <button id="modal-btn-copy-emoji" class="modal-btn secondary emoji-copy-btn">
+          <svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+          <span data-i18n="modal_btn_copy_emoji">Chép Lưới</span>
+        </button>
         <button id="modal-btn-share" class="modal-btn" style="background: linear-gradient(135deg, #00f0ff, #7928ca); color: #fff;">
           <svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
           <span data-i18n="modal_btn_share">Chia sẻ điểm</span>
@@ -639,7 +656,7 @@
         <button id="trophy-modal-close" class="settings-close-btn" aria-label="Đóng"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2 2L12 12M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
       </div>
 
-      <!-- Trophy Switcher Tabs (C1 vs Boss) -->
+      <!-- Trophy Switcher Tabs (C1 vs Boss vs Tilepedia) -->
       <div class="trophy-tabs-nav">
         <button id="trophy-tab-c1" class="trophy-tab-btn active" data-tab="c1">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tab-svg">
@@ -655,6 +672,13 @@
             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
           </svg>
           <span data-i18n="trophy_tab_boss">⚔️ Cúp Trảm Thần</span>
+        </button>
+        <button id="trophy-tab-tilepedia" class="trophy-tab-btn" data-tab="tilepedia">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tab-svg">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+          </svg>
+          <span data-i18n="trophy_tab_tilepedia">📘 Bảo Tàng Khối</span>
         </button>
       </div>
 
@@ -730,6 +754,19 @@
               </button>
             </div>
           </div>
+        </div>
+
+        <!-- Tilepedia (3D Block Collection Museum) Pane -->
+        <div id="trophy-tilepedia-pane" class="trophy-tilepedia-pane" style="display: none;">
+          <div class="tilepedia-progress-row">
+            <div class="tilepedia-progress-label" data-i18n="tilepedia_progress_label">Bộ sưu tập khối đã khai phá:</div>
+            <div class="trophy-progress-track">
+              <div id="tilepedia-progress-fill" class="trophy-progress-fill" style="width: 12%;"></div>
+            </div>
+            <div id="tilepedia-progress-text" class="trophy-progress-count">2 / 16</div>
+          </div>
+          <div id="tilepedia-detail-card" class="tilepedia-detail-card"></div>
+          <div id="tilepedia-grid" class="tilepedia-grid"></div>
         </div>
       </div>
     </div>
@@ -1360,6 +1397,6 @@
   </div>
 
   <!-- Main Game Script -->
-  <script type="module" src="./src/main.js?v=6.8.76"></script>
+  <script type="module" src="./src/main.js?v=6.8.77"></script>
 </body>
 </html>

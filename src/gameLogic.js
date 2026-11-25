@@ -50,10 +50,12 @@ export class Game2048Logic {
     this.gameOver = false;
     this.scoreMultiplier = 1.0;
 
-    // Rush Mode Properties
+    // Rush & Overdrive & Streak State
     this.isRushMode = false;
     this.isOverdriveMode = false;
     this.moveCount = 0;
+    this.mergeStreak = 0;
+    this.maxMergeStreak = 0;
 
     // Summoner Spells / Phép bổ trợ (Gợi ý, Đi lại, Đổi vị trí)
     // Tối đa 2 lần trong 1 game. Dùng 1 lần thì rơi vào hồi chiêu.
@@ -67,6 +69,7 @@ export class Game2048Logic {
       destroy: { used: 0, ready: true }
     };
     this.history = [];
+    this.nextSpawnMeta = this.rollNextSpawnMeta(1);
   }
 
   initDimensions() {
@@ -90,12 +93,16 @@ export class Game2048Logic {
   setRushMode(enabled) {
     this.isRushMode = enabled;
     this.moveCount = 0;
+    this.mergeStreak = 0;
+    this.nextSpawnMeta = this.rollNextSpawnMeta(1);
   }
 
   setOverdriveMode(enabled) {
     this.isOverdriveMode = !!enabled;
     this.scoreMultiplier = this.isOverdriveMode ? 1.5 : 1.0;
     this.moveCount = 0;
+    this.mergeStreak = 0;
+    this.nextSpawnMeta = this.rollNextSpawnMeta(1);
   }
 
   createEmptyGrid() {
@@ -142,6 +149,8 @@ export class Game2048Logic {
     this.gameOver = false;
     this.scoreMultiplier = this.isOverdriveMode ? 1.5 : 1.0;
     this.moveCount = 0;
+    this.mergeStreak = 0;
+    this.maxMergeStreak = 0;
 
     // Reset summoner spells (mỗi bổ trợ tối đa 2 lần/game, dùng 1 lần thì chờ hồi chiêu mốc 256)
     this.maxSpellUses = 2;
@@ -153,6 +162,7 @@ export class Game2048Logic {
       destroy: { used: 0, ready: true }
     };
     this.history = [];
+    this.nextSpawnMeta = this.rollNextSpawnMeta(1);
   }
 
   get spellCharges() {
@@ -178,6 +188,10 @@ export class Game2048Logic {
       gameOver: this.gameOver,
       isRushMode: this.isRushMode,
       isOverdriveMode: !!this.isOverdriveMode,
+      moveCount: this.moveCount || 0,
+      mergeStreak: this.mergeStreak || 0,
+      maxMergeStreak: this.maxMergeStreak || 0,
+      nextSpawnMeta: this.nextSpawnMeta ? { ...this.nextSpawnMeta } : null,
       nextRechargeMilestone: this.nextRechargeMilestone,
       spells: JSON.parse(JSON.stringify(this.spells)),
       history: this.history.slice(-5)
@@ -194,6 +208,9 @@ export class Game2048Logic {
     this.gameOver = !!data.gameOver;
     this.isRushMode = !!data.isRushMode;
     this.isOverdriveMode = !!data.isOverdriveMode;
+    this.moveCount = data.moveCount || 0;
+    this.mergeStreak = data.mergeStreak || 0;
+    this.maxMergeStreak = data.maxMergeStreak || this.mergeStreak || 0;
     this.nextRechargeMilestone = data.nextRechargeMilestone || 256;
     if (data.spells) {
       this.spells = {
@@ -206,6 +223,9 @@ export class Game2048Logic {
       this.initSpells();
     }
     if (data.history) this.history = data.history;
+    this.nextSpawnMeta = (data.nextSpawnMeta && typeof data.nextSpawnMeta === 'object')
+      ? { ...data.nextSpawnMeta }
+      : this.rollNextSpawnMeta(this.moveCount + 1);
     return true;
   }
 
@@ -254,11 +274,8 @@ export class Game2048Logic {
     return this.getTotalCells() - this.getEmptyCellsCount();
   }
 
-  // Get spawn info. If in Rush Mode and moveCount is a multiple of 6, spawn a Bomb Tile
-  getRandomSpawnInfo() {
-    const emptyCells = this.getEmptyCells();
-    if (emptyCells.length === 0) return null;
-    const cell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+  rollNextSpawnMeta(checkMoveCount = null) {
+    const moveTarget = checkMoveCount !== null ? checkMoveCount : (this.moveCount + 1);
     let value = Math.random() < 0.9 ? 2 : 4;
     let isWildcard = false;
 
@@ -266,7 +283,7 @@ export class Game2048Logic {
       const hasWildcard = this.grid.some(layer =>
         layer.some(row => row.some(t => t && t.isWildcard))
       );
-      if (!hasWildcard && this.moveCount > 0 && this.moveCount % 12 === 0) {
+      if (!hasWildcard && moveTarget > 0 && moveTarget % 12 === 0) {
         isWildcard = true;
         value = 0; // Giá trị đặc biệt cho khối Cầu Vồng ★
       } else {
@@ -276,18 +293,41 @@ export class Game2048Logic {
 
     let isBomb = false;
     const bombInterval = (this.rushLevel && this.rushLevel >= 3) ? 4 : 5;
-    if (this.isRushMode && this.moveCount > 0 && this.moveCount % bombInterval === 0) {
+    if (this.isRushMode && moveTarget > 0 && moveTarget % bombInterval === 0) {
       isBomb = true;
     }
+
+    return {
+      value,
+      isBomb,
+      bombCountdown: isBomb ? ((this.rushLevel && this.rushLevel >= 4) ? 4 : 5) : 0,
+      isWildcard
+    };
+  }
+
+  getNextSpawnPreview() {
+    if (!this.nextSpawnMeta) {
+      this.nextSpawnMeta = this.rollNextSpawnMeta(this.moveCount + 1);
+    }
+    return this.nextSpawnMeta;
+  }
+
+  // Consume pre-rolled Next Tile metadata on empty random cell and pre-roll the following tile
+  getRandomSpawnInfo() {
+    const emptyCells = this.getEmptyCells();
+    if (emptyCells.length === 0) return null;
+    const cell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+    const planned = this.nextSpawnMeta || this.rollNextSpawnMeta(this.moveCount || 1);
+    this.nextSpawnMeta = this.rollNextSpawnMeta(this.moveCount + 1);
 
     return {
       l: cell.l,
       r: cell.r,
       c: cell.c,
-      value,
-      isBomb,
-      bombCountdown: isBomb ? ((this.rushLevel && this.rushLevel >= 4) ? 4 : 5) : 0,
-      isWildcard
+      value: planned.value,
+      isBomb: !!planned.isBomb,
+      bombCountdown: planned.bombCountdown || 0,
+      isWildcard: !!planned.isWildcard
     };
   }
 
@@ -438,7 +478,17 @@ export class Game2048Logic {
 
     if (moved) {
       this.grid = newGrid;
-      const finalScoreAdded = Math.round(scoreAdded * (this.scoreMultiplier || 1.0));
+      const hadMerge = movements.some(m => !!m.mergedInto);
+      if (hadMerge) {
+        this.mergeStreak = (this.mergeStreak || 0) + 1;
+        this.maxMergeStreak = Math.max(this.maxMergeStreak || 0, this.mergeStreak);
+      } else {
+        this.mergeStreak = 0;
+      }
+      const isFeverActive = this.mergeStreak >= 5;
+      const feverMultiplier = isFeverActive ? 2.0 : 1.0;
+      const totalMultiplier = (this.scoreMultiplier || 1.0) * feverMultiplier;
+      const finalScoreAdded = Math.round(scoreAdded * totalMultiplier);
       this.score += finalScoreAdded;
       if (this.score > this.bestScore) {
         this.bestScore = this.score;
@@ -522,7 +572,10 @@ export class Game2048Logic {
         moved: true,
         scoreAdded: finalScoreAdded,
         baseScoreAdded: scoreAdded,
-        scoreMultiplier: this.scoreMultiplier || 1.0,
+        scoreMultiplier: totalMultiplier,
+        feverMultiplier,
+        isFeverActive,
+        mergeStreak: this.mergeStreak,
         movements,
         defusedBombs,
         explodedBombs,
@@ -551,6 +604,9 @@ export class Game2048Logic {
       grid: gridCopy,
       score: this.score,
       moveCount: this.moveCount,
+      mergeStreak: this.mergeStreak || 0,
+      maxMergeStreak: this.maxMergeStreak || 0,
+      nextSpawnMeta: this.nextSpawnMeta ? { ...this.nextSpawnMeta } : null,
       nextRechargeMilestone: this.nextRechargeMilestone,
       spells: JSON.parse(JSON.stringify(this.spells))
     });
@@ -632,6 +688,11 @@ export class Game2048Logic {
     this.grid = previous.grid;
     this.score = previous.score;
     this.moveCount = previous.moveCount;
+    this.mergeStreak = previous.mergeStreak || 0;
+    this.maxMergeStreak = previous.maxMergeStreak || this.maxMergeStreak || 0;
+    if (previous.nextSpawnMeta) {
+      this.nextSpawnMeta = { ...previous.nextSpawnMeta };
+    }
     if (previous.nextRechargeMilestone) {
       this.nextRechargeMilestone = previous.nextRechargeMilestone;
     }

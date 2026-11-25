@@ -371,6 +371,13 @@ class GameApp {
     this.scoreEl = document.getElementById('score-val');
     this.bestScoreEl = document.getElementById('best-val');
     this.scoreBadge = document.getElementById('score-badge');
+    this.nextTileBadgeEl = document.getElementById('next-tile-badge');
+    this.nextTileValEl = document.getElementById('next-tile-val');
+    this.streakFeverPillEl = document.getElementById('streak-fever-pill');
+    this.streakCountTextEl = document.getElementById('streak-count-text');
+    this.feverModeTagEl = document.getElementById('fever-mode-tag');
+    this._lastDangerEmpty = null;
+    this._lastHeartbeatAt = 0;
     this.fpsEl = document.getElementById('fps-counter');
 
     // Modals
@@ -607,6 +614,7 @@ class GameApp {
 
     window.addEventListener('languageChanged', () => {
       this.updateDynamicLanguageTexts();
+      this.updateStreakFeverUI();
     });
 
     const muteBtn = document.getElementById('btn-sound-toggle');
@@ -736,6 +744,13 @@ class GameApp {
     if (modalShareBtn) {
       modalShareBtn.addEventListener('click', () => {
         this.shareScore();
+      });
+    }
+
+    const modalCopyEmojiBtn = document.getElementById('modal-btn-copy-emoji');
+    if (modalCopyEmojiBtn) {
+      modalCopyEmojiBtn.addEventListener('click', () => {
+        this.copyEmojiGridSummary();
       });
     }
 
@@ -1576,6 +1591,8 @@ class GameApp {
     }
     if (this.gameLogic) this.gameLogic.rushLevel = 1;
     this.updateRushHeatBadge();
+    this.updateNextTileUI();
+    this.updateStreakFeverUI();
   }
 
   toggleBossRaid(forceState = null) {
@@ -1608,6 +1625,7 @@ class GameApp {
     this.startNewGame(false);
     this.showSpellToast(t('overdrive_activated_toast') || '✨ OVERDRIVE KÍCH HOẠT: Chỉ sinh khối 4-8, Cầu Vồng ★ & Điểm x1.5!');
     this.updateOverdriveHUD();
+    this.updateNextTileUI();
   }
 
   updateOverdriveHUD() {
@@ -2407,6 +2425,135 @@ class GameApp {
     }
   }
 
+  updateNextTileUI() {
+    if (!this.nextTileValEl || !this.gameLogic || typeof this.gameLogic.getNextSpawnPreview !== 'function') return;
+    const preview = this.gameLogic.getNextSpawnPreview();
+    if (!preview) return;
+
+    this.nextTileValEl.className = 'next-tile-chip';
+    if (preview.isBomb) {
+      this.nextTileValEl.textContent = '💣';
+      this.nextTileValEl.classList.add('is-bomb');
+    } else if (preview.isWildcard || preview.value === 0) {
+      this.nextTileValEl.textContent = '★';
+      this.nextTileValEl.classList.add('is-wildcard');
+    } else {
+      this.nextTileValEl.textContent = String(preview.value);
+      this.nextTileValEl.classList.add(`is-val-${preview.value}`);
+    }
+  }
+
+  updateStreakFeverUI(justActivatedFever = false) {
+    const streak = this.gameLogic ? (this.gameLogic.mergeStreak || 0) : 0;
+    const isFever = streak >= 5;
+    document.body.classList.toggle('fever-active', isFever);
+
+    if (this.streakFeverPillEl) {
+      if (streak >= 2) {
+        this.streakFeverPillEl.style.display = 'inline-flex';
+        this.streakFeverPillEl.classList.toggle('is-fever', isFever);
+        if (this.streakCountTextEl) {
+          this.streakCountTextEl.textContent = `${t('streak_label') || 'CHUỖI'} ×${streak}`;
+        }
+        if (this.feverModeTagEl) {
+          this.feverModeTagEl.style.display = isFever ? 'inline-flex' : 'none';
+          this.feverModeTagEl.textContent = t('fever_badge_label') || 'FEVER x2';
+        }
+      } else {
+        this.streakFeverPillEl.style.display = 'none';
+        this.streakFeverPillEl.classList.remove('is-fever');
+      }
+    }
+
+    if (justActivatedFever && !(this.aiBot && this.aiBot.isRunning)) {
+      soundManager.playFeverActivate();
+      this.showSpellToast(t('fever_activated_toast') || '🔥 FEVER x2 KÍCH HOẠT! (Gộp liên hoàn 5 nước — Nhân đôi điểm)');
+    }
+  }
+
+  updateDangerState() {
+    if (!this.gameLogic) return;
+    const empty = this.gameLogic.getEmptyCellsCount();
+    const isAi = !!(this.aiBot && this.aiBot.isRunning);
+    const isDanger = !this.gameLogic.gameOver && empty > 0 && empty <= 2 && !isAi;
+
+    document.body.classList.toggle('board-danger-pulse', isDanger);
+    document.body.classList.toggle('danger-critical', isDanger && empty === 1);
+
+    if (isDanger) {
+      const now = performance.now();
+      const enteredDanger = (this._lastDangerEmpty === null || this._lastDangerEmpty > 2);
+      const worsenedToCritical = (this._lastDangerEmpty === 2 && empty === 1);
+      if ((enteredDanger || worsenedToCritical) && (now - (this._lastHeartbeatAt || 0) > 1400)) {
+        this._lastHeartbeatAt = now;
+        soundManager.playHeartbeatPulse(empty === 1);
+      }
+    }
+    this._lastDangerEmpty = empty;
+  }
+
+  buildEmojiBoardSummary() {
+    const score = this.gameLogic ? this.gameLogic.score : 0;
+    const maxTile = this.maxTileValue || 2;
+    const bestStreak = this.gameLogic ? (this.gameLogic.maxMergeStreak || 0) : 0;
+    const modeParts = [this.mode === '3x3x3' ? '3x3x3' : '4x4'];
+    if (this.isRushMode) modeParts.push('Rush');
+    if (this.isBossRaid) modeParts.push('Boss');
+    if (this.isOverdriveMode) modeParts.push('Overdrive');
+
+    const toEmoji = (cell) => {
+      if (!cell) return '⬛';
+      if (cell.isWildcard || cell.value === 0) return '🌈';
+      if (cell.isBomb) return '💣';
+      const v = cell.value;
+      if (v >= 2048) return '👑';
+      if (v >= 1024) return '🔮';
+      if (v >= 256) return '🟪';
+      if (v >= 64) return '🟥';
+      if (v >= 16) return '🟧';
+      if (v >= 8) return '🟩';
+      return '🟦';
+    };
+
+    const lines = [`🧊 3D 2048 (${modeParts.join(' • ')})`, `🏆 ${Number(score).toLocaleString()} | Max: ${maxTile}${bestStreak >= 2 ? ` | 🔥 ×${bestStreak}` : ''}`];
+    if (this.gameLogic && this.gameLogic.grid) {
+      for (let l = 0; l < this.gameLogic.layers; l++) {
+        if (this.gameLogic.layers > 1) {
+          lines.push(`L${l + 1}:`);
+        }
+        for (let r = 0; r < this.gameLogic.rows; r++) {
+          lines.push(this.gameLogic.grid[l][r].map(toEmoji).join(''));
+        }
+      }
+    }
+    return lines.join('\n');
+  }
+
+  async copyEmojiGridSummary() {
+    const text = this.buildEmojiBoardSummary();
+    let copied = false;
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+        copied = true;
+      }
+    } catch {}
+    if (!copied) {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        copied = document.execCommand('copy');
+        ta.remove();
+      } catch {}
+    }
+    this.showSpellToast(t('emoji_grid_copied') || '📋 Đã chép lưới Emoji chiến tích vào bộ nhớ tạm!');
+    return text;
+  }
+
   cleanAllSceneTiles() {
     // 1. Dispose all tiles tracked in this.tiles3D
     if (this.tiles3D) {
@@ -2667,6 +2814,9 @@ class GameApp {
       }
       this.updateScoreUI();
       this.updateSpellUI();
+      this.updateNextTileUI();
+      this.updateStreakFeverUI();
+      this.updateDangerState();
       this.showSpellToast(t('toast_restore_saved'));
 
       if (!this.gameLogic.hasValidMoves()) {
@@ -3172,10 +3322,14 @@ class GameApp {
     this.updateRushHeatBadge();
     this.updateScoreUI();
     this.updateSpellUI();
+    this._lastDangerEmpty = null;
 
     // Spawn 2 initial tiles with staggered brick drop
     this.spawnTile(0);
     this.spawnTile(0.09);
+    this.updateNextTileUI();
+    this.updateStreakFeverUI();
+    this.updateDangerState();
 
     this.playBoardEntrance();
 
@@ -3205,6 +3359,10 @@ class GameApp {
     if (this.sceneManager && this.sceneManager.requestShadowUpdate) this.sceneManager.requestShadowUpdate(20);
     if (isBomb) {
       soundManager.playBombTick();
+    }
+    this.updateNextTileUI();
+    if (this.questManager) {
+      this.questManager.recordTileDiscovery(isWildcard ? 'wildcard' : (isBomb ? 'bomb' : value));
     }
     return tile3D;
   }
@@ -3719,6 +3877,7 @@ class GameApp {
       return;
     }
 
+    const prevStreak = this.gameLogic.mergeStreak || 0;
     const result = this.gameLogic.move(direction);
     if (!result.moved) {
       if (!this.gameLogic.hasValidMoves()) {
@@ -3939,12 +4098,21 @@ class GameApp {
     // Process merges
     let maxMergedVal = 0;
     let lastMergeScreenPos = null;
+    const bossLoopMult = (this.isBossRaid && this.bossManager && this.bossManager.loop > 1)
+      ? (1 + (this.bossManager.loop - 1) * 0.5)
+      : 1.0;
+    const totalPopupMult = (result.scoreMultiplier || 1.0) * bossLoopMult;
+    const effectiveAudioStreak = Math.min(8, Math.floor((result.mergeStreak || 0) / 1.5));
+
     mergesToProcess.forEach(m => {
       const surviving = this.tiles3D[m.targetL][m.targetR][m.targetC];
       maxMergedVal = Math.max(maxMergedVal, m.newValue);
       this.mergeCount++;
       this.maxTileValue = Math.max(this.maxTileValue, m.newValue);
       this.mergeTierCounts[m.newValue] = (this.mergeTierCounts[m.newValue] || 0) + 1;
+      if (this.questManager) {
+        this.questManager.recordTileDiscovery(m.newValue);
+      }
 
       if (surviving && surviving !== m.sourceTile) {
         m.sourceTile.dispose(true);
@@ -3963,7 +4131,7 @@ class GameApp {
           }
         }
         // No fine dust particles on regular merges - clean tactile brick slam instead
-        soundManager.playMerge(m.newValue, this.comboCount);
+        soundManager.playMerge(m.newValue, Math.max(this.comboCount, effectiveAudioStreak));
         if (m.newValue >= 128) {
           if (this.particleSystem && this.particleSystem.supernovaBurst) {
             this.particleSystem.supernovaBurst(pos.x, pos.y + 0.25, pos.z, m.newValue, this.sceneManager.camera);
@@ -3976,10 +4144,9 @@ class GameApp {
         // 3D Floating Score Popup
         const screenPos = this.project3DToScreen(new THREE.Vector3(pos.x, pos.y + 0.6, pos.z));
         lastMergeScreenPos = screenPos;
-        if (this.isBossRaid && this.bossManager && this.bossManager.loop > 1) {
-          const scoreMult = 1 + (this.bossManager.loop - 1) * 0.5;
-          const scoreVal = Math.round(m.newValue * scoreMult);
-          this.spawnFloatingScore(`+${scoreVal} (x${scoreMult.toFixed(1)})`, screenPos, m.newValue);
+        if (totalPopupMult > 1.01) {
+          const scoreVal = Math.round(m.newValue * totalPopupMult);
+          this.spawnFloatingScore(`+${scoreVal} (x${Number(totalPopupMult.toFixed(1))})`, screenPos, m.newValue);
         } else {
           this.spawnFloatingScore(`+${m.newValue}`, screenPos, m.newValue);
         }
@@ -4021,7 +4188,7 @@ class GameApp {
           }
         }
         // No fine dust particles on regular merges - clean tactile brick slam instead
-        soundManager.playMerge(m.newValue, this.comboCount);
+        soundManager.playMerge(m.newValue, Math.max(this.comboCount, effectiveAudioStreak));
         if (m.newValue >= 128) {
           if (this.particleSystem && this.particleSystem.supernovaBurst) {
             this.particleSystem.supernovaBurst(pos.x, pos.y + 0.25, pos.z, m.newValue, this.sceneManager.camera);
@@ -4034,10 +4201,9 @@ class GameApp {
         // 3D Floating Score Popup
         const screenPos = this.project3DToScreen(new THREE.Vector3(pos.x, pos.y + 0.6, pos.z));
         lastMergeScreenPos = screenPos;
-        if (this.isBossRaid && this.bossManager && this.bossManager.loop > 1) {
-          const scoreMult = 1 + (this.bossManager.loop - 1) * 0.5;
-          const scoreVal = Math.round(m.newValue * scoreMult);
-          this.spawnFloatingScore(`+${scoreVal} (x${scoreMult.toFixed(1)})`, screenPos, m.newValue);
+        if (totalPopupMult > 1.01) {
+          const scoreVal = Math.round(m.newValue * totalPopupMult);
+          this.spawnFloatingScore(`+${scoreVal} (x${Number(totalPopupMult.toFixed(1))})`, screenPos, m.newValue);
         } else {
           this.spawnFloatingScore(`+${m.newValue}`, screenPos, m.newValue);
         }
@@ -4059,6 +4225,9 @@ class GameApp {
         }
       }
     });
+
+    // Update Consecutive Streak & FEVER x2 HUD
+    this.updateStreakFeverUI(prevStreak < 5 && (result.mergeStreak || 0) >= 5);
 
     // Show Combo Streak Callout
     if (this.comboCount >= 2) {
@@ -4145,6 +4314,8 @@ class GameApp {
     // Check game over right after the new tile has been placed on the grid
     const isGameOver = !this.gameLogic.hasValidMoves();
     this.gameLogic.gameOver = isGameOver;
+    this.updateNextTileUI();
+    this.updateDangerState();
 
     if (result.won && !this.isBossRaid) {
       soundManager.playWin();
@@ -4386,6 +4557,8 @@ class GameApp {
       this.exitRescueMode(false);
     }
     this.gameLogic.gameOver = true;
+    this.updateDangerState();
+    this.updateStreakFeverUI();
     this.isAnimating = false; // UNFREEZE IMMEDIATELY
     if (this.aiBot) this.aiBot.stop();
     if (this.isBossRaid && this.bossManager) {
@@ -4698,6 +4871,9 @@ class GameApp {
       }
       this.updateScoreUI();
       this.updateSpellUI();
+      this.updateNextTileUI();
+      this.updateStreakFeverUI();
+      this.updateDangerState();
       this.showSpellToast(t('spell_undo_done_toast') || '↩️ Đã hoàn tác nước đi vừa rồi!');
       this.saveGameState();
       if (this.isRescueMode) {
@@ -4956,6 +5132,7 @@ class GameApp {
 
     this.isAnimating = false;
     this.updateSpellUI();
+    this.updateDangerState();
     this.showSpellToast((t('spell_swap_done_toast') || '⇄ Đã hoán đổi [{a}] ⇄ [{b}] thành công!').replace('{a}', labelA).replace('{b}', labelB));
     this.saveGameState();
     if (this.isRescueMode) {
@@ -5094,6 +5271,7 @@ class GameApp {
       tile.dispose();
 
       this.showSpellToast((t('spell_destroy_done_toast') || '💣 Đã phá hủy khối [{val}]!').replace('{val}', tileLabel));
+      this.updateDangerState();
       this.saveGameState();
       if (this.isRescueMode) {
         this.evaluateRescueState();

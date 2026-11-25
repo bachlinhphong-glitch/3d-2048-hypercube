@@ -2005,6 +2005,56 @@ unlockAudio() {
   playTrophyUnlocked() {
     this.playTrophyUnlockFanfare();
   }
+
+  // FEVER x2 Streak Activation Stinger (Crisp sparkling arpeggio)
+  playFeverActivate() {
+    this.triggerHaptic('combo');
+    if (this.muted) return;
+    this.ensureContext();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+    const notes = [523.25, 659.25, 783.99, 1046.50];
+    notes.forEach((freq, i) => {
+      const nt = t + i * 0.045;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = i === notes.length - 1 ? 'triangle' : 'sine';
+      osc.frequency.setValueAtTime(freq, nt);
+      gain.gain.setValueAtTime(0.001, nt);
+      gain.gain.linearRampToValueAtTime(0.09, nt + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, nt + 0.24);
+      osc.connect(gain);
+      gain.connect(this.getSfxDestination());
+      osc.start(nt);
+      osc.stop(nt + 0.26);
+    });
+  }
+
+  // Gentle Warm Double-Pulse Heartbeat for Low Empty Cells Danger Warning
+  playHeartbeatPulse(critical = false) {
+    if (this.muted) return;
+    this.ensureContext();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+    const peak = critical ? 0.13 : 0.085;
+    [0, 0.16].forEach((offset, idx) => {
+      const bt = t + offset;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(idx === 0 ? 58 : 50, bt);
+      osc.frequency.exponentialRampToValueAtTime(32, bt + 0.11);
+      gain.gain.setValueAtTime(0.001, bt);
+      gain.gain.linearRampToValueAtTime(idx === 0 ? peak : peak * 0.78, bt + 0.014);
+      gain.gain.exponentialRampToValueAtTime(0.0001, bt + 0.13);
+      osc.connect(gain);
+      gain.connect(this.getSfxDestination());
+      osc.start(bt);
+      osc.stop(bt + 0.14);
+    });
+  }
 }
 
 export const soundManager = new SoundManager();
