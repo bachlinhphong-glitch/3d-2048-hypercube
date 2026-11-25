@@ -510,7 +510,13 @@ export class QuestManager {
     const title = def ? t(def.titleKey) : questId;
 
     if (this.game.showSpellToast) {
-      this.game.showSpellToast(`🎉 HOÀN THÀNH: ${title}! (${this.getCompletedCount()}/7)`);
+      const done = this.getCompletedCount();
+      const total = QUEST_DEFS.length;
+      const msg = (t('quest_completed_toast') || '🎉 HOÀN THÀNH: {title}! ({done}/{total})')
+        .replace('{title}', title)
+        .replace('{done}', done)
+        .replace('{total}', total);
+      this.game.showSpellToast(msg);
     }
 
     if (this.game.soundManager && this.game.soundManager.playSpellRecharge) {
@@ -563,7 +569,7 @@ export class QuestManager {
     this.triggerConfetti();
 
     if (this.game.showSpellToast) {
-      this.game.showSpellToast('🏆 BẠN ĐÃ MỞ KHÓA CÚP CHIẾN TÍCH 2048 BẬC THẦY!');
+      this.game.showSpellToast(t('trophy_master_unlocked_toast') || '🏆 CHÚC MỪNG! Bạn đã mở khóa Cúp Chiến Tích 2048 Bậc Thầy!');
     }
 
     this.openModal('c1');

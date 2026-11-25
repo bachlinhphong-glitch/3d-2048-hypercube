@@ -174,13 +174,12 @@ class GameApp {
     // 3D tiles grid: tiles3D[layer][row][col]
     this.tiles3D = this.createEmptyTileGrid();
 
-    // Rush Mode State (Rebalanced v6.8.69)
+    // Rush Mode State (Pure Time Rush)
     this.isRushMode = false;
     this.rushTime = 25.0;
     this.maxRushTime = 30.0;
     this.rushElapsed = 0.0;
     this.rushLevel = 1;
-    this.rushEmergencyCount = 0;
     this.isOverdriveMode = false;
 
     // Telemetry & Stats State
@@ -925,7 +924,7 @@ class GameApp {
           return;
         }
         if (file.size > 5 * 1024 * 1024) {
-          this.showSpellToast('Ảnh quá lớn! Chọn ảnh < 5MB');
+          this.showSpellToast(t('bg_size_error') || 'Ảnh quá lớn! Vui lòng chọn ảnh dưới 5MB.');
           if (themeSelect) themeSelect.value = this.currentTheme;
           return;
         }
@@ -934,7 +933,7 @@ class GameApp {
           try { localStorage.setItem('3d2048_custom_bg', ev.target.result); } catch {}
           this.switchTheme('custom');
           localStorage.setItem('3d2048_theme', 'custom');
-          this.showSpellToast('🖼️ Đã đặt ảnh nền của bạn!');
+          this.showSpellToast(t('bg_applied_toast') || '🖼️ Đã áp dụng hình nền cá nhân!');
         };
         reader.readAsDataURL(file);
         // Reset so same file can be re-selected
@@ -1568,7 +1567,6 @@ class GameApp {
     this.rushTime = 25.0;
     this.rushElapsed = 0.0;
     this.rushLevel = 1;
-    this.rushEmergencyCount = 0;
     if (this.isRushMode && this.isOverdriveMode) {
       this.isOverdriveMode = false;
       if (this.gameLogic) this.gameLogic.setOverdriveMode(false);
@@ -1606,8 +1604,7 @@ class GameApp {
     this.isOverdriveMode = true;
     if (this.gameLogic) this.gameLogic.setOverdriveMode(true);
     this.startNewGame(false);
-    this.keepPlaying = true;
-    this.showSpellToast(t('overdrive_activated_toast') || '✨ CHẾ ĐỘ ẨN OVERDRIVE: Khối 4-8, Cầu Vồng ★ & Điểm x1.5!');
+    this.showSpellToast(t('overdrive_activated_toast') || '✨ OVERDRIVE KÍCH HOẠT: Chỉ sinh khối 4-8, Cầu Vồng ★ & Điểm x1.5!');
     this.updateOverdriveHUD();
   }
 
@@ -1620,7 +1617,7 @@ class GameApp {
   handleBossToggleClick() {
     if (this.isBossRaid) {
       this.toggleBossRaid(false);
-      this.showSpellToast('Đã thoát chế độ Đấu Trùm.');
+      this.showSpellToast(t('boss_exited_toast') || 'Đã rời khỏi chế độ Đấu Trùm.');
       return;
     }
 
@@ -1636,7 +1633,7 @@ class GameApp {
   handleRushToggleClick() {
     if (this.isRushMode) {
       this.toggleRushMode(false);
-      this.showSpellToast(t('rush_exited_toast') || 'Đã thoát chế độ Đua Giờ.');
+      this.showSpellToast(t('rush_exited_toast') || 'Đã rời khỏi chế độ Đua Giờ.');
       return;
     }
 
@@ -1658,7 +1655,7 @@ class GameApp {
     if (!this.isBossRaid) {
       this.toggleBossRaid(true);
     }
-    this.showSpellToast('⚔️ Chế độ Đấu Trùm đã kích hoạt!');
+    this.showSpellToast(t('boss_activated_toast') || '⚔️ Chiến dịch Đấu Trùm đã khởi động!');
   }
 
   activateRushModeWithCleanReset() {
@@ -1820,7 +1817,7 @@ class GameApp {
             <div><strong>${t('rule_rush_time_title')}</strong> ${t('rule_rush_time_desc')}</div>
           </div>
           <div class="mode-rule-item highlight">
-            <span class="mode-rule-bullet">🛡️</span>
+            <span class="mode-rule-bullet">⚡</span>
             <div><strong>${t('rule_rush_bonus_title')}</strong> ${t('rule_rush_bonus_desc')}</div>
           </div>
         `;
@@ -1963,17 +1960,18 @@ class GameApp {
     if (pref === 'system') {
       const isDark = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
       targetTheme = isDark ? 'gentle_dark' : 'gentle_light';
-      this.showSpellToast(`THEO MÁY: ${isDark ? 'Giao diện tối' : 'Giao diện sáng'}`);
+      const modeName = isDark ? t('theme_gentle_dark') : t('theme_gentle_light');
+      this.showSpellToast((t('theme_toast_sys') || 'THEO THIẾT BỊ: {mode}').replace('{mode}', modeName));
     } else if (pref === 'gentle_light' || pref === 'zen_clay') {
       targetTheme = 'gentle_light';
-      this.showSpellToast('GIAO DIỆN: Giao diện sáng');
+      this.showSpellToast(t('theme_toast_light') || 'GIAO DIỆN: Sáng dịu mắt');
     } else if (pref === 'gentle_dark' || pref === 'modern_slate') {
       targetTheme = 'gentle_dark';
-      this.showSpellToast('GIAO DIỆN: Giao diện tối');
+      this.showSpellToast(t('theme_toast_dark') || 'GIAO DIỆN: Tối sâu thẳm');
     } else {
       const themeSelect = document.getElementById('select-theme');
       const label = themeSelect && themeSelect.selectedOptions && themeSelect.selectedOptions[0] ? themeSelect.selectedOptions[0].text : pref;
-      this.showSpellToast(`HÌNH NỀN: ${label}`);
+      this.showSpellToast((t('theme_toast_bg') || 'HÌNH NỀN: {label}').replace('{label}', label));
     }
 
     this.switchTheme(targetTheme);
@@ -2562,7 +2560,6 @@ class GameApp {
       state.rushTime = this.rushTime;
       state.rushElapsed = this.rushElapsed || 0;
       state.rushLevel = this.rushLevel || 1;
-      state.rushEmergencyCount = this.rushEmergencyCount || 0;
       state.moveCount = this.moveCount;
       state.elapsedSeconds = Math.round((Date.now() - this.matchStartTime) / 1000);
       state.maxTileValue = this.maxTileValue;
@@ -2608,10 +2605,20 @@ class GameApp {
       this.particleSystem.clear();
 
       this.gameLogic.deserializeState(data);
+      this.isRushMode = !!this.gameLogic.isRushMode;
+      if (this.rushToggleBtn) {
+        const textEl = this.rushToggleBtn.querySelector('.btn-text');
+        if (textEl) textEl.textContent = t('btn_rush') || 'RUSH';
+        this.rushToggleBtn.classList.toggle('active', this.isRushMode);
+      }
+      if (this.rushPanel) {
+        this.rushPanel.style.display = this.isRushMode ? 'flex' : 'none';
+      }
+      this.isOverdriveMode = !!this.gameLogic.isOverdriveMode;
+      this.updateOverdriveHUD();
       this.rushTime = typeof data.rushTime === 'number' ? data.rushTime : 25.0;
       this.rushElapsed = data.rushElapsed || 0;
       this.rushLevel = data.rushLevel || 1;
-      this.rushEmergencyCount = data.rushEmergencyCount || 0;
       if (this.gameLogic) this.gameLogic.rushLevel = this.rushLevel;
       this.updateRushHeatBadge();
       this.moveCount = data.moveCount || 0;
@@ -2648,11 +2655,13 @@ class GameApp {
           this.bossManager.loop = data.bossState.loop || 1;
         }
         document.body.classList.add('in-boss-mode');
-        if (this.bossManager.showHUD) this.bossManager.showHUD();
-        if (this.bossManager.updateHUD) this.bossManager.updateHUD();
-        if (this.boss3D && typeof this.boss3D.setPhase === 'function') {
-          this.boss3D.setPhase(this.bossManager.phase, this.bossManager.loop || 1);
+        if (this.bossManager.hudEl) this.bossManager.hudEl.style.display = 'flex';
+        if (this.bossManager.boss3D) {
+          this.bossManager.boss3D.setVisible(true);
+          this.bossManager.boss3D.setPhase(this.bossManager.phase, false);
+          this.bossManager.boss3D.setHpRatio(this.bossManager.hp / this.bossManager.maxHp);
         }
+        if (this.bossManager.updateHUD) this.bossManager.updateHUD();
       }
       this.updateScoreUI();
       this.updateSpellUI();
@@ -2694,7 +2703,7 @@ class GameApp {
       this.sceneManager.resetCamera();
     }
     this.isAnimating = false;
-    this.showSpellToast('⚡ Đã khôi phục đồ họa WebGL!');
+    this.showSpellToast(t('webgl_recovered_toast') || '⚡ Đã khôi phục đồ họa WebGL!');
   }
 
   setGraphicsQuality(quality) {
@@ -2807,10 +2816,14 @@ class GameApp {
             }
           }
         }
-        const modeName = this.mode === '3x3x3' ? '3x3x3 Hypercube' : '4x4 Classic';
+        const modeName = this.mode === '3x3x3' ? t('mode_3x3x3') : t('mode_4x4');
         const shareUrl = window.location.href.split('?')[0].split('#')[0] || 'https://3d-2048-hypercube-goll.vercel.app/';
-        
-        const challengeText = `⚡ THÁCH ĐẤU 2048 KHÔNG GIAN 3D ⚡\n🏆 Điểm kỷ lục: ${Number(score).toLocaleString()} điểm (${modeName})\n💎 Khối đỉnh cao: ${maxTileVal}\n🎯 Bạn có vượt qua được kỷ lục này không?\n👉 Bấm vào chơi ngay (không cần cài đặt):\n${shareUrl}`;
+
+        const challengeText = (t('challenge_msg_template') || '⚡ THÁCH ĐẤU 2048 KHÔNG GIAN 3D ⚡\n🏆 Kỷ lục: {score} điểm ({mode})\n💎 Khối đỉnh cao: {tile}\n🎯 Bạn có vượt qua được mốc này không?\n👉 Chơi ngay trên trình duyệt:\n{url}')
+          .replace('{score}', Number(score).toLocaleString())
+          .replace('{mode}', modeName)
+          .replace('{tile}', maxTileVal)
+          .replace('{url}', shareUrl);
 
         try {
           await navigator.clipboard.writeText(challengeText);
@@ -2842,12 +2855,12 @@ class GameApp {
     }
 
     const score = this.gameLogic ? this.gameLogic.score : 0;
-    const modeName = this.mode === '3x3x3' ? '3x3x3 Hypercube' : '4x4 Classic';
+    const modeName = this.mode === '3x3x3' ? t('mode_3x3x3') : t('mode_4x4');
 
     const scoreEl = document.getElementById('share-preview-score');
     const modeEl = document.getElementById('share-preview-mode');
     if (scoreEl) scoreEl.textContent = Number(score).toLocaleString();
-    if (modeEl) modeEl.textContent = `Chế độ: ${modeName}`;
+    if (modeEl) modeEl.textContent = `${t('share_mode_prefix') || 'Chế độ'}: ${modeName}`;
 
     // Update challenge snippet preview
     const challengeScoreEl = document.getElementById('challenge-score-val');
@@ -3002,8 +3015,10 @@ class GameApp {
   async executeShare(app) {
     this.registerInteraction();
     const score = this.gameLogic ? this.gameLogic.score : 0;
-    const modeName = this.mode === '3x3x3' ? '3x3x3 Hypercube' : '4x4 Classic';
-    const shareText = `🎮 Tôi vừa đạt ${Number(score).toLocaleString()} điểm ở chế độ ${modeName} trong tựa game 3D 2048 & Hypercube! Bạn có vượt qua được không?`;
+    const modeName = this.mode === '3x3x3' ? t('mode_3x3x3') : t('mode_4x4');
+    const shareText = (t('share_msg_template') || '🎮 Tôi vừa đạt {score} điểm ở chế độ {mode} trong 3D 2048 & Hypercube!')
+      .replace('{score}', Number(score).toLocaleString())
+      .replace('{mode}', modeName);
     const shareUrl = window.location.href.split('?')[0].split('#')[0] || 'https://3d-2048-hypercube-goll.vercel.app/';
 
     let snapshotFile = null;
@@ -3145,7 +3160,6 @@ class GameApp {
     this.rushTime = 25.0;
     this.rushElapsed = 0.0;
     this.rushLevel = 1;
-    this.rushEmergencyCount = 0;
     if (this.isOverdriveMode) {
       if (this.gameLogic) this.gameLogic.setOverdriveMode(true);
     } else {
@@ -3963,11 +3977,12 @@ class GameApp {
       soundManager.playWin();
       this.saveGameState();
       this.showModal({
-        title: `👑 CHIẾN THẮNG 2048!`,
+        title: t('modal_victory_title') || '👑 CHINH PHỤC 2048!',
         message: t('modal_victory_msg'),
         primaryText: t('modal_btn_continue'),
         secondaryText: t('modal_btn_new_game'),
         isVictory: true,
+        forceTitle: true,
         onPrimary: () => {
           this.gameLogic.keepPlaying = true;
           this.hideModal();
@@ -4009,7 +4024,7 @@ class GameApp {
     }
 
     if (isGameOver) {
-      if (this.hasRescueSpell()) {
+      if (!(this.isRushMode && this.rushTime <= 0) && this.hasRescueSpell()) {
         this.gameLogic.gameOver = false;
         this.enterRescueMode();
         this.saveGameState();
@@ -4060,10 +4075,17 @@ class GameApp {
     const item = pool[Math.floor(Math.random() * pool.length)];
     if (!item) return;
 
+    const lang = getCurrentLanguage();
+    const fallbackTitle = isVictory ? t('modal_victory_title') : t('modal_gameover_title');
     if (this.modalMemeImg) this.modalMemeImg.src = item.img;
-    if (this.modalMemeBadge) this.modalMemeBadge.textContent = item.badge;
-    if (this.modalMemeQuote) this.modalMemeQuote.textContent = `"${item.roast}"`;
-    if (this.modalTitle) this.modalTitle.textContent = item.title;
+    if (this.modalMemeBadge) {
+      this.modalMemeBadge.textContent = lang === 'vi' ? item.badge : (isVictory ? '👑 GGWP' : '💀 GAME OVER');
+    }
+    if (this.modalMemeQuote) {
+      this.modalMemeQuote.style.display = lang === 'vi' ? 'block' : 'none';
+      this.modalMemeQuote.textContent = `"${item.roast}"`;
+    }
+    if (this.modalTitle) this.modalTitle.textContent = lang === 'vi' ? item.title : fallbackTitle;
 
     const frame = document.getElementById('modal-meme-frame');
     if (frame && typeof gsap !== 'undefined') {
@@ -4198,10 +4220,10 @@ class GameApp {
     this._isLastModalVictory = false;
     const msg = customMessage || `${t('modal_gameover_msg')}\n${t('score')}: ${this.gameLogic.score.toLocaleString()}`;
     this.showModal({
-      title: 'HẾT CỨU! 💀',
+      title: t('modal_gameover_title') || 'HẾT NƯỚC ĐI!',
       message: msg,
-      primaryText: '🔥 Làm Ván Nữa Gỡ Gạc',
-      secondaryText: 'Ván Mới',
+      primaryText: t('modal_btn_retry') || '🔥 Chơi Lại Ngay',
+      secondaryText: t('modal_btn_new_game') || 'Ván Mới',
       isVictory: false,
       onPrimary: () => {
         this.hideModal();
@@ -4219,11 +4241,11 @@ class GameApp {
     });
   }
 
-  showModal({ title, message, primaryText, secondaryText, isVictory = false, onPrimary, onSecondary }) {
+  showModal({ title, message, primaryText, secondaryText, isVictory = false, forceTitle = false, onPrimary, onSecondary }) {
     this._isLastModalVictory = isVictory;
     this.rollMemeReaction(isVictory);
 
-    if (title && !this.modalTitle.textContent) {
+    if (title && (forceTitle || !this.modalTitle.textContent)) {
       this.modalTitle.textContent = title;
     }
     this.modalMessage.textContent = message;
@@ -4291,14 +4313,21 @@ class GameApp {
     this.isAnimating = false;
   }
 
+  getTileLabel(tile) {
+    if (!tile) return '';
+    return (tile.isWildcard || tile.value === 0) ? '★' : String(tile.value);
+  }
+
   updateSpellUI() {
     const spellTypes = ['undo', 'hint', 'swap', 'destroy'];
     const spellNames = { hint: 'Hint', undo: 'Undo', swap: 'Swap', destroy: 'Destroy' };
+    const maxUses = this.gameLogic.maxSpellUses;
+    const milestone = this.gameLogic.nextRechargeMilestone;
 
     spellTypes.forEach(type => {
       const status = this.gameLogic.getSpellStatus(type);
       const spell = this.gameLogic.spells[type];
-      const remaining = Math.max(0, this.gameLogic.maxSpellUses - (spell ? spell.used : 0));
+      const remaining = Math.max(0, maxUses - (spell ? spell.used : 0));
       const btn = this[`btnSpell${spellNames[type]}`];
       const badge = this[`badgeSpell${spellNames[type]}`];
 
@@ -4306,6 +4335,15 @@ class GameApp {
         btn.classList.toggle('depleted', status === 'depleted');
         btn.classList.toggle('in-cooldown', status === 'cooldown');
         btn.classList.toggle('ready', status === 'ready');
+
+        if (status === 'depleted') {
+          btn.title = (t('spell_tooltip_depleted') || 'Đã hết lượt trong ván này (tối đa {max} lần)').replace('{max}', maxUses);
+        } else if (status === 'cooldown') {
+          btn.title = (t('spell_tooltip_cooldown') || 'Đang tạm khóa! Ghép đạt khối [{milestone}] để mở khóa tiếp.').replace('{milestone}', milestone);
+        } else {
+          btn.title = (t('spell_tooltip_ready') || 'Sẵn sàng sử dụng (Còn {rem}/{max} lượt)').replace('{rem}', remaining).replace('{max}', maxUses);
+        }
+
         if (type === 'swap') {
           btn.classList.toggle('active-swap', this.isSwapMode);
           const nameSpan = btn.querySelector('.spell-name');
@@ -4313,7 +4351,7 @@ class GameApp {
             nameSpan.textContent = this.isSwapMode ? (t('spell_cancel_mode') || 'Hủy chọn') : (t('spell_swap') || 'Đổi chỗ');
           }
           if (this.isSwapMode) {
-            btn.title = 'Bấm để hủy chọn chế độ đổi chỗ';
+            btn.title = t('spell_tooltip_cancel_swap') || 'Bấm để hủy chọn Đổi chỗ';
           }
         }
         if (type === 'destroy') {
@@ -4323,29 +4361,21 @@ class GameApp {
             nameSpan.textContent = this.isDestroyMode ? (t('spell_cancel_mode') || 'Hủy chọn') : (t('spell_destroy') || 'Phá khối');
           }
           if (this.isDestroyMode) {
-            btn.title = 'Bấm để hủy chọn chế độ phá khối';
+            btn.title = t('spell_tooltip_cancel_destroy') || 'Bấm để hủy chọn Phá khối';
           }
-        }
-
-        if (status === 'depleted') {
-          btn.title = 'Đã hết lượt trong ván này (tối đa 2 lần)';
-        } else if (status === 'cooldown') {
-          btn.title = `Đang tạm khóa! Cần ghép được ô [${this.gameLogic.nextRechargeMilestone}] để mở lại trợ giúp.`;
-        } else {
-          btn.title = `Sẵn sàng sử dụng (Còn ${remaining}/${this.gameLogic.maxSpellUses} lần)`;
         }
       }
 
       if (badge) {
         if (status === 'depleted') {
           badge.textContent = '0';
-          badge.title = 'Đã hết 2 lượt';
+          badge.title = (t('spell_badge_depleted') || 'Đã hết {max} lượt').replace('{max}', maxUses);
         } else if (status === 'cooldown') {
-          badge.textContent = `${this.gameLogic.nextRechargeMilestone}`;
-          badge.title = `Ghép được ô [${this.gameLogic.nextRechargeMilestone}] để mở lại trợ giúp`;
+          badge.textContent = `${milestone}`;
+          badge.title = (t('spell_badge_cooldown') || 'Đạt khối [{milestone}] để hồi lượt').replace('{milestone}', milestone);
         } else {
           badge.textContent = `${remaining}`;
-          badge.title = `Còn ${remaining}/${this.gameLogic.maxSpellUses} lượt`;
+          badge.title = (t('spell_badge_ready') || 'Còn {rem}/{max} lượt').replace('{rem}', remaining).replace('{max}', maxUses);
         }
       }
     });
@@ -4372,7 +4402,7 @@ class GameApp {
   triggerSpellRecharge(milestone) {
     soundManager.playSpellRecharge();
 
-    [this.btnSpellHint, this.btnSpellUndo, this.btnSpellSwap].forEach(btn => {
+    [this.btnSpellHint, this.btnSpellUndo, this.btnSpellSwap, this.btnSpellDestroy].forEach(btn => {
       if (btn) {
         btn.classList.remove('spell-recharge-anim');
         void btn.offsetWidth;
@@ -4380,7 +4410,7 @@ class GameApp {
       }
     });
 
-    this.showSpellToast(`Đã mở khóa: Đạt mốc [${milestone}], mở lại lượt trợ giúp!`, true);
+    this.showSpellToast((t('spell_recharged_toast') || '✨ Đạt mốc [{milestone}] — Đã mở khóa lượt trợ giúp tiếp theo!').replace('{milestone}', milestone), true);
     this.updateSpellUI();
   }
 
@@ -4391,11 +4421,11 @@ class GameApp {
 
     const status = this.gameLogic.getSpellStatus('hint');
     if (status === 'depleted') {
-      this.showSpellToast('HẾT LƯỢT: Bạn đã dùng tối đa 2 lần Gợi ý trong ván này!');
+      this.showSpellToast(t('spell_err_hint_depleted') || 'Hết lượt! Bạn đã dùng hết Gợi ý trong ván này.');
       return;
     }
     if (status === 'cooldown') {
-      this.showSpellToast(`Đang tạm khóa: Cần ghép ô [${this.gameLogic.nextRechargeMilestone}] để mở lại trợ giúp.`);
+      this.showSpellToast((t('spell_err_cooldown') || 'Đang tạm khóa: Ghép đạt khối [{milestone}] để mở khóa tiếp.').replace('{milestone}', this.gameLogic.nextRechargeMilestone));
       return;
     }
 
@@ -4410,7 +4440,7 @@ class GameApp {
       this.gameLogic.useHint();
     }
     if (!bestDir) {
-      this.showSpellToast('Không tìm thấy nước đi tối ưu!');
+      this.showSpellToast(t('spell_err_no_hint') || 'Không tìm thấy nước đi hợp lệ!');
       return;
     }
     const res = { direction: bestDir };
@@ -4432,25 +4462,9 @@ class GameApp {
     }
 
     const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || window.innerWidth <= 768;
-    const dirMapDesktop = {
-      up: 'TRƯỢT LÊN TRÊN (W / ↑)',
-      down: 'TRƯỢT XUỐNG DƯỚI (S / ↓)',
-      left: 'TRƯỢT SANG TRÁI (A / ←)',
-      right: 'TRƯỢT SANG PHẢI (D / →)',
-      layerUp: 'LÊN TẦNG TRÊN (E / Space)',
-      layerDown: 'XUỐNG TẦNG DƯỚI (Phím Q)'
-    };
-    const dirMapTouch = {
-      up: 'Vuốt LÊN TRÊN',
-      down: 'Vuốt XUỐNG DƯỚI',
-      left: 'Vuốt sang TRÁI',
-      right: 'Vuốt sang PHẢI',
-      layerUp: 'Tầng TRÊN (Phím E)',
-      layerDown: 'Tầng DƯỚI (Phím Q)'
-    };
-
-    const dirText = (isTouchDevice ? dirMapTouch[res.direction] : dirMapDesktop[res.direction]) || res.direction;
-    this.showSpellToast(`GỢI Ý TỐI ƯU: ${dirText}`);
+    const prefix = isTouchDevice ? 'dir_touch_' : 'dir_desktop_';
+    const dirText = t(`${prefix}${res.direction}`) || res.direction;
+    this.showSpellToast(`${t('toast_hint_prefix') || 'GỢI Ý TỐI ƯU:'} ${dirText}`);
     this.updateSpellUI();
     this.saveGameState();
   }
@@ -4462,16 +4476,16 @@ class GameApp {
 
     const status = this.gameLogic.getSpellStatus('undo');
     if (status === 'depleted') {
-      this.showSpellToast('HẾT LƯỢT: Bạn đã dùng tối đa 2 lần Đi lại trong ván này!');
+      this.showSpellToast(t('spell_err_undo_depleted') || 'Hết lượt! Bạn đã dùng hết Lùi lại trong ván này.');
       return;
     }
     if (status === 'cooldown') {
-      this.showSpellToast(`Đang tạm khóa: Cần ghép ô [${this.gameLogic.nextRechargeMilestone}] để mở lại trợ giúp.`);
+      this.showSpellToast((t('spell_err_cooldown') || 'Đang tạm khóa: Ghép đạt khối [{milestone}] để mở khóa tiếp.').replace('{milestone}', this.gameLogic.nextRechargeMilestone));
       return;
     }
 
     if (this.gameLogic.history.length === 0) {
-      this.showSpellToast('Chưa có nước đi nào để hoàn tác!');
+      this.showSpellToast(t('spell_err_no_undo') || 'Chưa có nước đi nào để hoàn tác!');
       return;
     }
 
@@ -4507,7 +4521,7 @@ class GameApp {
       }
       this.updateScoreUI();
       this.updateSpellUI();
-      this.showSpellToast('ĐÃ HOÀN TÁC NƯỚC ĐI VỪA RỒI!');
+      this.showSpellToast(t('spell_undo_done_toast') || '↩️ Đã hoàn tác nước đi vừa rồi!');
       this.saveGameState();
       if (this.isRescueMode) {
         this.evaluateRescueState();
@@ -4529,11 +4543,11 @@ class GameApp {
 
     const status = this.gameLogic.getSpellStatus('swap');
     if (status === 'depleted') {
-      this.showSpellToast('HẾT LƯỢT: Bạn đã dùng tối đa 2 lần Đổi chỗ trong ván này!');
+      this.showSpellToast(t('spell_err_swap_depleted') || 'Hết lượt! Bạn đã dùng hết Đổi chỗ trong ván này.');
       return;
     }
     if (status === 'cooldown') {
-      this.showSpellToast(`Đang tạm khóa: Cần ghép ô [${this.gameLogic.nextRechargeMilestone}] để mở lại trợ giúp.`);
+      this.showSpellToast((t('spell_err_cooldown') || 'Đang tạm khóa: Ghép đạt khối [{milestone}] để mở khóa tiếp.').replace('{milestone}', this.gameLogic.nextRechargeMilestone));
       return;
     }
 
@@ -4546,11 +4560,11 @@ class GameApp {
       this.sceneManager.controls.enabled = false;
     }
     this.updateSpellUI();
-    this.showSwapHud('Chạm khối thứ nhất trên bàn cờ...');
-    this.showSpellToast('CHẾ ĐỘ ĐỔI CHỖ: Chạm 2 khối để hoán đổi vị trí');
+    this.showSwapHud(t('swap_hud_step1') || 'Chạm khối thứ nhất trên bàn cờ...');
+    this.showSpellToast(t('spell_swap_start_toast') || '⇄ ĐỔI CHỖ: Chạm 2 khối bất kỳ để hoán đổi vị trí');
   }
 
-  cancelSwapMode(toastMsg = 'Đã hủy chế độ Đổi chỗ.') {
+  cancelSwapMode(toastMsg = undefined) {
     if (!this.isSwapMode) return;
     this.isSwapMode = false;
     document.body.classList.remove('in-swap-mode');
@@ -4574,8 +4588,9 @@ class GameApp {
     this.hideSwapHud();
     this.container.style.cursor = 'default';
     this.updateSpellUI();
-    if (toastMsg) {
-      this.showSpellToast(toastMsg);
+    const finalMsg = toastMsg === undefined ? (t('spell_swap_cancelled_toast') || 'Đã hủy chế độ Đổi chỗ.') : toastMsg;
+    if (finalMsg) {
+      this.showSpellToast(finalMsg);
     }
   }
 
@@ -4633,7 +4648,7 @@ class GameApp {
       }
 
       if (!clickedTile) {
-        this.showSpellToast('Chạm vào 1 khối số trên bàn cờ để phá hủy!');
+        this.showSpellToast(t('spell_destroy_miss_toast') || 'Chạm vào 1 khối trên bàn cờ để phá hủy!');
         return;
       }
 
@@ -4650,12 +4665,15 @@ class GameApp {
     if (!clickedTile) {
       // Gentle reminder if user tapped empty space or missed a tile — NEVER cancel!
       if (!this.swapSelectedTileA) {
-        this.showSwapHud('Hãy chạm trực tiếp vào một khối số trên bàn cờ...');
+        this.showSwapHud(t('spell_swap_miss_hint') || 'Hãy chạm trực tiếp vào một khối trên bàn cờ...');
       } else if (!this.swapSelectedTileB) {
-        this.showSwapHud(`Đã chọn [${this.swapSelectedTileA.value}]. Chạm tiếp khối thứ 2...`, this.swapSelectedTileA.value);
+        const labelA = this.getTileLabel(this.swapSelectedTileA);
+        this.showSwapHud((t('spell_swap_selected_step1') || 'Đã chọn [{val}]. Chạm khối thứ 2 để đổi chỗ...').replace('{val}', labelA), labelA);
       }
       return;
     }
+
+    const clickedLabel = this.getTileLabel(clickedTile);
 
     if (!this.swapSelectedTileA) {
       // Step 1: Select first tile
@@ -4663,8 +4681,9 @@ class GameApp {
       if (clickedTile.isHovered) clickedTile.setHovered(false);
       clickedTile.setSelected(true);
       soundManager.playSlide();
-      this.showSwapHud(`Đã chọn [${clickedTile.value}]. Chạm khối thứ hai để đổi chỗ...`, clickedTile.value);
-      this.showSpellToast(`ĐÃ CHỌN KHỐI [${clickedTile.value}]. CHỌN TIẾP KHỐI THỨ HAI...`);
+      const stepMsg = (t('spell_swap_selected_step1') || 'Đã chọn [{val}]. Chạm khối thứ 2 để đổi chỗ...').replace('{val}', clickedLabel);
+      this.showSwapHud(stepMsg, clickedLabel);
+      this.showSpellToast(stepMsg);
     } else if (this.swapSelectedTileA === clickedTile) {
       // Tapped tile A again -> deselect
       clickedTile.setSelected(false);
@@ -4674,16 +4693,17 @@ class GameApp {
         this.swapSelectedTileB = null;
       }
       soundManager.playSlide();
-      this.showSwapHud('Chạm khối thứ nhất trên bàn cờ...');
-      this.showSpellToast('Đã bỏ chọn. Hãy chọn lại khối thứ nhất.');
+      this.showSwapHud(t('swap_hud_step1') || 'Chạm khối thứ nhất trên bàn cờ...');
+      this.showSpellToast(t('spell_swap_deselected') || 'Đã bỏ chọn. Hãy chọn lại khối thứ nhất.');
     } else if (this.swapSelectedTileB === clickedTile) {
       // Tapped tile B again when both A and B are selected -> EXECUTE SWAP IMMEDIATELY!
       this.confirmExecuteSwap();
     } else {
       // Selected tile B (or re-selecting a different tile B)
-      if (clickedTile.value === this.swapSelectedTileA.value) {
+      const labelA = this.getTileLabel(this.swapSelectedTileA);
+      if (clickedTile.value === this.swapSelectedTileA.value && !clickedTile.isWildcard && !this.swapSelectedTileA.isWildcard) {
         soundManager.playTileDrop();
-        this.showSpellToast(`2 khối cùng giá trị [${clickedTile.value}], hãy chọn khối khác!`);
+        this.showSpellToast((t('spell_swap_same_val') || 'Hai khối cùng giá trị [{val}], hãy chọn một khối khác!').replace('{val}', clickedLabel));
         return;
       }
 
@@ -4695,8 +4715,11 @@ class GameApp {
       soundManager.playSlide();
 
       // Show full preview + Confirm button
-      this.showSwapHud(`Đổi [${this.swapSelectedTileA.value}] ⇄ [${clickedTile.value}]? Chạm lại [${clickedTile.value}] hoặc bấm Xác nhận`, this.swapSelectedTileA.value, clickedTile.value);
-      this.showSpellToast(`CHẠM LẠI KHỐI [${clickedTile.value}] HOẶC BẤM "XÁC NHẬN" ĐỂ ĐỔI!`);
+      const confirmPrompt = (t('spell_swap_confirm_prompt') || 'Đổi [{a}] ⇄ [{b}]? Chạm lại [{b}] hoặc bấm Xác nhận')
+        .replace('{a}', labelA)
+        .replaceAll('{b}', clickedLabel);
+      this.showSwapHud(confirmPrompt, labelA, clickedLabel);
+      this.showSpellToast((t('spell_swap_confirm_toast') || 'Chạm lại khối [{b}] hoặc bấm "Xác nhận" để đổi!').replace('{b}', clickedLabel));
     }
   }
 
@@ -4705,6 +4728,8 @@ class GameApp {
 
     const tileA = this.swapSelectedTileA;
     const tileB = this.swapSelectedTileB;
+    const labelA = this.getTileLabel(tileA);
+    const labelB = this.getTileLabel(tileB);
 
     document.body.classList.remove('in-swap-mode');
     if (this.sceneManager && this.sceneManager.controls) {
@@ -4730,7 +4755,7 @@ class GameApp {
     if (!swapResult || !swapResult.success) {
       this.isAnimating = false;
       this.updateSpellUI();
-      this.showSpellToast('Không thể đổi vị trí hai ô này!');
+      this.showSpellToast(t('spell_swap_fail_toast') || 'Không thể hoán đổi hai vị trí này!');
       return;
     }
 
@@ -4754,7 +4779,7 @@ class GameApp {
 
     this.isAnimating = false;
     this.updateSpellUI();
-    this.showSpellToast(`ĐÃ ĐỔI VỊ TRÍ [${tileA.value}] ⇄ [${tileB.value}] THÀNH CÔNG!`);
+    this.showSpellToast((t('spell_swap_done_toast') || '⇄ Đã hoán đổi [{a}] ⇄ [{b}] thành công!').replace('{a}', labelA).replace('{b}', labelB));
     this.saveGameState();
     if (this.isRescueMode) {
       this.evaluateRescueState();
@@ -4775,11 +4800,11 @@ class GameApp {
 
     const status = this.gameLogic.getSpellStatus('destroy');
     if (status === 'depleted') {
-      this.showSpellToast('HẾT LƯỢT: Bạn đã dùng tối đa 2 lần Phá khối trong ván này!');
+      this.showSpellToast(t('spell_err_destroy_depleted') || 'Hết lượt! Bạn đã dùng hết Phá khối trong ván này.');
       return;
     }
     if (status === 'cooldown') {
-      this.showSpellToast(`Đang tạm khóa: Cần ghép ô [${this.gameLogic.nextRechargeMilestone}] để mở lại trợ giúp.`);
+      this.showSpellToast((t('spell_err_cooldown') || 'Đang tạm khóa: Ghép đạt khối [{milestone}] để mở khóa tiếp.').replace('{milestone}', this.gameLogic.nextRechargeMilestone));
       return;
     }
 
@@ -4793,7 +4818,7 @@ class GameApp {
     this.showDestroyHud();
   }
 
-  cancelDestroyMode(toastMsg = null) {
+  cancelDestroyMode(toastMsg = undefined) {
     if (!this.isDestroyMode) return;
     this.isDestroyMode = false;
     document.body.classList.remove('in-destroy-mode');
@@ -4811,7 +4836,7 @@ class GameApp {
     this.hideDestroyHud();
     this.container.style.cursor = 'default';
     this.updateSpellUI();
-    const finalMsg = toastMsg !== null ? toastMsg : (t('destroy_cancelled') || 'Đã hủy chế độ Phá khối.');
+    const finalMsg = toastMsg === undefined ? (t('destroy_cancelled') || 'Đã hủy chế độ Phá khối.') : toastMsg;
     if (finalMsg) {
       this.showSpellToast(finalMsg);
     }
@@ -4821,7 +4846,7 @@ class GameApp {
     if (!this.destroyActionHud) return;
     this.destroyActionHud.style.display = 'flex';
     if (this.destroyHudText) {
-      this.destroyHudText.textContent = stepText || t('destroy_hud_step') || 'Chạm vào một khối số bất kỳ trên bàn cờ để loại bỏ ngay!';
+      this.destroyHudText.textContent = stepText || t('destroy_hud_step') || 'Chạm vào một khối bất kỳ trên bàn cờ để loại bỏ ngay!';
     }
   }
 
@@ -4840,6 +4865,7 @@ class GameApp {
       let targetR = tile.row;
       let targetC = tile.col;
       const val = tile.value;
+      const tileLabel = this.getTileLabel(tile);
 
       // Verify coordinates match logic grid, fallback scan if needed
       if (!this.gameLogic.grid[targetL]?.[targetR]?.[targetC] || this.gameLogic.grid[targetL][targetR][targetC].value !== val) {
@@ -4865,7 +4891,7 @@ class GameApp {
 
       const result = this.gameLogic.destroyTile({ l: targetL, r: targetR, c: targetC });
       if (!result || !result.success) {
-        this.showSpellToast('Không thể phá hủy ô này!');
+        this.showSpellToast(t('spell_destroy_fail_toast') || 'Không thể phá hủy khối này!');
         return;
       }
 
@@ -4890,7 +4916,7 @@ class GameApp {
       }
       tile.dispose();
 
-      this.showSpellToast(`💣 ĐÃ PHÁ HỦY KHỐI [${val}]!`);
+      this.showSpellToast((t('spell_destroy_done_toast') || '💣 Đã phá hủy khối [{val}]!').replace('{val}', tileLabel));
       this.saveGameState();
       if (this.isRescueMode) {
         this.evaluateRescueState();
@@ -5050,7 +5076,7 @@ class GameApp {
       return;
     }
 
-    // 3. Update Rush Mode internal countdown (continuous drain & heat escalation v6.8.69)
+    // 3. Update Rush Mode internal countdown (pure survival drain & heat escalation)
     if (this.isRushMode && !this.gameLogic.gameOver && !this.isRescueMode && !this.isAnyModalOpen()) {
       this.rushElapsed = (this.rushElapsed || 0) + delta;
       const calculatedLevel = Math.min(6, Math.floor(this.rushElapsed / 25.0) + 1);
@@ -5059,7 +5085,10 @@ class GameApp {
         if (this.gameLogic) this.gameLogic.rushLevel = this.rushLevel;
         const rate = (1.0 + (this.rushLevel - 1) * 0.25).toFixed(2);
         soundManager.playMilestoneCelebration();
-        this.showSpellToast(`🔥 RUSH HEAT UP: CẤP ${this.rushLevel} (x${rate} TỐC ĐỘ)!`, true);
+        const heatMsg = (t('rush_heat_up_toast') || '🔥 TĂNG TỐC CẤP {lvl}: Đồng hồ trôi x{rate}!')
+          .replace('{lvl}', this.rushLevel)
+          .replace('{rate}', rate);
+        this.showSpellToast(heatMsg, true);
         this.updateRushHeatBadge();
       }
 
@@ -5067,40 +5096,45 @@ class GameApp {
       this.rushTime -= delta * timeDrainRate;
 
       if (this.rushTime <= 0) {
-        // ⚡ Emergency Protocol: 1 spell = +6.0s (maximum 2 saves per run)
-        const remainingSpells = this.gameLogic.getRemainingSpellCount();
-        if ((this.rushEmergencyCount || 0) < 2 && remainingSpells > 0) {
-          this.rushEmergencyCount = (this.rushEmergencyCount || 0) + 1;
-          this.gameLogic.consumeOneSpellForBonus();
-          this.rushTime = 6.0;
-          this.updateSpellUI();
-
-          soundManager.playSpellRecharge();
-          this.showSpellToast(`⚡ GIAO THỨC KHẨN CẤP (${this.rushEmergencyCount}/2): +6.0s sinh tồn!`, true);
-        } else {
-          this.rushTime = 0;
-          this.gameLogic.gameOver = true;
-          if (this.aiBot) this.aiBot.stop();
-          this.clearSavedGameState();
-          this.isAnimating = false;
-          soundManager.playGameOver();
-          this.showModal({
-            title: t('modal_gameover_title') || 'THẤT BẠI (GAME OVER)',
-            message: `Hết giờ trong chế độ Time Rush!\nĐiểm số đạt được: ${this.gameLogic.score.toLocaleString()}`,
-            primaryText: t('modal_btn_continue') || 'Chơi lại ngay',
-            secondaryText: t('modal_btn_new_game') || 'Ván mới',
-            onPrimary: () => {
-              this.hideModal();
-              this.isAnimating = false;
-              this.startNewGame(false);
-            },
-            onSecondary: () => {
-              this.hideModal();
-              this.isAnimating = false;
-              this.startNewGame(false);
-            }
-          });
+        this.rushTime = 0;
+        if (this.rushTimerEl) {
+          this.rushTimerEl.textContent = '0.0s';
+          this.rushTimerEl.style.color = '#ff3838';
+          this.rushTimerEl.classList.remove('urgent-pulse');
         }
+        if (this.rushProgressBar) {
+          this.rushProgressBar.style.width = '0%';
+          this.rushProgressBar.style.background = '#ff3838';
+        }
+        this.cancelSwapMode(null);
+        this.cancelDestroyMode(null);
+        this.gameLogic.gameOver = true;
+        if (this.aiBot) this.aiBot.stop();
+        this.clearSavedGameState();
+        this.isAnimating = false;
+        soundManager.playGameOver();
+        const rushTimeoutMsg = (t('rush_gameover_msg') || 'Đồng hồ đã chạm mốc 0.0s trong Đua Giờ!\nĐiểm số chung cuộc: {score}')
+          .replace('{score}', this.gameLogic.score.toLocaleString());
+        this.showModal({
+          title: t('rush_gameover_title') || '⏱️ HẾT GIỜ!',
+          message: rushTimeoutMsg,
+          primaryText: t('rush_btn_retry') || '⚡ Đua Lại Ngay',
+          secondaryText: t('rush_btn_exit') || 'Thoát Rush',
+          forceTitle: true,
+          onPrimary: () => {
+            this.hideModal();
+            this.isAnimating = false;
+            this.startNewGame(false);
+          },
+          onSecondary: () => {
+            this.hideModal();
+            this.isAnimating = false;
+            if (this.isRushMode) {
+              this.toggleRushMode(false);
+            }
+            this.startNewGame(false);
+          }
+        });
       }
     }
 

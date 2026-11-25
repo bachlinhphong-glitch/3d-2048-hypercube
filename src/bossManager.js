@@ -111,9 +111,10 @@ export class BossManager {
     if (this.hudEl) this.hudEl.style.display = 'flex';
     this.updateHUD();
 
-    const loopTag = this.loop > 1 ? `[VÒNG LẶP ${this.loop}] ` : '';
-    const loopSub = this.loop > 1 ? ` • Sát thương & Điểm x${(1 + (this.loop - 1) * 0.5).toFixed(1)}` : '';
-    this.triggerBanner(`${loopTag}CORE PRIME — PHASE 1 • THỂ HÀNH TINH`, `${this.maxHp.toLocaleString()} HP | ${Math.round(this.timer)}s${loopSub}`);
+    const loopTag = this.loop > 1 ? `[${t('boss_rec_loop').replace(':', '').trim().toUpperCase()} ${this.loop}] ` : '';
+    const loopSub = this.loop > 1 ? ` • x${(1 + (this.loop - 1) * 0.5).toFixed(1)}` : '';
+    const phase1Title = t('boss_phase1_banner_title') || 'CORE PRIME — PHASE 1 • LÕI HÀNH TINH';
+    this.triggerBanner(`${loopTag}${phase1Title}`, `${this.maxHp.toLocaleString()} HP | ${Math.round(this.timer)}s${loopSub}`);
     soundManager.playPhaseTransition();
     soundManager.triggerHaptic('slide');
   }
@@ -225,8 +226,15 @@ export class BossManager {
 
         soundManager.playSpellRecharge();
         this.emitExpandingRingWave(0x38bdf8);
-        this.triggerBanner('⚡ GIAO THỨC CỨU NGUY KHẨN CẤP!', `+${bonusSeconds}s THỜI GIAN (Quy đổi ${remainingSpells} mô-đun)`);
-        this.gameApp.showSpellToast(`⚡ GIAO THỨC KHẨN CẤP: Quy đổi ${remainingSpells} mô-đun hỗ trợ thành +${bonusSeconds}s duy trì trận đấu!`, true);
+        const emTitle = t('boss_emergency_banner_title') || '⚡ GIAO THỨC CỨU NGUY!';
+        const emSub = (t('boss_emergency_banner_sub') || '+{secs}s THỜI GIAN (Quy đổi {count} lượt phép)')
+          .replace('{secs}', bonusSeconds)
+          .replace('{count}', remainingSpells);
+        const emToast = (t('boss_emergency_toast') || '⚡ CỨU NGUY BOSS: Quy đổi {count} lượt phép thành +{secs}s chiến đấu!')
+          .replace('{count}', remainingSpells)
+          .replace('{secs}', bonusSeconds);
+        this.triggerBanner(emTitle, emSub);
+        this.gameApp.showSpellToast(emToast, true);
         this.updateHUD();
         return;
       }
@@ -285,7 +293,8 @@ export class BossManager {
 
   onPhaseCleared() {
     const hpMult = Math.pow(1.35, (this.loop || 1) - 1);
-    const loopTag = this.loop > 1 ? `[VÒNG ${this.loop}] ` : '';
+    const loopLabel = t('boss_rec_loop') ? t('boss_rec_loop').replace(':', '').trim().toUpperCase() : 'VÒNG';
+    const loopTag = this.loop > 1 ? `[${loopLabel} ${this.loop}] ` : '';
 
     const getPhaseDestText = (p) => {
       const template = typeof t === 'function' ? (t('boss_phase_destroyed') || 'PHASE {phase} ĐÃ BỊ PHÁ HỦY!') : 'PHASE {phase} ĐÃ BỊ PHÁ HỦY!';
@@ -304,7 +313,7 @@ export class BossManager {
       if (this.boss3D) this.boss3D.setHpRatio(1.0);
       this.updateHUD();
 
-      this.triggerBanner(`${loopTag}${getPhaseDestText(1)}`, `SOLAR QUASAR • +120s • Đã thanh lọc phân mảnh [2], [4]`);
+      this.triggerBanner(`${loopTag}${getPhaseDestText(1)}`, t('boss_phase2_banner_sub') || 'SOLAR QUASAR • +120s • Đã thanh lọc khối [2], [4]');
     } else if (this.phase === 2) {
       // Phase 2 -> Phase 3 (Cosmic Singularity)
       this.emitExpandingRingWave(0xa855f7);
@@ -316,7 +325,7 @@ export class BossManager {
       if (this.boss3D) this.boss3D.setHpRatio(1.0);
       this.updateHUD();
 
-      this.triggerBanner(`${loopTag}${getPhaseDestText(2)}`, `SINGULARITY CORE • +120s • Vết nứt không gian mở rộng!`);
+      this.triggerBanner(`${loopTag}${getPhaseDestText(2)}`, t('boss_phase3_banner_sub') || 'SINGULARITY CORE • +120s • Vết nứt không gian mở rộng!');
     } else if (this.phase === 3) {
       // Phase 3 -> Phase 4 (Omniverse Transcendent God)
       this.emitExpandingRingWave(0x00f0ff);
@@ -329,7 +338,7 @@ export class BossManager {
       if (this.boss3D) this.boss3D.setHpRatio(1.0);
       this.updateHUD();
 
-      this.triggerBanner(`${loopTag}${getPhaseDestText(3)}`, `OMNIVERSE SOVEREIGN • +120s • Thực thể tối thượng thức tỉnh!`);
+      this.triggerBanner(`${loopTag}${getPhaseDestText(3)}`, t('boss_phase4_banner_sub') || 'OMNIVERSE SOVEREIGN • +120s • Thực thể tối thượng thức tỉnh!');
     } else if (this.phase === 4) {
       // Phase 4 Defeated!
       this.executeGrandFinale();
@@ -410,7 +419,7 @@ export class BossManager {
     }
 
     if (count > 0) {
-      this.gameApp.showSpellToast(`✨ Đã dọn sạch ${count} khối số nhỏ [2] & [4]!`);
+      this.gameApp.showSpellToast((t('boss_cleanse_toast') || '✨ Đã thanh lọc {count} khối nhỏ [2] & [4]!').replace('{count}', count));
       this.gameApp.saveGameState();
     }
   }
@@ -452,7 +461,10 @@ export class BossManager {
     const timeStr = `${m > 0 ? m + 'm ' : ''}${s}s`;
 
     // Sekiro God Slain Banner
-    this.triggerBanner('🏆 TUYỆT ĐỐI THANH TRỪNG — ENTITY SEVERED', 'Trật tự không thời gian vĩnh hằng đã được tái lập!');
+    this.triggerBanner(
+      t('boss_finale_banner_title') || '🏆 TUYỆT ĐỐI THANH TRỪNG — ENTITY SEVERED',
+      t('boss_finale_banner_sub') || 'Trật tự không thời gian vĩnh hằng đã được tái lập!'
+    );
 
     // Achievement Pop-up Toast
     this.showAchievementUnlockToast();
@@ -488,9 +500,9 @@ export class BossManager {
     toast.innerHTML = `
       <div class="boss-ach-toast-icon">🏆</div>
       <div class="boss-ach-toast-body">
-        <div class="boss-ach-toast-tag">THÀNH TỰU THẦN THOẠI MỞ KHÓA!</div>
-        <div class="boss-ach-toast-title">Kẻ Thanh Trừng Hư Không (Void Slayer)</div>
-        <div class="boss-ach-toast-desc">Đã thanh trừng toàn bộ 4 dạng thức của Thực Thể Hư Không!</div>
+        <div class="boss-ach-toast-tag">${t('boss_ach_toast_tag') || 'THÀNH TỰU THẦN THOẠI ĐÃ MỞ!'}</div>
+        <div class="boss-ach-toast-title">${t('boss_ach_toast_title') || 'Kẻ Thanh Trừng Hư Không (Void Slayer)'}</div>
+        <div class="boss-ach-toast-desc">${t('boss_ach_toast_desc') || 'Đã đánh bại toàn bộ 4 dạng thức của Thực Thể Hư Không!'}</div>
       </div>
     `;
     document.body.appendChild(toast);
@@ -626,15 +638,16 @@ export class BossManager {
     // Records Bar
     const bestTimeEl = document.getElementById('boss-v-best-time');
     if (bestTimeEl) {
-      bestTimeEl.textContent = isAI ? (bestTimeSecs ? `${bestTimeStr} (Thủ công)` : '--:--') : bestTimeStr;
+      bestTimeEl.textContent = isAI ? (bestTimeSecs ? `${bestTimeStr} (AI)` : '--:--') : bestTimeStr;
     }
 
     const newRecordBadge = document.getElementById('boss-v-new-record-badge');
     if (newRecordBadge) newRecordBadge.style.display = (!isAI && isNewBestTime) ? 'inline-flex' : 'none';
 
+    const loopWord = (t('boss_rec_loop') || 'Vòng:').replace(':', '').trim();
     const loopLevelEl = document.getElementById('boss-v-loop-level');
     if (loopLevelEl) {
-      loopLevelEl.textContent = isAI ? `Vòng ${this.loop} (Chế độ AI)` : `Vòng ${this.loop} (Kỷ lục: Loop ${maxLoop})`;
+      loopLevelEl.textContent = isAI ? `${loopWord} ${this.loop} (AI)` : `${loopWord} ${this.loop} (Max: ${maxLoop})`;
     }
 
     // Action button labels
@@ -642,7 +655,9 @@ export class BossManager {
     const loopBtnText = document.getElementById('boss-v-btn-loop-text');
     if (loopBtnText) {
       const bonusPct = (nextLoop - 1) * 50;
-      loopBtnText.textContent = `⚔️ Khởi Động Vòng Lặp ${nextLoop} (NG+ • +${bonusPct}% Điểm)`;
+      loopBtnText.textContent = (t('boss_loop_btn_tmpl') || '⚔️ Khởi Động Vòng Lặp {next} (NG+ • +{bonus}% Điểm)')
+        .replace('{next}', nextLoop)
+        .replace('{bonus}', bonusPct);
     }
 
     const headingEl = document.getElementById('boss-victory-heading');
@@ -653,15 +668,15 @@ export class BossManager {
       if (aiPill) aiPill.style.display = 'inline-flex';
       if (achContainer) achContainer.style.display = 'none'; // Compact mode saves space on phone
       if (headingEl) {
-        headingEl.textContent = typeof t === 'function' && t('boss_victory_ai_title') ? t('boss_victory_ai_title') : 'CHIẾN DỊCH HOÀN TẤT';
+        headingEl.textContent = t('boss_victory_ai_title') || 'CHIẾN DỊCH HOÀN TẤT';
       }
     } else {
       if (aiPill) aiPill.style.display = 'none';
       if (achContainer) achContainer.style.display = 'block';
       if (headingEl) {
-        headingEl.textContent = this.loop > 1 
-          ? `THANH TRỪNG VÒNG LẶP ${this.loop}!` 
-          : (typeof t === 'function' ? (t('boss_victory_heading') || 'CHIẾN THẮNG HUYỀN THOẠI!') : 'CHIẾN THẮNG HUYỀN THOẠI!');
+        headingEl.textContent = this.loop > 1
+          ? (t('boss_victory_loop_heading') || 'THANH TRỪNG VÒNG LẶP {loop}!').replace('{loop}', this.loop)
+          : (t('boss_victory_heading') || 'CHIẾN THẮNG HUYỀN THOẠI!');
       }
       const achTier = this.victoryModal.querySelector('.boss-achievement-tier');
       const achName = this.victoryModal.querySelector('.boss-achievement-name');
@@ -760,7 +775,10 @@ export class BossManager {
     // Keep board completely intact!
     this.startRaid(this.loop);
     const bonusPct = (this.loop - 1) * 50;
-    this.gameApp.showSpellToast(`🌌 VÒNG LẶP ${this.loop}: Thực Thể tái tạo với cấp độ lượng tử mới! (+${bonusPct}% Điểm Thưởng)`, true);
+    const loopToast = (t('boss_loop_toast') || '🌌 VÒNG LẶP {loop}: Thực Thể tái sinh ở cấp độ mới! (+{bonus}% Điểm Thưởng)')
+      .replace('{loop}', this.loop)
+      .replace('{bonus}', bonusPct);
+    this.gameApp.showSpellToast(loopToast, true);
   }
 
   enterEndlessMode() {
@@ -771,14 +789,14 @@ export class BossManager {
       if (bossBtn) {
         bossBtn.classList.remove('active');
         const textEl = bossBtn.querySelector('.btn-text');
-        if (textEl) textEl.textContent = 'Boss Raid';
+        if (textEl) textEl.textContent = t('btn_boss') || 'BOSS';
       }
       if (this.gameApp.gameLogic) {
         this.gameApp.gameLogic.keepPlaying = true;
         this.gameApp.gameLogic.scoreMultiplier = 1.0;
       }
       this.gameApp.saveGameState();
-      this.gameApp.showSpellToast('🏆 CHẾ ĐỘ TỰ DO VÔ HẠN: Bàn cờ được bảo toàn! Tự do tiến tới khối 4096, 8192 và xác lập kỷ lục mới!', true);
+      this.gameApp.showSpellToast(t('boss_endless_toast') || '🏆 CHẾ ĐỘ VÔ HẠN: Bàn cờ được bảo toàn — Tự do chinh phục mốc 4096+!', true);
     }
   }
 
@@ -791,7 +809,7 @@ export class BossManager {
       if (bossBtn) {
         bossBtn.classList.remove('active');
         const textEl = bossBtn.querySelector('.btn-text');
-        if (textEl) textEl.textContent = 'Boss Raid';
+        if (textEl) textEl.textContent = t('btn_boss') || 'BOSS';
       }
       this.gameApp.clearSavedGameState();
       this.gameApp.startNewGame(false);
@@ -817,11 +835,15 @@ export class BossManager {
   }
 
   showStageClearModal(clearTimeStr) {
+    const clearMsg = (t('boss_clear_msg') || 'Tuyệt phẩm! Bạn đã hợp nhất khối [2048] và hạ gục hoàn toàn Dark Singularity Core!\n\nThời gian: {time}\nĐiểm số: {score}')
+      .replace('{time}', clearTimeStr)
+      .replace('{score}', this.gameApp.gameLogic.score.toLocaleString());
     this.gameApp.showModal({
-      title: 'STAGE CLEAR — CORE DESTROYED',
-      message: `Tuyệt phẩm! Bạn đã hòa hợp khối [2048] và tiêu diệt hoàn toàn Dark Singularity Core!\n\nThời gian hoàn thành: ${clearTimeStr}\nĐiểm số đạt được: ${this.gameApp.gameLogic.score.toLocaleString()} điểm`,
-      primaryText: 'Chơi lại ngay',
-      secondaryText: 'Chia sẻ kết quả',
+      title: t('stage_clear_final') || 'VICTORY — 2048 COMPLETE',
+      message: clearMsg,
+      primaryText: t('modal_btn_retry') || '🔥 Chơi Lại Ngay',
+      secondaryText: t('modal_btn_share') || 'Khoe Điểm',
+      forceTitle: true,
       onPrimary: () => {
         this.gameApp.hideModal();
         this.gameApp.isAnimating = false;
@@ -837,11 +859,15 @@ export class BossManager {
     this.isDefeated = true;
     soundManager.playGameOver();
 
+    const bossTimeoutMsg = (t('boss_gameover_msg') || 'Hết giờ trong chế độ Đấu Trùm!\nSát thương đã gây lên Boss: {dealt} / {max} HP')
+      .replace('{dealt}', (this.maxHp - this.hp).toLocaleString())
+      .replace('{max}', this.maxHp.toLocaleString());
     this.gameApp.showModal({
-      title: 'THẤT BẠI (GAME OVER)',
-      message: `Hết giờ trong chế độ Boss Mode!\nNăng lượng hắc ám đã tiêu hao: ${(this.maxHp - this.hp).toLocaleString()} / ${this.maxHp.toLocaleString()} HP`,
-      primaryText: 'Chơi lại ngay',
-      secondaryText: 'Ván mới',
+      title: t('modal_gameover_title') || 'HẾT NƯỚC ĐI!',
+      message: bossTimeoutMsg,
+      primaryText: t('modal_btn_retry') || '🔥 Chơi Lại Ngay',
+      secondaryText: t('modal_btn_new_game') || 'Ván Mới',
+      forceTitle: true,
       onPrimary: () => {
         this.gameApp.hideModal();
         this.gameApp.isAnimating = false;

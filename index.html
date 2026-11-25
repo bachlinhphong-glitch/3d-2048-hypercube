@@ -51,18 +51,18 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./src/style.css?v=6.8.74">
+  <link rel="stylesheet" href="./src/style.css?v=6.8.75">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=6.8.74').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=6.8.75').then(reg => {
           reg.update();
         }).catch(() => {});
       });
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         try {
-          if (!sessionStorage.getItem('sw_reloaded_6868')) {
-            sessionStorage.setItem('sw_reloaded_6868', '1');
+          if (!sessionStorage.getItem('sw_reloaded_6875')) {
+            sessionStorage.setItem('sw_reloaded_6875', '1');
             window.location.reload();
           }
         } catch {}
@@ -298,8 +298,8 @@
     <div id="rush-panel" class="rush-panel">
       <div class="rush-header-row">
         <div class="rush-title-cluster">
-          <span class="rush-badge-mode" data-i18n="rush_mode_title">⚡ Đua Giờ</span>
-          <span class="rush-badge-bomb" data-i18n="rush_bomb_active">💣 Bom Hẹn Giờ</span>
+          <span class="rush-badge-mode" data-i18n="rush_mode_title">⚡ ĐUA GIỜ</span>
+          <span class="rush-badge-bomb" data-i18n="rush_bomb_active">💣 BOM HẸN GIỜ</span>
         </div>
         <div class="rush-timer-cluster">
           <span id="rush-heat-badge" class="rush-heat-badge">x1.0</span>
@@ -676,7 +676,7 @@
               <span id="trophy-celebrate-label" data-i18n="trophy_celebrate_btn">Bắn Pháo Hoa Ăn Mừng</span>
             </button>
             <button id="btn-play-overdrive" class="overdrive-unlock-btn locked" disabled>
-              <span id="overdrive-btn-label" data-i18n="overdrive_locked_btn">🔒 Hoàn thành 7/7 Nhiệm vụ hoặc Diệt Boss để mở Chế Độ Ẩn</span>
+              <span id="overdrive-btn-label" data-i18n="overdrive_locked_btn">🔒 Hoàn thành 7/7 Nhiệm vụ hoặc Diệt Boss để mở OVERDRIVE</span>
             </button>
           </div>
         </div>
@@ -948,9 +948,9 @@
         </div>
 
         <div class="boss-victory-title-wrap">
-          <div class="boss-victory-tag-severance">THANH TRỪNG HOÀN TẤT • ENTITY SEVERED</div>
+          <div class="boss-victory-tag-severance" data-i18n="boss_victory_tag">THANH TRỪNG HOÀN TẤT • ENTITY SEVERED</div>
           <h2 id="boss-victory-heading" class="boss-victory-title" data-i18n="boss_victory_heading">CHIẾN THẮNG HUYỀN THOẠI!</h2>
-          <p id="boss-victory-subtitle" class="boss-victory-subtitle" data-i18n="boss_victory_congrats">Không thời gian đã được tái lập. Bạn đã làm chủ ma trận số học và thanh trừng hoàn toàn 4 dạng thức của Thực Thể Hư Không.</p>
+          <p id="boss-victory-subtitle" class="boss-victory-subtitle" data-i18n="boss_victory_congrats">Trật tự không thời gian đã được tái lập. Bạn đã làm chủ ma trận và đánh bại toàn bộ 4 dạng thức của Thực Thể Hư Không!</p>
         </div>
 
         <!-- Slim 1-line AI Banner Pill -->
@@ -1029,10 +1029,10 @@
             <span data-i18n="boss_btn_share">Chia Sẻ Chiến Tích</span>
           </button>
           <button id="boss-victory-btn-endless" class="modal-btn secondary">
-            <span>🏆 Vô Hạn</span>
+            <span data-i18n="boss_btn_endless_short">🏆 Vô Hạn</span>
           </button>
           <button id="boss-victory-btn-view-trophy" class="modal-btn secondary">
-            <span>👑 Xem Cúp</span>
+            <span data-i18n="boss_btn_view_trophy_short">👑 Xem Cúp</span>
           </button>
           <button id="boss-victory-btn-restart" class="modal-btn secondary">
             <span data-i18n="boss_btn_restart">🔄 Ván mới</span>
@@ -1360,6 +1360,6 @@
   </div>
 
   <!-- Main Game Script -->
-  <script type="module" src="./src/main.js?v=6.8.74"></script>
+  <script type="module" src="./src/main.js?v=6.8.75"></script>
 </body>
 </html>

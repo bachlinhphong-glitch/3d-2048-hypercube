@@ -2895,7 +2895,7 @@ body.theme-zen_clay .boss-ach-toast-desc {
   top: 96px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 3200;
+  z-index: 1200;
   pointer-events: none;
   display: flex;
   align-items: center;
@@ -8292,7 +8292,7 @@ body.theme-zen_clay .apple-glass-dropdown::-webkit-scrollbar-thumb,
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
-  transition: all 0.15s ease !important;
+  transition: background-color 0.15s ease !important;
   user-select: none !important;
 }
 

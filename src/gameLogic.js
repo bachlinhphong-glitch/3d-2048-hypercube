@@ -574,18 +574,6 @@ export class Game2048Logic {
     return hintLeft + undoLeft + swapLeft + destroyLeft;
   }
 
-  consumeOneSpellForBonus() {
-    if (!this.spells) return false;
-    const order = ['hint', 'swap', 'undo', 'destroy'];
-    for (const k of order) {
-      if (this.spells[k] && this.spells[k].used < this.maxSpellUses) {
-        this.spells[k].used++;
-        return true;
-      }
-    }
-    return false;
-  }
-
   consumeAllSpellsForBonus() {
     if (!this.spells) return 0;
     const count = this.getRemainingSpellCount();
