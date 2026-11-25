@@ -227,6 +227,8 @@ class GameApp {
     // Input Buffer & Zero-Allocation Math Vector Cache
     this.moveQueue = [];
     this.maxQueuedMoves = 2;
+    this._moveToken = 0;
+    this._activeMoveContext = null;
     this._raycaster = (typeof THREE !== 'undefined' && THREE.Raycaster) ? new THREE.Raycaster() : null;
     this._ndcVec = (typeof THREE !== 'undefined' && THREE.Vector2) ? new THREE.Vector2() : null;
     this._dragPlane = (typeof THREE !== 'undefined' && THREE.Plane && THREE.Vector3) ? new THREE.Plane(new THREE.Vector3(0, 1, 0), 0) : null;
@@ -3557,6 +3559,92 @@ class GameApp {
     }, 1500);
   }
 
+  /**
+   * Authoritatively synchronize this.tiles3D and scene children with this.gameLogic.grid,
+   * ensuring zero lingering ghost/orphaned Tile3D meshes after merges, lag, or early returns.
+   */
+  reconcileSceneTiles(newlySpawnedTile = null) {
+    if (!this.gameLogic || !this.sceneManager?.scene) return;
+    if (!this.tiles3D) {
+      this.tiles3D = this.createEmptyTileGrid();
+    }
+
+    const validGroups = new Set();
+    for (let l = 0; l < this.gameLogic.layers; l++) {
+      for (let r = 0; r < this.gameLogic.rows; r++) {
+        for (let c = 0; c < this.gameLogic.cols; c++) {
+          const logicTile = this.gameLogic.grid[l]?.[r]?.[c] || null;
+          let tile3D = this.tiles3D[l]?.[r]?.[c] || null;
+
+          if (!logicTile) {
+            if (tile3D) {
+              tile3D.dispose(true);
+              this.tiles3D[l][r][c] = null;
+            }
+            continue;
+          }
+
+          const needsRebuild = !tile3D || tile3D._disposed || !tile3D.group || !tile3D.group.parent ||
+            (!!tile3D.isWildcard !== !!logicTile.isWildcard);
+
+          if (needsRebuild) {
+            if (tile3D && !tile3D._disposed) {
+              tile3D.dispose(true);
+            }
+            tile3D = new Tile3D(
+              l, r, c,
+              logicTile.value,
+              this.sceneManager.scene,
+              this.currentShape,
+              logicTile.isBomb,
+              logicTile.bombCountdown,
+              logicTile.isWildcard
+            );
+            this.tiles3D[l][r][c] = tile3D;
+          } else {
+            if (tile3D.value !== logicTile.value) {
+              tile3D.upgradeTo(logicTile.value);
+            }
+            tile3D.setBombState(logicTile.isBomb, logicTile.bombCountdown);
+            if (tile3D !== newlySpawnedTile) {
+              tile3D.layer = l;
+              tile3D.row = r;
+              tile3D.col = c;
+              const targetPos = getGridPosition(l, r, c);
+              tile3D.group.position.set(targetPos.x, targetPos.y, targetPos.z);
+              tile3D.group.scale.set(1, 1, 1);
+              tile3D.group.rotation.set(0, 0, 0);
+            }
+          }
+
+          if (tile3D && tile3D.group) {
+            validGroups.add(tile3D.group);
+          }
+        }
+      }
+    }
+
+    // Sweep any orphaned or disposed Tile3D groups left anywhere in the Three.js scene
+    const sceneChildren = [...this.sceneManager.scene.children];
+    for (let i = 0; i < sceneChildren.length; i++) {
+      const child = sceneChildren[i];
+      if (!child || !child.userData || !child.userData.isTile3D) continue;
+      const inst = child.userData.tileInstance;
+      if (!validGroups.has(child) || (inst && inst._disposed)) {
+        if (inst && typeof inst.dispose === 'function') {
+          inst.dispose(true);
+        } else {
+          gsap.killTweensOf(child);
+          if (child.position) gsap.killTweensOf(child.position);
+          if (child.scale) gsap.killTweensOf(child.scale);
+          if (child.rotation) gsap.killTweensOf(child.rotation);
+          child.visible = false;
+          if (child.parent) child.parent.remove(child);
+        }
+      }
+    }
+  }
+
   settleInFlightAnimations() {
     if (this._activeSlideTweens && this._activeSlideTweens.length > 0) {
       this._activeSlideTweens.forEach(t => {
@@ -3565,6 +3653,20 @@ class GameApp {
         } catch {}
       });
       this._activeSlideTweens = [];
+    }
+    if (this._activeMoveContext && this._activeMoveContext.token !== this._moveToken) {
+      const ctx = this._activeMoveContext;
+      this._activeMoveContext = null;
+      if (Array.isArray(ctx.mergesToProcess)) {
+        ctx.mergesToProcess.forEach(m => {
+          if (m && m.sourceTile && !m.sourceTile._disposed) {
+            const surviving = this.tiles3D?.[m.targetL]?.[m.targetR]?.[m.targetC];
+            if (surviving !== m.sourceTile) {
+              m.sourceTile.dispose(true);
+            }
+          }
+        });
+      }
     }
     if (!this.tiles3D) return;
     for (let l = 0; l < this.tiles3D.length; l++) {
@@ -3646,18 +3748,39 @@ class GameApp {
       }
     }
 
-    // Hard Watchdog: Guarantee isAnimating NEVER stays stuck on mobile/tablet under any condition
+    const moveToken = ++this._moveToken;
+    const moveContext = {
+      token: moveToken,
+      mergesToProcess: [],
+      spawned: false
+    };
+    this._activeMoveContext = moveContext;
+
+    // Hard Watchdog: Guarantee isAnimating NEVER stays stuck on mobile/tablet while settling cleanly
     if (this._animWatchdog) clearTimeout(this._animWatchdog);
     this._animWatchdog = setTimeout(() => {
-      if (this.isAnimating) {
-        console.warn('⚠️ Animation watchdog auto-unfreezing isAnimating!');
+      if (this.isAnimating && this._moveToken === moveToken) {
+        console.warn('⚠️ Animation watchdog settling stalled move!');
+        this._moveToken++;
+        this.settleInFlightAnimations();
+        if (!moveContext.spawned && this.gameLogic && !this.gameLogic.gameOver) {
+          moveContext.spawned = true;
+          const emergencySpawn = this.spawnTile();
+          this.reconcileSceneTiles(emergencySpawn);
+        } else {
+          this.reconcileSceneTiles();
+        }
+        this._activeMoveContext = null;
         this.isAnimating = false;
-        if (this.moveQueue && this.moveQueue.length > 0) {
+        const modalOpen = this.isAnyModalOpen && this.isAnyModalOpen();
+        if (!modalOpen && this.moveQueue && this.moveQueue.length > 0 && !this.gameLogic.gameOver) {
           const next = this.moveQueue.shift();
-          this.handleMove(next);
+          queueMicrotask(() => this.handleMove(next));
+        } else if (modalOpen && this.moveQueue) {
+          this.moveQueue.length = 0;
         }
       }
-    }, 180);
+    }, 450);
 
     try {
       this.moveCount++;
@@ -3679,8 +3802,37 @@ class GameApp {
       }
 
       const slideDuration = this.graphicsQuality === 'high' ? 0.082 : 0.076;
+      const slideMs = Math.round(slideDuration * 1000) + 120;
+      const toAnimPromise = (tween) => {
+        if (!tween || typeof tween.then !== 'function') return Promise.resolve();
+        return new Promise(resolve => {
+          let done = false;
+          const finish = () => {
+            if (!done) {
+              done = true;
+              resolve();
+            }
+          };
+          try {
+            tween.then(finish);
+            if (typeof tween.eventCallback === 'function') {
+              const prevInterrupt = tween.eventCallback('onInterrupt');
+              tween.eventCallback('onInterrupt', () => {
+                if (typeof prevInterrupt === 'function') {
+                  try { prevInterrupt(); } catch {}
+                }
+                finish();
+              });
+            }
+          } catch {
+            finish();
+          }
+          setTimeout(finish, slideMs);
+        });
+      };
+
       const animations = [];
-      const mergesToProcess = [];
+      const mergesToProcess = moveContext.mergesToProcess;
       this._activeSlideTweens = [];
 
       // Clone old tiles3D
@@ -3694,12 +3846,12 @@ class GameApp {
         if (!m.mergedInto) {
           this.tiles3D[m.to.l][m.to.r][m.to.c] = tile3D;
           const tween = tile3D.slideTo(m.to.l, m.to.r, m.to.c, slideDuration);
-          animations.push(tween);
-          this._activeSlideTweens.push(tween);
+          animations.push(toAnimPromise(tween));
+          if (tween) this._activeSlideTweens.push(tween);
         } else {
           const tween = tile3D.slideTo(m.to.l, m.to.r, m.to.c, slideDuration);
-          animations.push(tween);
-          this._activeSlideTweens.push(tween);
+          animations.push(toAnimPromise(tween));
+          if (tween) this._activeSlideTweens.push(tween);
           mergesToProcess.push({
             sourceTile: tile3D,
             targetL: m.to.l,
@@ -3771,7 +3923,18 @@ class GameApp {
       }
 
       await Promise.all(animations);
-      this._activeSlideTweens = [];
+      this.settleInFlightAnimations();
+      if (moveToken !== this._moveToken) {
+        mergesToProcess.forEach(m => {
+          if (m.sourceTile && !m.sourceTile._disposed) {
+            const surviving = this.tiles3D?.[m.targetL]?.[m.targetR]?.[m.targetC];
+            if (surviving !== m.sourceTile) {
+              m.sourceTile.dispose(true);
+            }
+          }
+        });
+        return;
+      }
 
     // Process merges
     let maxMergedVal = 0;
@@ -3837,8 +4000,13 @@ class GameApp {
           this.showMilestoneCelebration(m.newValue);
         }
       } else if (!surviving) {
-        this.tiles3D[m.targetL][m.targetR][m.targetC] = m.sourceTile;
-        m.sourceTile.upgradeTo(m.newValue);
+        const logicCell = this.gameLogic.grid[m.targetL]?.[m.targetR]?.[m.targetC];
+        if (logicCell && m.sourceTile && !m.sourceTile._disposed) {
+          this.tiles3D[m.targetL][m.targetR][m.targetC] = m.sourceTile;
+          m.sourceTile.upgradeTo(logicCell.value);
+        } else if (m.sourceTile) {
+          m.sourceTile.dispose(true);
+        }
 
         this.comboCount++;
         const pos = getGridPosition(m.targetL, m.targetR, m.targetC);
@@ -3968,6 +4136,11 @@ class GameApp {
     }
 
     const newlySpawnedTile = this.spawnTile();
+    moveContext.spawned = true;
+    this.reconcileSceneTiles(newlySpawnedTile);
+    if (this._activeMoveContext === moveContext) {
+      this._activeMoveContext = null;
+    }
 
     // Check game over right after the new tile has been placed on the grid
     const isGameOver = !this.gameLogic.hasValidMoves();
@@ -4040,21 +4213,25 @@ class GameApp {
   } catch (err) {
     console.error('Error during move processing:', err);
   } finally {
-    if (this._animWatchdog) {
-      clearTimeout(this._animWatchdog);
-      this._animWatchdog = null;
-    }
-    this.isAnimating = false;
+    if (moveToken === this._moveToken) {
+      if (this._animWatchdog) {
+        clearTimeout(this._animWatchdog);
+        this._animWatchdog = null;
+      }
+      if (this._activeMoveContext === moveContext) {
+        this._activeMoveContext = null;
+      }
+      this.isAnimating = false;
 
-    // Move Buffering Queue: Instantly execute chained move via microtask
-    if (this.moveQueue && this.moveQueue.length > 0 && !this.gameLogic.gameOver) {
-      const modal = document.getElementById('modal');
-      const isModalOpen = modal && modal.classList.contains('active');
-      if (!isModalOpen) {
-        const nextMove = this.moveQueue.shift();
-        queueMicrotask(() => this.handleMove(nextMove));
-      } else {
-        this.moveQueue.length = 0;
+      // Move Buffering Queue: Instantly execute chained move via microtask
+      if (this.moveQueue && this.moveQueue.length > 0 && !this.gameLogic.gameOver) {
+        const isModalOpen = this.isAnyModalOpen ? this.isAnyModalOpen() : false;
+        if (!isModalOpen) {
+          const nextMove = this.moveQueue.shift();
+          queueMicrotask(() => this.handleMove(nextMove));
+        } else {
+          this.moveQueue.length = 0;
+        }
       }
     }
   } // end finally

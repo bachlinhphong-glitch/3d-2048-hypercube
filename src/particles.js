@@ -138,9 +138,10 @@ export class ParticleSystem {
     if (!camera) return;
     if (document.body.classList.contains('reduce-motion') || (window.gameApp && window.gameApp.reduceMotion)) return;
     if (this._shakeTimeline) {
-      this._shakeTimeline.progress(1);
-      this._shakeTimeline.kill();
+      const prevTimeline = this._shakeTimeline;
       this._shakeTimeline = null;
+      prevTimeline.progress(1);
+      prevTimeline.kill();
     }
     const originalPos = camera.position.clone();
     const timeline = gsap.timeline({

@@ -893,8 +893,14 @@ export class Tile3D {
   }
 
   setBombState(isBomb, countdown) {
-    this.isBomb = isBomb;
-    this.bombCountdown = countdown;
+    if (this._disposed) return;
+    const nextBomb = !!isBomb;
+    const nextCd = nextBomb ? (countdown || 0) : 0;
+    if (this.isBomb === nextBomb && (!nextBomb || this.bombCountdown === nextCd)) {
+      return;
+    }
+    this.isBomb = nextBomb;
+    this.bombCountdown = nextCd;
     this.buildGeometry();
   }
 
@@ -1068,6 +1074,7 @@ export class Tile3D {
   }
 
   spawnAnimation(delay = 0) {
+    if (this._disposed || !this.group) return null;
     const basePos = getGridPosition(this.layer, this.row, this.col);
     gsap.killTweensOf(this.group.position);
     gsap.killTweensOf(this.group.scale);
@@ -1092,6 +1099,7 @@ export class Tile3D {
   }
 
   slideTo(targetLayer, targetRow, targetCol, duration = null) {
+    if (this._disposed || !this.group) return null;
     const isHigh = (tileGraphicsQuality === 'high' || window.gameApp?.graphicsQuality === 'high');
     const actualDuration = duration !== null ? duration : (isHigh ? 0.082 : 0.076);
 
@@ -1161,6 +1169,7 @@ export class Tile3D {
   }
 
   upgradeTo(newValue) {
+    if (this._disposed) return;
     this.value = newValue;
     this.isWildcard = false;
     this.buildGeometry();
@@ -1302,10 +1311,13 @@ export class Tile3D {
   }
 
   dispose(immediate = false) {
-    gsap.killTweensOf(this.group);
-    gsap.killTweensOf(this.group.position);
-    gsap.killTweensOf(this.group.scale);
-    gsap.killTweensOf(this.group.rotation);
+    this._disposed = true;
+    if (this.group) {
+      gsap.killTweensOf(this.group);
+      gsap.killTweensOf(this.group.position);
+      gsap.killTweensOf(this.group.scale);
+      gsap.killTweensOf(this.group.rotation);
+    }
 
     if (this.selectionOutline) {
       this.group.remove(this.selectionOutline);
@@ -1329,11 +1341,21 @@ export class Tile3D {
     this.isHovered = false;
     this.isHeld = false;
 
-    if (immediate) {
-      this.disposeClonedMaterials();
-      if (this.group.parent) {
-        this.group.parent.remove(this.group);
+    const cleanup = () => {
+      if (this.group) {
+        this.group.visible = false;
+        if (this.group.parent) {
+          this.group.parent.remove(this.group);
+        }
       }
+      if (!this._materialsDisposed) {
+        this._materialsDisposed = true;
+        this.disposeClonedMaterials();
+      }
+    };
+
+    if (immediate || !this.group) {
+      cleanup();
       return;
     }
 
@@ -1343,12 +1365,9 @@ export class Tile3D {
       z: 0.001,
       duration: 0.12,
       ease: 'power2.in',
-      onComplete: () => {
-        this.disposeClonedMaterials();
-        if (this.group.parent) {
-          this.group.parent.remove(this.group);
-        }
-      }
+      onComplete: cleanup,
+      onInterrupt: cleanup
     });
+    setTimeout(cleanup, 160);
   }
 }
