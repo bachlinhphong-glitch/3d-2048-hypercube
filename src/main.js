@@ -371,8 +371,9 @@ class GameApp {
     this.scoreEl = document.getElementById('score-val');
     this.bestScoreEl = document.getElementById('best-val');
     this.scoreBadge = document.getElementById('score-badge');
-    this.nextTileBadgeEl = document.getElementById('next-tile-badge');
-    this.nextTileValEl = document.getElementById('next-tile-val');
+    this.dailyStreakBadgeEl = document.getElementById('daily-streak-badge');
+    this.dailyStreakNumEl = document.getElementById('daily-streak-num');
+    this.dailyStreakState = this.loadDailyStreakState();
     this.streakFeverPillEl = document.getElementById('streak-fever-pill');
     this.streakCountTextEl = document.getElementById('streak-count-text');
     this.feverModeTagEl = document.getElementById('fever-mode-tag');
@@ -615,6 +616,7 @@ class GameApp {
     window.addEventListener('languageChanged', () => {
       this.updateDynamicLanguageTexts();
       this.updateStreakFeverUI();
+      this.updateDailyStreakUI();
     });
 
     const muteBtn = document.getElementById('btn-sound-toggle');
@@ -753,6 +755,9 @@ class GameApp {
         this.copyEmojiGridSummary();
       });
     }
+
+    // Duolingo Daily Streak Badge & Modal Listeners
+    this.initDailyStreakUI();
 
     // Boss Mode Button & Testing Shortcut
     const bossBtn = document.getElementById('btn-toggle-boss');
@@ -1591,7 +1596,6 @@ class GameApp {
     }
     if (this.gameLogic) this.gameLogic.rushLevel = 1;
     this.updateRushHeatBadge();
-    this.updateNextTileUI();
     this.updateStreakFeverUI();
   }
 
@@ -1625,7 +1629,6 @@ class GameApp {
     this.startNewGame(false);
     this.showSpellToast(t('overdrive_activated_toast') || '✨ OVERDRIVE KÍCH HOẠT: Chỉ sinh khối 4-8, Cầu Vồng ★ & Điểm x1.5!');
     this.updateOverdriveHUD();
-    this.updateNextTileUI();
   }
 
   updateOverdriveHUD() {
@@ -2425,22 +2428,245 @@ class GameApp {
     }
   }
 
-  updateNextTileUI() {
-    if (!this.nextTileValEl || !this.gameLogic || typeof this.gameLogic.getNextSpawnPreview !== 'function') return;
-    const preview = this.gameLogic.getNextSpawnPreview();
-    if (!preview) return;
+  getLocalDateKey(date = new Date()) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
 
-    this.nextTileValEl.className = 'next-tile-chip';
-    if (preview.isBomb) {
-      this.nextTileValEl.textContent = '💣';
-      this.nextTileValEl.classList.add('is-bomb');
-    } else if (preview.isWildcard || preview.value === 0) {
-      this.nextTileValEl.textContent = '★';
-      this.nextTileValEl.classList.add('is-wildcard');
-    } else {
-      this.nextTileValEl.textContent = String(preview.value);
-      this.nextTileValEl.classList.add(`is-val-${preview.value}`);
+  getOffsetLocalDateKey(offsetDays = 0, baseDate = new Date()) {
+    const dt = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate() + offsetDays);
+    return this.getLocalDateKey(dt);
+  }
+
+  loadDailyStreakState() {
+    const today = this.getLocalDateKey();
+    const yesterday = this.getOffsetLocalDateKey(-1);
+    const defaults = {
+      currentStreak: 0,
+      bestStreak: 0,
+      lastCompletedDate: null,
+      lastMoveDate: today,
+      todayMoves: 0,
+      todayCompleted: false,
+      historyDates: []
+    };
+
+    let state = defaults;
+    try {
+      const raw = localStorage.getItem('3d2048_daily_streak_v1');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object') {
+          state = { ...defaults, ...parsed };
+        }
+      }
+    } catch {}
+
+    if (!Array.isArray(state.historyDates)) state.historyDates = [];
+
+    // Roll over daily move goal when crossing midnight local time
+    if (state.lastMoveDate !== today) {
+      state.lastMoveDate = today;
+      state.todayMoves = 0;
+      state.todayCompleted = state.lastCompletedDate === today;
     }
+
+    // Break streak cleanly if user missed yesterday AND hasn't completed today
+    if (state.lastCompletedDate !== today && state.lastCompletedDate !== yesterday) {
+      state.currentStreak = 0;
+    }
+
+    return state;
+  }
+
+  saveDailyStreakState() {
+    try {
+      localStorage.setItem('3d2048_daily_streak_v1', JSON.stringify(this.dailyStreakState));
+    } catch {}
+  }
+
+  initDailyStreakUI() {
+    if (this.dailyStreakBadgeEl) {
+      this.dailyStreakBadgeEl.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.openDailyStreakModal();
+      });
+      this.dailyStreakBadgeEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          this.openDailyStreakModal();
+        }
+      });
+    }
+
+    const modal = document.getElementById('daily-streak-modal');
+    const closeBtn = document.getElementById('daily-streak-modal-close');
+    const playBtn = document.getElementById('daily-streak-play-btn');
+    if (closeBtn) closeBtn.addEventListener('click', () => this.closeDailyStreakModal());
+    if (playBtn) playBtn.addEventListener('click', () => this.closeDailyStreakModal());
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) this.closeDailyStreakModal();
+      });
+    }
+
+    this.updateDailyStreakUI(false);
+  }
+
+  recordDailyMove() {
+    if (this.aiBot && this.aiBot.isRunning) return;
+    const DAILY_MOVE_GOAL = 5;
+    const today = this.getLocalDateKey();
+    const yesterday = this.getOffsetLocalDateKey(-1);
+    const st = this.dailyStreakState || this.loadDailyStreakState();
+    this.dailyStreakState = st;
+
+    if (st.lastMoveDate !== today) {
+      st.lastMoveDate = today;
+      st.todayMoves = 0;
+      st.todayCompleted = st.lastCompletedDate === today;
+      if (st.lastCompletedDate !== today && st.lastCompletedDate !== yesterday) {
+        st.currentStreak = 0;
+      }
+    }
+
+    st.todayMoves = (st.todayMoves || 0) + 1;
+    let justIgnited = false;
+
+    if (!st.todayCompleted && st.todayMoves >= DAILY_MOVE_GOAL) {
+      if (st.lastCompletedDate === yesterday) {
+        st.currentStreak = (st.currentStreak || 0) + 1;
+      } else if (st.lastCompletedDate !== today) {
+        st.currentStreak = 1;
+      }
+      st.todayCompleted = true;
+      st.lastCompletedDate = today;
+      st.bestStreak = Math.max(st.bestStreak || 0, st.currentStreak);
+      if (!st.historyDates.includes(today)) {
+        st.historyDates.push(today);
+        if (st.historyDates.length > 35) {
+          st.historyDates = st.historyDates.slice(-35);
+        }
+      }
+      justIgnited = true;
+    }
+
+    this.saveDailyStreakState();
+    this.updateDailyStreakUI(justIgnited);
+  }
+
+  updateDailyStreakUI(justIgnited = false) {
+    const DAILY_MOVE_GOAL = 5;
+    const st = this.dailyStreakState || this.loadDailyStreakState();
+    this.dailyStreakState = st;
+
+    const today = this.getLocalDateKey();
+    const yesterday = this.getOffsetLocalDateKey(-1);
+    const isLit = st.todayCompleted && st.lastCompletedDate === today;
+    const isPending = !isLit && st.lastCompletedDate === yesterday && (st.currentStreak || 0) > 0;
+    const displayCount = isLit ? (st.currentStreak || 1) : (isPending ? st.currentStreak : 0);
+
+    if (this.dailyStreakNumEl) {
+      this.dailyStreakNumEl.textContent = String(displayCount);
+    }
+    if (this.dailyStreakBadgeEl) {
+      this.dailyStreakBadgeEl.classList.toggle('is-lit', isLit);
+      this.dailyStreakBadgeEl.classList.toggle('is-pending', isPending);
+      this.dailyStreakBadgeEl.classList.toggle('is-unlit', !isLit && !isPending);
+    }
+
+    // Update modal content cleanly (even if closed, ready when opened)
+    const heroFlame = document.getElementById('daily-streak-hero-flame');
+    const heroCount = document.getElementById('daily-streak-hero-count');
+    const heroStatus = document.getElementById('daily-streak-hero-status');
+    const goalCount = document.getElementById('daily-streak-goal-count');
+    const goalFill = document.getElementById('daily-streak-goal-fill');
+    const weekGrid = document.getElementById('daily-streak-week-grid');
+    const bestRow = document.getElementById('daily-streak-best-row');
+
+    if (heroFlame) heroFlame.classList.toggle('lit', isLit);
+    if (heroCount) {
+      heroCount.textContent = (t('daily_streak_days_unit') || '{n} NGÀY').replace('{n}', displayCount);
+    }
+    if (heroStatus) {
+      const rem = Math.max(0, DAILY_MOVE_GOAL - (st.todayMoves || 0));
+      if (isLit) {
+        heroStatus.textContent = t('daily_streak_status_lit') || '✅ Đã giữ lửa hôm nay! Tuyệt vời!';
+      } else if (isPending) {
+        heroStatus.textContent = (t('daily_streak_status_pending') || '🔥 Còn {n} nước nữa để giữ chuỗi hôm nay!').replace('{n}', rem);
+      } else {
+        heroStatus.textContent = (t('daily_streak_status_zero') || '⚡ Thực hiện {n} nước đi hôm nay để thắp lửa!').replace('{n}', rem);
+      }
+    }
+    if (goalCount) {
+      const capped = Math.min(DAILY_MOVE_GOAL, st.todayMoves || 0);
+      goalCount.textContent = `${capped} / ${DAILY_MOVE_GOAL}`;
+    }
+    if (goalFill) {
+      const pct = Math.min(100, Math.round(((st.todayMoves || 0) / DAILY_MOVE_GOAL) * 100));
+      goalFill.style.width = `${pct}%`;
+    }
+    if (bestRow) {
+      bestRow.textContent = (t('daily_streak_best_label') || '🏆 Kỷ lục dài nhất: {n} ngày').replace('{n}', st.bestStreak || 0);
+    }
+    if (weekGrid) {
+      const lang = getCurrentLanguage() || 'vi';
+      const localeMap = { vi: 'vi-VN', en: 'en-US', ja: 'ja-JP', ko: 'ko-KR' };
+      const locale = localeMap[lang] || 'vi-VN';
+      weekGrid.innerHTML = '';
+      for (let offset = -6; offset <= 0; offset++) {
+        const dt = new Date();
+        dt.setDate(dt.getDate() + offset);
+        const key = this.getLocalDateKey(dt);
+        const isToday = offset === 0;
+        const doneDay = st.historyDates.includes(key) || (isToday && isLit);
+        let dayLabel = '';
+        try {
+          dayLabel = new Intl.DateTimeFormat(locale, { weekday: 'narrow' }).format(dt);
+        } catch {
+          dayLabel = String(dt.getDate());
+        }
+        const cell = document.createElement('div');
+        cell.className = `daily-week-cell${doneDay ? ' lit' : ''}${isToday ? ' today' : ''}`;
+        cell.innerHTML = `
+          <div class="daily-week-circle">${doneDay ? '🔥' : (isToday ? '•' : '')}</div>
+          <div class="daily-week-day">${dayLabel}</div>
+        `;
+        weekGrid.appendChild(cell);
+      }
+    }
+
+    if (justIgnited) {
+      soundManager.playFeverActivate();
+      if (this.dailyStreakBadgeEl) {
+        this.dailyStreakBadgeEl.classList.remove('streak-ignite-pop');
+        void this.dailyStreakBadgeEl.offsetWidth;
+        this.dailyStreakBadgeEl.classList.add('streak-ignite-pop');
+      }
+      const msg = (t('daily_streak_toast_lit') || '🔥 GIỮ CHUỖI THÀNH CÔNG: {n} NGÀY LIÊN TIẾP!').replace('{n}', st.currentStreak);
+      this.showSpellToast(msg);
+    }
+  }
+
+  openDailyStreakModal() {
+    this.updateDailyStreakUI(false);
+    const modal = document.getElementById('daily-streak-modal');
+    if (!modal) return;
+    modal.style.display = 'flex';
+    requestAnimationFrame(() => modal.classList.add('active'));
+    soundManager.playClick();
+  }
+
+  closeDailyStreakModal() {
+    const modal = document.getElementById('daily-streak-modal');
+    if (!modal) return;
+    modal.classList.remove('active');
+    setTimeout(() => {
+      if (!modal.classList.contains('active')) modal.style.display = 'none';
+    }, 200);
+    soundManager.playClick();
   }
 
   updateStreakFeverUI(justActivatedFever = false) {
@@ -2599,6 +2825,7 @@ class GameApp {
       'settings-modal',
       'welcome-modal',
       'trophy-modal',
+      'daily-streak-modal',
       'mode-confirm-modal',
       'share-modal',
       'boss-victory-modal',
@@ -2633,6 +2860,10 @@ class GameApp {
       const closeBtn = document.getElementById('trophy-modal-close');
       if (closeBtn) closeBtn.click();
       else document.getElementById('trophy-modal').style.display = 'none';
+      return true;
+    }
+    if (checkModal('daily-streak-modal')) {
+      this.closeDailyStreakModal();
       return true;
     }
     if (checkModal('mode-confirm-modal')) {
@@ -2814,7 +3045,7 @@ class GameApp {
       }
       this.updateScoreUI();
       this.updateSpellUI();
-      this.updateNextTileUI();
+      this.updateDailyStreakUI();
       this.updateStreakFeverUI();
       this.updateDangerState();
       this.showSpellToast(t('toast_restore_saved'));
@@ -3327,7 +3558,7 @@ class GameApp {
     // Spawn 2 initial tiles with staggered brick drop
     this.spawnTile(0);
     this.spawnTile(0.09);
-    this.updateNextTileUI();
+    this.updateDailyStreakUI();
     this.updateStreakFeverUI();
     this.updateDangerState();
 
@@ -3360,7 +3591,6 @@ class GameApp {
     if (isBomb) {
       soundManager.playBombTick();
     }
-    this.updateNextTileUI();
     if (this.questManager) {
       this.questManager.recordTileDiscovery(isWildcard ? 'wildcard' : (isBomb ? 'bomb' : value));
     }
@@ -4314,7 +4544,7 @@ class GameApp {
     // Check game over right after the new tile has been placed on the grid
     const isGameOver = !this.gameLogic.hasValidMoves();
     this.gameLogic.gameOver = isGameOver;
-    this.updateNextTileUI();
+    this.recordDailyMove();
     this.updateDangerState();
 
     if (result.won && !this.isBossRaid) {
@@ -4871,7 +5101,7 @@ class GameApp {
       }
       this.updateScoreUI();
       this.updateSpellUI();
-      this.updateNextTileUI();
+      this.updateDailyStreakUI();
       this.updateStreakFeverUI();
       this.updateDangerState();
       this.showSpellToast(t('spell_undo_done_toast') || '↩️ Đã hoàn tác nước đi vừa rồi!');

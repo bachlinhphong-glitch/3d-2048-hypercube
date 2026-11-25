@@ -51,18 +51,18 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./src/style.css?v=6.8.77">
+  <link rel="stylesheet" href="./src/style.css?v=6.8.78">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=6.8.77').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=6.8.78').then(reg => {
           reg.update();
         }).catch(() => {});
       });
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         try {
-          if (!sessionStorage.getItem('sw_reloaded_6877')) {
-            sessionStorage.setItem('sw_reloaded_6877', '1');
+          if (!sessionStorage.getItem('sw_reloaded_6878')) {
+            sessionStorage.setItem('sw_reloaded_6878', '1');
             window.location.reload();
           }
         } catch {}
@@ -99,9 +99,12 @@
           <div class="stat-label" data-i18n="best">TOP</div>
           <div class="stat-value" id="best-val">0</div>
         </div>
-        <div class="stat-pill next-tile" id="next-tile-badge" data-i18n-title="next_tile_tooltip" title="Khối sắp rơi tiếp theo">
-          <div class="stat-label" data-i18n="next_tile_label">TIẾP</div>
-          <div class="next-tile-chip" id="next-tile-val">2</div>
+        <div class="stat-pill daily-streak-pill is-unlit" id="daily-streak-badge" role="button" tabindex="0" data-i18n-title="daily_streak_tooltip" title="Chuỗi ngày chơi liên tiếp (Duolingo Streak)">
+          <div class="stat-label" data-i18n="daily_streak_label">CHUỖI</div>
+          <div class="daily-streak-chip" id="daily-streak-chip">
+            <span class="daily-streak-flame" aria-hidden="true">🔥</span>
+            <span id="daily-streak-num">0</span>
+          </div>
         </div>
       </div>
 
@@ -773,6 +776,33 @@
     <div id="trophy-confetti-container" class="trophy-confetti-container"></div>
   </div>
 
+  <!-- Duolingo-Style Daily Streak Modal -->
+  <div id="daily-streak-modal" class="daily-streak-modal-overlay" style="display: none;">
+    <div class="daily-streak-modal-card">
+      <div class="daily-streak-modal-header">
+        <span class="daily-streak-modal-title" data-i18n="daily_streak_modal_title">CHUỖI NGÀY DUOLINGO</span>
+        <button id="daily-streak-modal-close" class="settings-close-btn" aria-label="Đóng"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2 2L12 12M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+      </div>
+      <div class="daily-streak-hero">
+        <div id="daily-streak-hero-flame" class="daily-streak-hero-flame">🔥</div>
+        <div id="daily-streak-hero-count" class="daily-streak-hero-count">0 NGÀY</div>
+        <div id="daily-streak-hero-status" class="daily-streak-hero-status">⚡ Thực hiện 5 nước đi hôm nay để thắp lửa!</div>
+      </div>
+      <div class="daily-streak-goal-box">
+        <div class="daily-streak-goal-row">
+          <span data-i18n="daily_streak_goal_label">Mục tiêu giữ lửa hôm nay</span>
+          <span id="daily-streak-goal-count">0 / 5</span>
+        </div>
+        <div class="trophy-progress-track">
+          <div id="daily-streak-goal-fill" class="daily-streak-goal-fill" style="width: 0%;"></div>
+        </div>
+      </div>
+      <div id="daily-streak-week-grid" class="daily-streak-week-grid"></div>
+      <div id="daily-streak-best-row" class="daily-streak-best-row">🏆 Kỷ lục dài nhất: 0 ngày</div>
+      <button id="daily-streak-play-btn" class="modal-btn primary daily-streak-play-btn" data-i18n="daily_streak_btn_close">Tiếp Tục Chơi</button>
+    </div>
+  </div>
+
   <!-- Welcome & Introduction Onboarding Modal -->
   <div id="welcome-modal" class="welcome-modal-overlay" style="display: none;">
     <div class="welcome-modal-card">
@@ -1397,6 +1427,6 @@
   </div>
 
   <!-- Main Game Script -->
-  <script type="module" src="./src/main.js?v=6.8.77"></script>
+  <script type="module" src="./src/main.js?v=6.8.78"></script>
 </body>
 </html>
