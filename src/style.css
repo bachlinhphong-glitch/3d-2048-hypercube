@@ -50,11 +50,13 @@ html, body {
   min-height: 100dvh;
   overflow: hidden;
   background-color: var(--bg-color);
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', 'Be Vietnam Pro', Roboto, Helvetica, Arial, sans-serif;
   color: var(--text-main);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
+  text-rendering: auto;
+  letter-spacing: 0.01em;
+  word-spacing: 0.06em;
   touch-action: none;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -73,12 +75,13 @@ textarea,
 .glass-btn,
 .glass-select,
 .shape-quick-select {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Plus Jakarta Sans', Helvetica, Arial, sans-serif !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', 'Be Vietnam Pro', Roboto, Helvetica, Arial, sans-serif !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
+  text-rendering: auto;
   font-kerning: normal;
-  letter-spacing: 0.25px;
+  letter-spacing: 0.015em;
+  word-spacing: 0.06em;
 }
 
 .btn-text {
@@ -498,7 +501,7 @@ body.tile-grabbing *,
 .glass-select option {
   background-color: #0d1117;
   color: #f0f6fc;
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', 'Be Vietnam Pro', Roboto, Helvetica, Arial, sans-serif !important;
   font-size: 13px;
   font-weight: 600;
   padding: 8px 10px;
@@ -856,11 +859,13 @@ body.tile-grabbing *,
 .trophy-status-pill {
   font-size: 11px;
   font-weight: 800;
-  letter-spacing: 0.5px;
-  padding: 5px 12px;
+  letter-spacing: 0.04em;
+  word-spacing: 0.12em;
+  padding: 5px 14px;
   border-radius: 20px;
   text-transform: uppercase;
   margin-bottom: 8px;
+  text-align: center;
 }
 
 .trophy-status-pill.locked {
@@ -892,17 +897,20 @@ body.tile-grabbing *,
 
 .trophy-3d-viewport {
   width: 100%;
-  height: 290px;
-  border-radius: 12px;
+  height: 300px;
+  border-radius: 14px;
   overflow: hidden;
   touch-action: none;
 }
 
 .trophy-interaction-hint {
-  font-size: 10px;
-  color: #64748b;
+  font-size: 11px;
+  color: #94a3b8;
   margin: 6px 0 10px;
   font-style: italic;
+  letter-spacing: 0.015em;
+  word-spacing: 0.06em;
+  text-align: center;
 }
 
 .trophy-stage-actions {
@@ -914,20 +922,25 @@ body.tile-grabbing *,
 }
 
 .glass-btn.trophy-btn {
-  background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 140, 0, 0.2));
-  border: 1px solid rgba(255, 215, 0, 0.5);
-  color: #fffae0;
-  padding: 7px 16px;
-  font-size: 12px;
-  font-weight: 700;
-  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 140, 0, 0.2)) !important;
+  border: 1px solid rgba(255, 215, 0, 0.5) !important;
+  color: #fffae0 !important;
+  padding: 9px 16px !important;
+  font-size: 12.5px !important;
+  font-weight: 700 !important;
+  text-transform: none !important;
+  letter-spacing: 0.02em !important;
+  word-spacing: 0.08em !important;
+  border-radius: 12px !important;
   width: 100%;
+  justify-content: center;
+  gap: 8px !important;
 }
 
 .glass-btn.trophy-btn:hover {
-  background: linear-gradient(135deg, #ffd700, #ff8800);
-  color: #000;
-  box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+  background: linear-gradient(135deg, #ffd700, #ff8800) !important;
+  color: #0f172a !important;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.6) !important;
 }
 
 .overdrive-unlock-btn {
@@ -936,13 +949,15 @@ body.tile-grabbing *,
   border-radius: 12px;
   font-size: 11.5px;
   font-weight: 800;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.03em;
+  word-spacing: 0.12em;
+  line-height: 1.45;
   text-align: center;
   transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   align-items: center;
   justify-content: center;
-  text-transform: uppercase;
+  text-transform: none;
   user-select: none;
   border: 1.5px solid transparent;
 }
@@ -3061,7 +3076,8 @@ body.theme-zen_clay .entrance-toast-sub {
 .settings-title {
   font-size: 18px;
   font-weight: 800;
-  letter-spacing: -0.3px;
+  letter-spacing: 0.01em;
+  word-spacing: 0.06em;
   background: linear-gradient(135deg, #ffffff 40%, var(--accent-gold) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -4441,7 +4457,7 @@ body.in-boss-mode #demo-theme-switcher {
     background-position: right 4px center;
     background-size: 8px 8px;
     text-overflow: ellipsis;
-    letter-spacing: -0.2px;
+    letter-spacing: 0.01em;
   }
 
   .header-modes-cluster .glass-btn {
@@ -4696,7 +4712,7 @@ body.in-boss-mode #demo-theme-switcher {
     padding: 2px 14px 2px 21px;
     background-position: right 4px center;
     background-size: 8px 8px;
-    letter-spacing: -0.2px;
+    letter-spacing: 0.01em;
   }
 
   .header-modes-cluster .glass-btn {
@@ -7329,13 +7345,15 @@ body.in-app-browser .spell-bar {
    Liquid Glass • Dynamic Island • iOS Sheet Modals • San Francisco Typography
    ========================================================================== */
 
-/* Universal San Francisco Typography & Smooth Antialiasing */
+/* Universal Clean Typography & Crisp Vietnamese Spacing */
 html, body, button, select, input, textarea, .glass-btn, .glass-select, .shape-quick-select {
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", "Plus Jakarta Sans", system-ui, sans-serif !important;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", "Be Vietnam Pro", Roboto, Arial, sans-serif !important;
   -webkit-font-smoothing: antialiased !important;
   -moz-osx-font-smoothing: grayscale !important;
-  text-rendering: optimizeLegibility !important;
-  letter-spacing: -0.01em;
+  text-rendering: auto !important;
+  font-kerning: normal !important;
+  letter-spacing: 0.015em;
+  word-spacing: 0.06em;
 }
 
 /* 1. Header Bar: Apple Floating Dynamic Island & Navigation Bar */
@@ -7691,11 +7709,38 @@ body.theme-zen_clay #mode-confirm-close:hover {
   background: transparent !important;
   border: none !important;
   border-radius: 9999px !important;
-  padding: 6px 16px !important;
+  padding: 7px 14px !important;
   font-size: 13px !important;
   font-weight: 600 !important;
-  color: rgba(235, 235, 245, 0.7) !important;
+  letter-spacing: 0.015em !important;
+  word-spacing: 0.06em !important;
+  color: rgba(235, 235, 245, 0.74) !important;
   transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1) !important;
+}
+
+.trophy-tab-btn[data-tab="tilepedia"].active,
+#trophy-tab-tilepedia.active {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(99, 102, 241, 0.22)) !important;
+  border: 1px solid rgba(56, 189, 248, 0.7) !important;
+  color: #e0f2fe !important;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.35) !important;
+}
+
+@media (max-width: 640px) {
+  .trophy-tabs-nav {
+    border-radius: 16px !important;
+    padding: 4px !important;
+    gap: 4px !important;
+  }
+  .trophy-tab-btn {
+    border-radius: 12px !important;
+    padding: 6px 6px !important;
+    font-size: 11px !important;
+    line-height: 1.25 !important;
+    gap: 4px !important;
+    flex-direction: column;
+    text-align: center;
+  }
 }
 
 .welcome-lang-btn.active {
@@ -8101,7 +8146,7 @@ optgroup option,
 .settings-select option {
   background-color: #161b22 !important;
   color: #f0f6fc !important;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Plus Jakarta Sans', sans-serif !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', 'Be Vietnam Pro', Roboto, sans-serif !important;
   font-size: 13px !important;
   font-weight: 500 !important;
   padding: 8px 12px !important;
@@ -9829,7 +9874,8 @@ body.theme-gentle_light .stat-pill.daily-streak-pill.is-lit .daily-streak-chip {
 .daily-streak-modal-title {
   font-size: 16px;
   font-weight: 800;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.03em;
+  word-spacing: 0.1em;
   background: linear-gradient(135deg, #fb923c, #fbbf24);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -10184,13 +10230,29 @@ body.theme-gentle_light #modal-btn-copy-emoji {
 
 /* 5. Tilepedia (3D Block Museum) inside Trophy Modal */
 .trophy-modal-body.tilepedia-full-view .trophy-3d-stage {
+  display: flex !important;
+  background: radial-gradient(ellipse at 50% 42%, rgba(56, 189, 248, 0.16) 0%, rgba(30, 41, 59, 0.42) 48%, rgba(6, 10, 20, 0.94) 100%);
+  border-color: rgba(56, 189, 248, 0.38);
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.65), 0 12px 32px rgba(0, 0, 0, 0.4), 0 0 24px rgba(56, 189, 248, 0.14);
+}
+
+.trophy-modal-body.tilepedia-full-view .trophy-stage-actions {
   display: none !important;
 }
 
-.trophy-modal-body.tilepedia-full-view .trophy-tilepedia-pane {
-  width: 100% !important;
-  max-width: 100% !important;
-  flex: 1 1 100% !important;
+.trophy-modal-body.tilepedia-full-view .trophy-3d-viewport {
+  height: 360px;
+}
+
+.trophy-modal-body.tilepedia-full-view .trophy-interaction-hint {
+  margin: 8px 0 2px;
+  color: #7dd3fc;
+}
+
+@media (max-width: 768px) {
+  .trophy-modal-body.tilepedia-full-view .trophy-3d-viewport {
+    height: 205px;
+  }
 }
 
 .trophy-tilepedia-pane {
@@ -10205,90 +10267,57 @@ body.theme-gentle_light #modal-btn-copy-emoji {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.62);
+  border: 1px solid rgba(148, 163, 184, 0.18);
 }
 
-.tilepedia-progress-label {
-  font-size: 13px;
-  font-weight: 700;
-  color: rgba(241, 245, 249, 0.9);
-}
-
-.tilepedia-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+.tilepedia-progress-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 8px;
 }
 
-.tilepedia-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  padding: 8px 6px;
-  border-radius: 12px;
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  background: rgba(15, 23, 42, 0.65);
-  cursor: pointer;
-  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-.tilepedia-item:hover {
-  transform: translateY(-2px);
-  border-color: rgba(56, 189, 248, 0.6);
-}
-
-.tilepedia-item.selected {
-  border-color: #fbbf24;
-  box-shadow: 0 0 12px rgba(251, 191, 36, 0.35);
-}
-
-.tilepedia-item.locked {
-  opacity: 0.65;
-}
-
-.tilepedia-swatch {
-  width: 100%;
-  height: 40px;
-  border-radius: 9px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 15px;
-  font-weight: 900;
-  color: #94a3b8;
-  background: rgba(51, 65, 85, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-.tilepedia-item-meta {
-  font-size: 11px;
+.tilepedia-progress-label {
+  font-size: 12.5px;
   font-weight: 700;
-  color: #cbd5e1;
+  color: rgba(241, 245, 249, 0.92);
 }
 
 .tilepedia-detail-card {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  border-radius: 14px;
-  background: rgba(15, 23, 42, 0.78);
+  gap: 14px;
+  padding: 13px 15px;
+  border-radius: 16px;
+  background: linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(22, 30, 50, 0.85));
   border: 1px solid rgba(148, 163, 184, 0.28);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 8px 20px rgba(0, 0, 0, 0.28);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
+
+.tilepedia-detail-card[data-tier="tilepedia_tier_rare"] { border-color: rgba(251, 146, 60, 0.42); }
+.tilepedia-detail-card[data-tier="tilepedia_tier_epic"] { border-color: rgba(167, 139, 250, 0.45); }
+.tilepedia-detail-card[data-tier="tilepedia_tier_mythic"] { border-color: rgba(251, 191, 36, 0.55); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 8px 24px rgba(245, 158, 11, 0.15); }
+.tilepedia-detail-card[data-tier="tilepedia_tier_special"] { border-color: rgba(56, 189, 248, 0.5); }
 
 .tilepedia-detail-swatch {
   flex-shrink: 0;
-  width: 56px;
-  height: 56px;
-  border-radius: 12px;
+  width: 60px;
+  height: 60px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 18px;
   font-weight: 900;
   color: #94a3b8;
-  background: rgba(51, 65, 85, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(51, 65, 85, 0.65);
+  border: 1.5px solid rgba(255, 255, 255, 0.24);
+  box-shadow: inset 0 2px 3px rgba(255, 255, 255, 0.38), inset 0 -4px 8px rgba(0, 0, 0, 0.35), 0 6px 14px rgba(0, 0, 0, 0.4);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.45);
 }
 
 .tilepedia-detail-info {
@@ -10301,11 +10330,12 @@ body.theme-gentle_light #modal-btn-copy-emoji {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  margin-bottom: 4px;
+  margin-bottom: 5px;
+  flex-wrap: wrap;
 }
 
 .tilepedia-detail-name {
-  font-size: 16px;
+  font-size: 15.5px;
   font-weight: 800;
   color: #f8fafc;
 }
@@ -10313,78 +10343,197 @@ body.theme-gentle_light #modal-btn-copy-emoji {
 .tilepedia-detail-tier {
   font-size: 11px;
   font-weight: 700;
-  padding: 2px 8px;
+  padding: 3px 9px;
   border-radius: 999px;
   background: rgba(56, 189, 248, 0.18);
   color: #7dd3fc;
+  border: 1px solid rgba(56, 189, 248, 0.32);
 }
+
+.tilepedia-detail-card[data-tier="tilepedia_tier_rare"] .tilepedia-detail-tier { background: rgba(249, 115, 22, 0.2); color: #fdba74; border-color: rgba(249, 115, 22, 0.35); }
+.tilepedia-detail-card[data-tier="tilepedia_tier_epic"] .tilepedia-detail-tier { background: rgba(139, 92, 246, 0.22); color: #ddd6fe; border-color: rgba(139, 92, 246, 0.4); }
+.tilepedia-detail-card[data-tier="tilepedia_tier_mythic"] .tilepedia-detail-tier { background: rgba(245, 158, 11, 0.22); color: #fde68a; border-color: rgba(251, 191, 36, 0.45); }
+.tilepedia-detail-card[data-tier="tilepedia_tier_special"] .tilepedia-detail-tier { background: rgba(236, 72, 153, 0.22); color: #fbcfe8; border-color: rgba(236, 72, 153, 0.42); }
 
 .tilepedia-detail-desc {
   margin: 0;
   font-size: 12.5px;
-  line-height: 1.45;
+  line-height: 1.5;
   color: #cbd5e1;
 }
 
 .tilepedia-detail-count {
-  margin-top: 5px;
-  font-size: 11.5px;
+  display: inline-flex;
+  align-items: center;
+  margin-top: 7px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: rgba(251, 191, 36, 0.14);
+  border: 1px solid rgba(251, 191, 36, 0.32);
+  font-size: 11px;
   font-weight: 700;
-  color: #fbbf24;
+  color: #fde047;
+}
+
+.tilepedia-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.tilepedia-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 7px 7px;
+  border-radius: 13px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: linear-gradient(180deg, rgba(24, 33, 52, 0.82), rgba(12, 18, 32, 0.92));
+  cursor: pointer;
+  transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+}
+
+.tilepedia-item:hover {
+  transform: translateY(-2px);
+  border-color: rgba(56, 189, 248, 0.65);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
+}
+
+.tilepedia-item.selected {
+  border-color: #fbbf24;
+  background: linear-gradient(180deg, rgba(48, 38, 18, 0.65), rgba(20, 26, 44, 0.95));
+  box-shadow: 0 0 0 1px rgba(251, 191, 36, 0.45), 0 0 16px rgba(251, 191, 36, 0.3);
+  transform: translateY(-2px);
+}
+
+.tilepedia-item.locked {
+  opacity: 0.72;
+}
+
+.tilepedia-swatch {
+  position: relative;
+  width: 100%;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 900;
+  color: #94a3b8;
+  background: rgba(51, 65, 85, 0.58);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: inset 0 2px 2px rgba(255, 255, 255, 0.32), inset 0 -3px 6px rgba(0, 0, 0, 0.35), 0 3px 8px rgba(0, 0, 0, 0.35);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+
+.tilepedia-swatch::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0) 48%);
+  pointer-events: none;
+}
+
+.tilepedia-item-meta {
+  font-size: 11px;
+  font-weight: 700;
+  color: #cbd5e1;
+  line-height: 1;
 }
 
 /* Gentle Light overrides for Tilepedia */
+body.theme-gentle_light .trophy-modal-body.tilepedia-full-view .trophy-3d-stage,
+body.theme-zen_clay .trophy-modal-body.tilepedia-full-view .trophy-3d-stage {
+  background: radial-gradient(ellipse at 50% 42%, rgba(56, 189, 248, 0.14) 0%, rgba(226, 232, 240, 0.6) 55%, rgba(241, 245, 249, 0.95) 100%);
+  border-color: rgba(14, 165, 233, 0.35);
+  box-shadow: inset 0 0 30px rgba(148, 163, 184, 0.2), 0 8px 20px rgba(15, 23, 42, 0.08);
+}
+
+body.theme-gentle_light .trophy-modal-body.tilepedia-full-view .trophy-interaction-hint,
+body.theme-zen_clay .trophy-modal-body.tilepedia-full-view .trophy-interaction-hint {
+  color: #0369a1;
+}
+
 body.theme-gentle_light .trophy-tab-btn[data-tab="tilepedia"].active,
-body.theme-gentle_light #trophy-tab-tilepedia.active {
+body.theme-gentle_light #trophy-tab-tilepedia.active,
+body.theme-zen_clay .trophy-tab-btn[data-tab="tilepedia"].active,
+body.theme-zen_clay #trophy-tab-tilepedia.active {
   color: #0369a1 !important;
   background: #e0f2fe !important;
   border-color: #38bdf8 !important;
 }
 
-body.theme-gentle_light .tilepedia-progress-label {
-  color: #1e293b !important;
-}
-
-body.theme-gentle_light .tilepedia-item {
-  background: #f8fafc !important;
+body.theme-gentle_light .tilepedia-progress-row,
+body.theme-zen_clay .tilepedia-progress-row {
+  background: #f1f5f9 !important;
   border-color: #cbd5e1 !important;
 }
 
-body.theme-gentle_light .tilepedia-item.selected {
+body.theme-gentle_light .tilepedia-progress-label,
+body.theme-zen_clay .tilepedia-progress-label {
+  color: #1e293b !important;
+}
+
+body.theme-gentle_light .tilepedia-item,
+body.theme-zen_clay .tilepedia-item {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+body.theme-gentle_light .tilepedia-item.selected,
+body.theme-zen_clay .tilepedia-item.selected {
   border-color: #d97706 !important;
   background: #fffbeb !important;
+  box-shadow: 0 0 0 1px rgba(217, 119, 6, 0.4), 0 6px 14px rgba(217, 119, 6, 0.16) !important;
 }
 
 body.theme-gentle_light .tilepedia-item.locked .tilepedia-swatch,
 body.theme-gentle_light .tilepedia-detail-swatch:empty,
-body.theme-gentle_light .tilepedia-detail-swatch {
+body.theme-gentle_light .tilepedia-detail-swatch,
+body.theme-zen_clay .tilepedia-item.locked .tilepedia-swatch,
+body.theme-zen_clay .tilepedia-detail-swatch:empty,
+body.theme-zen_clay .tilepedia-detail-swatch {
   color: #64748b;
   background: #e2e8f0;
   border-color: #cbd5e1;
 }
 
-body.theme-gentle_light .tilepedia-item-meta {
+body.theme-gentle_light .tilepedia-item-meta,
+body.theme-zen_clay .tilepedia-item-meta {
   color: #475569 !important;
 }
 
-body.theme-gentle_light .tilepedia-detail-card {
-  background: #f8fafc !important;
+body.theme-gentle_light .tilepedia-detail-card,
+body.theme-zen_clay .tilepedia-detail-card {
+  background: #ffffff !important;
   border-color: #cbd5e1 !important;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06) !important;
 }
 
-body.theme-gentle_light .tilepedia-detail-name {
+body.theme-gentle_light .tilepedia-detail-name,
+body.theme-zen_clay .tilepedia-detail-name {
   color: #0f172a !important;
 }
 
-body.theme-gentle_light .tilepedia-detail-tier {
+body.theme-gentle_light .tilepedia-detail-tier,
+body.theme-zen_clay .tilepedia-detail-tier {
   background: #e0f2fe !important;
   color: #0369a1 !important;
+  border-color: #7dd3fc !important;
 }
 
-body.theme-gentle_light .tilepedia-detail-desc {
+body.theme-gentle_light .tilepedia-detail-desc,
+body.theme-zen_clay .tilepedia-detail-desc {
   color: #334155 !important;
 }
 
-body.theme-gentle_light .tilepedia-detail-count {
+body.theme-gentle_light .tilepedia-detail-count,
+body.theme-zen_clay .tilepedia-detail-count {
+  background: #fef3c7 !important;
+  border-color: #fcd34d !important;
   color: #b45309 !important;
 }

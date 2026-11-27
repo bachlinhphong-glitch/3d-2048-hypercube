@@ -49,20 +49,20 @@
   <!-- High Performance Typography with 100% Vietnamese Diacritics Support -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./src/style.css?v=6.8.79">
+  <link rel="stylesheet" href="./src/style.css?v=6.8.80">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=6.8.79').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=6.8.80').then(reg => {
           reg.update();
         }).catch(() => {});
       });
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         try {
-          if (!sessionStorage.getItem('sw_reloaded_6879')) {
-            sessionStorage.setItem('sw_reloaded_6879', '1');
+          if (!sessionStorage.getItem('sw_reloaded_6880')) {
+            sessionStorage.setItem('sw_reloaded_6880', '1');
             window.location.reload();
           }
         } catch {}
@@ -668,20 +668,20 @@
             <path d="M4 3h16v6a8 8 0 0 1-16 0V3z"></path>
             <path d="M12 17v4"></path><path d="M8 21h8"></path>
           </svg>
-          <span data-i18n="trophy_tab_c1">🏆 Cúp Bậc Thầy</span>
+          <span data-i18n="trophy_tab_c1">Cúp Bậc Thầy</span>
         </button>
         <button id="trophy-tab-boss" class="trophy-tab-btn" data-tab="boss">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tab-svg">
             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
           </svg>
-          <span data-i18n="trophy_tab_boss">⚡ Cúp Chinh Phục Boss</span>
+          <span data-i18n="trophy_tab_boss">Cúp Chinh Phục Boss</span>
         </button>
         <button id="trophy-tab-tilepedia" class="trophy-tab-btn" data-tab="tilepedia">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tab-svg">
             <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
             <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
           </svg>
-          <span data-i18n="trophy_tab_tilepedia">📘 Bảo Tàng Khối</span>
+          <span data-i18n="trophy_tab_tilepedia">Bảo Tàng Khối</span>
         </button>
       </div>
 
@@ -696,7 +696,7 @@
         <div class="trophy-3d-stage">
           <div id="trophy-status-pill" class="trophy-status-pill locked" data-i18n="trophy_locked_remaining">KHÓA — CÒN 7 NHIỆM VỤ</div>
           <div id="trophy-3d-viewport" class="trophy-3d-viewport"></div>
-          <div class="trophy-interaction-hint" data-i18n="trophy_drag_hint">Giữ chuột hoặc vuốt để xoay cúp 360°</div>
+          <div id="trophy-interaction-hint" class="trophy-interaction-hint" data-i18n="trophy_drag_hint">Giữ chuột hoặc vuốt để xoay cúp 360°</div>
           <div class="trophy-stage-actions">
             <button id="trophy-celebrate-btn" class="glass-btn trophy-btn">
               <svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.2L21.6 12l-7.2 2.4L12 21.6l-2.4-7.2L2.4 12l7.2-2.4z"/></svg>

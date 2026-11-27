@@ -267,8 +267,15 @@ export class QuestManager {
     if (bossPane) bossPane.style.display = tab === 'boss' ? 'block' : 'none';
     if (tilepediaPane) tilepediaPane.style.display = tab === 'tilepedia' ? 'flex' : 'none';
 
+    const hintEl = document.getElementById('trophy-interaction-hint');
+    if (hintEl) {
+      hintEl.textContent = tab === 'tilepedia'
+        ? (t('tilepedia_rotate_hint') || 'Giữ chuột hoặc vuốt để xoay khối 360°')
+        : (t('trophy_drag_hint') || 'Giữ chuột hoặc vuốt để xoay cúp 360°');
+    }
+
     if (tab === 'boss') {
-      if (celebrateLabel) celebrateLabel.textContent = t('trophy_celebrate_boss_btn') || 'Bắn Pháo Lửa Diệt Trùm';
+      if (celebrateLabel) celebrateLabel.textContent = t('trophy_celebrate_boss_btn') || 'Bắn Pháo Sáng Lõi Boss';
 
       // Update boss status details
       this.updateBossStatsTexts();
@@ -300,11 +307,17 @@ export class QuestManager {
     this.updateStatusPill();
 
     // Update 3D Viewer Mesh & Lighting when visible
-    if (this.trophyViewer && tab !== 'tilepedia') {
-      this.trophyViewer.setTrophyType(this.currentTab, {
-        c1: this.isAllCompleted(),
-        boss: this.isBossDefeated()
-      });
+    if (this.trophyViewer) {
+      if (tab === 'tilepedia') {
+        const activeEntry = TILEPEDIA_CATALOG.find(e => e.key === this.selectedTilepediaKey) || TILEPEDIA_CATALOG[0];
+        const unlocked = (this.tilepedia.counts[activeEntry.key] || 0) > 0;
+        this.trophyViewer.setTileExhibit(activeEntry.key, unlocked);
+      } else {
+        this.trophyViewer.setTrophyType(this.currentTab, {
+          c1: this.isAllCompleted(),
+          boss: this.isBossDefeated()
+        });
+      }
       setTimeout(() => {
         if (this.trophyViewer) this.trophyViewer.resize();
       }, 30);
@@ -423,20 +436,31 @@ export class QuestManager {
       const countText = unlocked
         ? (t('tilepedia_merges_count') || 'Số lần tạo / gộp: ×{count}').replace('{count}', count.toLocaleString())
         : '';
+      const blockTitle = unlocked
+        ? (t('tilepedia_block_name') || 'Khối {label}').replace('{label}', activeEntry.label)
+        : (t('tilepedia_locked_title') || 'Khối Bí Ẩn');
 
+      detail.dataset.tier = unlocked ? activeEntry.tierKey : 'locked';
       detail.innerHTML = `
         <div class="tilepedia-detail-swatch" style="${unlocked ? `background: ${activeEntry.bg}; color: ${activeEntry.color};` : ''}">
           ${unlocked ? activeEntry.label : '???'}
         </div>
         <div class="tilepedia-detail-info">
           <div class="tilepedia-detail-top">
-            <span class="tilepedia-detail-name">${unlocked ? activeEntry.label : (t('tilepedia_locked_title') || 'Khối Bí Ẩn')}</span>
+            <span class="tilepedia-detail-name">${blockTitle}</span>
             <span class="tilepedia-detail-tier">${unlocked ? tierText : '🔒'}</span>
           </div>
           <p class="tilepedia-detail-desc">${unlocked ? (t(activeEntry.descKey) || '') : (t('tilepedia_locked_hint') || '')}</p>
           ${countText ? `<div class="tilepedia-detail-count">${countText}</div>` : ''}
         </div>
       `;
+
+      if (this.currentTab === 'tilepedia') {
+        this.updateStatusPill();
+        if (this.trophyViewer) {
+          this.trophyViewer.setTileExhibit(activeEntry.key, unlocked);
+        }
+      }
     }
   }
 
@@ -445,11 +469,16 @@ export class QuestManager {
     if (!statusEl) return;
 
     if (this.currentTab === 'tilepedia') {
-      const { discovered, total } = this.getTilepediaProgress();
-      statusEl.className = 'trophy-status-pill unlocked';
-      statusEl.textContent = (t('tilepedia_status_unlocked') || '📘 BẢO TÀNG KHỐI 3D — ĐÃ KHAI PHÁ {done}/{total}')
-        .replace('{done}', discovered)
-        .replace('{total}', total);
+      const activeEntry = TILEPEDIA_CATALOG.find(e => e.key === this.selectedTilepediaKey) || TILEPEDIA_CATALOG[0];
+      const unlocked = (this.tilepedia.counts[activeEntry.key] || 0) > 0;
+      if (unlocked) {
+        statusEl.className = 'trophy-status-pill unlocked';
+        statusEl.textContent = (t('tilepedia_item_unlocked_pill') || '📘 ĐÃ KHAI PHÁ • KHỐI {label}')
+          .replace('{label}', activeEntry.label);
+      } else {
+        statusEl.className = 'trophy-status-pill locked';
+        statusEl.textContent = t('tilepedia_item_locked_pill') || '🔒 CHƯA KHAI PHÁ • KHỐI BÍ ẨN';
+      }
     } else if (this.currentTab === 'boss') {
       const isDefeated = this.isBossDefeated();
       if (isDefeated) {
