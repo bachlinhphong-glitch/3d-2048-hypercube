@@ -51,18 +51,18 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./src/style.css?v=6.8.82">
+  <link rel="stylesheet" href="./src/style.css?v=6.8.83">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=6.8.82').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=6.8.83').then(reg => {
           reg.update();
         }).catch(() => {});
       });
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         try {
-          if (!sessionStorage.getItem('sw_reloaded_6882')) {
-            sessionStorage.setItem('sw_reloaded_6882', '1');
+          if (!sessionStorage.getItem('sw_reloaded_6883')) {
+            sessionStorage.setItem('sw_reloaded_6883', '1');
             window.location.reload();
           }
         } catch {}

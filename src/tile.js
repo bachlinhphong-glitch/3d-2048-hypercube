@@ -290,9 +290,9 @@ function getSharedSculptedHex() {
 
 function getSharedPortalNexus() {
   if (!sharedGeos.portalRingOuter) {
-    sharedGeos.portalRingOuter = new THREE.TorusGeometry(1.08, 0.065, 8, 24);
-    sharedGeos.portalRingInner = new THREE.TorusGeometry(0.76, 0.045, 8, 20);
-    sharedGeos.portalBead = new THREE.SphereGeometry(0.12, 8, 8);
+    sharedGeos.portalRingOuter = new THREE.TorusGeometry(0.94, 0.044, 16, 64);
+    sharedGeos.portalRingInner = new THREE.TorusGeometry(0.70, 0.032, 14, 64);
+    sharedGeos.portalBead = new THREE.OctahedronGeometry(0.088, 0);
   }
   return {
     outerRing: sharedGeos.portalRingOuter,
@@ -310,22 +310,22 @@ function getSharedAsteroid() {
 
 function getSharedSaturnRing() {
   if (!sharedGeos.saturnRing) {
-    sharedGeos.saturnRing = new THREE.RingGeometry(1.15, 1.95, 32);
+    sharedGeos.saturnRing = new THREE.PlaneGeometry(2.0, 2.0);
   }
   return sharedGeos.saturnRing;
 }
 
 function getSharedPulsarRing() {
   if (!sharedGeos.pulsarRing) {
-    sharedGeos.pulsarRing = new THREE.TorusGeometry(1.22, 0.045, 8, 24);
+    sharedGeos.pulsarRing = new THREE.TorusGeometry(0.96, 0.026, 14, 64);
   }
   return sharedGeos.pulsarRing;
 }
 
 function getSharedBlackHoleDisk() {
   if (!sharedGeos.blackHoleDisk) {
-    sharedGeos.blackHoleDisk = new THREE.RingGeometry(0.95, 2.05, 36);
-    sharedGeos.einsteinRing = new THREE.TorusGeometry(1.68, 0.035, 8, 32);
+    sharedGeos.blackHoleDisk = new THREE.PlaneGeometry(2.0, 2.0);
+    sharedGeos.einsteinRing = new THREE.TorusGeometry(0.76, 0.024, 16, 64);
   }
   return { disk: sharedGeos.blackHoleDisk, einstein: sharedGeos.einsteinRing };
 }
@@ -880,135 +880,140 @@ export class Tile3D {
 
       this.addBillboardLabel(size, { sculpted: true, scaleFactor: 0.62 });
     } else if (effShape === 'portal_nexus') {
-      const radius = size * 0.50;
+      const radius = size * 0.49;
       const { outerRing, innerRing, bead } = getSharedPortalNexus();
-      const torusMat = textureManager.getTorusMaterial(this.value, this.isBomb);
+      const accentMat = textureManager.getSculptedAccentMaterial(this.value, this.isBomb, this.isWildcard);
+      const bodyMat = textureManager.getSculptedBodyMaterial(this.value, this.isBomb, this.isWildcard);
+      const nodeMat = textureManager.getSculptedNodeMaterial(this.value, this.isBomb, this.isWildcard);
 
       // Outer Portal Ring
-      const rOuter = new THREE.Mesh(outerRing, torusMat.clone());
+      const rOuter = new THREE.Mesh(outerRing, accentMat.clone());
       rOuter.scale.set(radius, radius, radius);
       rOuter.rotation.x = Math.PI / 2;
       this.decorGroup.add(rOuter);
       this.portalOuter = rOuter;
 
       // Inner Counter-Rotating Ring
-      const rInner = new THREE.Mesh(innerRing, torusMat.clone());
+      const rInner = new THREE.Mesh(innerRing, nodeMat.clone());
       rInner.scale.set(radius, radius, radius);
-      rInner.rotation.x = Math.PI / 2;
+      rInner.rotation.x = Math.PI / 2.6;
       this.decorGroup.add(rInner);
       this.portalInner = rInner;
 
-      // Central Energy Core Sphere
-      const sphereGeo = getSharedSphere();
-      const sphereMat = textureManager.getSphereMaterial(this.value, this.isBomb);
-      this.innerMesh = new THREE.Mesh(sphereGeo, sphereMat.clone());
-      this.innerMesh.scale.set(radius * 0.42, radius * 0.42, radius * 0.42);
+      // Mirror-Smooth Central Energy Core Sphere
+      const sphereGeo = getSharedSculptedSphere().orb;
+      this.innerMesh = new THREE.Mesh(sphereGeo, bodyMat.clone());
+      this.innerMesh.scale.set(radius * 0.65, radius * 0.65, radius * 0.65);
       this.group.add(this.innerMesh);
 
-      // 4 Orbiting Quantum Satellites (beads)
+      // 4 Orbiting Diamond Satellites
       this.portalBeadGroup = new THREE.Group();
       this.decorGroup.add(this.portalBeadGroup);
-      const beadMat = textureManager.getOctahedronCoreMaterial(this.value, this.isBomb);
       for (let b = 0; b < 4; b++) {
-        const beadMesh = new THREE.Mesh(bead, beadMat.clone());
+        const beadMesh = new THREE.Mesh(bead, nodeMat.clone());
+        beadMesh.scale.set(radius, radius, radius);
         const angle = (b * Math.PI) / 2;
-        const dist = radius * 0.92;
+        const dist = radius * 0.94;
         beadMesh.position.set(Math.cos(angle) * dist, 0, Math.sin(angle) * dist);
         this.portalBeadGroup.add(beadMesh);
       }
 
-      this.addBillboardLabel(size);
+      this.addBillboardLabel(size, { sculpted: true, scaleFactor: 0.58 });
     } else if (effShape === 'asteroid') {
-      const radius = size * 0.52;
+      const radius = size * 0.36;
       const geo = getSharedAsteroid();
       const mat = textureManager.getCelestialMaterial('asteroid', this.value);
       this.innerMesh = new THREE.Mesh(geo, mat.clone());
       this.innerMesh.scale.set(radius, radius, radius);
       this.group.add(this.innerMesh);
-      this.addBillboardLabel(size);
+      this.addBillboardLabel(size, { sculpted: true, scaleFactor: 0.60 });
     } else if (effShape === 'magma_planet') {
-      const radius = size * 0.50;
-      const geo = getSharedSphere();
+      const orbRadius = size * 0.48;
+      const geo = getSharedSculptedSphere().orb;
       const mat = textureManager.getCelestialMaterial('magma', this.value);
       this.innerMesh = new THREE.Mesh(geo, mat.clone());
-      this.innerMesh.scale.set(radius, radius, radius);
+      this.innerMesh.scale.set(orbRadius, orbRadius, orbRadius);
       this.group.add(this.innerMesh);
-      this.addBillboardLabel(size);
+      this.addBillboardLabel(size, { sculpted: true, scaleFactor: 0.58 });
     } else if (effShape === 'gas_giant') {
-      const radius = size * 0.52;
-      const geo = getSharedSphere();
+      const orbRadius = size * 0.50;
+      const geo = getSharedSculptedSphere().orb;
       const mat = textureManager.getCelestialMaterial('gas_giant', this.value);
       this.innerMesh = new THREE.Mesh(geo, mat.clone());
-      this.innerMesh.scale.set(radius, radius, radius);
+      this.innerMesh.scale.set(orbRadius, orbRadius, orbRadius);
       this.innerMesh.rotation.z = (15 * Math.PI) / 180;
       this.group.add(this.innerMesh);
-      this.addBillboardLabel(size);
+      this.addBillboardLabel(size, { sculpted: true, scaleFactor: 0.58 });
     } else if (effShape === 'saturn_rings') {
-      const radius = size * 0.50;
-      const geo = getSharedSphere();
+      const tileR = size * 0.49;
+      const planetScale = tileR * 0.86;
+      const geo = getSharedSculptedSphere().orb;
       const mat = textureManager.getCelestialMaterial('saturn', this.value);
       this.innerMesh = new THREE.Mesh(geo, mat.clone());
-      this.innerMesh.scale.set(radius, radius, radius);
-      this.innerMesh.rotation.z = (27 * Math.PI) / 180;
+      this.innerMesh.scale.set(planetScale, planetScale, planetScale);
+      this.innerMesh.rotation.z = (22 * Math.PI) / 180;
       this.group.add(this.innerMesh);
 
       const ringGeo = getSharedSaturnRing();
       const ringMat = textureManager.getCelestialMaterial('saturn_ring', this.value);
       const ringMesh = new THREE.Mesh(ringGeo, ringMat.clone());
-      ringMesh.scale.set(radius * 0.85, radius * 0.85, radius * 0.85);
-      ringMesh.rotation.x = Math.PI / 2;
-      ringMesh.rotation.y = (27 * Math.PI) / 180;
+      // PlaneGeometry(2x2) scaled to tileR sits strictly within cell (outer = tileR)
+      ringMesh.scale.set(tileR, tileR, tileR);
+      ringMesh.rotation.x = Math.PI / 2.25;
+      ringMesh.rotation.y = (22 * Math.PI) / 180;
       this.decorGroup.add(ringMesh);
       this.saturnRing = ringMesh;
 
-      this.addBillboardLabel(size);
+      this.addBillboardLabel(size, { sculpted: true, scaleFactor: 0.54 });
     } else if (effShape === 'pulsar_star') {
-      const radius = size * 0.48;
-      const geo = getSharedSphere();
+      const tileR = size * 0.48;
+      const orbScale = tileR * 0.90;
+      const geo = getSharedSculptedSphere().orb;
       const mat = textureManager.getCelestialMaterial('pulsar', this.value);
       this.innerMesh = new THREE.Mesh(geo, mat.clone());
-      this.innerMesh.scale.set(radius, radius, radius);
+      this.innerMesh.scale.set(orbScale, orbScale, orbScale);
       this.group.add(this.innerMesh);
 
       const ringGeo = getSharedPulsarRing();
-      const torusMat = textureManager.getTorusMaterial(this.value, this.isBomb);
-      const ring1 = new THREE.Mesh(ringGeo, torusMat.clone());
-      ring1.scale.set(radius * 0.9, radius * 0.9, radius * 0.9);
+      const accentMat = textureManager.getSculptedAccentMaterial(this.value, this.isBomb, this.isWildcard);
+      const ring1 = new THREE.Mesh(ringGeo, accentMat.clone());
+      ring1.scale.set(tileR * 0.96, tileR * 0.96, tileR * 0.96);
       ring1.rotation.x = Math.PI / 3;
       this.decorGroup.add(ring1);
       this.pulsarRing1 = ring1;
 
-      const ring2 = new THREE.Mesh(ringGeo, torusMat.clone());
-      ring2.scale.set(radius * 0.98, radius * 0.98, radius * 0.98);
-      ring2.rotation.x = -Math.PI / 4;
+      const ring2 = new THREE.Mesh(ringGeo, accentMat.clone());
+      ring2.scale.set(tileR * 0.98, tileR * 0.98, tileR * 0.98);
+      ring2.rotation.x = -Math.PI / 3.4;
       this.decorGroup.add(ring2);
       this.pulsarRing2 = ring2;
 
-      this.addBillboardLabel(size);
+      this.addBillboardLabel(size, { sculpted: true, scaleFactor: 0.58 });
     } else if (effShape === 'black_hole') {
-      const radius = size * 0.50;
-      const geo = getSharedSphere();
+      const tileR = size * 0.49;
+      const orbScale = tileR * 0.80;
+      const geo = getSharedSculptedSphere().orb;
       const coreMat = textureManager.getCelestialMaterial('black_hole_core', this.value);
       this.innerMesh = new THREE.Mesh(geo, coreMat.clone());
-      this.innerMesh.scale.set(radius * 0.62, radius * 0.62, radius * 0.62);
+      this.innerMesh.scale.set(orbScale, orbScale, orbScale);
       this.group.add(this.innerMesh);
 
       const { disk, einstein } = getSharedBlackHoleDisk();
       const diskMat = textureManager.getCelestialMaterial('black_hole_disk', this.value);
       const diskMesh = new THREE.Mesh(disk, diskMat.clone());
-      diskMesh.scale.set(radius * 0.92, radius * 0.92, radius * 0.92);
-      diskMesh.rotation.x = Math.PI / 2.7;
+      diskMesh.scale.set(tileR, tileR, tileR);
+      diskMesh.rotation.x = Math.PI / 2.65;
       this.decorGroup.add(diskMesh);
       this.blackHoleDisk = diskMesh;
 
       const einsteinMat = textureManager.getCelestialMaterial('einstein_ring', this.value);
       const einsteinMesh = new THREE.Mesh(einstein, einsteinMat.clone());
-      einsteinMesh.scale.set(radius * 0.90, radius * 0.90, radius * 0.90);
-      einsteinMesh.rotation.x = Math.PI / 5.5;
+      einsteinMesh.scale.set(tileR * 0.92, tileR * 0.92, tileR * 0.92);
+      einsteinMesh.rotation.x = Math.PI / 7;
       this.decorGroup.add(einsteinMesh);
       this.einsteinRing = einsteinMesh;
 
-      this.addBillboardLabel(size);
+      this.addBillboardLabel(size, { sculpted: true, scaleFactor: 0.54 });
     }
 
     // Bomb indicator ring with shared geometry & cached material
