@@ -967,7 +967,7 @@ export class TextureManager {
   getSculptedCrystalMaterial(value, isBomb = false, isWildcard = false) {
     const isWild = !!isWildcard || value === 0;
     const isLight = this.currentTheme === 'gentle_light' || this.currentTheme === 'zen_clay';
-    const key = `sculpt_crystal_${this.currentTheme}_${value}_${isBomb}_${isWild}_${this.isHyperNeon}`;
+    const key = `sculpt_crystal_v2_${this.currentTheme}_${value}_${isBomb}_${isWild}_${this.isHyperNeon}`;
     if (this.materialCache.has(key)) return this.materialCache.get(key);
 
     const style = isWild
@@ -980,15 +980,75 @@ export class TextureManager {
 
     const mat = new THREE.MeshPhysicalMaterial({
       color: baseCol,
-      roughness: isLight ? 0.22 : 0.07,
-      metalness: isLight ? 0.08 : (value >= 1024 ? 0.42 : 0.22),
+      flatShading: true,
+      roughness: isLight ? 0.14 : 0.04,
+      metalness: isLight ? 0.04 : 0.10,
       clearcoat: 1.0,
-      clearcoatRoughness: 0.04,
+      clearcoatRoughness: 0.03,
       reflectivity: 1.0,
-      transparent: !isLight,
-      opacity: isLight ? 0.96 : 0.84,
+      ior: 1.56,
+      iridescence: isBomb ? 0.25 : (isLight ? 0.45 : 0.90),
+      iridescenceIOR: 1.38,
+      iridescenceThicknessRange: [180, 560],
+      transparent: true,
+      opacity: isBomb ? 0.80 : (isLight ? 0.70 : 0.45),
+      depthWrite: isLight,
       emissive: emissiveCol,
-      emissiveIntensity: isBomb ? 0.72 : (isLight ? 0.04 : (this.isHyperNeon ? 0.75 : 0.34))
+      emissiveIntensity: isBomb ? 0.55 : (isLight ? 0.05 : (this.isHyperNeon ? 0.62 : 0.30))
+    });
+    this.materialCache.set(key, mat);
+    return mat;
+  }
+
+  getSculptedCrystalCoreMaterial(value, isBomb = false, isWildcard = false) {
+    const isWild = !!isWildcard || value === 0;
+    const isLight = this.currentTheme === 'gentle_light' || this.currentTheme === 'zen_clay';
+    const key = `sculpt_crystal_core_${this.currentTheme}_${value}_${isBomb}_${isWild}_${this.isHyperNeon}`;
+    if (this.materialCache.has(key)) return this.materialCache.get(key);
+
+    const style = isWild
+      ? { bg: '#ec4899', emissive: '#38bdf8', rim: '#fde047' }
+      : this.getStyle(value);
+    const coreColor = isBomb
+      ? new THREE.Color(0xfef08a)
+      : (isLight
+        ? new THREE.Color(this.adjustBrightness(style.bg, value <= 4 ? -22 : -14))
+        : new THREE.Color(style.emissive && style.emissive !== '#000000' ? style.emissive : style.bg));
+    const emissiveColor = isBomb
+      ? new THREE.Color(0xff3838)
+      : (isLight ? coreColor : new THREE.Color(style.emissive && style.emissive !== '#000000' ? style.emissive : style.bg));
+
+    const mat = new THREE.MeshStandardMaterial({
+      color: coreColor,
+      flatShading: true,
+      roughness: isLight ? 0.22 : 0.06,
+      metalness: isLight ? 0.12 : 0.45,
+      emissive: emissiveColor,
+      emissiveIntensity: isBomb ? 1.25 : (isLight ? 0.18 : (this.isHyperNeon ? 1.65 : 1.25))
+    });
+    this.materialCache.set(key, mat);
+    return mat;
+  }
+
+  getSculptedCrystalLineMaterial(value, isBomb = false, isWildcard = false, opacityOverride = null) {
+    const isWild = !!isWildcard || value === 0;
+    const isLight = this.currentTheme === 'gentle_light' || this.currentTheme === 'zen_clay';
+    const key = `sculpt_crystal_line_${this.currentTheme}_${value}_${isBomb}_${isWild}_${this.isHyperNeon}_${opacityOverride}`;
+    if (this.materialCache.has(key)) return this.materialCache.get(key);
+
+    const style = isWild
+      ? { bg: '#ec4899', emissive: '#38bdf8', rim: '#fdf4ff' }
+      : this.getStyle(value);
+    const lineColor = isBomb
+      ? 0xfef08a
+      : (isLight
+        ? this.adjustBrightness(style.bg, value <= 4 ? -34 : -26)
+        : (value >= 2048 ? 0xfef08a : (style.rim || 0xffffff)));
+
+    const mat = new THREE.LineBasicMaterial({
+      color: new THREE.Color(lineColor),
+      transparent: true,
+      opacity: opacityOverride !== null ? opacityOverride : (isLight ? 0.62 : 0.90)
     });
     this.materialCache.set(key, mat);
     return mat;

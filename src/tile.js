@@ -243,23 +243,42 @@ function getSharedSculptedSphere() {
   return sharedGeos.sculptSphere;
 }
 
+function createGemCutLathe(sides, outerR, bevelR, halfH, bevelH) {
+  const profile = [
+    new THREE.Vector2(0, -halfH),
+    new THREE.Vector2(bevelR, -halfH),
+    new THREE.Vector2(outerR, -halfH + bevelH),
+    new THREE.Vector2(outerR, halfH - bevelH),
+    new THREE.Vector2(bevelR, halfH),
+    new THREE.Vector2(0, halfH)
+  ];
+  const geo = new THREE.LatheGeometry(profile, sides).toNonIndexed();
+  geo.computeVertexNormals();
+  return geo;
+}
+
+function createBipyramidLathe(sides, radius, halfH) {
+  const profile = [
+    new THREE.Vector2(0, -halfH),
+    new THREE.Vector2(radius, 0),
+    new THREE.Vector2(0, halfH)
+  ];
+  const geo = new THREE.LatheGeometry(profile, sides).toNonIndexed();
+  geo.computeVertexNormals();
+  return geo;
+}
+
 function getSharedSculptedPrism() {
   if (!sharedGeos.sculptPrism) {
-    const body = new THREE.CylinderGeometry(0.86, 0.86, 0.56, 3);
-    const capTop = new THREE.CylinderGeometry(0.48, 0.86, 0.22, 3);
-    const capBot = new THREE.CylinderGeometry(0.86, 0.48, 0.22, 3);
-    const innerCore = new THREE.CylinderGeometry(0.42, 0.42, 0.46, 3);
+    const body = createGemCutLathe(3, 1.0, 0.86, 0.50, 0.14);
+    const innerCore = createBipyramidLathe(3, 0.47, 0.44);
+    const midFrame = createGemCutLathe(3, 0.70, 0.58, 0.34, 0.09);
     sharedGeos.sculptPrism = {
       body,
-      bodyEdges: new THREE.EdgesGeometry(body),
-      capTop,
-      capTopEdges: new THREE.EdgesGeometry(capTop),
-      capBot,
+      bodyEdges: new THREE.EdgesGeometry(body, 14),
       innerCore,
-      cornerPillar: new THREE.CylinderGeometry(0.048, 0.048, 0.66, 12),
-      vertexGem: new THREE.OctahedronGeometry(0.088, 0),
-      halo: new THREE.TorusGeometry(0.98, 0.026, 14, 64),
-      orbNode: new THREE.OctahedronGeometry(0.074, 0)
+      innerCoreEdges: new THREE.EdgesGeometry(innerCore, 14),
+      innerFrameEdges: new THREE.EdgesGeometry(midFrame, 14)
     };
   }
   return sharedGeos.sculptPrism;
@@ -267,22 +286,15 @@ function getSharedSculptedPrism() {
 
 function getSharedSculptedHex() {
   if (!sharedGeos.sculptHex) {
-    const body = new THREE.CylinderGeometry(0.86, 0.86, 0.54, 6);
-    const capTop = new THREE.CylinderGeometry(0.58, 0.86, 0.20, 6);
-    const capBot = new THREE.CylinderGeometry(0.86, 0.58, 0.20, 6);
-    const innerCore = new THREE.CylinderGeometry(0.42, 0.42, 0.46, 6);
+    const body = createGemCutLathe(6, 1.0, 0.78, 0.50, 0.18);
+    const innerCore = createBipyramidLathe(6, 0.56, 0.44);
+    const midFrame = createGemCutLathe(6, 0.74, 0.58, 0.36, 0.12);
     sharedGeos.sculptHex = {
       body,
-      bodyEdges: new THREE.EdgesGeometry(body),
-      capTop,
-      capTopEdges: new THREE.EdgesGeometry(capTop),
-      capBot,
+      bodyEdges: new THREE.EdgesGeometry(body, 14),
       innerCore,
-      hexBezelRing: new THREE.TorusGeometry(0.60, 0.042, 14, 6),
-      hexWaistRing: new THREE.TorusGeometry(0.88, 0.030, 12, 6),
-      rivet: new THREE.OctahedronGeometry(0.074, 0),
-      halo: new THREE.TorusGeometry(1.0, 0.024, 14, 64),
-      orbPearl: new THREE.SphereGeometry(0.066, 14, 14)
+      innerCoreEdges: new THREE.EdgesGeometry(innerCore, 14),
+      innerFrameEdges: new THREE.EdgesGeometry(midFrame, 14)
     };
   }
   return sharedGeos.sculptHex;
@@ -566,73 +578,40 @@ export class Tile3D {
       const h = height * 0.90;
       const g = getSharedSculptedHex();
       const crystalMat = textureManager.getSculptedCrystalMaterial(this.value, this.isBomb, this.isWildcard);
-      const accentMat = textureManager.getSculptedAccentMaterial(this.value, this.isBomb, this.isWildcard);
-      const nodeMat = textureManager.getSculptedNodeMaterial(this.value, this.isBomb, this.isWildcard);
-      const lineMat = textureManager.getOctahedronLineMaterial(this.value, this.isBomb);
+      const coreMat = textureManager.getSculptedCrystalCoreMaterial(this.value, this.isBomb, this.isWildcard);
+      const lineMat = textureManager.getSculptedCrystalLineMaterial(this.value, this.isBomb, this.isWildcard);
+      const innerLineMat = textureManager.getSculptedCrystalLineMaterial(this.value, this.isBomb, this.isWildcard, 0.55);
 
-      // Step-Cut Chamfered Hexagonal Crystal Citadel (Body + Upper Table + Lower Pavilion)
+      // Pure Seamless Emerald-Cut Hexagonal Solitaire Crystal (zero rivets/belts/stray outer rings)
       this.innerMesh = new THREE.Mesh(g.body, crystalMat.clone());
       this.innerMesh.scale.set(radius, h, radius);
+      this.innerMesh.renderOrder = 3;
       this.group.add(this.innerMesh);
 
-      const topBevel = new THREE.Mesh(g.capTop, crystalMat.clone());
-      topBevel.position.y = 0.38;
-      this.innerMesh.add(topBevel);
-
-      const botBevel = new THREE.Mesh(g.capBot, crystalMat.clone());
-      botBevel.position.y = -0.38;
-      this.innerMesh.add(botBevel);
-
-      // Raised Metallic Hexagonal Crown Bezel & Waist Trim Collar (Aligned to Cylinder verts)
-      const crownHexRim = new THREE.Mesh(g.hexBezelRing, accentMat.clone());
-      crownHexRim.rotation.x = Math.PI / 2;
-      crownHexRim.rotation.z = Math.PI / 6;
-      crownHexRim.position.y = 0.48;
-      this.innerMesh.add(crownHexRim);
-
-      const waistHexRim = new THREE.Mesh(g.hexWaistRing, accentMat.clone());
-      waistHexRim.rotation.x = Math.PI / 2;
-      waistHexRim.rotation.z = Math.PI / 6;
-      this.innerMesh.add(waistHexRim);
-
-      // 6 Corner Energy Rivets Mounted Around Hex Perimeter
-      for (let i = 0; i < 6; i++) {
-        const a = (i / 6) * Math.PI * 2;
-        const rivet = new THREE.Mesh(g.rivet, nodeMat.clone());
-        rivet.position.set(Math.sin(a) * 0.88, 0.27, Math.cos(a) * 0.88);
-        this.innerMesh.add(rivet);
-      }
-
-      // Precision Crisp Edge Wireframe on Step-Cut Crystal
       const bodyLines = new THREE.LineSegments(g.bodyEdges, lineMat.clone());
       bodyLines.scale.setScalar(1.003);
       this.innerMesh.add(bodyLines);
 
-      const topLines = new THREE.LineSegments(g.capTopEdges, lineMat.clone());
-      topLines.position.y = 0.38;
-      topLines.scale.setScalar(1.003);
-      this.innerMesh.add(topLines);
-
-      // Inner Counter-Rotating Glowing Hex Reactor Core
-      const hexCore = new THREE.Mesh(g.innerCore, nodeMat.clone());
+      // Luminous Faceted Bipyramid Diamond Core Suspended Inside the Crystal
+      const hexCore = new THREE.Mesh(g.innerCore, coreMat.clone());
       hexCore.scale.set(radius, h, radius);
       hexCore.rotation.y = Math.PI / 6;
+      hexCore.renderOrder = 1;
+      const coreLines = new THREE.LineSegments(g.innerCoreEdges, lineMat.clone());
+      coreLines.scale.setScalar(1.015);
+      hexCore.add(coreLines);
       this.decorGroup.add(hexCore);
       this.hexCore = hexCore;
 
-      // Tilted Outer Circular Containment Halo with Dual Opposite Pearls
-      const hexHalo = new THREE.Mesh(g.halo, accentMat.clone());
-      hexHalo.scale.set(radius, radius, radius);
-      hexHalo.rotation.set(Math.PI / 3.2, 0, Math.PI / 8);
-      for (const s of [-1, 1]) {
-        const orb = new THREE.Mesh(g.orbPearl, nodeMat.clone());
-        orb.position.set(s * 1.0, 0, 0);
-        hexHalo.add(orb);
-      }
-      this.decorGroup.add(hexHalo);
-      this.hexHalo = hexHalo;
+      // Internal Nested Spectral Hex Refraction Cage Inside the Outer Glass
+      const hexInnerFrame = new THREE.LineSegments(g.innerFrameEdges, innerLineMat.clone());
+      hexInnerFrame.scale.set(radius, h, radius);
+      hexInnerFrame.rotation.y = Math.PI / 6;
+      hexInnerFrame.renderOrder = 2;
+      this.decorGroup.add(hexInnerFrame);
+      this.hexHalo = hexInnerFrame;
 
-      this.addBillboardLabel(size, { sculpted: true, scaleFactor: 0.60 });
+      this.addBillboardLabel(size, { sculpted: true, scaleFactor: 0.62 });
     } else if (effShape === 'cyber_pyramid') {
       const radius = size * 0.47;
       const h = height * 1.15;
@@ -731,72 +710,42 @@ export class Tile3D {
 
       this.addBillboardLabel(size, { sculpted: true, scaleFactor: 0.56 });
     } else if (effShape === 'prism_triangle') {
-      const radius = size * 0.46;
+      const radius = size * 0.47;
       const h = height * 0.90;
       const g = getSharedSculptedPrism();
       const crystalMat = textureManager.getSculptedCrystalMaterial(this.value, this.isBomb, this.isWildcard);
-      const accentMat = textureManager.getSculptedAccentMaterial(this.value, this.isBomb, this.isWildcard);
-      const nodeMat = textureManager.getSculptedNodeMaterial(this.value, this.isBomb, this.isWildcard);
-      const lineMat = textureManager.getOctahedronLineMaterial(this.value, this.isBomb);
+      const coreMat = textureManager.getSculptedCrystalCoreMaterial(this.value, this.isBomb, this.isWildcard);
+      const lineMat = textureManager.getSculptedCrystalLineMaterial(this.value, this.isBomb, this.isWildcard);
+      const innerLineMat = textureManager.getSculptedCrystalLineMaterial(this.value, this.isBomb, this.isWildcard, 0.60);
 
-      // Faceted Cut-Gemstone Optical Triangular Prism (Body + Crown Facet + Base Pavilion)
+      // Pure Swarovski Optical Triangular Crystal Prism (zero corner pipes or stray hairlines)
       this.innerMesh = new THREE.Mesh(g.body, crystalMat.clone());
       this.innerMesh.scale.set(radius, h, radius);
+      this.innerMesh.renderOrder = 3;
       this.group.add(this.innerMesh);
 
-      const topFacet = new THREE.Mesh(g.capTop, crystalMat.clone());
-      topFacet.position.y = 0.39;
-      this.innerMesh.add(topFacet);
-
-      const botFacet = new THREE.Mesh(g.capBot, crystalMat.clone());
-      botFacet.position.y = -0.39;
-      this.innerMesh.add(botFacet);
-
-      // 3 Metallic Edge Corner Buttress Pillars + Glowing Diamond Tip Vertices
-      for (let i = 0; i < 3; i++) {
-        const a = (i / 3) * Math.PI * 2;
-        const cx = Math.sin(a) * 0.86;
-        const cz = Math.cos(a) * 0.86;
-        const pillar = new THREE.Mesh(g.cornerPillar, accentMat.clone());
-        pillar.position.set(cx, 0, cz);
-        this.innerMesh.add(pillar);
-
-        const gemTip = new THREE.Mesh(g.vertexGem, nodeMat.clone());
-        gemTip.position.set(cx, 0.34, cz);
-        this.innerMesh.add(gemTip);
-      }
-
-      // Luminous Prism Refraction Wireframe Lines
       const bodyLines = new THREE.LineSegments(g.bodyEdges, lineMat.clone());
-      bodyLines.scale.setScalar(1.004);
+      bodyLines.scale.setScalar(1.003);
       this.innerMesh.add(bodyLines);
 
-      const topLines = new THREE.LineSegments(g.capTopEdges, lineMat.clone());
-      topLines.position.y = 0.39;
-      topLines.scale.setScalar(1.004);
-      this.innerMesh.add(topLines);
-
-      // Inverted Counter-Rotating Inner Triforce Energy Core (6-Point Optical Refraction!)
-      const prismCore = new THREE.Mesh(g.innerCore, nodeMat.clone());
+      // Inverted Glowing Inner Optical Bipyramid Core (6-Point Star Refraction)
+      const prismCore = new THREE.Mesh(g.innerCore, coreMat.clone());
       prismCore.scale.set(radius, h, radius);
       prismCore.rotation.y = Math.PI / 3;
+      prismCore.renderOrder = 1;
+      const coreLines = new THREE.LineSegments(g.innerCoreEdges, lineMat.clone());
+      coreLines.scale.setScalar(1.015);
+      prismCore.add(coreLines);
       this.decorGroup.add(prismCore);
       this.prismCore = prismCore;
 
-      // Tilted Tri-Symmetry Orbital Halo with 3 Equidistant Diamond Satellites
-      const prismHalo = new THREE.Mesh(g.halo, accentMat.clone());
-      prismHalo.scale.set(radius, radius, radius);
-      prismHalo.rotation.set(Math.PI / 3, 0, -Math.PI / 7);
-      for (let i = 0; i < 3; i++) {
-        const a = (i / 3) * Math.PI * 2;
-        const sat = new THREE.Mesh(g.orbNode, nodeMat.clone());
-        sat.position.set(Math.cos(a) * 0.98, Math.sin(a) * 0.98, 0);
-        prismHalo.add(sat);
-      }
-      this.decorGroup.add(prismHalo);
-      this.prismHalo = prismHalo;
+      // Concentric Inner Optical Crystal Refraction Cage (Parallel to Outer Glass, Zero Wall Piercing)
+      const prismInnerFrame = new THREE.LineSegments(g.innerFrameEdges, innerLineMat.clone());
+      prismInnerFrame.renderOrder = 2;
+      this.innerMesh.add(prismInnerFrame);
+      this.prismHalo = prismInnerFrame;
 
-      this.addBillboardLabel(size, { sculpted: true, scaleFactor: 0.58 });
+      this.addBillboardLabel(size, { sculpted: true, scaleFactor: 0.60 });
     } else if (effShape === 'stellar_icosahedron') {
       const radius = size * 0.46;
       const { geo, edges } = getSharedIcosahedron();
@@ -1522,8 +1471,8 @@ export class Tile3D {
 
     if (effShape === 'hex_prism') {
       if (this.innerMesh) this.innerMesh.rotation.y += delta * 0.55;
-      if (this.hexCore) this.hexCore.rotation.y -= delta * 1.1;
-      if (this.hexHalo) this.hexHalo.rotation.z -= delta * 1.35;
+      if (this.hexCore) this.hexCore.rotation.y -= delta * 0.95;
+      if (this.hexHalo) this.hexHalo.rotation.y -= delta * 0.35;
     } else if (effShape === 'cyber_pyramid' && this.innerMesh) {
       this.innerMesh.rotation.y += delta * 0.8;
       this.decorGroup.rotation.y += delta * 0.8;
@@ -1536,9 +1485,8 @@ export class Tile3D {
       if (this.innerMesh) this.innerMesh.rotation.z += delta * 1.2;
       if (this.torusOuterRing) this.torusOuterRing.rotation.z -= delta * 1.6;
     } else if (effShape === 'prism_triangle') {
-      if (this.innerMesh) this.innerMesh.rotation.y += delta * 0.6;
-      if (this.prismCore) this.prismCore.rotation.y -= delta * 1.2;
-      if (this.prismHalo) this.prismHalo.rotation.z += delta * 1.45;
+      if (this.innerMesh) this.innerMesh.rotation.y += delta * 0.55;
+      if (this.prismCore) this.prismCore.rotation.y -= delta * 0.95;
     } else if (effShape === 'stellar_icosahedron' && this.innerMesh) {
       this.innerMesh.rotation.y += delta * 0.7;
       this.innerMesh.rotation.x += delta * 0.4;
