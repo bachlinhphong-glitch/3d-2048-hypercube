@@ -964,6 +964,36 @@ export class TextureManager {
     return mat;
   }
 
+  getSculptedCrystalMaterial(value, isBomb = false, isWildcard = false) {
+    const isWild = !!isWildcard || value === 0;
+    const isLight = this.currentTheme === 'gentle_light' || this.currentTheme === 'zen_clay';
+    const key = `sculpt_crystal_${this.currentTheme}_${value}_${isBomb}_${isWild}_${this.isHyperNeon}`;
+    if (this.materialCache.has(key)) return this.materialCache.get(key);
+
+    const style = isWild
+      ? { bg: '#ec4899', emissive: '#38bdf8', intensity: 0.85, rim: '#fde047' }
+      : this.getStyle(value);
+    const baseCol = new THREE.Color(isBomb ? 0xdc2626 : style.bg);
+    const emissiveCol = isBomb
+      ? new THREE.Color(0xef4444)
+      : (style.emissive && style.emissive !== '#000000' ? new THREE.Color(style.emissive) : baseCol);
+
+    const mat = new THREE.MeshPhysicalMaterial({
+      color: baseCol,
+      roughness: isLight ? 0.22 : 0.07,
+      metalness: isLight ? 0.08 : (value >= 1024 ? 0.42 : 0.22),
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.04,
+      reflectivity: 1.0,
+      transparent: !isLight,
+      opacity: isLight ? 0.96 : 0.84,
+      emissive: emissiveCol,
+      emissiveIntensity: isBomb ? 0.72 : (isLight ? 0.04 : (this.isHyperNeon ? 0.75 : 0.34))
+    });
+    this.materialCache.set(key, mat);
+    return mat;
+  }
+
   getBombRingMaterial() {
     const key = 'bomb_ring_mat';
     if (this.materialCache.has(key)) return this.materialCache.get(key);
