@@ -316,10 +316,10 @@ export class QuestManager {
     if (bossStatusEl) {
       if (this.isBossDefeated()) {
         bossStatusEl.className = 'val unlocked';
-        bossStatusEl.textContent = t('boss_t_status_unlocked') || '⚔️ ĐÃ THANH TRỪNG HOÀN TOÀN';
+        bossStatusEl.textContent = t('boss_t_status_unlocked') || '⚡ ĐÃ CHINH PHỤC';
       } else {
         bossStatusEl.className = 'val locked';
-        bossStatusEl.textContent = t('boss_t_status_locked') || '🔒 Chưa thanh trừng';
+        bossStatusEl.textContent = t('boss_t_status_locked') || '🔒 Chưa chinh phục';
       }
     }
   }
@@ -454,17 +454,17 @@ export class QuestManager {
       const isDefeated = this.isBossDefeated();
       if (isDefeated) {
         statusEl.className = 'trophy-status-pill unlocked boss';
-        statusEl.textContent = t('trophy_status_boss_unlocked') || '⚔️ ĐÃ MỞ KHÓA — CÚP TRẢM THẦN HƯ KHÔNG';
+        statusEl.textContent = t('trophy_status_boss_unlocked') || '⚡ ĐÃ MỞ — CÚP CHINH PHỤC BOSS';
       } else {
         statusEl.className = 'trophy-status-pill locked';
-        statusEl.textContent = t('trophy_status_boss_locked') || '🔒 KHÓA — THANH TRỪNG THỰC THỂ ĐỂ MỞ';
+        statusEl.textContent = t('trophy_status_boss_locked') || '🔒 KHÓA — HẠ BOSS ĐỂ MỞ';
       }
     } else {
       const completedCount = this.getCompletedCount();
       const totalCount = QUEST_DEFS.length;
       if (this.isAllCompleted()) {
         statusEl.className = 'trophy-status-pill unlocked';
-        statusEl.textContent = t('trophy_status_c1_unlocked') || '🏆 ĐÃ MỞ KHÓA — CÚP CHIẾN TÍCH 2048';
+        statusEl.textContent = t('trophy_status_c1_unlocked') || '🏆 ĐÃ MỞ — CÚP BẬC THẦY 2048';
       } else {
         statusEl.className = 'trophy-status-pill locked';
         const remaining = Math.max(0, totalCount - completedCount);
@@ -725,7 +725,7 @@ export class QuestManager {
     this.triggerConfetti();
 
     if (this.game.showSpellToast) {
-      this.game.showSpellToast(t('trophy_master_unlocked_toast') || '🏆 CHÚC MỪNG! Bạn đã mở khóa Cúp Chiến Tích 2048 Bậc Thầy!');
+      this.game.showSpellToast(t('trophy_master_unlocked_toast') || '🏆 CHÚC MỪNG! Bạn đã mở khóa Cúp Bậc Thầy 2048!');
     }
 
     this.openModal('c1');

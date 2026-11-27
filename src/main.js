@@ -756,7 +756,7 @@ class GameApp {
       });
     }
 
-    // Duolingo Daily Streak Badge & Modal Listeners
+    // Hypercube Daily Streak Badge & Modal Listeners
     this.initDailyStreakUI();
 
     // Boss Mode Button & Testing Shortcut
@@ -790,7 +790,7 @@ class GameApp {
           this.gameLogic.reset();
           this.spawnSpecificTile(0, 0, 0, 1024);
           this.spawnSpecificTile(0, 0, 1, 1024);
-          this.showSpellToast('PHASE 4 • OMNIVERSE SOVEREIGN (2,048 HP | +120s) — Gộp khối 2048 để hủy diệt!');
+          this.showSpellToast('PHASE 4 • ULTIMATE HYPERCORE (2,048 HP | +120s) — Gộp khối 2048 để chiến thắng!');
         } else {
           const toastNames = {
             1: 'PHASE 1 • CORE PRIME: LÕI HÀNH TINH (500 HP | 120s)',
@@ -2776,7 +2776,7 @@ class GameApp {
         ta.remove();
       } catch {}
     }
-    this.showSpellToast(t('emoji_grid_copied') || '📋 Đã chép lưới Emoji chiến tích vào bộ nhớ tạm!');
+    this.showSpellToast(t('emoji_grid_copied') || '📋 Đã chép lưới Emoji kết quả vào bộ nhớ tạm!');
     return text;
   }
 

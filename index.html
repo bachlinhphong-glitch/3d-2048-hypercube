@@ -51,18 +51,18 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./src/style.css?v=6.8.78">
+  <link rel="stylesheet" href="./src/style.css?v=6.8.79">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=6.8.78').then(reg => {
+        navigator.serviceWorker.register('./sw.js?v=6.8.79').then(reg => {
           reg.update();
         }).catch(() => {});
       });
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         try {
-          if (!sessionStorage.getItem('sw_reloaded_6878')) {
-            sessionStorage.setItem('sw_reloaded_6878', '1');
+          if (!sessionStorage.getItem('sw_reloaded_6879')) {
+            sessionStorage.setItem('sw_reloaded_6879', '1');
             window.location.reload();
           }
         } catch {}
@@ -99,7 +99,7 @@
           <div class="stat-label" data-i18n="best">TOP</div>
           <div class="stat-value" id="best-val">0</div>
         </div>
-        <div class="stat-pill daily-streak-pill is-unlit" id="daily-streak-badge" role="button" tabindex="0" data-i18n-title="daily_streak_tooltip" title="Chuỗi ngày chơi liên tiếp (Duolingo Streak)">
+        <div class="stat-pill daily-streak-pill is-unlit" id="daily-streak-badge" role="button" tabindex="0" data-i18n-title="daily_streak_tooltip" title="Chuỗi ngày giữ lửa Hypercube">
           <div class="stat-label" data-i18n="daily_streak_label">CHUỖI</div>
           <div class="daily-streak-chip" id="daily-streak-chip">
             <span class="daily-streak-flame" aria-hidden="true">🔥</span>
@@ -652,14 +652,14 @@
             <path d="M8 21h8"></path>
           </svg>
           <div>
-            <h2 id="trophy-main-title" class="trophy-modal-title" data-i18n="trophy_modal_title">PHÒNG TRUYỀN THỐNG CÚP 3D</h2>
-            <p id="trophy-main-subtitle" class="trophy-modal-subtitle" data-i18n="trophy_modal_subtitle">Chiêm ngưỡng 2 Cúp Danh Giá: Cúp Chiến Tích Bậc Thầy & Cúp Trảm Thần Hư Không</p>
+            <h2 id="trophy-main-title" class="trophy-modal-title" data-i18n="trophy_modal_title">Phòng Cúp 3D Hypercube</h2>
+            <p id="trophy-main-subtitle" class="trophy-modal-subtitle" data-i18n="trophy_modal_subtitle">Hoàn thành 7 thử thách hoặc hạ Boss để mở Cúp 3D & Overdrive</p>
           </div>
         </div>
         <button id="trophy-modal-close" class="settings-close-btn" aria-label="Đóng"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2 2L12 12M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
       </div>
 
-      <!-- Trophy Switcher Tabs (C1 vs Boss vs Tilepedia) -->
+      <!-- Trophy Switcher Tabs (Master vs Boss vs Tilepedia) -->
       <div class="trophy-tabs-nav">
         <button id="trophy-tab-c1" class="trophy-tab-btn active" data-tab="c1">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tab-svg">
@@ -668,13 +668,13 @@
             <path d="M4 3h16v6a8 8 0 0 1-16 0V3z"></path>
             <path d="M12 17v4"></path><path d="M8 21h8"></path>
           </svg>
-          <span data-i18n="trophy_tab_c1">🏆 Cúp Bậc Thầy (7/7 Q)</span>
+          <span data-i18n="trophy_tab_c1">🏆 Cúp Bậc Thầy</span>
         </button>
         <button id="trophy-tab-boss" class="trophy-tab-btn" data-tab="boss">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tab-svg">
             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
           </svg>
-          <span data-i18n="trophy_tab_boss">⚔️ Cúp Trảm Thần</span>
+          <span data-i18n="trophy_tab_boss">⚡ Cúp Chinh Phục Boss</span>
         </button>
         <button id="trophy-tab-tilepedia" class="trophy-tab-btn" data-tab="tilepedia">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tab-svg">
@@ -720,17 +720,17 @@
           <div id="trophy-quests-list" class="trophy-quests-list"></div>
         </div>
 
-        <!-- Right: Boss Slayer Showcase Pane (For Boss) -->
+        <!-- Right: Boss Conqueror Showcase Pane -->
         <div id="trophy-boss-pane" class="trophy-boss-pane" style="display: none;">
           <div class="boss-trophy-info-card">
-            <div class="boss-trophy-tag" data-i18n="boss_trophy_tag">⚔️ CHIẾN TÍCH THẦN THOẠI</div>
-            <h3 class="boss-trophy-title" data-i18n="boss_trophy_title">Cúp Trảm Thần: Kẻ Thanh Trừng Hư Không</h3>
-            <p class="boss-trophy-desc" data-i18n="boss_trophy_desc">Được tinh luyện từ hợp kim vật chất tối và tàn tích của các vì sao. Ngự trị tại trung tâm cúp là Lõi Kỳ Dị Hư Không nguyên bản, được phong ấn bởi vầng hào quang plasma vĩnh cửu.</p>
+            <div class="boss-trophy-tag" data-i18n="boss_trophy_tag">⚡ DANH HIỆU ĐỈNH CAO</div>
+            <h3 class="boss-trophy-title" data-i18n="boss_trophy_title">Cúp Chinh Phục Lõi Kỳ Dị</h3>
+            <p class="boss-trophy-desc" data-i18n="boss_trophy_desc">Chế tác từ hợp kim lập phương ánh kim và vòng năng lượng plasma, lưu giữ dấu ấn vượt qua toàn bộ 4 Phase Boss 2048.</p>
 
             <div class="boss-trophy-stats-box">
               <div class="boss-t-stat">
                 <span class="label" data-i18n="boss_t_status_label">Trạng thái:</span>
-                <span id="boss-t-status" class="val locked">🔒 Chưa thanh trừng</span>
+                <span id="boss-t-status" class="val locked">🔒 Chưa chinh phục</span>
               </div>
               <div class="boss-t-stat">
                 <span class="label" data-i18n="boss_t_best_time_label">Kỷ lục Tốc độ:</span>
@@ -776,11 +776,11 @@
     <div id="trophy-confetti-container" class="trophy-confetti-container"></div>
   </div>
 
-  <!-- Duolingo-Style Daily Streak Modal -->
+  <!-- Hypercube Daily Flame Streak Modal -->
   <div id="daily-streak-modal" class="daily-streak-modal-overlay" style="display: none;">
     <div class="daily-streak-modal-card">
       <div class="daily-streak-modal-header">
-        <span class="daily-streak-modal-title" data-i18n="daily_streak_modal_title">CHUỖI NGÀY DUOLINGO</span>
+        <span class="daily-streak-modal-title" data-i18n="daily_streak_modal_title">CHUỖI LỬA LẬP PHƯƠNG</span>
         <button id="daily-streak-modal-close" class="settings-close-btn" aria-label="Đóng"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2 2L12 12M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
       </div>
       <div class="daily-streak-hero">
@@ -855,7 +855,7 @@
               </svg>
             </div>
             <div class="welcome-feature-info">
-              <h4 data-i18n="welcome_feat3_title">Thử Thách & Cúp Chiến Tích 3D</h4>
+              <h4 data-i18n="welcome_feat3_title">Nhiệm Vụ & Cúp 3D Độc Bản</h4>
               <p data-i18n="welcome_feat3_desc">Hoàn thành 7 thử thách để mở khóa Cúp 3D tương tác thực tế vinh danh thành tích của bạn.</p>
             </div>
           </div>
@@ -1015,9 +1015,9 @@
         </div>
 
         <div class="boss-victory-title-wrap">
-          <div class="boss-victory-tag-severance" data-i18n="boss_victory_tag">THANH TRỪNG HOÀN TẤT • ENTITY SEVERED</div>
-          <h2 id="boss-victory-heading" class="boss-victory-title" data-i18n="boss_victory_heading">CHIẾN THẮNG HUYỀN THOẠI!</h2>
-          <p id="boss-victory-subtitle" class="boss-victory-subtitle" data-i18n="boss_victory_congrats">Trật tự không thời gian đã được tái lập. Bạn đã làm chủ ma trận và đánh bại toàn bộ 4 dạng thức của Thực Thể Hư Không!</p>
+          <div class="boss-victory-tag-severance" data-i18n="boss_victory_tag">LÕI ĐÃ BỊ CHINH PHỤC • CORE CLEARED</div>
+          <h2 id="boss-victory-heading" class="boss-victory-title" data-i18n="boss_victory_heading">CHINH PHỤC BOSS 2048!</h2>
+          <p id="boss-victory-subtitle" class="boss-victory-subtitle" data-i18n="boss_victory_congrats">Bạn đã làm chủ ma trận lập phương 3D và vượt qua toàn bộ 4 Phase của Boss Lõi Năng Lượng!</p>
         </div>
 
         <!-- Slim 1-line AI Banner Pill -->
@@ -1038,9 +1038,9 @@
               </svg>
             </div>
             <div class="boss-achievement-details">
-              <div class="boss-achievement-tier" data-i18n="boss_achieve_tier">THÀNH TỰU THẦN THOẠI ĐÃ MỞ KHÓA</div>
-              <div class="boss-achievement-name" data-i18n="boss_achieve_name">KẺ THANH TRỪNG HƯ KHÔNG (VOID SLAYER)</div>
-              <div class="boss-achievement-desc" data-i18n="boss_achieve_desc">Tiêu diệt hoàn toàn Chúa Tể Đa Chiều Omniverse bằng xung kích 2048 tối thượng!</div>
+              <div class="boss-achievement-tier" data-i18n="boss_achieve_tier">MỞ KHÓA DANH HIỆU ĐẶC BIỆT</div>
+              <div class="boss-achievement-name" data-i18n="boss_achieve_name">CHỦ NHÂN LÕI KỲ DỊ</div>
+              <div class="boss-achievement-desc" data-i18n="boss_achieve_desc">Vượt qua toàn bộ 4 Phase Boss Lõi 3D bằng cú gộp 2048 quyết định!</div>
             </div>
           </div>
         </div>
@@ -1093,7 +1093,7 @@
         <div class="boss-victory-sub-actions">
           <button id="boss-victory-btn-share" class="modal-btn boss-btn-gold-share">
             <svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
-            <span data-i18n="boss_btn_share">Chia Sẻ Chiến Tích</span>
+            <span data-i18n="boss_btn_share">Chia Sẻ Kết Quả</span>
           </button>
           <button id="boss-victory-btn-endless" class="modal-btn secondary">
             <span data-i18n="boss_btn_endless_short">🏆 Vô Hạn</span>
@@ -1427,6 +1427,6 @@
   </div>
 
   <!-- Main Game Script -->
-  <script type="module" src="./src/main.js?v=6.8.78"></script>
+  <script type="module" src="./src/main.js?v=6.8.79"></script>
 </body>
 </html>

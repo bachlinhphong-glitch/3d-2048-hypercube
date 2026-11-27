@@ -285,13 +285,13 @@ export function createChampionsTrophyMesh(isUnlocked = true) {
     pCtx.fillStyle = '#ffffff';
     pCtx.shadowColor = '#00d2ff';
     pCtx.shadowBlur = 18;
-    pCtx.fillText(t('trophy_plaque_c1_title_unlocked') || '★ CHAMPIONS OF 2048 ★', 256, 48);
+    pCtx.fillText(t('trophy_plaque_c1_title_unlocked') || '★ MASTER OF 2048 ★', 256, 48);
 
     pCtx.font = 'bold 20px "Segoe UI", Arial, sans-serif';
     pCtx.fillStyle = '#ffd700';
     pCtx.shadowColor = '#ffaa00';
     pCtx.shadowBlur = 10;
-    pCtx.fillText(t('trophy_plaque_c1_sub_unlocked') || 'TRI ÂN BẬC THẦY HOÀN THÀNH 7/7 NHIỆM VỤ', 256, 96);
+    pCtx.fillText(t('trophy_plaque_c1_sub_unlocked') || 'HOÀN THÀNH 7/7 THỬ THÁCH', 256, 96);
   } else {
     pCtx.font = '900 32px "Segoe UI", Arial, sans-serif';
     pCtx.fillStyle = '#94a3b8';
@@ -791,23 +791,23 @@ export function createBossTrophyMesh(isUnlocked = true) {
     pCtx.fillStyle = '#fef2f2';
     pCtx.shadowColor = '#dc2626';
     pCtx.shadowBlur = 18;
-    pCtx.fillText(t('trophy_plaque_boss_title_unlocked') || '⚔ SINGULARITY SLAYER ⚔', 256, 48);
+    pCtx.fillText(t('trophy_plaque_boss_title_unlocked') || '⚡ CORE CONQUEROR ⚡', 256, 48);
 
     pCtx.font = 'bold 20px "Segoe UI", Arial, sans-serif';
     pCtx.fillStyle = '#f87171';
     pCtx.shadowColor = '#991b1b';
     pCtx.shadowBlur = 10;
-    pCtx.fillText(t('trophy_plaque_boss_sub_unlocked') || 'KẺ THANH TRỪNG HƯ KHÔNG — ENTITY SEVERED', 256, 96);
+    pCtx.fillText(t('trophy_plaque_boss_sub_unlocked') || 'ĐÃ VƯỢT TOÀN BỘ 4 PHASE', 256, 96);
   } else {
     pCtx.font = '900 30px "Segoe UI", Arial, sans-serif';
     pCtx.fillStyle = '#71717a';
     pCtx.shadowColor = '#000';
     pCtx.shadowBlur = 8;
-    pCtx.fillText(t('trophy_plaque_boss_title_locked') || '🔒 CÚP TRẢM THẦN HƯ KHÔNG', 256, 48);
+    pCtx.fillText(t('trophy_plaque_boss_title_locked') || '🔒 CÚP CHINH PHỤC BOSS', 256, 48);
 
     pCtx.font = 'bold 18px "Segoe UI", Arial, sans-serif';
     pCtx.fillStyle = '#52525b';
-    pCtx.fillText(t('trophy_plaque_boss_sub_locked') || 'TIÊU DIỆT TRÙM SINGULARITY ĐỂ MỞ', 256, 96);
+    pCtx.fillText(t('trophy_plaque_boss_sub_locked') || 'HẠ GỤC BOSS LÕI ĐỂ MỞ', 256, 96);
   }
   const plaqueTex = new THREE.CanvasTexture(plaqueCanvas);
 

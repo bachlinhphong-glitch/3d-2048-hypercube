@@ -313,7 +313,7 @@ export class BossManager {
       if (this.boss3D) this.boss3D.setHpRatio(1.0);
       this.updateHUD();
 
-      this.triggerBanner(`${loopTag}${getPhaseDestText(1)}`, t('boss_phase2_banner_sub') || 'SOLAR QUASAR • +120s • Đã thanh lọc khối [2], [4]');
+      this.triggerBanner(`${loopTag}${getPhaseDestText(1)}`, t('boss_phase2_banner_sub') || 'SOLAR QUASAR • +120s • Đã dọn khối [2], [4]');
     } else if (this.phase === 2) {
       // Phase 2 -> Phase 3 (Cosmic Singularity)
       this.emitExpandingRingWave(0xa855f7);
@@ -325,9 +325,9 @@ export class BossManager {
       if (this.boss3D) this.boss3D.setHpRatio(1.0);
       this.updateHUD();
 
-      this.triggerBanner(`${loopTag}${getPhaseDestText(2)}`, t('boss_phase3_banner_sub') || 'SINGULARITY CORE • +120s • Vết nứt không gian mở rộng!');
+      this.triggerBanner(`${loopTag}${getPhaseDestText(2)}`, t('boss_phase3_banner_sub') || 'SINGULARITY CORE • +120s • Không gian đa chiều mở rộng!');
     } else if (this.phase === 3) {
-      // Phase 3 -> Phase 4 (Omniverse Transcendent God)
+      // Phase 3 -> Phase 4 (Ultimate Hypercore)
       this.emitExpandingRingWave(0x00f0ff);
       soundManager.playPhaseTransition();
       this.cleanseLowTiles();
@@ -338,7 +338,7 @@ export class BossManager {
       if (this.boss3D) this.boss3D.setHpRatio(1.0);
       this.updateHUD();
 
-      this.triggerBanner(`${loopTag}${getPhaseDestText(3)}`, t('boss_phase4_banner_sub') || 'OMNIVERSE SOVEREIGN • +120s • Thực thể tối thượng thức tỉnh!');
+      this.triggerBanner(`${loopTag}${getPhaseDestText(3)}`, t('boss_phase4_banner_sub') || 'ULTIMATE HYPERCORE • +120s • Lõi Tối Thượng thức tỉnh!');
     } else if (this.phase === 4) {
       // Phase 4 Defeated!
       this.executeGrandFinale();
@@ -460,10 +460,10 @@ export class BossManager {
     const s = totalSecs % 60;
     const timeStr = `${m > 0 ? m + 'm ' : ''}${s}s`;
 
-    // Sekiro God Slain Banner
+    // Core Victory Banner
     this.triggerBanner(
-      t('boss_finale_banner_title') || '🏆 TUYỆT ĐỐI THANH TRỪNG — ENTITY SEVERED',
-      t('boss_finale_banner_sub') || 'Trật tự không thời gian vĩnh hằng đã được tái lập!'
+      t('boss_finale_banner_title') || '🏆 CHINH PHỤC TUYỆT ĐỐI — CORE CLEARED',
+      t('boss_finale_banner_sub') || 'Ma trận 3D Hypercube đã được tái lập hoàn hảo!'
     );
 
     // Achievement Pop-up Toast
@@ -500,9 +500,9 @@ export class BossManager {
     toast.innerHTML = `
       <div class="boss-ach-toast-icon">🏆</div>
       <div class="boss-ach-toast-body">
-        <div class="boss-ach-toast-tag">${t('boss_ach_toast_tag') || 'THÀNH TỰU THẦN THOẠI ĐÃ MỞ!'}</div>
-        <div class="boss-ach-toast-title">${t('boss_ach_toast_title') || 'Kẻ Thanh Trừng Hư Không (Void Slayer)'}</div>
-        <div class="boss-ach-toast-desc">${t('boss_ach_toast_desc') || 'Đã đánh bại toàn bộ 4 dạng thức của Thực Thể Hư Không!'}</div>
+        <div class="boss-ach-toast-tag">${t('boss_ach_toast_tag') || 'DANH HIỆU ĐẶC BIỆT ĐÃ MỞ!'}</div>
+        <div class="boss-ach-toast-title">${t('boss_ach_toast_title') || 'Chủ Nhân Lõi Kỳ Dị (Core Conqueror)'}</div>
+        <div class="boss-ach-toast-desc">${t('boss_ach_toast_desc') || 'Đã vượt qua toàn bộ 4 Phase của Boss Lõi 2048!'}</div>
       </div>
     `;
     document.body.appendChild(toast);
@@ -675,8 +675,8 @@ export class BossManager {
       if (achContainer) achContainer.style.display = 'block';
       if (headingEl) {
         headingEl.textContent = this.loop > 1
-          ? (t('boss_victory_loop_heading') || 'THANH TRỪNG VÒNG LẶP {loop}!').replace('{loop}', this.loop)
-          : (t('boss_victory_heading') || 'CHIẾN THẮNG HUYỀN THOẠI!');
+          ? (t('boss_victory_loop_heading') || 'HOÀN THÀNH VÒNG LẶP {loop}!').replace('{loop}', this.loop)
+          : (t('boss_victory_heading') || 'CHINH PHỤC BOSS 2048!');
       }
       const achTier = this.victoryModal.querySelector('.boss-achievement-tier');
       const achName = this.victoryModal.querySelector('.boss-achievement-name');
