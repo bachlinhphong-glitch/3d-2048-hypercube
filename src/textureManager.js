@@ -724,6 +724,246 @@ export class TextureManager {
     return spriteMat;
   }
 
+  /**
+   * Compact, high-contrast floating numeral texture for sculpted 3D shapes
+   * (Ring, Knot, Sphere) so the 3D geometry stays visible around the digits.
+   */
+  createSculptedSpriteTexture(value, isBomb = false, bombCountdown = 0, isWildcard = false) {
+    const isWild = !!isWildcard || value === 0;
+    const isLight = this.currentTheme === 'gentle_light' || this.currentTheme === 'zen_clay';
+    const cacheKey = `sculpt_sprite_${this.currentTheme}_${value}_${isBomb}_${bombCountdown}_${isWild}`;
+    if (this.spriteTextureCache.has(cacheKey)) {
+      return this.spriteTextureCache.get(cacheKey);
+    }
+
+    const size = 512;
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, size, size);
+
+    const style = this.getStyle(value);
+    const labelStr = isWild ? '★' : String(value);
+
+    // Subtle soft aura scrim strictly behind digits (no opaque circle covering 3D body)
+    const rad = ctx.createRadialGradient(256, 256, 18, 256, 256, 175);
+    if (isBomb) {
+      rad.addColorStop(0, 'rgba(127, 29, 29, 0.72)');
+      rad.addColorStop(0.55, 'rgba(127, 29, 29, 0.28)');
+      rad.addColorStop(1, 'rgba(127, 29, 29, 0)');
+    } else if (isLight) {
+      rad.addColorStop(0, 'rgba(255, 255, 255, 0.62)');
+      rad.addColorStop(0.58, 'rgba(255, 255, 255, 0.24)');
+      rad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    } else {
+      rad.addColorStop(0, 'rgba(8, 12, 24, 0.56)');
+      rad.addColorStop(0.55, 'rgba(8, 12, 24, 0.22)');
+      rad.addColorStop(1, 'rgba(8, 12, 24, 0)');
+    }
+    ctx.fillStyle = rad;
+    ctx.beginPath();
+    ctx.arc(256, 256, 175, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Small sovereign crest above 1024 / 2048
+    if (!isBomb && !isWild && value >= 2048) {
+      ctx.save();
+      ctx.fillStyle = '#fde047';
+      ctx.shadowColor = 'rgba(251, 191, 36, 0.9)';
+      ctx.shadowBlur = 12;
+      ctx.beginPath();
+      ctx.moveTo(212, 134);
+      ctx.lineTo(222, 92);
+      ctx.lineTo(240, 114);
+      ctx.lineTo(256, 82);
+      ctx.lineTo(272, 114);
+      ctx.lineTo(290, 92);
+      ctx.lineTo(300, 134);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    } else if (!isBomb && !isWild && value === 1024) {
+      this.drawDiamondStar(ctx, 256, 108, 26, 11, '#ffffff', '#38bdf8');
+    }
+
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    let fontSize = 210;
+    if (isWild) fontSize = 230;
+    else if (labelStr.length === 2) fontSize = 195;
+    else if (labelStr.length === 3) fontSize = 160;
+    else if (labelStr.length === 4) fontSize = 126;
+    else if (labelStr.length >= 5) fontSize = 98;
+
+    const textY = isBomb ? 228 : (value >= 1024 && !isWild ? 274 : 258);
+    ctx.font = `900 ${fontSize}px "Outfit", "Be Vietnam Pro", "Segoe UI", Arial, sans-serif`;
+
+    // Crisp outline halo + shadow so digits never blend with glossy highlights
+    ctx.lineJoin = 'round';
+    ctx.miterLimit = 2;
+    ctx.lineWidth = isLight ? 16 : 22;
+    ctx.strokeStyle = isLight ? 'rgba(255, 255, 255, 0.92)' : 'rgba(6, 10, 20, 0.92)';
+    ctx.shadowColor = isLight ? 'rgba(15, 23, 42, 0.25)' : 'rgba(0, 0, 0, 0.9)';
+    ctx.shadowBlur = 14;
+    ctx.shadowOffsetY = 4;
+    ctx.strokeText(labelStr, 256, textY);
+
+    ctx.shadowColor = (!isLight && value >= 1024) ? (style.emissive || '#fde047') : 'transparent';
+    ctx.shadowBlur = (!isLight && value >= 1024) ? 14 : 0;
+    ctx.shadowOffsetY = 0;
+
+    if (isWild) {
+      const wg = ctx.createLinearGradient(170, 170, 342, 342);
+      wg.addColorStop(0, '#f472b6');
+      wg.addColorStop(0.5, '#fde047');
+      wg.addColorStop(1, '#38bdf8');
+      ctx.fillStyle = wg;
+    } else if (isBomb) {
+      ctx.fillStyle = '#ffffff';
+    } else if (isLight) {
+      ctx.fillStyle = value <= 4 ? '#44403c' : '#0f172a';
+    } else {
+      ctx.fillStyle = value >= 2048 ? '#fffbeb' : '#ffffff';
+    }
+    ctx.fillText(labelStr, 256, textY);
+
+    if (isBomb) {
+      ctx.font = '900 72px "Outfit", "Segoe UI", sans-serif';
+      ctx.lineWidth = 14;
+      ctx.strokeStyle = 'rgba(0,0,0,0.88)';
+      ctx.strokeText(`💣 ${bombCountdown}`, 256, 366);
+      ctx.fillStyle = '#fef08a';
+      ctx.fillText(`💣 ${bombCountdown}`, 256, 366);
+    }
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.generateMipmaps = true;
+    texture.minFilter = THREE.LinearMipmapLinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+    texture.anisotropy = 16;
+    texture.needsUpdate = true;
+    this.spriteTextureCache.set(cacheKey, texture);
+    return texture;
+  }
+
+  getSculptedBillboardMaterial(value, isBomb = false, bombCountdown = 0, isWildcard = false) {
+    const isWild = !!isWildcard || value === 0;
+    const key = `sculpt_billboard_${this.currentTheme}_${value}_${isBomb}_${bombCountdown}_${isWild}_${this.isHyperNeon}`;
+    if (this.materialCache.has(key)) return this.materialCache.get(key);
+
+    const spriteTex = this.createSculptedSpriteTexture(value, isBomb, bombCountdown, isWild);
+    const spriteMat = new THREE.SpriteMaterial({
+      map: spriteTex,
+      transparent: true,
+      depthTest: false,
+      depthWrite: false
+    });
+    this.materialCache.set(key, spriteMat);
+    return spriteMat;
+  }
+
+  getSculptedBodyMaterial(value, isBomb = false, isWildcard = false) {
+    const isWild = !!isWildcard || value === 0;
+    const isLight = this.currentTheme === 'gentle_light' || this.currentTheme === 'zen_clay';
+    const key = `sculpt_body_${this.currentTheme}_${value}_${isBomb}_${isWild}_${this.isHyperNeon}`;
+    if (this.materialCache.has(key)) return this.materialCache.get(key);
+
+    const style = isWild
+      ? { bg: '#ec4899', emissive: '#38bdf8', intensity: 0.9, rim: '#fde047' }
+      : this.getStyle(value);
+    const baseCol = new THREE.Color(isBomb ? 0xdc2626 : style.bg);
+    const emissiveCol = isBomb
+      ? new THREE.Color(0xef4444)
+      : (style.emissive && style.emissive !== '#000000' ? new THREE.Color(style.emissive) : baseCol);
+    const isHighMetallic = !isLight && !isBomb && (value >= 1024 || isWild);
+
+    const mat = new THREE.MeshPhysicalMaterial({
+      color: baseCol,
+      roughness: isLight ? 0.24 : (isHighMetallic ? 0.08 : 0.12),
+      metalness: isLight ? 0.14 : (isHighMetallic ? 0.72 : 0.36),
+      clearcoat: 1.0,
+      clearcoatRoughness: isLight ? 0.12 : 0.05,
+      reflectivity: 1.0,
+      emissive: emissiveCol,
+      emissiveIntensity: isBomb ? 0.78 : (isLight ? 0.04 : (this.isHyperNeon ? 0.72 : 0.38))
+    });
+    this.materialCache.set(key, mat);
+    return mat;
+  }
+
+  getSculptedAccentMaterial(value, isBomb = false, isWildcard = false) {
+    const isWild = !!isWildcard || value === 0;
+    const isLight = this.currentTheme === 'gentle_light' || this.currentTheme === 'zen_clay';
+    const key = `sculpt_accent_${this.currentTheme}_${value}_${isBomb}_${isWild}_${this.isHyperNeon}`;
+    if (this.materialCache.has(key)) return this.materialCache.get(key);
+
+    let accentHex = 0xe2e8f0;
+    let emissiveHex = 0x94a3b8;
+    if (isBomb) {
+      accentHex = 0xfef08a;
+      emissiveHex = 0xf59e0b;
+    } else if (isWild) {
+      accentHex = 0xfef08a;
+      emissiveHex = 0xec4899;
+    } else if (value >= 2048) {
+      accentHex = 0xffd700;
+      emissiveHex = 0xd97706;
+    } else if (value === 1024) {
+      accentHex = 0xe0f2fe;
+      emissiveHex = 0x38bdf8;
+    } else if (isLight) {
+      accentHex = 0xfffbeb;
+      emissiveHex = 0xd6d3d1;
+    } else {
+      const style = this.getStyle(value);
+      accentHex = new THREE.Color(style.rim || '#f8fafc').getHex();
+      emissiveHex = new THREE.Color(style.emissive && style.emissive !== '#000000' ? style.emissive : style.bg).getHex();
+    }
+
+    const mat = new THREE.MeshPhysicalMaterial({
+      color: accentHex,
+      roughness: isLight ? 0.18 : 0.07,
+      metalness: isLight ? 0.45 : 0.94,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.04,
+      reflectivity: 1.0,
+      emissive: emissiveHex,
+      emissiveIntensity: isBomb ? 0.75 : (isLight ? 0.08 : 0.42)
+    });
+    this.materialCache.set(key, mat);
+    return mat;
+  }
+
+  getSculptedNodeMaterial(value, isBomb = false, isWildcard = false) {
+    const isWild = !!isWildcard || value === 0;
+    const isLight = this.currentTheme === 'gentle_light' || this.currentTheme === 'zen_clay';
+    const key = `sculpt_node_${this.currentTheme}_${value}_${isBomb}_${isWild}_${this.isHyperNeon}`;
+    if (this.materialCache.has(key)) return this.materialCache.get(key);
+
+    const style = isWild
+      ? { bg: '#38bdf8', emissive: '#fde047', rim: '#ffffff' }
+      : this.getStyle(value);
+    const nodeColor = isBomb
+      ? new THREE.Color(0xfef08a)
+      : new THREE.Color(value >= 2048 ? 0xfffbeb : (style.rim || '#ffffff'));
+    const emissiveColor = isBomb
+      ? new THREE.Color(0xff453a)
+      : new THREE.Color(style.emissive && style.emissive !== '#000000' ? style.emissive : style.bg);
+
+    const mat = new THREE.MeshPhysicalMaterial({
+      color: nodeColor,
+      roughness: 0.05,
+      metalness: 0.25,
+      clearcoat: 1.0,
+      emissive: emissiveColor,
+      emissiveIntensity: isBomb ? 1.2 : (isLight ? 0.22 : 1.05)
+    });
+    this.materialCache.set(key, mat);
+    return mat;
+  }
+
   getBombRingMaterial() {
     const key = 'bomb_ring_mat';
     if (this.materialCache.has(key)) return this.materialCache.get(key);

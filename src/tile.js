@@ -32,6 +32,9 @@ const sharedGeos = {
   capsuleRing: null,
   torusKnot: null,
   knotHalo: null,
+  sculptRing: null,
+  sculptKnot: null,
+  sculptSphere: null,
   portalRingOuter: null,
   portalRingInner: null,
   portalBead: null,
@@ -125,7 +128,7 @@ function getSharedTorus() {
 
 function getSharedBombRing() {
   if (!sharedGeos.bombRing) {
-    sharedGeos.bombRing = new THREE.TorusGeometry(1.0, 0.07, 8, 18);
+    sharedGeos.bombRing = new THREE.TorusGeometry(1.0, 0.055, 14, 64);
   }
   return sharedGeos.bombRing;
 }
@@ -192,6 +195,50 @@ function getSharedTorusKnot() {
     sharedGeos.knotHalo = new THREE.TorusGeometry(1.25, 0.04, 8, 24);
   }
   return { geo: sharedGeos.torusKnot, haloGeo: sharedGeos.knotHalo };
+}
+
+function getSharedSculptedRing() {
+  if (!sharedGeos.sculptRing) {
+    sharedGeos.sculptRing = {
+      body: new THREE.TorusGeometry(0.64, 0.21, 32, 72),
+      bevel: new THREE.TorusGeometry(0.64, 0.048, 16, 72),
+      innerFilament: new THREE.TorusGeometry(0.45, 0.024, 14, 64),
+      clasp: new THREE.CylinderGeometry(0.088, 0.088, 0.44, 16),
+      gem: new THREE.OctahedronGeometry(0.082, 0),
+      gyro: new THREE.TorusGeometry(0.92, 0.032, 16, 72),
+      orbiter: new THREE.SphereGeometry(0.068, 14, 14)
+    };
+  }
+  return sharedGeos.sculptRing;
+}
+
+function getSharedSculptedKnot() {
+  if (!sharedGeos.sculptKnot) {
+    sharedGeos.sculptKnot = {
+      body: new THREE.TorusKnotGeometry(0.54, 0.155, 144, 28, 2, 3),
+      coreGem: new THREE.IcosahedronGeometry(0.24, 0),
+      haloOuter: new THREE.TorusGeometry(0.92, 0.032, 16, 72),
+      haloInner: new THREE.TorusGeometry(0.84, 0.022, 14, 64),
+      node: new THREE.OctahedronGeometry(0.08, 0)
+    };
+  }
+  return sharedGeos.sculptKnot;
+}
+
+function getSharedSculptedSphere() {
+  if (!sharedGeos.sculptSphere) {
+    sharedGeos.sculptSphere = {
+      orb: new THREE.SphereGeometry(0.62, 48, 48),
+      belt: new THREE.TorusGeometry(0.635, 0.036, 16, 64),
+      stud: new THREE.SphereGeometry(0.055, 12, 12),
+      ring1: new THREE.TorusGeometry(0.79, 0.030, 16, 64),
+      ring2: new THREE.TorusGeometry(0.93, 0.032, 16, 72),
+      ring3: new THREE.TorusGeometry(1.01, 0.024, 16, 72),
+      diamondNode: new THREE.OctahedronGeometry(0.072, 0),
+      pearlNode: new THREE.SphereGeometry(0.064, 14, 14)
+    };
+  }
+  return sharedGeos.sculptSphere;
 }
 
 function getSharedPortalNexus() {
@@ -307,11 +354,16 @@ export class Tile3D {
 
   disposeClonedMaterials() {
     if (this.innerMesh) {
-      if (Array.isArray(this.innerMesh.material)) {
-        this.innerMesh.material.forEach(m => m.dispose && m.dispose());
-      } else if (this.innerMesh.material && this.innerMesh.material.dispose) {
-        this.innerMesh.material.dispose();
-      }
+      this.innerMesh.traverse((child) => {
+        if (child === this.bombRing || child === this.contactShadowMesh) return;
+        if (child.material) {
+          if (Array.isArray(child.material)) {
+            child.material.forEach(m => m && m.dispose && m.dispose());
+          } else if (child.material.dispose) {
+            child.material.dispose();
+          }
+        }
+      });
     }
     if (this.labelSprite) {
       if (this.labelSprite.material && this.labelSprite.material.dispose) {
@@ -348,9 +400,11 @@ export class Tile3D {
     this.ring2 = null;
     this.ring3 = null;
     this.torusOuterRing = null;
+    this.torusInnerGroup = null;
     this.capsuleRing1 = null;
     this.capsuleRing2 = null;
     this.knotHalo = null;
+    this.knotInnerHalo = null;
     this.portalOuter = null;
     this.portalInner = null;
     this.portalBeadGroup = null;
@@ -400,40 +454,62 @@ export class Tile3D {
 
       this.addBillboardLabel(size);
     } else if (effShape === 'core_sphere') {
-      const radius = size * 0.5;
-      const geo = getSharedSphere();
-      const mat = textureManager.getSphereMaterial(this.value, this.isBomb);
-      this.innerMesh = new THREE.Mesh(geo, mat.clone());
-      this.innerMesh.scale.set(radius * 0.82, radius * 0.82, radius * 0.82);
+      const radius = size * 0.49;
+      const g = getSharedSculptedSphere();
+      const bodyMat = textureManager.getSculptedBodyMaterial(this.value, this.isBomb, this.isWildcard);
+      const accentMat = textureManager.getSculptedAccentMaterial(this.value, this.isBomb, this.isWildcard);
+      const nodeMat = textureManager.getSculptedNodeMaterial(this.value, this.isBomb, this.isWildcard);
+
+      this.innerMesh = new THREE.Mesh(g.orb, bodyMat.clone());
+      this.innerMesh.scale.set(radius, radius, radius);
       this.group.add(this.innerMesh);
 
-      // Dual Gimbal Orbit Rings
-      const torusGeo = getSharedTorus();
-      const torusMat = textureManager.getTorusMaterial(this.value, this.isBomb);
+      // Hugging Equatorial Metallic Collar + 4 Bezel Rivets
+      const belt = new THREE.Mesh(g.belt, accentMat.clone());
+      belt.rotation.x = Math.PI / 2;
+      for (let i = 0; i < 4; i++) {
+        const a = (i / 4) * Math.PI * 2;
+        const stud = new THREE.Mesh(g.stud, nodeMat.clone());
+        stud.position.set(Math.cos(a) * 0.65, Math.sin(a) * 0.65, 0);
+        belt.add(stud);
+      }
+      this.innerMesh.add(belt);
 
-      const ring1 = new THREE.Mesh(torusGeo, torusMat.clone());
-      ring1.scale.set(radius * 0.85, radius * 0.85, radius * 0.85);
-      ring1.rotation.x = Math.PI / 4;
-      ring1.rotation.y = Math.PI / 6;
+      // Precision Astrolabe Gimbal Ring 1 (carries 2 opposite diamond nodes)
+      const ring1 = new THREE.Mesh(g.ring1, accentMat.clone());
+      ring1.scale.set(radius, radius, radius);
+      ring1.rotation.set(Math.PI / 3.4, Math.PI / 6, 0);
+      for (const s of [-1, 1]) {
+        const gem = new THREE.Mesh(g.diamondNode, nodeMat.clone());
+        gem.position.set(s * 0.79, 0, 0);
+        ring1.add(gem);
+      }
       this.decorGroup.add(ring1);
       this.ring1 = ring1;
 
-      const ring2 = new THREE.Mesh(torusGeo, torusMat.clone());
-      ring2.scale.set(radius * 0.96, radius * 0.96, radius * 0.96);
-      ring2.rotation.x = -Math.PI / 4;
-      ring2.rotation.z = Math.PI / 3;
+      // Celestial Astrolabe Gimbal Ring 2 (carries 4 glowing orbital pearls)
+      const ring2 = new THREE.Mesh(g.ring2, accentMat.clone());
+      ring2.scale.set(radius, radius, radius);
+      ring2.rotation.set(-Math.PI / 3.2, 0, Math.PI / 4);
+      for (let i = 0; i < 4; i++) {
+        const a = (i / 4) * Math.PI * 2;
+        const pearl = new THREE.Mesh(g.pearlNode, nodeMat.clone());
+        pearl.position.set(Math.cos(a) * 0.93, Math.sin(a) * 0.93, 0);
+        ring2.add(pearl);
+      }
       this.decorGroup.add(ring2);
       this.ring2 = ring2;
 
-      if (this.value >= 2048 && !this.isBomb) {
-        const ring3 = new THREE.Mesh(torusGeo, torusMat.clone());
-        ring3.scale.set(radius * 1.08, radius * 1.08, radius * 1.08);
+      // Sovereign 2048+ Meridian Gyro Ring 3
+      if ((this.value >= 2048 || this.isWildcard) && !this.isBomb) {
+        const ring3 = new THREE.Mesh(g.ring3, nodeMat.clone());
+        ring3.scale.set(radius, radius, radius);
         ring3.rotation.x = Math.PI / 2;
         this.decorGroup.add(ring3);
         this.ring3 = ring3;
       }
 
-      this.addBillboardLabel(size);
+      this.addBillboardLabel(size, { sculpted: true, scaleFactor: 0.64 });
     } else if (effShape === 'hex_prism') {
       const radius = size * 0.46;
       const h = height * 0.90;
@@ -503,24 +579,56 @@ export class Tile3D {
 
       this.addBillboardLabel(size);
     } else if (effShape === 'plasma_torus') {
-      const radius = size * 0.48;
-      const { geo, outerGeo } = getSharedPlasmaTorus();
-      const mat = textureManager.getOctahedronMaterial(this.value, this.isBomb);
-      this.innerMesh = new THREE.Mesh(geo, mat.clone());
+      const radius = size * 0.49;
+      const g = getSharedSculptedRing();
+      const bodyMat = textureManager.getSculptedBodyMaterial(this.value, this.isBomb, this.isWildcard);
+      const accentMat = textureManager.getSculptedAccentMaterial(this.value, this.isBomb, this.isWildcard);
+      const nodeMat = textureManager.getSculptedNodeMaterial(this.value, this.isBomb, this.isWildcard);
+
+      this.innerMesh = new THREE.Mesh(g.body, bodyMat.clone());
       this.innerMesh.scale.set(radius, radius, radius);
       this.innerMesh.rotation.x = Math.PI / 2;
       this.group.add(this.innerMesh);
 
-      // Spinning outer accent ring
-      const torusMat = textureManager.getTorusMaterial(this.value, this.isBomb);
-      const outerRing = new THREE.Mesh(outerGeo, torusMat.clone());
-      outerRing.scale.set(radius * 0.95, radius * 0.95, radius * 0.95);
-      outerRing.rotation.x = Math.PI / 3;
-      outerRing.rotation.y = Math.PI / 6;
+      // Sculpted Upper & Lower Metallic Bezel Trim Collars
+      const topRim = new THREE.Mesh(g.bevel, accentMat.clone());
+      topRim.position.z = -0.175;
+      this.innerMesh.add(topRim);
+
+      const botRim = new THREE.Mesh(g.bevel, accentMat.clone());
+      botRim.position.z = 0.175;
+      this.innerMesh.add(botRim);
+
+      // Luminous Inner Energy Bore Filament Framing Hollow Center
+      const innerFilament = new THREE.Mesh(g.innerFilament, nodeMat.clone());
+      this.innerMesh.add(innerFilament);
+
+      // 4 Radial Clasp Sleeves + Faceted Jewel Studs Around the Torus Waist
+      for (let i = 0; i < 4; i++) {
+        const a = (i / 4) * Math.PI * 2;
+        const clasp = new THREE.Mesh(g.clasp, accentMat.clone());
+        clasp.position.set(Math.cos(a) * 0.64, Math.sin(a) * 0.64, 0);
+        clasp.rotation.z = a;
+        this.innerMesh.add(clasp);
+
+        const gem = new THREE.Mesh(g.gem, nodeMat.clone());
+        gem.position.set(Math.cos(a) * 0.88, Math.sin(a) * 0.88, 0);
+        this.innerMesh.add(gem);
+      }
+
+      // Tilted Precision Outer Gyro Ring + Dual Orbiting Pearls
+      const outerRing = new THREE.Mesh(g.gyro, accentMat.clone());
+      outerRing.scale.set(radius, radius, radius);
+      outerRing.rotation.set(Math.PI / 3.2, Math.PI / 7, 0);
+      for (const s of [-1, 1]) {
+        const orb = new THREE.Mesh(g.orbiter, nodeMat.clone());
+        orb.position.set(s * 0.92, 0, 0);
+        outerRing.add(orb);
+      }
       this.decorGroup.add(outerRing);
       this.torusOuterRing = outerRing;
 
-      this.addBillboardLabel(size);
+      this.addBillboardLabel(size, { sculpted: true, scaleFactor: 0.56 });
     } else if (effShape === 'prism_triangle') {
       const radius = size * 0.45;
       const h = height * 0.88;
@@ -590,22 +698,41 @@ export class Tile3D {
 
       this.addBillboardLabel(size);
     } else if (effShape === 'quantum_knot') {
-      const radius = size * 0.50;
-      const { geo, haloGeo } = getSharedTorusKnot();
-      const mat = textureManager.getSphereMaterial(this.value, this.isBomb);
-      this.innerMesh = new THREE.Mesh(geo, mat.clone());
+      const radius = size * 0.48;
+      const g = getSharedSculptedKnot();
+      const bodyMat = textureManager.getSculptedBodyMaterial(this.value, this.isBomb, this.isWildcard);
+      const accentMat = textureManager.getSculptedAccentMaterial(this.value, this.isBomb, this.isWildcard);
+      const nodeMat = textureManager.getSculptedNodeMaterial(this.value, this.isBomb, this.isWildcard);
+
+      this.innerMesh = new THREE.Mesh(g.body, bodyMat.clone());
       this.innerMesh.scale.set(radius, radius, radius);
       this.group.add(this.innerMesh);
 
-      // Outer accent gimbal halo
-      const torusMat = textureManager.getTorusMaterial(this.value, this.isBomb);
-      const halo = new THREE.Mesh(haloGeo, torusMat.clone());
-      halo.scale.set(radius * 0.92, radius * 0.92, radius * 0.92);
+      // Glowing Faceted Energy Heart Seated Inside Trefoil Cavity
+      const coreCrystal = new THREE.Mesh(g.coreGem, nodeMat.clone());
+      this.innerMesh.add(coreCrystal);
+
+      // Primary Precision Gimbal Halo Ring with 3-Fold Diamond Nodes (Matching Trefoil Symmetry)
+      const halo = new THREE.Mesh(g.haloOuter, accentMat.clone());
+      halo.scale.set(radius, radius, radius);
       halo.rotation.x = Math.PI / 3;
+      for (let i = 0; i < 3; i++) {
+        const a = (i / 3) * Math.PI * 2;
+        const bead = new THREE.Mesh(g.node, nodeMat.clone());
+        bead.position.set(Math.cos(a) * 0.92, Math.sin(a) * 0.92, 0);
+        halo.add(bead);
+      }
       this.decorGroup.add(halo);
       this.knotHalo = halo;
 
-      this.addBillboardLabel(size);
+      // Secondary Cross-Tilted Inner Orbital Filament
+      const innerHalo = new THREE.Mesh(g.haloInner, nodeMat.clone());
+      innerHalo.scale.set(radius, radius, radius);
+      innerHalo.rotation.set(-Math.PI / 3.5, Math.PI / 4, 0);
+      this.decorGroup.add(innerHalo);
+      this.knotInnerHalo = innerHalo;
+
+      this.addBillboardLabel(size, { sculpted: true, scaleFactor: 0.62 });
     } else if (effShape === 'portal_nexus') {
       const radius = size * 0.50;
       const { outerRing, innerRing, bead } = getSharedPortalNexus();
@@ -743,7 +870,7 @@ export class Tile3D {
       const bombGeo = getSharedBombRing();
       const bombMat = textureManager.getBombRingMaterial();
       this.bombRing = new THREE.Mesh(bombGeo, bombMat);
-      this.bombRing.scale.set(size * 0.7, size * 0.7, size * 0.7);
+      this.bombRing.scale.set(size * 0.54, size * 0.54, size * 0.54);
       this.bombRing.rotation.x = Math.PI / 2;
       this.decorGroup.add(this.bombRing);
     }
@@ -848,9 +975,13 @@ export class Tile3D {
     this.ring2 = r2;
   }
 
-  addBillboardLabel(size) {
+  addBillboardLabel(size, options = {}) {
     const is3D = getBoardMode() === '3x3x3';
-    const spriteMat = textureManager.getBillboardMaterial(this.value, this.isBomb, this.bombCountdown, this.isWildcard);
+    const isSculpted = !!options.sculpted;
+    const scaleFactor = options.scaleFactor || (is3D ? 0.85 : 0.9);
+    const spriteMat = isSculpted
+      ? textureManager.getSculptedBillboardMaterial(this.value, this.isBomb, this.bombCountdown, this.isWildcard)
+      : textureManager.getBillboardMaterial(this.value, this.isBomb, this.bombCountdown, this.isWildcard);
     const clonedMat = spriteMat.clone();
 
     if (is3D) {
@@ -858,7 +989,7 @@ export class Tile3D {
       clonedMat.depthTest = true;
       clonedMat.depthWrite = false;
       this.labelSprite = new THREE.Sprite(clonedMat);
-      this.labelSprite.scale.set(size * 0.85, size * 0.85, 1);
+      this.labelSprite.scale.set(size * scaleFactor, size * scaleFactor, 1);
       this.labelSprite.position.set(0, 0, 0);
       this.labelSprite.renderOrder = 30 + (this.layer || 0) * 10;
 
@@ -877,7 +1008,7 @@ export class Tile3D {
       }
     } else {
       this.labelSprite = new THREE.Sprite(clonedMat);
-      this.labelSprite.scale.set(size * 0.9, size * 0.9, 1);
+      this.labelSprite.scale.set(size * scaleFactor, size * scaleFactor, 1);
       this.labelSprite.position.set(0, 0, 0);
       this.labelSprite.renderOrder = 999;
     }
@@ -1267,9 +1398,10 @@ export class Tile3D {
     } else if (effShape === 'quantum_knot') {
       if (this.innerMesh) {
         this.innerMesh.rotation.y += delta * 1.1;
-        this.innerMesh.rotation.x += delta * 0.6;
+        this.innerMesh.rotation.x += delta * 0.55;
       }
       if (this.knotHalo) this.knotHalo.rotation.z -= delta * 1.4;
+      if (this.knotInnerHalo) this.knotInnerHalo.rotation.y += delta * 1.8;
     } else if (effShape === 'portal_nexus') {
       if (this.portalOuter) this.portalOuter.rotation.z += delta * 1.2;
       if (this.portalInner) this.portalInner.rotation.z -= delta * 1.6;
