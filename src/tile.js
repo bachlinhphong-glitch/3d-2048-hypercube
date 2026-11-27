@@ -185,10 +185,15 @@ function getSharedIcosahedron() {
 
 function getSharedCapsule() {
   if (!sharedGeos.capsule) {
-    sharedGeos.capsule = new THREE.CapsuleGeometry(0.55, 0.5, 10, 18);
-    sharedGeos.capsuleRing = new THREE.TorusGeometry(0.85, 0.04, 8, 20);
+    const body = new THREE.CapsuleGeometry(0.41, 0.60, 24, 56);
+    body.rotateZ(Math.PI / 2);
+    const core = new THREE.CapsuleGeometry(0.22, 0.42, 16, 40);
+    core.rotateZ(Math.PI / 2);
+    const seamBelt = new THREE.TorusGeometry(0.425, 0.024, 16, 64);
+    seamBelt.rotateY(Math.PI / 2);
+    sharedGeos.capsule = { body, core, seamBelt };
   }
-  return { geo: sharedGeos.capsule, ringGeo: sharedGeos.capsuleRing };
+  return sharedGeos.capsule;
 }
 
 function getSharedTorusKnot() {
@@ -202,13 +207,8 @@ function getSharedTorusKnot() {
 function getSharedSculptedRing() {
   if (!sharedGeos.sculptRing) {
     sharedGeos.sculptRing = {
-      body: new THREE.TorusGeometry(0.64, 0.21, 32, 72),
-      bevel: new THREE.TorusGeometry(0.64, 0.048, 16, 72),
-      innerFilament: new THREE.TorusGeometry(0.45, 0.024, 14, 64),
-      clasp: new THREE.CylinderGeometry(0.088, 0.088, 0.44, 16),
-      gem: new THREE.OctahedronGeometry(0.082, 0),
-      gyro: new THREE.TorusGeometry(0.92, 0.032, 16, 72),
-      orbiter: new THREE.SphereGeometry(0.068, 14, 14)
+      body: new THREE.TorusGeometry(0.66, 0.175, 40, 88),
+      innerRim: new THREE.TorusGeometry(0.495, 0.022, 16, 80)
     };
   }
   return sharedGeos.sculptRing;
@@ -460,6 +460,7 @@ export class Tile3D {
     this.ring3 = null;
     this.torusOuterRing = null;
     this.torusInnerGroup = null;
+    this._ringPhase = 0;
     this.capsuleRing1 = null;
     this.capsuleRing2 = null;
     this.knotHalo = null;
@@ -659,54 +660,19 @@ export class Tile3D {
 
       this.addBillboardLabel(size);
     } else if (effShape === 'plasma_torus') {
-      const radius = size * 0.49;
+      const radius = size * 0.50;
       const g = getSharedSculptedRing();
       const bodyMat = textureManager.getSculptedBodyMaterial(this.value, this.isBomb, this.isWildcard);
-      const accentMat = textureManager.getSculptedAccentMaterial(this.value, this.isBomb, this.isWildcard);
       const nodeMat = textureManager.getSculptedNodeMaterial(this.value, this.isBomb, this.isWildcard);
 
+      // Minimalist Luxury Sculpted Torus Ring + Slim Inner Luminous Bore Rim
       this.innerMesh = new THREE.Mesh(g.body, bodyMat.clone());
       this.innerMesh.scale.set(radius, radius, radius);
-      this.innerMesh.rotation.x = Math.PI / 2;
+      this.innerMesh.rotation.set(Math.PI / 2 + 0.14, 0.12, 0);
       this.group.add(this.innerMesh);
 
-      // Sculpted Upper & Lower Metallic Bezel Trim Collars
-      const topRim = new THREE.Mesh(g.bevel, accentMat.clone());
-      topRim.position.z = -0.175;
-      this.innerMesh.add(topRim);
-
-      const botRim = new THREE.Mesh(g.bevel, accentMat.clone());
-      botRim.position.z = 0.175;
-      this.innerMesh.add(botRim);
-
-      // Luminous Inner Energy Bore Filament Framing Hollow Center
-      const innerFilament = new THREE.Mesh(g.innerFilament, nodeMat.clone());
-      this.innerMesh.add(innerFilament);
-
-      // 4 Radial Clasp Sleeves + Faceted Jewel Studs Around the Torus Waist
-      for (let i = 0; i < 4; i++) {
-        const a = (i / 4) * Math.PI * 2;
-        const clasp = new THREE.Mesh(g.clasp, accentMat.clone());
-        clasp.position.set(Math.cos(a) * 0.64, Math.sin(a) * 0.64, 0);
-        clasp.rotation.z = a;
-        this.innerMesh.add(clasp);
-
-        const gem = new THREE.Mesh(g.gem, nodeMat.clone());
-        gem.position.set(Math.cos(a) * 0.88, Math.sin(a) * 0.88, 0);
-        this.innerMesh.add(gem);
-      }
-
-      // Tilted Precision Outer Gyro Ring + Dual Orbiting Pearls
-      const outerRing = new THREE.Mesh(g.gyro, accentMat.clone());
-      outerRing.scale.set(radius, radius, radius);
-      outerRing.rotation.set(Math.PI / 3.2, Math.PI / 7, 0);
-      for (const s of [-1, 1]) {
-        const orb = new THREE.Mesh(g.orbiter, nodeMat.clone());
-        orb.position.set(s * 0.92, 0, 0);
-        outerRing.add(orb);
-      }
-      this.decorGroup.add(outerRing);
-      this.torusOuterRing = outerRing;
+      const innerRim = new THREE.Mesh(g.innerRim, nodeMat.clone());
+      this.innerMesh.add(innerRim);
 
       this.addBillboardLabel(size, { sculpted: true, scaleFactor: 0.56 });
     } else if (effShape === 'prism_triangle') {
@@ -768,30 +734,27 @@ export class Tile3D {
 
       this.addBillboardLabel(size);
     } else if (effShape === 'chrono_capsule') {
-      const radius = size * 0.52;
-      const { geo, ringGeo } = getSharedCapsule();
-      const mat = textureManager.getSphereMaterial(this.value, this.isBomb);
-      this.innerMesh = new THREE.Mesh(geo, mat.clone());
+      const radius = size * 0.50;
+      const g = getSharedCapsule();
+      const shellMat = textureManager.getSculptedCrystalMaterial(this.value, this.isBomb, this.isWildcard, true);
+      const coreMat = textureManager.getSculptedNodeMaterial(this.value, this.isBomb, this.isWildcard);
+      const beltMat = textureManager.getSculptedAccentMaterial(this.value, this.isBomb, this.isWildcard);
+
+      // Minimalist Horizontal Glass Ampoule Capsule + Glowing Core Pill + Single Waist Collar
+      this.innerMesh = new THREE.Mesh(g.body, shellMat.clone());
       this.innerMesh.scale.set(radius, radius, radius);
+      this.innerMesh.rotation.y = Math.PI / 5;
+      this.innerMesh.renderOrder = 2;
       this.group.add(this.innerMesh);
 
-      // Dual tilted stabilizer rings
-      const torusMat = textureManager.getTorusMaterial(this.value, this.isBomb);
-      const ring1 = new THREE.Mesh(ringGeo, torusMat.clone());
-      ring1.scale.set(radius, radius, radius);
-      ring1.rotation.x = Math.PI / 4;
-      ring1.rotation.y = Math.PI / 6;
-      this.decorGroup.add(ring1);
-      this.capsuleRing1 = ring1;
+      const corePill = new THREE.Mesh(g.core, coreMat.clone());
+      corePill.renderOrder = 1;
+      this.innerMesh.add(corePill);
 
-      const ring2 = new THREE.Mesh(ringGeo, torusMat.clone());
-      ring2.scale.set(radius * 0.95, radius * 0.95, radius * 0.95);
-      ring2.rotation.x = -Math.PI / 4;
-      ring2.rotation.y = -Math.PI / 6;
-      this.decorGroup.add(ring2);
-      this.capsuleRing2 = ring2;
+      const seamBelt = new THREE.Mesh(g.seamBelt, beltMat.clone());
+      this.innerMesh.add(seamBelt);
 
-      this.addBillboardLabel(size);
+      this.addBillboardLabel(size, { sculpted: true, scaleFactor: 0.56 });
     } else if (effShape === 'quantum_knot') {
       const radius = size * 0.48;
       const g = getSharedSculptedKnot();
@@ -1482,8 +1445,11 @@ export class Tile3D {
       this.decorGroup.rotation.y += delta * 0.65;
       this.decorGroup.rotation.x += delta * 0.35;
     } else if (effShape === 'plasma_torus') {
-      if (this.innerMesh) this.innerMesh.rotation.z += delta * 1.2;
-      if (this.torusOuterRing) this.torusOuterRing.rotation.z -= delta * 1.6;
+      if (this.innerMesh) {
+        this._ringPhase = (this._ringPhase || 0) + delta * 1.4;
+        this.innerMesh.rotation.x = Math.PI / 2 + Math.sin(this._ringPhase) * 0.16;
+        this.innerMesh.rotation.y = Math.cos(this._ringPhase) * 0.16;
+      }
     } else if (effShape === 'prism_triangle') {
       if (this.innerMesh) this.innerMesh.rotation.y += delta * 0.55;
       if (this.prismCore) this.prismCore.rotation.y -= delta * 0.95;
@@ -1493,9 +1459,7 @@ export class Tile3D {
       this.decorGroup.rotation.y += delta * 0.7;
       this.decorGroup.rotation.x += delta * 0.4;
     } else if (effShape === 'chrono_capsule') {
-      if (this.innerMesh) this.innerMesh.rotation.y += delta * 0.5;
-      if (this.capsuleRing1) this.capsuleRing1.rotation.z += delta * 1.8;
-      if (this.capsuleRing2) this.capsuleRing2.rotation.z -= delta * 1.5;
+      if (this.innerMesh) this.innerMesh.rotation.y += delta * 0.65;
     } else if (effShape === 'quantum_knot') {
       if (this.innerMesh) {
         this.innerMesh.rotation.y += delta * 1.1;

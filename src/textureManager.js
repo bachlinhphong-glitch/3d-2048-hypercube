@@ -964,10 +964,10 @@ export class TextureManager {
     return mat;
   }
 
-  getSculptedCrystalMaterial(value, isBomb = false, isWildcard = false) {
+  getSculptedCrystalMaterial(value, isBomb = false, isWildcard = false, smooth = false) {
     const isWild = !!isWildcard || value === 0;
     const isLight = this.currentTheme === 'gentle_light' || this.currentTheme === 'zen_clay';
-    const key = `sculpt_crystal_v2_${this.currentTheme}_${value}_${isBomb}_${isWild}_${this.isHyperNeon}`;
+    const key = `sculpt_crystal_v2_${this.currentTheme}_${value}_${isBomb}_${isWild}_${this.isHyperNeon}_${smooth}`;
     if (this.materialCache.has(key)) return this.materialCache.get(key);
 
     const style = isWild
@@ -980,7 +980,7 @@ export class TextureManager {
 
     const mat = new THREE.MeshPhysicalMaterial({
       color: baseCol,
-      flatShading: true,
+      flatShading: !smooth,
       roughness: isLight ? 0.14 : 0.04,
       metalness: isLight ? 0.04 : 0.10,
       clearcoat: 1.0,
